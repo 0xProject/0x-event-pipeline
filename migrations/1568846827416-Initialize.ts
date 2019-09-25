@@ -56,6 +56,19 @@ const eventsStakingPoolCreatedEventsTable = new Table({
     ],
 });
 
+const eventsStakingPoolActivatedEventsTable = new Table({
+    name: 'events.staking_pool_activated_events',
+    columns: [
+        { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'log_index', type: 'bigint', isPrimary: true },
+        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_number', type: 'bigint' },
+        { name: 'epoch_id', type: 'bigint' },
+        { name: 'pool_id', type: 'varchar' },
+    ],
+});
+
 const eventsPendingAddMakerToPoolEventsTable = new Table({
     name: 'events.pending_add_maker_to_pool_events',
     columns: [
@@ -95,8 +108,8 @@ const eventsMakerRemovedFromStakingPoolEventsTable = new Table({
     ],
 });
 
-const eventsStakingParamsChangedEventsTable = new Table({
-    name: 'events.staking_params_changed_events',
+const eventsParamsSetTable = new Table({
+    name: 'events.params_set_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
@@ -108,10 +121,7 @@ const eventsStakingParamsChangedEventsTable = new Table({
         { name: 'minimum_pool_stake', type: 'bigint' },
         { name: 'maximum_makers_in_pool', type: 'bigint' },
         { name: 'cobb_douglas_alpa_numerator', type: 'bigint' },
-        { name: 'weth_proxy_address', type: 'varchar' },
-        { name: 'eth_vault_address', type: 'varchar' },
-        { name: 'reward_vault_address', type: 'varchar' },
-        { name: 'zrx_vault_address', type: 'varchar' },
+        { name: 'cobb_douglas_alpa_denominator', type: 'bigint' },
     ],
 });
 
@@ -349,10 +359,11 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.createTable(eventsUnstakeEventsTable);
         await queryRunner.createTable(eventsMoveStakeEventsTable);
         await queryRunner.createTable(eventsStakingPoolCreatedEventsTable);
+        await queryRunner.createTable(eventsStakingPoolActivatedEventsTable);
         await queryRunner.createTable(eventsPendingAddMakerToPoolEventsTable);
         await queryRunner.createTable(eventsMakerAddedToStakingPoolEventsTable);
         await queryRunner.createTable(eventsMakerRemovedFromStakingPoolEventsTable);
-        await queryRunner.createTable(eventsStakingParamsChangedEventsTable);
+        await queryRunner.createTable(eventsParamsSetTable);
         await queryRunner.createTable(eventsOperatorShareDecreasedEventsTable);
         await queryRunner.createTable(eventsEpochEndedEventsTable);
         await queryRunner.createTable(eventsEpochFinalizedEventsTable);
@@ -376,10 +387,11 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropTable(eventsUnstakeEventsTable);
         await queryRunner.dropTable(eventsMoveStakeEventsTable);
         await queryRunner.dropTable(eventsStakingPoolCreatedEventsTable);
+        await queryRunner.dropTable(eventsStakingPoolActivatedEventsTable);
         await queryRunner.dropTable(eventsPendingAddMakerToPoolEventsTable);
         await queryRunner.dropTable(eventsMakerAddedToStakingPoolEventsTable);
         await queryRunner.dropTable(eventsMakerRemovedFromStakingPoolEventsTable);
-        await queryRunner.dropTable(eventsStakingParamsChangedEventsTable);
+        await queryRunner.dropTable(eventsParamsSetTable);
         await queryRunner.dropTable(eventsOperatorShareDecreasedEventsTable);
         await queryRunner.dropTable(eventsEpochEndedEventsTable);
         await queryRunner.dropTable(eventsEpochFinalizedEventsTable);
