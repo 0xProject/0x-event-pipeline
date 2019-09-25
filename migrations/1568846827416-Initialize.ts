@@ -69,7 +69,7 @@ const eventsPendingAddMakerToPoolEventsTable = new Table({
     ],
 });
 
-const eventsMakerAddedToStakingPoolEvents = new Table({
+const eventsMakerAddedToStakingPoolEventsTable = new Table({
     name: 'events.maker_added_to_staking_pool_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -82,7 +82,7 @@ const eventsMakerAddedToStakingPoolEvents = new Table({
     ],
 });
 
-const eventsMakerRemovedFromStakingPoolEvents = new Table({
+const eventsMakerRemovedFromStakingPoolEventsTable = new Table({
     name: 'events.maker_removed_from_staking_pool_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -95,7 +95,7 @@ const eventsMakerRemovedFromStakingPoolEvents = new Table({
     ],
 });
 
-const eventsStakingParamsChangedEvents = new Table({
+const eventsStakingParamsChangedEventsTable = new Table({
     name: 'events.staking_params_changed_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -115,7 +115,7 @@ const eventsStakingParamsChangedEvents = new Table({
     ],
 });
 
-const eventsOperatorShareDecreasedEvents = new Table({
+const eventsOperatorShareDecreasedEventsTable = new Table({
     name: 'events.operator_share_decreased_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -129,7 +129,7 @@ const eventsOperatorShareDecreasedEvents = new Table({
     ],
 });
 
-const eventsEpochEndedEvents = new Table({
+const eventsEpochEndedEventsTable = new Table({
     name: 'events.epoch_ended_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -145,7 +145,7 @@ const eventsEpochEndedEvents = new Table({
     ],
 });
 
-const eventsEpochFinalizedEvents = new Table({
+const eventsEpochFinalizedEventsTable = new Table({
     name: 'events.epoch_finalized_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -159,7 +159,7 @@ const eventsEpochFinalizedEvents = new Table({
     ],
 });
 
-const eventsRewardsPaidEvents = new Table({
+const eventsRewardsPaidEventsTable = new Table({
     name: 'events.rewards_paid_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -174,7 +174,7 @@ const eventsRewardsPaidEvents = new Table({
     ],
 });
 
-const eventsFillEvents = new Table({
+const eventsFillEventsTable = new Table({
     name: 'events.fill_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
@@ -201,7 +201,33 @@ const eventsFillEvents = new Table({
     ],
 });
 
-const eventsLastBlockProcessed = new Table({
+const eventsTransactionsTable = new Table({
+    name: 'events.transactions',
+    columns: [
+        { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_number', type: 'bigint' },
+        { name: 'transaction_index', type: 'bigint' },
+        { name: 'sender', type: 'varchar' },
+        { name: 'to_address', type: 'varchar' },
+        { name: 'gas_price', type: 'bigint' },
+        { name: 'gas_used', type: 'bigint' },
+        { name: 'input', type: 'varchar' },
+    ],
+});
+
+const eventsBlocksTable = new Table({
+    name: 'events.blocks',
+    columns: [
+        { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'block_hash', type: 'varchar' },
+        { name: 'block_number', type: 'bigint' },
+        { name: 'block_timestamp', type: 'bigint' },
+    ],
+});
+
+const eventsLastBlockProcessedTable = new Table({
     name: 'events.last_block_process',
     columns: [
         { name: 'event_name', type: 'varchar' },
@@ -211,7 +237,7 @@ const eventsLastBlockProcessed = new Table({
     ],
 });
 
-const stakingStakingPoolMetadata = new Table({
+const stakingStakingPoolMetadataTable = new Table({
     name: 'staking.staking_pool_metadata',
     columns: [
         { name: 'pool_id', type: 'varchar' },
@@ -224,35 +250,37 @@ const stakingStakingPoolMetadata = new Table({
     ],
 });
 
-const stakingCurrentEpochInfo = new Table({
+const stakingCurrentEpochInfoTable = new Table({
     name: 'staking.current_epoch_info',
     columns: [
         { name: 'epoch_id', type: 'bigint' },
         { name: 'start_time', type: 'timestamptz' },
-        { name: 'starting_block', type: 'bigint' },
+        { name: 'starting_block_number', type: 'bigint' },
         { name: 'starting_transaction_hash', type: 'varchar' },
+        { name: 'starting_transaction_index', type: 'bigint' },
         { name: 'total_fees_collected', type: 'numeric' },
         { name: 'total_zrx_staked', type: 'numeric' },
     ],
 });
 
-const stakingEpochs = new Table({
+const stakingEpochsTable = new Table({
     name: 'staking.epochs',
     columns: [
         { name: 'epoch_id', type: 'bigint' },
         { name: 'start_time', type: 'timestamptz' },
-        { name: 'end_time', type: 'timestamptz' },
+        { name: 'end_time', type: 'timestamptz', isNullable: true },
         { name: 'starting_block_number', type: 'bigint' },
-        { name: 'ending_block_number', type: 'bigint' },
+        { name: 'ending_block_number', type: 'bigint', isNullable: true },
         { name: 'starting_transaction_hash', type: 'varchar' },
-        { name: 'ending_transaction_hash', type: 'varchar' },
+        { name: 'ending_transaction_hash', type: 'varchar', isNullable: true },
         { name: 'starting_transaction_index', type: 'bigint' },
-        { name: 'ending_transaction_index', type: 'bigint' },
-        { name: 'total_fees_collected', type: 'numeric' },
+        { name: 'ending_transaction_index', type: 'bigint', isNullable: true },
+        { name: 'zrx_staked', type: 'numeric', isNullable: true },
+        { name: 'total_fees_collected', type: 'numeric', isNullable: true },
     ],
 });
 
-const stakingZrxStakingChanges = new Table({
+const stakingZrxStakingChangesTable = new Table({
     name: 'staking.zrx_staking_changes',
     columns: [
         { name: 'pool_id', type: 'varchar' },
@@ -264,7 +292,7 @@ const stakingZrxStakingChanges = new Table({
     ],
 });
 
-const stakingCurrentEpochPoolInfo = new Table({
+const stakingCurrentEpochPoolInfoTable = new Table({
     name: 'staking.current_epoch_pool_info',
     columns: [
         { name: 'epoch_id', type: 'bigint' },
@@ -277,7 +305,7 @@ const stakingCurrentEpochPoolInfo = new Table({
     ],
 });
 
-const stakingEpochStartPoolStatus = new Table({
+const stakingEpochStartPoolStatusTable = new Table({
     name: 'staking.epoch_start_pool_status',
     columns: [
         { name: 'epoch_id', type: 'bigint' },
@@ -289,8 +317,8 @@ const stakingEpochStartPoolStatus = new Table({
     ],
 });
 
-const stakingHistoricPoolEpochInfo = new Table({
-    name: 'staking.historic_pool_epoch_info',
+const stakingHistoricalPoolEpochInfoTable = new Table({
+    name: 'staking.historical_pool_epoch_info',
     columns: [
         { name: 'epoch_id', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
@@ -300,6 +328,16 @@ const stakingHistoricPoolEpochInfo = new Table({
     ],
 });
 
+const stakingDownstreamTablesLastUpdatedTable = new Table({
+    name: 'staking.downstream_tables_last_updated',
+    columns: [
+        { name: 'epoch_id', type: 'bigint' },
+        { name: 'pool_id', type: 'varchar' },
+        { name: 'fees_generated', type: 'numeric' },
+        { name: 'operator_reward', type: 'numeric' },
+        { name: 'members_reward', type: 'numeric' },
+    ],
+});
 
 export class Initialize1568846827416 implements MigrationInterface {
 
@@ -312,21 +350,25 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.createTable(eventsMoveStakeEventsTable);
         await queryRunner.createTable(eventsStakingPoolCreatedEventsTable);
         await queryRunner.createTable(eventsPendingAddMakerToPoolEventsTable);
-        await queryRunner.createTable(eventsMakerAddedToStakingPoolEvents);
-        await queryRunner.createTable(eventsMakerRemovedFromStakingPoolEvents);
-        await queryRunner.createTable(eventsStakingParamsChangedEvents);
-        await queryRunner.createTable(eventsOperatorShareDecreasedEvents);
-        await queryRunner.createTable(eventsEpochEndedEvents);
-        await queryRunner.createTable(eventsEpochFinalizedEvents);
-        await queryRunner.createTable(eventsRewardsPaidEvents);
-        await queryRunner.createTable(eventsLastBlockProcessed);
-        await queryRunner.createTable(stakingStakingPoolMetadata);
-        await queryRunner.createTable(stakingCurrentEpochInfo);
-        await queryRunner.createTable(stakingEpochs);
-        await queryRunner.createTable(stakingZrxStakingChanges);
-        await queryRunner.createTable(stakingCurrentEpochPoolInfo);
-        await queryRunner.createTable(stakingEpochStartPoolStatus);
-        await queryRunner.createTable(stakingHistoricPoolEpochInfo);
+        await queryRunner.createTable(eventsMakerAddedToStakingPoolEventsTable);
+        await queryRunner.createTable(eventsMakerRemovedFromStakingPoolEventsTable);
+        await queryRunner.createTable(eventsStakingParamsChangedEventsTable);
+        await queryRunner.createTable(eventsOperatorShareDecreasedEventsTable);
+        await queryRunner.createTable(eventsEpochEndedEventsTable);
+        await queryRunner.createTable(eventsEpochFinalizedEventsTable);
+        await queryRunner.createTable(eventsRewardsPaidEventsTable);
+        await queryRunner.createTable(eventsFillEventsTable);
+        await queryRunner.createTable(eventsTransactionsTable);
+        await queryRunner.createTable(eventsBlocksTable);
+        await queryRunner.createTable(eventsLastBlockProcessedTable);
+        await queryRunner.createTable(stakingStakingPoolMetadataTable);
+        await queryRunner.createTable(stakingCurrentEpochInfoTable);
+        await queryRunner.createTable(stakingEpochsTable);
+        await queryRunner.createTable(stakingZrxStakingChangesTable);
+        await queryRunner.createTable(stakingCurrentEpochPoolInfoTable);
+        await queryRunner.createTable(stakingEpochStartPoolStatusTable);
+        await queryRunner.createTable(stakingHistoricalPoolEpochInfoTable);
+        await queryRunner.createTable(stakingDownstreamTablesLastUpdatedTable);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
@@ -335,21 +377,25 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropTable(eventsMoveStakeEventsTable);
         await queryRunner.dropTable(eventsStakingPoolCreatedEventsTable);
         await queryRunner.dropTable(eventsPendingAddMakerToPoolEventsTable);
-        await queryRunner.dropTable(eventsMakerAddedToStakingPoolEvents);
-        await queryRunner.dropTable(eventsMakerRemovedFromStakingPoolEvents);
-        await queryRunner.dropTable(eventsStakingParamsChangedEvents);
-        await queryRunner.dropTable(eventsOperatorShareDecreasedEvents);
-        await queryRunner.dropTable(eventsEpochEndedEvents);
-        await queryRunner.dropTable(eventsEpochFinalizedEvents);
-        await queryRunner.dropTable(eventsRewardsPaidEvents);
-        await queryRunner.dropTable(eventsLastBlockProcessed);
-        await queryRunner.dropTable(stakingStakingPoolMetadata);
-        await queryRunner.dropTable(stakingCurrentEpochInfo);
-        await queryRunner.dropTable(stakingEpochs);
-        await queryRunner.dropTable(stakingZrxStakingChanges);
-        await queryRunner.dropTable(stakingCurrentEpochPoolInfo);
-        await queryRunner.dropTable(stakingEpochStartPoolStatus);
-        await queryRunner.dropTable(stakingHistoricPoolEpochInfo);
+        await queryRunner.dropTable(eventsMakerAddedToStakingPoolEventsTable);
+        await queryRunner.dropTable(eventsMakerRemovedFromStakingPoolEventsTable);
+        await queryRunner.dropTable(eventsStakingParamsChangedEventsTable);
+        await queryRunner.dropTable(eventsOperatorShareDecreasedEventsTable);
+        await queryRunner.dropTable(eventsEpochEndedEventsTable);
+        await queryRunner.dropTable(eventsEpochFinalizedEventsTable);
+        await queryRunner.dropTable(eventsRewardsPaidEventsTable);
+        await queryRunner.dropTable(eventsFillEventsTable);
+        await queryRunner.dropTable(eventsTransactionsTable);
+        await queryRunner.dropTable(eventsBlocksTable);
+        await queryRunner.dropTable(eventsLastBlockProcessedTable);
+        await queryRunner.dropTable(stakingStakingPoolMetadataTable);
+        await queryRunner.dropTable(stakingCurrentEpochInfoTable);
+        await queryRunner.dropTable(stakingEpochsTable);
+        await queryRunner.dropTable(stakingZrxStakingChangesTable);
+        await queryRunner.dropTable(stakingCurrentEpochPoolInfoTable);
+        await queryRunner.dropTable(stakingEpochStartPoolStatusTable);
+        await queryRunner.dropTable(stakingHistoricalPoolEpochInfoTable);
+        await queryRunner.dropTable(stakingDownstreamTablesLastUpdatedTable);
 
         await queryRunner.dropSchema('events');
         await queryRunner.dropSchema('staking');
