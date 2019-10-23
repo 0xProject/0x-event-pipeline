@@ -8,8 +8,8 @@ const eventsStakeEventsTable = new Table({
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
-        { name: 'owner', type: 'varchar', isPrimary: true },
-        { name: 'amount_staked', type: 'bigint' },
+        { name: 'staker', type: 'varchar', isPrimary: true },
+        { name: 'amount', type: 'numeric(27,0)' },
     ],
 });
 
@@ -21,8 +21,8 @@ const eventsUnstakeEventsTable = new Table({
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
-        { name: 'owner', type: 'varchar' },
-        { name: 'amount_unstaked', type: 'bigint' },
+        { name: 'staker', type: 'varchar' },
+        { name: 'amount', type: 'numeric(27,0)' },
     ],
 });
 
@@ -34,11 +34,12 @@ const eventsMoveStakeEventsTable = new Table({
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
-        { name: 'amount_moved', type: 'bigint' },
+        { name: 'staker', type: 'varchar' },
+        { name: 'amount', type: 'numeric(27,0)' },
         { name: 'from_status', type: 'int' },
         { name: 'from_pool', type: 'varchar' },
         { name: 'to_status', type: 'int' },
-        { name: 'to_pool', type: 'int' },
+        { name: 'to_pool', type: 'varchar' },
     ],
 });
 
@@ -56,8 +57,8 @@ const eventsStakingPoolCreatedEventsTable = new Table({
     ],
 });
 
-const eventsStakingPoolActivatedEventsTable = new Table({
-    name: 'events.staking_pool_activated_events',
+const eventsStakingPoolEarnedRewardsInEpochEventsTable = new Table({
+    name: 'events.staking_pool_earned_rewards_in_epoch_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
@@ -77,8 +78,8 @@ const eventsMakerStakingPoolSetEventsTable = new Table({
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
-        { name: 'pool_id', type: 'varchar' },
         { name: 'maker_address', type: 'varchar' },
+        { name: 'pool_id', type: 'varchar' },
     ],
 });
 
@@ -121,10 +122,10 @@ const eventsEpochEndedEventsTable = new Table({
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
-        { name: 'num_active_pools', type: 'bigint' },
-        { name: 'rewards_available', type: 'bigint' },
-        { name: 'total_weighted_stake', type: 'bigint' },
-        { name: 'total_fees_collected', type: 'bigint' },
+        { name: 'num_pools_to_finalize', type: 'bigint' },
+        { name: 'rewards_available', type: 'numeric(27,0)' },
+        { name: 'total_fees_collected', type: 'numeric(27,0)' },
+        { name: 'total_weighted_stake', type: 'numeric(27,0)' },
     ],
 });
 
@@ -137,8 +138,8 @@ const eventsEpochFinalizedEventsTable = new Table({
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
-        { name: 'rewards_paid', type: 'bigint' },
-        { name: 'rewards_remaining', type: 'bigint' },
+        { name: 'rewards_paid', type: 'numeric(27,0)' },
+        { name: 'rewards_remaining', type: 'numeric(27,0)' },
     ],
 });
 
@@ -152,8 +153,8 @@ const eventsRewardsPaidEventsTable = new Table({
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
-        { name: 'operator_reward', type: 'bigint' },
-        { name: 'members_reward', type: 'bigint' },
+        { name: 'operator_reward', type: 'numeric(27,0)' },
+        { name: 'members_reward', type: 'numeric(27,0)' },
     ],
 });
 
@@ -332,7 +333,7 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.createTable(eventsUnstakeEventsTable);
         await queryRunner.createTable(eventsMoveStakeEventsTable);
         await queryRunner.createTable(eventsStakingPoolCreatedEventsTable);
-        await queryRunner.createTable(eventsStakingPoolActivatedEventsTable);
+        await queryRunner.createTable(eventsStakingPoolEarnedRewardsInEpochEventsTable);
         await queryRunner.createTable(eventsMakerStakingPoolSetEventsTable);
         await queryRunner.createTable(eventsParamsSetTable);
         await queryRunner.createTable(eventsOperatorShareDecreasedEventsTable);
@@ -358,7 +359,7 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropTable(eventsUnstakeEventsTable);
         await queryRunner.dropTable(eventsMoveStakeEventsTable);
         await queryRunner.dropTable(eventsStakingPoolCreatedEventsTable);
-        await queryRunner.dropTable(eventsStakingPoolActivatedEventsTable);
+        await queryRunner.dropTable(eventsStakingPoolEarnedRewardsInEpochEventsTable);
         await queryRunner.dropTable(eventsMakerStakingPoolSetEventsTable);
         await queryRunner.dropTable(eventsParamsSetTable);
         await queryRunner.dropTable(eventsOperatorShareDecreasedEventsTable);
