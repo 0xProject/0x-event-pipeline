@@ -5,7 +5,7 @@
    "license": "Apache-2.0",
    "scripts": {
       "build": "yarn tsc -b",
-      "start": "ts-node src/index.ts",
+      "start": "ts-node lib/src/index.js",
       "test": "yarn run_mocha",
       "rebuild_and_test": "run-s build test:all",
       "test:db": "yarn run_mocha:db",
@@ -19,7 +19,8 @@
       "lint": "tslint --project . --format stylish --exclude ./migrations/**/* --exclude ./test/fixtures/**/**/*.json",
       "migrate:run": "yarn typeorm migration:run --config ./lib/src/ormconfig",
       "migrate:revert": "yarn typeorm migration:revert --config ./lib/src/ormconfig",
-      "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations"
+      "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations",
+      "postinstall": "mkdir 0x-monorepo; cd 0x-monorepo; git init; git remote add -f origin https://github.com/0xProject/0x-monorepo.git; git pull origin development; cd ..; npm i ./0x-monorepo/packages/0x.js/"
    },
    "devDependencies": {
       "@0x/tslint-config": "^3.0.0",
@@ -30,8 +31,11 @@
       "typescript": "3.1.1"
    },
    "dependencies": {
-      "typeorm": "^0.2.7",
-      "reflect-metadata": "^0.1.10",
-      "pg": "^7.5.0"
+      "0x.js": "file:0x-monorepo/packages/0x.js",
+      "@types/dotenv": "^8.2.0",
+      "dotenv": "^8.2.0",
+      "pg": "^7.5.0",
+      "reflect-metadata": "^0.1.13",
+      "typeorm": "^0.2.7"
    }
 }

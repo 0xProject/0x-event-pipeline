@@ -1,0 +1,18 @@
+import { Column, Entity } from 'typeorm';
+
+import { Event } from './event';
+import { numberToBigIntTransformer } from '../utils';
+
+// Event emitted by MixinStake when a new pool is created.
+@Entity({ name: 'staking_pool_created_events', schema: 'events' })
+export class StakingPoolCreatedEvent extends Event {
+    // Unique id generated for pool.
+    @Column({ name: 'pool_id' })
+    public poolId!: string;
+    // The operator (creator) of pool.
+    @Column({ name: 'operator_address' })
+    public operatorAddress!: string;
+    // The share of rewards given to the operator, in ppm.
+    @Column({ name: 'operator_address', transformer: numberToBigIntTransformer })
+    public operatorShare!: number;
+}

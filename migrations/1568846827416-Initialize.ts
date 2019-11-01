@@ -5,8 +5,9 @@ const eventsStakeEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'staker', type: 'varchar', isPrimary: true },
         { name: 'amount', type: 'numeric(27,0)' },
@@ -18,8 +19,9 @@ const eventsUnstakeEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'staker', type: 'varchar' },
         { name: 'amount', type: 'numeric(27,0)' },
@@ -31,8 +33,9 @@ const eventsMoveStakeEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'staker', type: 'varchar' },
         { name: 'amount', type: 'numeric(27,0)' },
@@ -48,6 +51,7 @@ const eventsStakingPoolCreatedEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar', isPrimary: true },
         { name: 'block_number', type: 'bigint' },
@@ -62,8 +66,9 @@ const eventsStakingPoolEarnedRewardsInEpochEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
@@ -75,25 +80,27 @@ const eventsMakerStakingPoolSetEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'maker_address', type: 'varchar' },
         { name: 'pool_id', type: 'varchar' },
     ],
 });
 
-const eventsParamsSetTable = new Table({
+const eventsParamsSetEventsTable = new Table({
     name: 'events.params_set_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_duration_in_seconds', type: 'bigint' },
         { name: 'reward_delegated_stake_weight', type: 'bigint' },
-        { name: 'minimum_pool_stake', type: 'bigint' },
+        { name: 'minimum_pool_stake', type: 'numeric' },
         { name: 'cobb_douglas_alpa_numerator', type: 'bigint' },
         { name: 'cobb_douglas_alpa_denominator', type: 'bigint' },
     ],
@@ -104,8 +111,9 @@ const eventsOperatorShareDecreasedEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
         { name: 'old_operator_share', type: 'bigint' },
@@ -118,8 +126,9 @@ const eventsEpochEndedEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'num_pools_to_finalize', type: 'bigint' },
@@ -134,8 +143,9 @@ const eventsEpochFinalizedEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'rewards_paid', type: 'numeric(27,0)' },
@@ -148,8 +158,9 @@ const eventsRewardsPaidEventsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
@@ -164,24 +175,32 @@ const eventsFillEventsTable = new Table({
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
+        { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'maker_address', type: 'varchar' },
         { name: 'taker_address', type: 'varchar' },
         { name: 'fee_recipient_address', type: 'varchar' },
-        { name: 'maker_asset_filled_amount', type: 'bigint' },
-        { name: 'taker_asset_filled_amount', type: 'bigint' },
+        { name: 'sender_address', type: 'varchar' },
+        { name: 'maker_asset_filled_amount', type: 'numeric' },
+        { name: 'taker_asset_filled_amount', type: 'numeric' },
         { name: 'order_hash', type: 'varchar' },
         { name: 'raw_maker_asset_data', type: 'varchar' },
-        { name: 'maker_token_address', type: 'varchar' },
-        { name: 'maker_asset_type', type: 'varchar' },
-        { name: 'maker_asset_proxy_id', type: 'varchar' },
+        { name: 'maker_proxy_type', type: 'varchar' },
+        { name: 'maker_proxy_id', type: 'varchar' },
+        { name: 'maker_token_address', type: 'varchar', isNullable: true },
         { name: 'raw_taker_asset_data', type: 'varchar' },
-        { name: 'taker_token_address', type: 'varchar' },
-        { name: 'taker_asset_type', type: 'varchar' },
-        { name: 'taker_asset_proxy_id', type: 'varchar' },
-        { name: 'protocol_fee_paid', type: 'bigint' },
+        { name: 'taker_proxy_type', type: 'varchar' },
+        { name: 'taker_proxy_id', type: 'varchar' },
+        { name: 'taker_token_address', type: 'varchar', isNullable: true },
+        { name: 'maker_fee_paid', type: 'numeric' },
+        { name: 'taker_fee_paid', type: 'numeric' },
+        { name: 'maker_fee_proxy_type', type: 'varchar', isNullable: true },
+        { name: 'maker_fee_token_address', type: 'varchar', isNullable: true },
+        { name: 'taker_fee_proxy_type', type: 'varchar', isNullable: true },
+        { name: 'taker_fee_token_address', type: 'varchar', isNullable: true },
+        { name: 'protocol_fee_paid', type: 'numeric', isNullable: true },
     ],
 });
 
@@ -190,13 +209,13 @@ const eventsTransactionsTable = new Table({
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
-        { name: 'block_number', type: 'bigint' },
         { name: 'transaction_index', type: 'bigint' },
-        { name: 'sender', type: 'varchar' },
+        { name: 'block_hash', type: 'varchar' },
+        { name: 'block_number', type: 'bigint' },
+        { name: 'sender_address', type: 'varchar' },
         { name: 'to_address', type: 'varchar' },
-        { name: 'gas_price', type: 'bigint' },
-        { name: 'gas_used', type: 'bigint' },
+        { name: 'gas_price', type: 'numeric' },
+        { name: 'gas_used', type: 'numeric' },
         { name: 'input', type: 'varchar' },
     ],
 });
@@ -205,14 +224,14 @@ const eventsBlocksTable = new Table({
     name: 'events.blocks',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
-        { name: 'block_hash', type: 'varchar' },
-        { name: 'block_number', type: 'bigint' },
+        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_number', type: 'bigint', isPrimary: true },
         { name: 'block_timestamp', type: 'bigint' },
     ],
 });
 
 const eventsLastBlockProcessedTable = new Table({
-    name: 'events.last_block_process',
+    name: 'events.last_block_processed',
     columns: [
         { name: 'event_name', type: 'varchar' },
         { name: 'last_processed_block_number', type: 'bigint' },
@@ -238,12 +257,13 @@ const stakingCurrentEpochInfoTable = new Table({
     name: 'staking.current_epoch_info',
     columns: [
         { name: 'epoch_id', type: 'bigint' },
-        { name: 'start_time', type: 'timestamptz' },
+        { name: 'start_time', type: 'bigint' },
         { name: 'starting_block_number', type: 'bigint' },
         { name: 'starting_transaction_hash', type: 'varchar' },
         { name: 'starting_transaction_index', type: 'bigint' },
         { name: 'total_fees_collected', type: 'numeric' },
-        { name: 'total_zrx_staked', type: 'numeric' },
+        { name: 'zrx_staked_for_next_epoch', type: 'numeric' },
+        { name: 'zrx_staked', type: 'numeric' },
     ],
 });
 
@@ -312,6 +332,28 @@ const stakingHistoricalPoolEpochInfoTable = new Table({
     ],
 });
 
+const stakingDelegatorPoolEpochsTable = new Table({
+    name: 'staking.delegator_pool_epochs',
+    columns: [
+        { name: 'delegator_address', type: 'varchar' },
+        { name: 'epoch_id', type: 'bigint' },
+        { name: 'pool_id', type: 'varchar' },
+        { name: 'zrx_staked', type: 'numeric' },
+        { name: 'rewards_earned', type: 'numeric' },
+    ],
+});
+
+const stakingDelegatorPoolCurrentEpochTable = new Table({
+    name: 'staking.delegator_pool_current_epochß',
+    columns: [
+        { name: 'delegator_address', type: 'varchar' },
+        { name: 'epoch_id', type: 'bigint' },
+        { name: 'pool_id', type: 'varchar' },
+        { name: 'zrx_staked_for_next_epoch', type: 'numeric' },
+    ],
+});
+
+
 const stakingDownstreamTablesLastUpdatedTable = new Table({
     name: 'staking.downstream_tables_last_updated',
     columns: [
@@ -335,7 +377,7 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.createTable(eventsStakingPoolCreatedEventsTable);
         await queryRunner.createTable(eventsStakingPoolEarnedRewardsInEpochEventsTable);
         await queryRunner.createTable(eventsMakerStakingPoolSetEventsTable);
-        await queryRunner.createTable(eventsParamsSetTable);
+        await queryRunner.createTable(eventsParamsSetEventsTable);
         await queryRunner.createTable(eventsOperatorShareDecreasedEventsTable);
         await queryRunner.createTable(eventsEpochEndedEventsTable);
         await queryRunner.createTable(eventsEpochFinalizedEventsTable);
@@ -351,6 +393,8 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.createTable(stakingCurrentEpochPoolInfoTable);
         await queryRunner.createTable(stakingEpochStartPoolStatusTable);
         await queryRunner.createTable(stakingHistoricalPoolEpochInfoTable);
+        await queryRunner.createTable(stakingDelegatorPoolEpochsTable);
+        await queryRunner.createTable(stakingDelegatorPoolCurrentEpochTable);
         await queryRunner.createTable(stakingDownstreamTablesLastUpdatedTable);
     }
 
@@ -361,7 +405,7 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropTable(eventsStakingPoolCreatedEventsTable);
         await queryRunner.dropTable(eventsStakingPoolEarnedRewardsInEpochEventsTable);
         await queryRunner.dropTable(eventsMakerStakingPoolSetEventsTable);
-        await queryRunner.dropTable(eventsParamsSetTable);
+        await queryRunner.dropTable(eventsParamsSetEventsTable);
         await queryRunner.dropTable(eventsOperatorShareDecreasedEventsTable);
         await queryRunner.dropTable(eventsEpochEndedEventsTable);
         await queryRunner.dropTable(eventsEpochFinalizedEventsTable);
@@ -377,6 +421,8 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropTable(stakingCurrentEpochPoolInfoTable);
         await queryRunner.dropTable(stakingEpochStartPoolStatusTable);
         await queryRunner.dropTable(stakingHistoricalPoolEpochInfoTable);
+        await queryRunner.dropTable(stakingDelegatorPoolEpochsTable);
+        await queryRunner.dropTable(stakingDelegatorPoolCurrentEpochTable);
         await queryRunner.dropTable(stakingDownstreamTablesLastUpdatedTable);
 
         await queryRunner.dropSchema('events');

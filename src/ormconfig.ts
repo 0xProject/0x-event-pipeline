@@ -1,11 +1,45 @@
 import { ConnectionOptions } from 'typeorm';
 
+import {
+    Block,
+    Transaction,
+    FillEvent,
+    StakeEvent,
+    UnstakeEvent,
+    MoveStakeEvent,
+    StakingPoolCreatedEvent,
+    StakingPoolEarnedRewardsInEpochEvent,
+    MakerStakingPoolSetEvent,
+    ParamsSetEvent,
+    OperatorShareDecreasedEvent,
+    EpochEndedEvent,
+    StakingPoolMetadata,
+    CurrentEpochInfo,
+} from './entities';
+
+const entities = [
+    Block,
+    Transaction,
+    FillEvent,
+    StakeEvent,
+    UnstakeEvent,
+    MoveStakeEvent,
+    StakingPoolCreatedEvent,
+    StakingPoolEarnedRewardsInEpochEvent,
+    MakerStakingPoolSetEvent,
+    ParamsSetEvent,
+    OperatorShareDecreasedEvent,
+    EpochEndedEvent,
+    StakingPoolMetadata,
+    CurrentEpochInfo,
+];
+
 const config: ConnectionOptions = {
     type: 'postgres',
-    url: process.env.ZEROEX_DATA_PIPELINE_DB_URL,
+    url: process.env.CONNECTION_STRING,
     synchronize: false,
     logging: ['error'],
-    entities: ['src/entites/**/*.js'],
+    entities,
     migrations: ['lib/migrations/*.js'],
     migrationsTableName: 'event_pipeline_migrations'
 };

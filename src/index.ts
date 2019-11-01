@@ -1,9 +1,11 @@
-import "reflect-metadata";
-import {createConnection, ConnectionOptions} from "typeorm";
-import * as ormConfig from './ormconfig';
 
-createConnection(ormConfig as ConnectionOptions).then(async connection => {
+// load env vars
+import { resolve } from "path";
+import { config } from "dotenv";
 
-    console.log("App is running...");
+config({ path: resolve(__dirname, "../../.env") });
 
-}).catch(error => console.log(error));
+console.log("App is running...");
+
+// run pull and save fill events
+require('./scripts/pull_and_save_fill_events');
