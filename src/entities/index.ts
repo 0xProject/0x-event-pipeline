@@ -13,4 +13,5 @@ export { ParamsSetEvent } from './params_set_event';
 export { OperatorShareDecreasedEvent } from './operator_share_decreased_event';
 export { EpochEndedEvent } from './epoch_ended_event';
 export { StakingPoolMetadata } from './staking_pool_metadata';
+export { LastBlockProcessed } from './last_block_processed';
 export { CurrentEpochInfo } from './current_epoch_info';

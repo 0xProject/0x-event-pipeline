@@ -4,6 +4,7 @@ const eventsStakeEventsTable = new Table({
     name: 'events.stake_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -18,6 +19,7 @@ const eventsUnstakeEventsTable = new Table({
     name: 'events.unstake_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -32,6 +34,7 @@ const eventsMoveStakeEventsTable = new Table({
     name: 'events.move_stake_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -50,6 +53,7 @@ const eventsStakingPoolCreatedEventsTable = new Table({
     name: 'events.staking_pool_created_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -65,6 +69,7 @@ const eventsStakingPoolEarnedRewardsInEpochEventsTable = new Table({
     name: 'events.staking_pool_earned_rewards_in_epoch_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -79,6 +84,7 @@ const eventsMakerStakingPoolSetEventsTable = new Table({
     name: 'events.maker_staking_pool_set_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -93,6 +99,7 @@ const eventsParamsSetEventsTable = new Table({
     name: 'events.params_set_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -110,6 +117,7 @@ const eventsOperatorShareDecreasedEventsTable = new Table({
     name: 'events.operator_share_decreased_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -125,6 +133,7 @@ const eventsEpochEndedEventsTable = new Table({
     name: 'events.epoch_ended_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -142,6 +151,7 @@ const eventsEpochFinalizedEventsTable = new Table({
     name: 'events.epoch_finalized_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -157,6 +167,7 @@ const eventsRewardsPaidEventsTable = new Table({
     name: 'events.rewards_paid_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
+        { name: 'contract_address', type: 'varchar' },
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
@@ -233,9 +244,8 @@ const eventsBlocksTable = new Table({
 const eventsLastBlockProcessedTable = new Table({
     name: 'events.last_block_processed',
     columns: [
-        { name: 'event_name', type: 'varchar' },
+        { name: 'event_name', type: 'varchar', isPrimary: true },
         { name: 'last_processed_block_number', type: 'bigint' },
-        { name: 'last_processed_block_hash', type: 'varchar' },
         { name: 'processed_timestamp', type: 'bigint' },
     ],
 });

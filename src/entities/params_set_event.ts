@@ -8,18 +8,18 @@ import { BigNumber } from '@0x/utils';
 @Entity({ name: 'params_set_events', schema: 'events' })
 export class ParamsSetEvent extends Event {
     // Minimum seconds between epochs.
-    @Column({ name: 'epoch_duration_in_seconds', transformer: numberToBigIntTransformer })
+    @Column({ name: 'epoch_duration_in_seconds', type: 'bigint', transformer: numberToBigIntTransformer })
     public epochDurationInSeconds!: number;
     // How much delegated stake is weighted vs operator stake, in ppm.
-    @Column({ name: 'reward_delegated_stake_weight', transformer: numberToBigIntTransformer })
+    @Column({ name: 'reward_delegated_stake_weight', type: 'bigint', transformer: numberToBigIntTransformer })
     public rewardDelegatedStakeWeight!: number;
     // Minimum amount of stake required in a pool to collect rewards.
-    @Column({ name: 'minimum_pool_stake', transformer: bigNumberTransformer })
+    @Column({ name: 'minimum_pool_stake', type: 'numeric', transformer: bigNumberTransformer })
     public minimumPoolStake!: BigNumber;
     // Numerator for cobb douglas alpha factor.
-    @Column({ name: 'cobb_douglas_alpa_numerator', transformer: numberToBigIntTransformer })
+    @Column({ name: 'cobb_douglas_alpa_numerator', type: 'bigint', transformer: numberToBigIntTransformer })
     public cobbDouglasAlphaNumerator!: number;
     // Denominator for cobb douglas alpha factor.
-    @Column({ name: 'cobb_douglas_alpa_denominator', transformer: numberToBigIntTransformer })
+    @Column({ name: 'cobb_douglas_alpa_denominator', type: 'bigint', transformer: numberToBigIntTransformer })
     public cobbDouglasAlphaDenominator!: number;
 }

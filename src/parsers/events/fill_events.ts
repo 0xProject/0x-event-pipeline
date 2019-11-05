@@ -1,11 +1,13 @@
-import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
+// import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 import { assetDataUtils } from '@0x/order-utils';
 import { AssetProxyId, ERC20AssetData, ERC721AssetData, ERC1155AssetData, StaticCallAssetData, MultiAssetData } from '@0x/types';
 import { LogWithDecodedArgs } from 'ethereum-types';
+import { ExchangeFillEventArgs } from '@0x/abi-gen-wrappers';
 
 import { FillEvent } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils';
 import { parseEvent } from './parse_event';
+import { logUtils } from '@0x/utils';
 
 /**
  * Parses raw event logs for a fill event and returns an array of
@@ -26,7 +28,9 @@ string | null {
     } else {
         return decodedAssetData.tokenAddress;
     }
-} 
+}
+
+export type ExchangeEvent = FillEvent;
 
 /**
  * Converts a raw event log for a fill event into an ExchangeFillEvent entity.
@@ -34,9 +38,14 @@ string | null {
  */
 export function parseFillEvent(eventLog: LogWithDecodedArgs<ExchangeFillEventArgs>): FillEvent {
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerAssetData);
-    const makerFeeAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerFeeAssetData);
     const takerAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerAssetData);
-    const takerFeeAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerFeeAssetData);
+
+    const makerFeeAssetData = eventLog.args.makerFeeAssetData === '0x' ?
+        null :
+        assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerFeeAssetData);
+    const takerFeeAssetData = eventLog.args.takerFeeAssetData === '0x' ?
+        null :
+        assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerFeeAssetData);
 
     const fillEvent = new FillEvent();
     parseEvent(eventLog, fillEvent);
@@ -62,10 +71,18 @@ export function parseFillEvent(eventLog: LogWithDecodedArgs<ExchangeFillEventArg
     // fees
     fillEvent.makerFeePaid = eventLog.args.makerFeePaid;
     fillEvent.takerFeePaid = eventLog.args.takerFeePaid;
-    fillEvent.makerFeeProxyType = convertAssetProxyIdToType(makerFeeAssetData.assetProxyId as AssetProxyId);
-    fillEvent.makerFeeTokenAddress = parse0xAssetTokenAddress(makerFeeAssetData);
-    fillEvent.takerFeeProxyType = convertAssetProxyIdToType(takerFeeAssetData.assetProxyId as AssetProxyId);
-    fillEvent.takerFeeTokenAddress = parse0xAssetTokenAddress(takerFeeAssetData);
+    fillEvent.makerFeeProxyType = makerFeeAssetData === null ?
+        null :
+        convertAssetProxyIdToType(makerFeeAssetData.assetProxyId as AssetProxyId);
+    fillEvent.makerFeeTokenAddress = makerFeeAssetData === null ?
+        null :
+        parse0xAssetTokenAddress(makerFeeAssetData);
+    fillEvent.takerFeeProxyType = takerFeeAssetData === null ?
+        null :
+        convertAssetProxyIdToType(takerFeeAssetData.assetProxyId as AssetProxyId);
+    fillEvent.takerFeeTokenAddress = takerFeeAssetData === null ?
+        null :
+        parse0xAssetTokenAddress(takerFeeAssetData);
 
     fillEvent.protocolFeePaid = eventLog.args.protocolFeePaid;
 

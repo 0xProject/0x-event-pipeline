@@ -4,24 +4,24 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity({ name: 'operator_shared_decreased_events', schema: 'events' })
 export class StakingPoolMetadata {
     // Unique Id of pool.
-    @PrimaryColumn({ name: 'pool_id' })
+    @PrimaryColumn({ name: 'pool_id', type: 'varchar' })
     public poolId!: string;
     // Name of the pool
-    @Column({ name: 'name', nullable: true })
+    @Column({ name: 'name', type: 'varchar', nullable: true })
     public name!: string | null;
     // website of the pool operator
-    @Column({ name: 'website', nullable: true })
+    @Column({ name: 'website', type: 'varchar', nullable: true })
     public website!: string | null;
     // website of the pool operator
-    @Column({ name: 'bio', nullable: true })
+    @Column({ name: 'bio', type: 'varchar', nullable: true })
     public bio!: string | null;
     // location of the pool operator
-    @Column({ name: 'location', nullable: true })
+    @Column({ name: 'location', type: 'varchar', nullable: true })
     public location!: string | null;
     // link to logo of the pool operator
-    @Column({ name: 'logo_url', nullable: true })
+    @Column({ name: 'logo_url', type: 'varchar', nullable: true })
     public logoUrl!: string | null;
     // whether or not the info has been verified by the 0x core team
-    @Column({ name: 'verified' })
+    @Column({ name: 'verified', type: 'boolean' })
     public verified!: boolean;
 }

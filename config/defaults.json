@@ -1,5 +1,7 @@
 {
-    "firstSearchBlock": 14425602,
+    "firstSearchBlock": 14491738,
     "startBlockOffset": 35,
-    "network": 3
+    "maxBlocksToSearch": 100,
+    "network": 42,
+    "blockFinalityThreshold": 6
 }

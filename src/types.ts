@@ -5,3 +5,7 @@ export enum ProxyType {
     StaticCall = 'staticCall',
     ERC1155 = 'erc1155',
 }
+
+export type EventName = 
+    'fill' |
+    'stakingPoolCreated';

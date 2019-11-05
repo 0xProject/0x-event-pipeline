@@ -8,20 +8,20 @@ import { bigNumberTransformer } from '../utils';
 @Entity({ name: 'move_stake_events', schema: 'events' })
 export class MoveStakeEvent extends Event {
     // The address of the staker.
-    @Column({ name: 'staker' })
+    @Column({ name: 'staker', type: 'varchar' })
     public staker!: string;
     // Amount moved
     @Column({ name: 'amount', type: 'numeric', transformer: bigNumberTransformer })
     public amount!: BigNumber;
     // Status prior to move
-    @Column({ name: 'from_status' })
+    @Column({ name: 'from_status', type: 'int' })
     public fromStatus!: number;
     // Pool prior to move
-    @Column({ name: 'from_pool' })
-    public pool!: string;
+    @Column({ name: 'from_pool', type: 'varchar' })
+    public fromPool!: string;
     // Status post move
-    @Column({ name: 'to_status' })
+    @Column({ name: 'to_status', type: 'int' })
     public toStatus!: number;
-    @Column({ name: 'to_pool' })
+    @Column({ name: 'to_pool', type: 'varchar' })
     public toPool!: string;
 }
