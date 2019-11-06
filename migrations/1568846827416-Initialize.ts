@@ -11,7 +11,7 @@ const eventsStakeEventsTable = new Table({
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'staker', type: 'varchar', isPrimary: true },
-        { name: 'amount', type: 'numeric(27,0)' },
+        { name: 'amount', type: 'numeric' },
     ],
 });
 
@@ -26,7 +26,7 @@ const eventsUnstakeEventsTable = new Table({
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'staker', type: 'varchar' },
-        { name: 'amount', type: 'numeric(27,0)' },
+        { name: 'amount', type: 'numeric' },
     ],
 });
 
@@ -41,7 +41,7 @@ const eventsMoveStakeEventsTable = new Table({
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'staker', type: 'varchar' },
-        { name: 'amount', type: 'numeric(27,0)' },
+        { name: 'amount', type: 'numeric' },
         { name: 'from_status', type: 'int' },
         { name: 'from_pool', type: 'varchar' },
         { name: 'to_status', type: 'int' },
@@ -141,9 +141,9 @@ const eventsEpochEndedEventsTable = new Table({
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'num_pools_to_finalize', type: 'bigint' },
-        { name: 'rewards_available', type: 'numeric(27,0)' },
-        { name: 'total_fees_collected', type: 'numeric(27,0)' },
-        { name: 'total_weighted_stake', type: 'numeric(27,0)' },
+        { name: 'rewards_available', type: 'numeric' },
+        { name: 'total_fees_collected', type: 'numeric' },
+        { name: 'total_weighted_stake', type: 'numeric' },
     ],
 });
 
@@ -158,8 +158,8 @@ const eventsEpochFinalizedEventsTable = new Table({
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
-        { name: 'rewards_paid', type: 'numeric(27,0)' },
-        { name: 'rewards_remaining', type: 'numeric(27,0)' },
+        { name: 'rewards_paid', type: 'numeric' },
+        { name: 'rewards_remaining', type: 'numeric' },
     ],
 });
 
@@ -175,8 +175,8 @@ const eventsRewardsPaidEventsTable = new Table({
         { name: 'block_number', type: 'bigint' },
         { name: 'epoch_id', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
-        { name: 'operator_reward', type: 'numeric(27,0)' },
-        { name: 'members_reward', type: 'numeric(27,0)' },
+        { name: 'operator_reward', type: 'numeric' },
+        { name: 'members_reward', type: 'numeric' },
     ],
 });
 
@@ -235,7 +235,7 @@ const eventsBlocksTable = new Table({
     name: 'events.blocks',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint', isPrimary: true },
         { name: 'block_timestamp', type: 'bigint' },
     ],

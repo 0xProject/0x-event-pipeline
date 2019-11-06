@@ -9,6 +9,13 @@ export class Web3Source {
         this._web3Wrapper = new Web3Wrapper(provider);
     }
 
+    public async getBlockInfoForRangeAsync(startBlock: number, endBlock: number): Promise<BlockWithoutTransactionData[]> {
+        const iter = Array.from(Array(endBlock - startBlock).keys())
+        const blocks = await Promise.all(iter.map(num => this.getBlockInfoAsync(num + startBlock)));
+
+        return blocks
+    }
+
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
         try {
             logUtils.log(`Fetching block ${blockNumber}`);

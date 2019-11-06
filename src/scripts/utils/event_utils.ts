@@ -14,8 +14,8 @@ import {
     OperatorShareDecreasedEvent,
     EpochFinalizedEvent,
     RewardsPaidEvent,
-} from '../entities';
-import { parseFillEvent } from '../parsers/events/fill_events';
+} from '../../entities';
+import { parseFillEvent } from '../../parsers/events/fill_events';
 import { 
     parseStakeEvent,
     parseUnstakeEvent,
@@ -28,10 +28,10 @@ import {
     parseOperatorShareDecreasedEvent,
     parseEpochFinalizedEvent,
     parseRewardsPaidEvent,
-} from '../parsers/events/staking_events';
-import { EventsSource } from '../data_sources/events/0x_events';
+} from '../../parsers/events/staking_events';
+import { EventsSource } from '../../data_sources/events/0x_events';
 
-import * as config from "../../config/defaults.json";
+import * as config from "../../../config/defaults.json";
 
 
 export class PullAndSaveEvents {
@@ -44,8 +44,8 @@ export class PullAndSaveEvents {
     public async getParseSaveFillEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'FillEvent';
         const tableName = 'fill_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getFillEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseFillEvent(log));
@@ -54,14 +54,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<FillEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<FillEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveStakeEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'StakeEvent';
         const tableName = 'stake_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getStakeEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseStakeEvent(log));
@@ -70,14 +70,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<StakeEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<StakeEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveUnstakeEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'UnstakeEvent';
         const tableName = 'unstake_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getUnstakeEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseUnstakeEvent(log));
@@ -86,14 +86,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<UnstakeEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<UnstakeEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveMoveStakeEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
-        const eventName = 'UnstakeEvent';
-        const tableName = 'unstake_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const eventName = 'MoveStake';
+        const tableName = 'move_stake_events';
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getMoveStakeEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseMoveStakeEvent(log));
@@ -102,14 +102,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<MoveStakeEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<MoveStakeEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveStakingPoolCreatedEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'StakingPoolCreated';
         const tableName = 'staking_pool_created_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getStakingPoolCreatedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseStakingPoolCreatedEvent(log));
@@ -118,14 +118,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<StakingPoolCreatedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<StakingPoolCreatedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveStakingPoolEarnedRewardsInEpochEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'StakingPoolEarnedRewardsInEpoch';
         const tableName = 'staking_pool_earned_rewards_in_epoch_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getStakingPoolEarnedRewardsInEpochEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseStakingPoolEarnedRewardsInEpochEvent(log));
@@ -134,14 +134,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<StakingPoolEarnedRewardsInEpochEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<StakingPoolEarnedRewardsInEpochEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveMakerStakingPoolSetEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'MakerStakingPoolSet';
         const tableName = 'maker_staking_pool_set_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getMakerStakingPoolSetEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseMakerStakingPoolSetEvent(log));
@@ -150,14 +150,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<MakerStakingPoolSetEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<MakerStakingPoolSetEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveParamsSetEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'ParamsSet';
         const tableName = 'params_set_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getParamsSetEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseParamsSetEvent(log));
@@ -166,14 +166,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<ParamsSetEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<ParamsSetEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveOperatorShareDecreasedEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'OperatorShareDecreased';
         const tableName = 'operator_share_decreased_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getOperatorShareDecreasedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseOperatorShareDecreasedEvent(log));
@@ -182,14 +182,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<OperatorShareDecreasedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<OperatorShareDecreasedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveEpochEndedEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'EpochEnded';
         const tableName = 'epoch_ended_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getEpochEndedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseEpochEndedEvent(log));
@@ -198,14 +198,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<EpochEndedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<EpochEndedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveEpochFinalizedEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'EpochFinalized';
         const tableName = 'epoch_finalized_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getEpochFinalizedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseEpochFinalizedEvent(log));
@@ -214,14 +214,14 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<EpochFinalizedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<EpochFinalizedEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     public async getParseSaveRewardsPaidEventsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const eventName = 'RewardsPaid';
         const tableName = 'rewards_paid_events';
-        const startBlock = await this._getStartBlockAsync(eventName, connection);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + config.maxBlocksToSearch);
+        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getRewardsPaidEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseRewardsPaidEvent(log));
@@ -230,7 +230,7 @@ export class PullAndSaveEvents {
     
         logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
 
-        this._deleteOverlapAndSaveAsync<RewardsPaidEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
+        await this._deleteOverlapAndSaveAsync<RewardsPaidEvent>(connection, parsedEventLogs, startBlock, tableName, lastBlockProcessed);
     }
 
     private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
@@ -241,14 +241,15 @@ export class PullAndSaveEvents {
         return lastBlockProcessed;
     }
 
-    private async _getStartBlockAsync(eventName: string, connection: Connection): Promise<number> {
+    private async _getStartBlockAsync(eventName: string, connection: Connection, latestBlockWithOffset: number): Promise<number> {
         const queryResult = await connection.query(
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
     
         logUtils.log(queryResult);
         const lastKnownBlock = queryResult[0] || {last_processed_block_number: config.firstSearchBlock};
-        return lastKnownBlock.last_processed_block_number - config.startBlockOffset;
+
+        return Math.min(Number(lastKnownBlock.last_processed_block_number) + 1, latestBlockWithOffset - config.startBlockOffset);
     }
 
     private async _deleteOverlapAndSaveAsync<T>(

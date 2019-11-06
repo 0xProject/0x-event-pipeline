@@ -11,12 +11,12 @@ export class RewardsPaidEvent extends Event {
     @Column({ name: 'epoch_id', transformer: numberToBigIntTransformer })
     public epochId!: number;
     // The pool's ID.
-    @Column({ name: 'pool_id' })
+    @Column({ name: 'pool_id', type: 'varchar' })
     public poolId!: string;
     // Amount of reward paid to pool operator.
-    @Column({ name: 'operator_reward', transformer: bigNumberTransformer })
+    @Column({ name: 'operator_reward', type: 'numeric', transformer: bigNumberTransformer })
     public operatorReward!: BigNumber;
     // Amount of reward paid to pool members.
-    @Column({ name: 'nenbers_reward', transformer: bigNumberTransformer })
+    @Column({ name: 'nenbers_reward', type: 'numeric', transformer: bigNumberTransformer })
     public membersReward!: BigNumber;
 }

@@ -39,8 +39,7 @@ export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract;
     private readonly _stakingWrapper: StakingContract;
     constructor(provider: Web3ProviderEngine, networkId: number) {
-        //const contractWrappers = new ContractWrappers(provider, { networkId });
-        const contractAddresses = getContractAddressesForNetworkOrThrow(networkId);
+        //const contractAddresses = getContractAddressesForNetworkOrThrow(networkId);
         this._exchangeWrapper = new ExchangeContract(exchangeAddress, provider);
         this._stakingWrapper = new StakingContract(stakingAddress, provider);
     }
