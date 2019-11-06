@@ -16,6 +16,8 @@ import {
     StakingPoolMetadata,
     CurrentEpochInfo,
     LastBlockProcessed,
+    EpochFinalizedEvent,
+    RewardsPaidEvent,
 } from './entities';
 
 const entities = [
@@ -34,6 +36,8 @@ const entities = [
     StakingPoolMetadata,
     CurrentEpochInfo,
     LastBlockProcessed,
+    EpochFinalizedEvent,
+    RewardsPaidEvent,
 ];
 
 const config: ConnectionOptions = {

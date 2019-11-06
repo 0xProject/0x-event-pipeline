@@ -1,25 +1,5 @@
-//import {
-//    ContractWrappers,
-//    ExchangeContract,
-//    ExchangeEventArgs,
-//    ExchangeEvents,
-//    ExchangeFillEventArgs,
-//} from '@0x/contract-wrappers';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { LogWithDecodedArgs } from 'ethereum-types';
-// import {
-//     StakingContract,
-//     StakingEventArgs,
-//     StakingEvents,
-//     StakingStakeEventArgs,
-//     StakingUnstakeEventArgs,
-//     StakingMoveStakeEventArgs,
-//     StakingStakingPoolCreatedEventArgs,
-//     StakingOperatorShareDecreasedEventArgs,
-//     StakingEpochEndedEventArgs,
-//     StakingEpochFinalizedEventArgs,
-//     StakingRewardsPaidEventArgs,
-// } from '@0x/contracts-staking';
 import { getContractAddressesForNetworkOrThrow } from '@0x/contract-addresses';
 
 import {
@@ -38,6 +18,9 @@ import {
     StakingEpochEndedEventArgs,
     StakingEpochFinalizedEventArgs,
     StakingRewardsPaidEventArgs,
+    StakingStakingPoolEarnedRewardsInEpochEventArgs,
+    StakingMakerStakingPoolSetEventArgs,
+    StakingParamsSetEventArgs,
 } from '@0x/abi-gen-wrappers';
 
 
@@ -108,6 +91,36 @@ export class EventsSource {
     ): Promise<Array<LogWithDecodedArgs<StakingStakingPoolCreatedEventArgs>>> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakingPoolCreatedEventArgs>(
             StakingEvents.StakingPoolCreated,
+        );
+        return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
+    }
+
+    public async getStakingPoolEarnedRewardsInEpochEventsAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<Array<LogWithDecodedArgs<StakingStakingPoolEarnedRewardsInEpochEventArgs>>> {
+        const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakingPoolEarnedRewardsInEpochEventArgs>(
+            StakingEvents.StakingPoolEarnedRewardsInEpoch,
+        );
+        return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
+    }
+
+    public async getMakerStakingPoolSetEventsAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<Array<LogWithDecodedArgs<StakingMakerStakingPoolSetEventArgs>>> {
+        const getterFunction = this._makeGetterFuncForStakingEventType<StakingMakerStakingPoolSetEventArgs>(
+            StakingEvents.StakingPoolEarnedRewardsInEpoch,
+        );
+        return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
+    }
+
+    public async getParamsSetEventsAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<Array<LogWithDecodedArgs<StakingParamsSetEventArgs>>> {
+        const getterFunction = this._makeGetterFuncForStakingEventType<StakingParamsSetEventArgs>(
+            StakingEvents.StakingPoolEarnedRewardsInEpoch,
         );
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }

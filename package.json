@@ -20,7 +20,7 @@
       "migrate:run": "yarn typeorm migration:run --config ./lib/src/ormconfig",
       "migrate:revert": "yarn typeorm migration:revert --config ./lib/src/ormconfig",
       "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations",
-      "postinstall": "mkdir 0x-monorepo; cd 0x-monorepo; git init; git remote add -f origin https://github.com/0xProject/0x-monorepo.git; git pull origin development; git checkout development; cd ..; npm i ./0x-monorepo/packages/abi-gen-wrappers/; npm i ./0x-monorepo/packages/contract-wrappers/; "
+      "postinstall": "mkdir 0x-monorepo; cd 0x-monorepo; git init; git remote add -f origin https://github.com/0xProject/0x-monorepo.git; git pull origin development; git checkout development; cd ..; npm i ./0x-monorepo/packages/abi-gen-wrappers/; "
    },
    "devDependencies": {
       "@0x/tslint-config": "^3.0.0",
@@ -32,14 +32,15 @@
    },
    "dependencies": {
       "@0x/abi-gen-wrappers": "file:0x-monorepo/packages/abi-gen-wrappers",
-      "@0x/contract-wrappers": "file:0x-monorepo/packages/contract-wrappers",
-      "@0x/contracts-staking": "^1.1.0-beta.0",
+      "@0x/dev-utils": "^2.3.3",
+      "@0x/order-utils": "^8.4.0",
+      "@0x/subproviders": "^5.0.4",
       "@types/dotenv": "^8.2.0",
       "@types/node-cron": "^2.0.2",
       "dotenv": "^8.2.0",
       "node-cron": "^2.0.3",
       "pg": "^7.5.0",
       "reflect-metadata": "^0.1.13",
-      "typeorm": "^0.2.7"
+      "typeorm": "^0.2.20"
    }
 }
