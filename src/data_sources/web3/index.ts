@@ -34,11 +34,6 @@ export class Web3Source {
         return blocks;
     }
 
-    public async getWSBlockInfoForRangeAsync(blockNum: number): Promise<BlockWithoutTransactionData> {
-        const block = this._web3.eth.getBlock.request(blockNum)
-        return block
-    }
-
     public async getBlockInfoForRangeAsync(startBlock: number, endBlock: number): Promise<BlockWithoutTransactionData[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
         const blocks = await Promise.all(iter.map(num => this.getBlockInfoAsync(num + startBlock)));

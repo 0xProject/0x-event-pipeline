@@ -1,6 +1,6 @@
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { LogWithDecodedArgs } from 'ethereum-types';
-import { getContractAddressesForNetworkOrThrow } from '@0x/contract-addresses';
+import { getContractAddressesForChainOrThrow } from '@0x/contract-addresses';
 
 import {
     ExchangeContract,
@@ -23,14 +23,7 @@ import {
     StakingParamsSetEventArgs,
 } from '@0x/abi-gen-wrappers';
 
-
 import { getEventsWithPaginationAsync, GetEventsFunc } from './utils';
-
-export type DecodedEvent = 
-    LogWithDecodedArgs<ExchangeFillEventArgs> |
-    LogWithDecodedArgs<StakingStakeEventArgs> |
-    LogWithDecodedArgs<StakingUnstakeEventArgs> |
-    LogWithDecodedArgs<StakingStakingPoolCreatedEventArgs>;
 
 const stakingAddress = '0x89150f5eed50b3528f79bfb539f29d727f92821c';
 const exchangeAddress = '0xca8b1626b3b7a0da722ca9f264c4630c7d34d3b8';
@@ -39,9 +32,9 @@ export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract;
     private readonly _stakingWrapper: StakingContract;
     constructor(provider: Web3ProviderEngine, networkId: number) {
-        //const contractAddresses = getContractAddressesForNetworkOrThrow(networkId);
-        this._exchangeWrapper = new ExchangeContract(exchangeAddress, provider);
-        this._stakingWrapper = new StakingContract(stakingAddress, provider);
+        const contractAddresses = getContractAddressesForChainOrThrow(networkId);
+        this._exchangeWrapper = new ExchangeContract(contractAddresses.exchange, provider);
+        this._stakingWrapper = new StakingContract(contractAddresses.staking, provider);
     }
 
     public async getFillEventsAsync(

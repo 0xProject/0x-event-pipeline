@@ -19,8 +19,7 @@
       "lint": "tslint --project . --format stylish --exclude ./migrations/**/* --exclude ./test/fixtures/**/**/*.json",
       "migrate:run": "yarn typeorm migration:run --config ./lib/src/ormconfig",
       "migrate:revert": "yarn typeorm migration:revert --config ./lib/src/ormconfig",
-      "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations",
-      "postinstall": "mkdir 0x-monorepo; cd 0x-monorepo; git init; git remote add -f origin https://github.com/0xProject/0x-monorepo.git; git pull origin development; git checkout development; cd ..; npm i ./0x-monorepo/packages/abi-gen-wrappers/; "
+      "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations"
    },
    "devDependencies": {
       "@0x/tslint-config": "^3.0.0",
@@ -31,10 +30,11 @@
       "typescript": "3.1.1"
    },
    "dependencies": {
-      "@0x/abi-gen-wrappers": "file:0x-monorepo/packages/abi-gen-wrappers",
-      "@0x/dev-utils": "^2.3.3",
-      "@0x/order-utils": "^8.4.0",
-      "@0x/subproviders": "^5.0.4",
+      "@0x/abi-gen-wrappers": "^5.4.0-beta.1",
+      "@0x/contract-addresses": "^3.3.0-beta.2",
+      "@0x/dev-utils": "^2.4.0-beta.1",
+      "@0x/order-utils": "^8.5.0-beta.1",
+      "@0x/subproviders": "^5.1.0-beta.1",
       "@types/dotenv": "^8.2.0",
       "@types/node-cron": "^2.0.2",
       "dotenv": "^8.2.0",
