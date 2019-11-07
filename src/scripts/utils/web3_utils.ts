@@ -22,7 +22,8 @@ export class PullAndSaveWeb3 {
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearch - 1));
         logUtils.log(`Grabbing blocks between ${startBlock} and ${endBlock}`);
-        const rawBlocks = await this._web3source.getBlockInfoForRangeAsync(startBlock, endBlock);
+        const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
+        logUtils.log(rawBlocks);
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
         
         logUtils.log(`saving ${parsedBlocks.length} blocks`);

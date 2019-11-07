@@ -1,7 +1,7 @@
 import { logUtils } from '@0x/utils';
 import { DecodedLogArgs, LogWithDecodedArgs } from 'ethereum-types';
 
-const NUM_RETRIES = 3; // Number of retries if a request fails or times out.
+const NUM_RETRIES = 1; // Number of retries if a request fails or times out.
 
 export type GetEventsFunc<ArgsType extends DecodedLogArgs> = (
     fromBlock: number,
@@ -61,7 +61,7 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
             if (isErrorRetryable(err) && i < numRetries) {
                 continue;
             } else {
-                throw err;
+                logUtils.log(err);
             }
         }
         break;

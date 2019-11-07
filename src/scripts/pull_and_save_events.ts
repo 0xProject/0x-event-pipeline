@@ -12,13 +12,14 @@ import { PullAndSaveWeb3 } from './utils/web3_utils';
 import * as config from "../../config/defaults.json";
 import { Web3Source } from '../data_sources/web3';
 
+
 const BLOCK_FINALITY_THRESHOLD = config.blockFinalityThreshold; // When to consider blocks as final. Used to compute default endBlock.
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: process.env.WEB3_ENDPOINT,
 });
 const eventsSource = new EventsSource(provider, config.network);
-const web3Source = new Web3Source(provider);
+const web3Source = new Web3Source(provider, String(process.env.WEB3_ENDPOINT));
 const pullAndSaveEvents = new PullAndSaveEvents(eventsSource);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
@@ -29,9 +30,9 @@ export class EventScraper {
         const latestBlockWithOffset = await calculateEndBlockAsync(provider);
 
         logUtils.log(`latest block with offset: ${latestBlockWithOffset}`);
-        
+
         await Promise.all([
-            //pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset),
+            pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset),
             pullAndSaveEvents.getParseSaveFillEventsAsync(connection, latestBlockWithOffset),
             pullAndSaveEvents.getParseSaveStakeEventsAsync(connection, latestBlockWithOffset),
             pullAndSaveEvents.getParseSaveUnstakeEventsAsync(connection, latestBlockWithOffset),

@@ -41,6 +41,7 @@
       "node-cron": "^2.0.3",
       "pg": "^7.5.0",
       "reflect-metadata": "^0.1.13",
-      "typeorm": "^0.2.20"
+      "typeorm": "^0.2.20",
+      "web3": "^1.2.2"
    }
 }
