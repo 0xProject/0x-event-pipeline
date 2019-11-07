@@ -7,7 +7,7 @@ export { StakeEvent } from './stake_event';
 export { UnstakeEvent } from './unstake_event';
 export { MoveStakeEvent } from './move_stake_event';
 export { StakingPoolCreatedEvent } from './staking_pool_created_event';
-export { StakingPoolEarnedRewardsInEpochEvent } from './staking_pool_earned_rewardS_in_epoch_event';
+export { StakingPoolEarnedRewardsInEpochEvent } from './staking_pool_earned_rewards_in_epoch_event';
 export { MakerStakingPoolSetEvent } from './maker_staking_pool_set_event';
 export { ParamsSetEvent } from './params_set_event';
 export { OperatorShareDecreasedEvent } from './operator_share_decreased_event';
