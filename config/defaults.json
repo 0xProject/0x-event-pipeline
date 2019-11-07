@@ -3,5 +3,6 @@
     "startBlockOffset": 35,
     "maxBlocksToSearch": 100,
     "network": 42,
-    "blockFinalityThreshold": 2
+    "blockFinalityThreshold": 2,
+    "secondsBetweenRuns": 15
 }
