@@ -34,7 +34,7 @@ export class EventsSource {
     constructor(provider: Web3ProviderEngine, networkId: number) {
         const contractAddresses = getContractAddressesForChainOrThrow(networkId);
         this._exchangeWrapper = new ExchangeContract(contractAddresses.exchange, provider);
-        this._stakingWrapper = new StakingContract(contractAddresses.staking, provider);
+        this._stakingWrapper = new StakingContract(contractAddresses.stakingProxy, provider);
     }
 
     public async getFillEventsAsync(
@@ -102,7 +102,7 @@ export class EventsSource {
         endBlock: number,
     ): Promise<Array<LogWithDecodedArgs<StakingMakerStakingPoolSetEventArgs>>> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingMakerStakingPoolSetEventArgs>(
-            StakingEvents.StakingPoolEarnedRewardsInEpoch,
+            StakingEvents.MakerStakingPoolSet,
         );
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }
@@ -112,7 +112,7 @@ export class EventsSource {
         endBlock: number,
     ): Promise<Array<LogWithDecodedArgs<StakingParamsSetEventArgs>>> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingParamsSetEventArgs>(
-            StakingEvents.StakingPoolEarnedRewardsInEpoch,
+            StakingEvents.ParamsSet,
         );
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }

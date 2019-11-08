@@ -10,7 +10,7 @@ const eventsStakeEventsTable = new Table({
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
-        { name: 'staker', type: 'varchar', isPrimary: true },
+        { name: 'staker', type: 'varchar' },
         { name: 'amount', type: 'numeric' },
     ],
 });
@@ -57,7 +57,7 @@ const eventsStakingPoolCreatedEventsTable = new Table({
         { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'transaction_index', type: 'bigint' },
         { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar', isPrimary: true },
+        { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'pool_id', type: 'varchar' },
         { name: 'operator_address', type: 'varchar' },

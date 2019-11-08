@@ -14,6 +14,6 @@ export class EpochFinalizedEvent extends Event {
     @Column({ name: 'rewards_paid', type: 'numeric', transformer: bigNumberTransformer })
     public rewardsPaid!: BigNumber;
     // Rewards paid out when epoch was finalized
-    @Column({ name: 'rewards_paid', type: 'numeric', transformer: bigNumberTransformer })
+    @Column({ name: 'rewards_remaining', type: 'numeric', transformer: bigNumberTransformer })
     public rewardsRemaining!: BigNumber;
 }

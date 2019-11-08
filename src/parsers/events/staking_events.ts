@@ -68,7 +68,7 @@ export function parseMoveStakeEvent(eventLog: LogWithDecodedArgs<StakingMoveStak
     parsedEvent.amount = new BigNumber(eventLog.args.amount);
     parsedEvent.fromStatus = eventLog.args.fromStatus;
     parsedEvent.fromPool = eventLog.args.fromPool;
-    parsedEvent.fromStatus = eventLog.args.fromStatus;
+    parsedEvent.toStatus = eventLog.args.toStatus;
     parsedEvent.toPool = eventLog.args.toPool;
 
     return parsedEvent;
@@ -111,6 +111,7 @@ export function parseMakerStakingPoolSetEvent(eventLog: LogWithDecodedArgs<Staki
     const parsedEvent = new MakerStakingPoolSetEvent();
     parseEvent(eventLog, parsedEvent);
 
+    parsedEvent.makerAddress = eventLog.args.makerAddress;
     parsedEvent.poolId = eventLog.args.poolId;
 
     return parsedEvent;

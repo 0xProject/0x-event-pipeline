@@ -6,9 +6,9 @@ import { Event } from './event';
 @Entity({ name: 'maker_staking_pool_set_events', schema: 'events' })
 export class MakerStakingPoolSetEvent extends Event {
     // Adress of maker added to pool.
-    @Column({ name: 'maker_address' })
+    @Column({ name: 'maker_address', type: 'varchar' })
     public makerAddress!: string;
     // The ID of the pool.
-    @Column({ name: 'pool_id' })
+    @Column({ name: 'pool_id', type: 'varchar' })
     public poolId!: string;
 }
