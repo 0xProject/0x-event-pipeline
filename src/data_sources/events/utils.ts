@@ -73,11 +73,8 @@ function isErrorRetryable(err: Error): boolean {
     return err.message.includes('network timeout');
 }
 
+// leaving this function available for use
 // tslint:disable custom-no-magic-numbers
 function numPaginationBlocks(startBlock: number): number {
-    if (startBlock > 7267000) {
-        return 100;
-    } else {
-        return 500;
-    }
+    return 500;
 }
