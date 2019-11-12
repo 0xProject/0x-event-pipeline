@@ -4,7 +4,7 @@ import { Event } from './event';
 import { numberToBigIntTransformer } from '../utils';
 
 // Event emitted when a staking pool's operator share is decreased.
-@Entity({ name: 'operator_shared_decreased_events', schema: 'events' })
+@Entity({ name: 'operator_share_decreased_events', schema: 'events' })
 export class OperatorShareDecreasedEvent extends Event {
     // Unique Id of pool.
     @Column({ name: 'pool_id' })

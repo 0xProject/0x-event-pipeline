@@ -67,9 +67,9 @@ export function parseMoveStakeEvent(eventLog: LogWithDecodedArgs<StakingMoveStak
     parsedEvent.staker = eventLog.args.staker;
     parsedEvent.amount = new BigNumber(eventLog.args.amount);
     parsedEvent.fromStatus = eventLog.args.fromStatus;
-    parsedEvent.fromPool = eventLog.args.fromPool;
+    parsedEvent.fromPool = String(Number(eventLog.args.fromPool));
     parsedEvent.toStatus = eventLog.args.toStatus;
-    parsedEvent.toPool = eventLog.args.toPool;
+    parsedEvent.toPool = String(Number(eventLog.args.toPool));
 
     return parsedEvent;
 }
@@ -82,7 +82,7 @@ export function parseStakingPoolCreatedEvent(eventLog: LogWithDecodedArgs<Stakin
     const parsedEvent = new StakingPoolCreatedEvent();
     parseEvent(eventLog, parsedEvent);
 
-    parsedEvent.poolId = eventLog.args.poolId;
+    parsedEvent.poolId = String(Number(eventLog.args.poolId));
     parsedEvent.operatorAddress = eventLog.args.operator;
     parsedEvent.operatorShare = eventLog.args.operatorShare;
 
@@ -98,7 +98,7 @@ export function parseStakingPoolEarnedRewardsInEpochEvent(eventLog: LogWithDecod
     parseEvent(eventLog, parsedEvent);
 
     parsedEvent.epochId = Number(eventLog.args.epoch);
-    parsedEvent.poolId = eventLog.args.poolId;
+    parsedEvent.poolId = String(Number(eventLog.args.poolId));
 
     return parsedEvent;
 }
@@ -112,7 +112,7 @@ export function parseMakerStakingPoolSetEvent(eventLog: LogWithDecodedArgs<Staki
     parseEvent(eventLog, parsedEvent);
 
     parsedEvent.makerAddress = eventLog.args.makerAddress;
-    parsedEvent.poolId = eventLog.args.poolId;
+    parsedEvent.poolId = String(Number(eventLog.args.poolId));
 
     return parsedEvent;
 }
@@ -142,7 +142,7 @@ export function parseOperatorShareDecreasedEvent(eventLog: LogWithDecodedArgs<St
     const parsedEvent = new OperatorShareDecreasedEvent();
     parseEvent(eventLog, parsedEvent);
 
-    parsedEvent.poolId = eventLog.args.poolId;
+    parsedEvent.poolId = String(Number(eventLog.args.poolId));
     parsedEvent.oldOperatorShare = eventLog.args.oldOperatorShare;
     parsedEvent.newOperatorShare = eventLog.args.newOperatorShare;
 
@@ -191,7 +191,7 @@ export function parseRewardsPaidEvent(eventLog: LogWithDecodedArgs<StakingReward
     parseEvent(eventLog, parsedEvent);
 
     parsedEvent.epochId = Number(eventLog.args.epoch);
-    parsedEvent.poolId = eventLog.args.poolId;
+    parsedEvent.poolId = String(Number(eventLog.args.poolId));
     parsedEvent.operatorReward = new BigNumber(eventLog.args.operatorReward);
     parsedEvent.membersReward = new BigNumber(eventLog.args.membersReward);
 
