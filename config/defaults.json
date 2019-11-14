@@ -1,9 +1,0 @@
-{
-    "firstSearchBlock": 14425602,
-    "startBlockOffset": 35,
-    "maxBlocksToPull": 500,
-    "maxBlocksToSearchForEvents": 500,
-    "network": 42,
-    "blockFinalityThreshold": 2,
-    "secondsBetweenRuns": 15
-}

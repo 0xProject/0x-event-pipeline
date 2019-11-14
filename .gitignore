@@ -1,0 +1,5 @@
+.env
+postgres
+node_modules
+lib
+.vscode
