@@ -1,5 +1,5 @@
 export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events';
-export const DEFAULT_FIRST_SEARCH_BLOCK = 14425606;
+export const DEFAULT_FIRST_SEARCH_BLOCK = 14425602;
 export const DEFAULT_START_BLOCK_OFFSET = 35;
 export const DEFAULT_MAX_BLOCKS_TO_PULL = 500;
 export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 500;
