@@ -7,7 +7,7 @@ import { BigNumber } from '@0x/utils';
 @Entity({ name: 'transactions', schema: 'events' })
 export class Transaction {
     // When the event was scraped
-    @Column({ name: 'observed_timestamp', transformer: numberToBigIntTransformer })
+    @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public observedTimestamp!: number;
     // The address of the taker (may be null).
     @PrimaryColumn({ name: 'transaction_hash' })
@@ -16,10 +16,10 @@ export class Transaction {
     @PrimaryColumn({ name: 'block_hash' })
     public blockHash!: string;
     // depth of the block
-    @PrimaryColumn({ name: 'block_number', transformer: numberToBigIntTransformer })
+    @PrimaryColumn({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockNumber!: number;
     // Index of the transaction in the block
-    @Column({ name: 'transaction_index', transformer: numberToBigIntTransformer })
+    @Column({ name: 'transaction_index', type: 'bigint', transformer: numberToBigIntTransformer })
     public transactionIndex!: number;
     // The address of the sender
     @Column({ name: 'sender_address' })
