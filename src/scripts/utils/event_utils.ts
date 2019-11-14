@@ -1,5 +1,7 @@
 import { logUtils } from '@0x/utils';
 import { Connection } from 'typeorm';
+
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET } from '../../config';
 import {
     FillEvent,
     StakingPoolCreatedEvent,
@@ -31,8 +33,6 @@ import {
 } from '../../parsers/events/staking_events';
 import { EventsSource } from '../../data_sources/events/0x_events';
 
-import * as config from "../../../config/defaults.json";
-
 
 export class PullAndSaveEvents {
     private readonly _eventsSource: EventsSource;
@@ -45,7 +45,7 @@ export class PullAndSaveEvents {
         const eventName = 'FillEvent';
         const tableName = 'fill_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getFillEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseFillEvent(log));
@@ -61,7 +61,7 @@ export class PullAndSaveEvents {
         const eventName = 'StakeEvent';
         const tableName = 'stake_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getStakeEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseStakeEvent(log));
@@ -77,7 +77,7 @@ export class PullAndSaveEvents {
         const eventName = 'UnstakeEvent';
         const tableName = 'unstake_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getUnstakeEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseUnstakeEvent(log));
@@ -93,7 +93,7 @@ export class PullAndSaveEvents {
         const eventName = 'MoveStake';
         const tableName = 'move_stake_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getMoveStakeEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseMoveStakeEvent(log));
@@ -109,7 +109,7 @@ export class PullAndSaveEvents {
         const eventName = 'StakingPoolCreated';
         const tableName = 'staking_pool_created_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getStakingPoolCreatedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseStakingPoolCreatedEvent(log));
@@ -125,7 +125,7 @@ export class PullAndSaveEvents {
         const eventName = 'StakingPoolEarnedRewardsInEpoch';
         const tableName = 'staking_pool_earned_rewards_in_epoch_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getStakingPoolEarnedRewardsInEpochEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseStakingPoolEarnedRewardsInEpochEvent(log));
@@ -141,7 +141,7 @@ export class PullAndSaveEvents {
         const eventName = 'MakerStakingPoolSet';
         const tableName = 'maker_staking_pool_set_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getMakerStakingPoolSetEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseMakerStakingPoolSetEvent(log));
@@ -157,7 +157,7 @@ export class PullAndSaveEvents {
         const eventName = 'ParamsSet';
         const tableName = 'params_set_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getParamsSetEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseParamsSetEvent(log));
@@ -173,7 +173,7 @@ export class PullAndSaveEvents {
         const eventName = 'OperatorShareDecreased';
         const tableName = 'operator_share_decreased_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getOperatorShareDecreasedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseOperatorShareDecreasedEvent(log));
@@ -189,7 +189,7 @@ export class PullAndSaveEvents {
         const eventName = 'EpochEnded';
         const tableName = 'epoch_ended_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getEpochEndedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseEpochEndedEvent(log));
@@ -205,7 +205,7 @@ export class PullAndSaveEvents {
         const eventName = 'EpochFinalized';
         const tableName = 'epoch_finalized_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getEpochFinalizedEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseEpochFinalizedEvent(log));
@@ -221,7 +221,7 @@ export class PullAndSaveEvents {
         const eventName = 'RewardsPaid';
         const tableName = 'rewards_paid_events';
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToSearchForEvents - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await this._eventsSource.getRewardsPaidEventsAsync(startBlock, endBlock);
         const parsedEventLogs = eventLogs.map(log => parseRewardsPaidEvent(log));
@@ -247,9 +247,9 @@ export class PullAndSaveEvents {
         );
     
         logUtils.log(queryResult);
-        const lastKnownBlock = queryResult[0] || {last_processed_block_number: config.firstSearchBlock};
+        const lastKnownBlock = queryResult[0] || {last_processed_block_number: FIRST_SEARCH_BLOCK};
 
-        return Math.min(Number(lastKnownBlock.last_processed_block_number) + 1, latestBlockWithOffset - config.startBlockOffset);
+        return Math.min(Number(lastKnownBlock.last_processed_block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }
 
     private async _deleteOverlapAndSaveAsync<T>(
