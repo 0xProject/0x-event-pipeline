@@ -5,7 +5,7 @@
    "license": "Apache-2.0",
    "scripts": {
       "build": "yarn tsc -b",
-      "start": "ts-node lib/src/index.js",
+      "start": "node lib/src/index.js",
       "test": "yarn run_mocha",
       "rebuild_and_test": "run-s build test:all",
       "test:db": "yarn run_mocha:db",
