@@ -20,4 +20,4 @@ COPY . .
 RUN yarn build
 
 EXPOSE 3000
-CMD [ "node", "lib/src/index.js" ]
+CMD [ "yarn", "migrate_and_start" ]
