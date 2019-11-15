@@ -33,7 +33,7 @@ $ yarn start
 
 `CHAIN_ID` - The Ethereum chain id.
 
-`BLOCK_FINALITY_THRESHOLD` - How many blocks until a transaction is considered final.
+`BLOCK_FINALITY_THRESHOLD` - How many blocks before the current block to end the search, allowing you to limit your event scrape to blocks that are relatively more settled.
 
 `SECONDS_BETWEEN_RUNS` - How long to wait between scrapes.
 
