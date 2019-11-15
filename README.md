@@ -38,3 +38,37 @@ $ yarn start
 `SECONDS_BETWEEN_RUNS` - How long to wait between scrapes.
 
 `SHOULD_SYNCHRONIZE` - Whether typeorm should synchronize with the database from `POSTGRES_URI`.
+
+## Database snapshots
+
+When running the app on a new database it can take a long time to find new events depending on the value of `START_BLOCK_OFFSET`. There are options to dump and restore data from other sources using `pg_dump` ([Documentation](https://www.postgresql.org/docs/9.6/app-pgdump.html)) and `pg_restore` ([Documentation](https://www.postgresql.org/docs/9.2/app-pgrestore.html)). Some examples are outlined below.
+
+
+These examples will require `postgresql` to be installed.
+
+```
+$ brew install postgresql
+```
+
+
+### Getting data from another database
+
+If you know of another database that contains up-to-date data, you can `pg_dump` data from the relevant schemas from that database by running:
+```
+$ pg_dump -h <host> -U <user> -p <port> --schema staking --schema events --data-only --file events.dump --format=c <database name>
+```
+
+To save a `pg_dump` archive file named `events.dump`. The command will prompt you for the password.
+
+### Restoring data from a pg_dump
+
+If you have access to a `.dump` file you can `pg_restore` data from that file into another database. 
+
+To restore data into the default development database that is spun up by `docker-compose up`, you can run:
+
+```
+$ pg_restore --data-only --dbname events --host localhost --port 5432 -U user events.dump
+```
+
+Assuming you have access to an `events.dump` file. The command will prompt you for the password.
+
