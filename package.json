@@ -7,6 +7,7 @@
       "build": "yarn tsc -b",
       "start": "node lib/src/index.js",
       "test": "yarn run_mocha",
+      "migrate_and_start": "yarn migrate:run && yarn start",
       "rebuild_and_test": "run-s build test:all",
       "test:db": "yarn run_mocha:db",
       "test:all": "run-s test test:db",
