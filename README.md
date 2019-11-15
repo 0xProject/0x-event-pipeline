@@ -25,7 +25,7 @@ $ yarn start
 
 `FIRST_SEARCH_BLOCK` - The first block number to search when scraping.
 
-`START_BLOCK_OFFSET` - How many blacks before the last known block to start scraping events.
+`START_BLOCK_OFFSET` - How many blocks before the current block to search for events, allowing for updates to previously scraped events that may be in orphaned blocks.
 
 `MAX_BLOCKS_TO_PULL` - The maximum number of blocks to pull at once.
 
