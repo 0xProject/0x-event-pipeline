@@ -5,7 +5,7 @@
    "license": "Apache-2.0",
    "scripts": {
       "build": "yarn tsc -b",
-      "start": "ts-node lib/src/index.js",
+      "start": "node lib/src/index.js",
       "test": "yarn run_mocha",
       "rebuild_and_test": "run-s build test:all",
       "test:db": "yarn run_mocha:db",
@@ -23,10 +23,12 @@
    },
    "devDependencies": {
       "@0x/tslint-config": "^3.0.0",
-      "ts-node": "3.3.0",
+      "@types/dotenv": "^8.2.0",
       "@types/node": "^8.0.29",
-      "tslint": "5.11.0",
+      "@types/node-cron": "^2.0.2",
       "mocha": "^4.1.0",
+      "ts-node": "3.3.0",
+      "tslint": "5.11.0",
       "typescript": "3.1.1"
    },
    "dependencies": {
@@ -35,8 +37,6 @@
       "@0x/dev-utils": "^2.4.0-beta.1",
       "@0x/order-utils": "^8.5.0-beta.1",
       "@0x/subproviders": "^5.1.0-beta.1",
-      "@types/dotenv": "^8.2.0",
-      "@types/node-cron": "^2.0.2",
       "dotenv": "^8.2.0",
       "node-cron": "^2.0.3",
       "pg": "^7.5.0",

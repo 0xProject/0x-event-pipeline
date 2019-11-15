@@ -293,7 +293,7 @@
 
 "@types/dotenv@^8.2.0":
   version "8.2.0"
-  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-8.2.0.tgz#5cd64710c3c98e82d9d15844375a33bf1b45d053"
+  resolved "https://registry.npmjs.org/@types/dotenv/-/dotenv-8.2.0.tgz#5cd64710c3c98e82d9d15844375a33bf1b45d053"
   integrity sha512-ylSC9GhfRH7m1EUXBXofhgx4lUWmFeQDINW5oLuS+gxWdfUeW4zJdeVTYVkexEW+e2VUvlZR2kGnGGipAWR7kw==
   dependencies:
     dotenv "*"
@@ -314,7 +314,7 @@
 
 "@types/node-cron@^2.0.2":
   version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@types/node-cron/-/node-cron-2.0.2.tgz#d6a367638abf3f60103fad81a45b9803636b17bd"
+  resolved "https://registry.npmjs.org/@types/node-cron/-/node-cron-2.0.2.tgz#d6a367638abf3f60103fad81a45b9803636b17bd"
   integrity sha512-JE16Xfkuwecu8++rjW1+KSJYKaEAJA5v4JwbYJGN/z4Qb09GkDeeI+cJGWWrsoxocU8/FIUwRJnTnU+I5fPoag==
   dependencies:
     "@types/tz-offset" "*"
@@ -349,7 +349,7 @@
 
 "@types/tz-offset@*":
   version "0.0.0"
-  resolved "https://registry.yarnpkg.com/@types/tz-offset/-/tz-offset-0.0.0.tgz#d58f1cebd794148d245420f8f0660305d320e565"
+  resolved "https://registry.npmjs.org/@types/tz-offset/-/tz-offset-0.0.0.tgz#d58f1cebd794148d245420f8f0660305d320e565"
   integrity sha512-XLD/llTSB6EBe3thkN+/I0L+yCTB6sjrcVovQdx2Cnl6N6bTzHmwe/J8mWnsXFgxLrj/emzdv8IR4evKYG2qxQ==
 
 "@types/web3-provider-engine@^14.0.0":

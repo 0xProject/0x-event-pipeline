@@ -1,5 +1,7 @@
 import { ConnectionOptions } from 'typeorm';
 
+import { POSTGRES_URI, SHOULD_SYNCHRONIZE } from './config';
+
 import {
     Block,
     Transaction,
@@ -42,8 +44,8 @@ const entities = [
 
 const config: ConnectionOptions = {
     type: 'postgres',
-    url: process.env.CONNECTION_STRING,
-    synchronize: false,
+    url: POSTGRES_URI,
+    synchronize: SHOULD_SYNCHRONIZE,
     logging: ['error'],
     entities,
     migrations: ['lib/migrations/*.js'],
