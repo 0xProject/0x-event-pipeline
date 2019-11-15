@@ -31,7 +31,7 @@ $ yarn start
 
 `MAX_BLOCKS_TO_SEARCH` - The maximum number of blocks to search at once.
 
-`CHAIN_ID` - The Ethereum chain chain id.
+`CHAIN_ID` - The Ethereum chain id.
 
 `BLOCK_FINALITY_THRESHOLD` - How many blocks until a transaction is considered final.
 
