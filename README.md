@@ -55,7 +55,7 @@ $ brew install postgresql
 
 If you know of another database that contains up-to-date data, you can `pg_dump` data from the relevant schemas from that database by running:
 ```
-$ pg_dump -h <host> -U <user> -p <port> --schema staking --schema events --data-only --file events.dump --format=c hashalytics
+$ pg_dump -h <host> -U <user> -p <port> --schema staking --schema events --data-only --file events.dump --format=c <database name>
 ```
 
 To save a `pg_dump` archive file named `events.dump`. The command will prompt you for the password.
