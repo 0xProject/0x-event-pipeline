@@ -8,7 +8,7 @@ import {
 } from '../../parsers/web3/parse_web3_objects';
 import { Web3Source } from '../../data_sources/web3';
 
-import * as config from "../../../config/defaults.json";
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET } from '../../config';
 
 
 export class PullAndSaveWeb3 {
@@ -20,7 +20,7 @@ export class PullAndSaveWeb3 {
     public async getParseSaveBlocks(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         const tableName = 'blocks';
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (config.maxBlocksToPull - 1));
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
         logUtils.log(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
@@ -35,9 +35,9 @@ export class PullAndSaveWeb3 {
             `SELECT block_number FROM events.blocks ORDER BY block_number DESC LIMIT 1`,
         );
     
-        const lastKnownBlock = queryResult[0] || {block_number: config.firstSearchBlock};
+        const lastKnownBlock = queryResult[0] || {block_number: FIRST_SEARCH_BLOCK};
 
-        return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - config.startBlockOffset);
+        return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }
 
     private async _deleteOverlapAndSaveBlocksAsync<T>(

@@ -6,10 +6,9 @@ config({ path: resolve(__dirname, "../../.env") });
 
 import { ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
+import { SECONDS_BETWEEN_RUNS } from './config';
 
 import { EventScraper } from './scripts/pull_and_save_events';
-
-import * as defaults from "../config/defaults.json";
 
 console.log("App is running...");
 
@@ -18,7 +17,7 @@ const eventScraper = new EventScraper();
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions).then(async connection => {
 
-    cron.schedule(`*/${defaults.secondsBetweenRuns} * * * * *`, () => {
+    cron.schedule(`*/${SECONDS_BETWEEN_RUNS} * * * * *`, () => {
         eventScraper.getParseSaveEventsAsync(connection);
     });
 

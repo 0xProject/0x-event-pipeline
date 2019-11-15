@@ -5,21 +5,19 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import 'reflect-metadata';
 import { Connection } from 'typeorm';
 
-import { EventsSource } from '../data_sources/events/0x_events';
 import { PullAndSaveEvents } from './utils/event_utils';
 import { PullAndSaveWeb3 } from './utils/web3_utils';
 
-import * as config from "../../config/defaults.json";
+import { EventsSource } from '../data_sources/events/0x_events';
 import { Web3Source } from '../data_sources/web3';
+import { BLOCK_FINALITY_THRESHOLD, CHAIN_ID, ETHEREUM_RPC_URL } from '../config';
 
-
-const BLOCK_FINALITY_THRESHOLD = config.blockFinalityThreshold; // When to consider blocks as final. Used to compute default endBlock.
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: process.env.WEB3_ENDPOINT,
+    rpcUrl: ETHEREUM_RPC_URL,
 });
-const eventsSource = new EventsSource(provider, config.network);
-const web3Source = new Web3Source(provider, String(process.env.WEB3_ENDPOINT));
+const eventsSource = new EventsSource(provider, CHAIN_ID);
+const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const pullAndSaveEvents = new PullAndSaveEvents(eventsSource);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 

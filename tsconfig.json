@@ -6,7 +6,7 @@
        "emitDecoratorMetadata": true,
        "experimentalDecorators": true,
        "resolveJsonModule": true,
-       "lib": ["es2017", "dom"],
+       "lib": ["es2017"],
        "module": "commonjs",
        "target": "es5",
        "downlevelIteration": true,
@@ -15,8 +15,6 @@
        "skipLibCheck": true,
        "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"],
        "strict": true,
-       // These settings are required for TypeScript project references
-       // "composite": true,
        "declaration": true,
        "declarationMap": true,
        "sourceMap": true
