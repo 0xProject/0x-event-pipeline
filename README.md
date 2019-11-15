@@ -25,15 +25,15 @@ $ yarn start
 
 `FIRST_SEARCH_BLOCK` - The first block number to search when scraping.
 
-`START_BLOCK_OFFSET` - How many blacks before the last known block to start scraping events.
+`START_BLOCK_OFFSET` - How many blocks before the current block to search for events, allowing for updates to previously scraped events that may be in orphaned blocks.
 
 `MAX_BLOCKS_TO_PULL` - The maximum number of blocks to pull at once.
 
-`MAX_BLOCKS_TO_SEARCH` - The maximum number of blocks to search at once.
+`MAX_BLOCKS_TO_SEARCH` - The maximum number of blocks to search for events at once.
 
-`CHAIN_ID` - The Ethereum chain chain id.
+`CHAIN_ID` - The Ethereum chain id.
 
-`BLOCK_FINALITY_THRESHOLD` - How many blocks until a transaction is considered final.
+`BLOCK_FINALITY_THRESHOLD` - How many blocks before the current block to end the search, allowing you to limit your event scrape to blocks that are relatively more settled.
 
 `SECONDS_BETWEEN_RUNS` - How long to wait between scrapes.
 
