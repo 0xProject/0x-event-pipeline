@@ -29,7 +29,7 @@ $ yarn start
 
 `MAX_BLOCKS_TO_PULL` - The maximum number of blocks to pull at once.
 
-`MAX_BLOCKS_TO_SEARCH` - The maximum number of blocks to search at once.
+`MAX_BLOCKS_TO_SEARCH` - The maximum number of blocks to search for events at once.
 
 `CHAIN_ID` - The Ethereum chain id.
 
