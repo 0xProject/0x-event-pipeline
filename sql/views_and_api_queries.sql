@@ -13,11 +13,24 @@
                     , transaction_index AS created_at_transaction_index
                 FROM events.staking_pool_created_events
             )
+            , maker_current_pool AS (
+                SELECT DISTINCT
+                    maker_address
+                    , LAST_VALUE(pool_id)
+                        OVER(
+                            PARTITION BY maker_address
+                            ORDER BY block_number, transaction_index
+                            RANGE BETWEEN
+                                UNBOUNDED PRECEDING AND
+                                UNBOUNDED FOLLOWING
+                        ) AS pool_id
+                FROM events.maker_staking_pool_set_events
+            )
             , makers AS (
                 SELECT
                     pool_id
                     , ARRAY_AGG(maker_address) AS maker_addresses
-                FROM events.maker_staking_pool_set_events
+                FROM maker_current_pool
                 GROUP BY 1
             )
             SELECT
@@ -39,7 +52,6 @@
     );
     SELECT * FROM staking.pool_info;
 
-
     SELECT
         pi.pool_id
         , pi.operator
@@ -51,7 +63,7 @@
     ORDER BY 1;
 
 -- Current epoch
-    DROP VIEW staking.current_epoch;
+    DROP VIEW staking.current_epoch CASCADE;
     CREATE VIEW staking.current_epoch AS (
         SELECT
             epoch_id + 1 AS epoch_id
@@ -173,7 +185,13 @@
                 osc.pool_id
                 , e.epoch_id
                 , LAST_VALUE(osc.operator_share)
-                    OVER (PARTITION BY osc.pool_id ORDER BY osc.block_number, osc.transaction_index) AS operator_share
+                        OVER(
+                            PARTITION BY osc.pool_id
+                            ORDER BY osc.block_number, osc.transaction_index
+                            RANGE BETWEEN
+                                UNBOUNDED PRECEDING AND
+                                UNBOUNDED FOLLOWING
+                        ) AS operator_share
             FROM staking.epochs e
             JOIN staking.operator_share_changes osc
                 ON osc.block_number < e.starting_block_number
@@ -182,7 +200,27 @@
 
     SELECT * FROM staking.pool_epoch_operator_share;
 
-
+-- Maker set changes
+    DROP VIEW staking.maker_epochs CASCADE;
+    CREATE OR REPLACE VIEW staking.maker_epochs AS (
+        SELECT DISTINCT
+            sps.maker_address
+            , e.epoch_id
+            , LAST_VALUE(sps.pool_id)
+                OVER(
+                    PARTITION BY sps.maker_address, e.epoch_id
+                    ORDER BY sps.block_number, sps.transaction_index
+                            RANGE BETWEEN
+                                UNBOUNDED PRECEDING AND
+                                UNBOUNDED FOLLOWING
+                ) AS pool_id
+        FROM staking.epochs e
+        JOIN events.maker_staking_pool_set_events sps
+            ON sps.block_number < e.starting_block_number
+            OR (sps.block_number = e.starting_block_number AND sps.transaction_index < e.starting_transaction_index)
+    );
+    SELECT * FROM events.maker_staking_pool_set_events;
+    SELECT * FROM staking.maker_epochs;
 
 -- Pool status at the start of epochs
     DROP VIEW staking.epoch_start_pool_status;
@@ -190,13 +228,10 @@
         WITH
             makers_at_start AS (
                 SELECT
-                    e.epoch_id
-                    , m.pool_id
-                    , ARRAY_AGG(m.maker_address) AS maker_addresses
-                FROM events.maker_staking_pool_set_events m
-                LEFT JOIN staking.epochs e
-                    ON e.starting_block_number > m.block_number
-                    OR (e.starting_block_number = m.block_number AND e.starting_transaction_index > m.transaction_index)
+                    me.epoch_id
+                    , me.pool_id
+                    , ARRAY_AGG(me.maker_address) AS maker_addresses
+                FROM staking.maker_epochs me
                 GROUP BY 1,2
             )
             , delegated_stake_at_start AS (
@@ -221,8 +256,8 @@
                 ON e.starting_block_number > spc.block_number
                 OR (e.starting_block_number = spc.block_number AND e.ending_transaction_index > spc.transaction_index)
             JOIN staking.pool_epoch_operator_share peos ON peos.epoch_id = e.epoch_id AND peos.pool_id = spc.pool_id
-            JOIN makers_at_start mas ON mas.epoch_id = e.epoch_id AND mas.pool_id = spc.pool_id
-            JOIN delegated_stake_at_start das ON das.epoch_id =e.epoch_id AND das.pool_id = spc.pool_id
+            LEFT JOIN makers_at_start mas ON mas.epoch_id = e.epoch_id AND mas.pool_id = spc.pool_id
+            LEFT JOIN delegated_stake_at_start das ON das.epoch_id =e.epoch_id AND das.pool_id = spc.pool_id
     );
     SELECT * FROM staking.epoch_start_pool_status LIMIT 100;
 
@@ -375,3 +410,53 @@
             , members_reward::NUMERIC / 1e18::NUMERIC AS members_reward
             , (operator_reward::NUMERIC + members_reward::NUMERIC) / 1e18 AS total_reward
         FROM events.rewards_paid_events;
+
+-- Wizard endpoint data
+    -- Return a list of staking pools with
+        -- 1. ZRX staked
+        -- 2. Fees collected (rolling 7-day)
+        -- 3. Operator Share
+        WITH
+            operator_share AS (
+                SELECT DISTINCT
+                    pool_id
+                    , LAST_VALUE(operator_share) OVER (
+                            PARTITION BY pool_id
+                            ORDER BY block_number, transaction_index
+                            RANGE BETWEEN
+                            UNBOUNDED PRECEDING AND
+                            UNBOUNDED FOLLOWING
+                        )
+                        AS operator_share
+                FROM staking.operator_share_changes
+            )
+            , current_stake AS (
+                SELECT
+                    pi.pool_id
+                    , SUM(COALESCE(zsc.amount,0)) AS zrx_staked
+                FROM staking.pool_info pi
+                LEFT JOIN staking.zrx_staking_changes zsc ON zsc.pool_id = pi.pool_id
+                GROUP BY 1
+            )
+            , past_7d_fills_fills_by_pool AS (
+                SELECT
+                    pi.pool_id
+                    , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
+                FROM events.fill_events fe
+                LEFT JOIN events.blocks b ON b.block_number = fe.block_number
+                LEFT JOIN staking.pool_info pi ON fe.maker_address = ANY(pi.maker_addresses)
+                WHERE
+                    -- fees not accruing to a pool do not count
+                    pool_id IS NOT NULL
+                    AND TO_TIMESTAMP(b.block_timestamp) > (CURRENT_TIMESTAMP - '7 days'::INTERVAL)
+                GROUP BY 1
+            )
+            SELECT
+                pi.pool_id
+                , os.operator_share
+                , cs.zrx_staked
+                , f.protocol_fees
+            FROM staking.pool_info pi
+            JOIN operator_share os ON os.pool_id = pi.pool_id
+            JOIN current_stake cs ON cs.pool_id = pi.pool_id
+            LEFT JOIN past_7d_fills_fills_by_pool f ON f.pool_id = pi.pool_id
