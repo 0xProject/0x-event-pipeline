@@ -214,14 +214,14 @@ const upQuery = `
 `;
 
 const downQuery = `
-    DROP VIEW staking.pool_info;
-    DROP VIEW staking.current_epoch;
-    DROP VIEW staking.epochs;
-    DROP VIEW staking.zrx_staking_changes;
-    DROP VIEW staking.operator_share_changes;
-    DROP VIEW staking.pool_epoch_operator_share;
-    DROP VIEW staking.epoch_start_pool_status;
-    DROP VIEW staking.current_params;
+    DROP VIEW IF EXISTS staking.pool_info CASCADE;
+    DROP VIEW IF EXISTS staking.current_epoch CASCADE;
+    DROP VIEW IF EXISTS staking.epochs CASCADE;
+    DROP VIEW IF EXISTS staking.zrx_staking_changes CASCADE;
+    DROP VIEW IF EXISTS staking.operator_share_changes CASCADE;
+    DROP VIEW IF EXISTS staking.pool_epoch_operator_share CASCADE;
+    DROP VIEW IF EXISTS staking.epoch_start_pool_status CASCADE;
+    DROP VIEW IF EXISTS staking.current_params CASCADE;
 `;
 
 export class AddStakingViews1573928462730 implements MigrationInterface {
