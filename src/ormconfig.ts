@@ -20,6 +20,7 @@ import {
     LastBlockProcessed,
     EpochFinalizedEvent,
     RewardsPaidEvent,
+    StakingProxyDeployment,
 } from './entities';
 
 const entities = [
@@ -40,6 +41,7 @@ const entities = [
     LastBlockProcessed,
     EpochFinalizedEvent,
     RewardsPaidEvent,
+    StakingProxyDeployment,
 ];
 
 const config: ConnectionOptions = {
