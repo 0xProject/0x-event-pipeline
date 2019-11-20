@@ -375,3 +375,44 @@
             , members_reward::NUMERIC / 1e18::NUMERIC AS members_reward
             , (operator_reward::NUMERIC + members_reward::NUMERIC) / 1e18 AS total_reward
         FROM events.rewards_paid_events;
+
+-- Staking endpoint
+    -- Current epoch info
+        WITH
+            zrx_staked AS (
+                SELECT
+                    SUM(esps.zrx_delegated) AS zrx_staked
+                FROM staking.epoch_start_pool_status esps
+                JOIN staking.current_epoch ce ON ce.epoch_id = esps.epoch_id
+            )
+            , protocol_fees AS (
+                SELECT
+                    SUM(protocol_fee_paid) / 1e18::NUMERIC AS protocol_fees
+                FROM events.fill_events fe
+                JOIN staking.current_epoch ce
+                    ON fe.block_number > ce.starting_block_number
+                    OR (fe.block_number = ce.starting_block_number AND fe.transaction_index > ce.starting_transaction_index)
+            )
+            SELECT
+                ce.*
+                , zs.zrx_staked
+                , pf.protocol_fees
+            FROM staking.current_epoch ce
+            CROSS JOIN zrx_staked zs
+            CROSS JOIN protocol_fees pf;
+
+    -- Next epoch info
+        WITH
+            zrx_staked AS (
+                SELECT
+                    SUM(amount) AS zrx_staked
+                FROM staking.zrx_staking_changes
+            )
+            SELECT
+                ce.epoch_id + 1 AS epoch_id
+                , ce.starting_block_number + cp.epoch_duration_in_seconds::NUMERIC / 15::NUMERIC AS starting_block_number
+                , ce.starting_block_timestamp + ((cp.epoch_duration_in_seconds)::VARCHAR || ' seconds')::INTERVAL AS starting_timestamp
+                , zs.zrx_staked
+            FROM staking.current_epoch ce
+            CROSS JOIN staking.current_params cp
+            CROSS JOIN zrx_staked zs;
