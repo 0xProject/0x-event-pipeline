@@ -24,11 +24,24 @@ const upQuery = `
                     , transaction_index AS created_at_transaction_index
                 FROM events.staking_pool_created_events
             )
+            , maker_current_pool AS (
+                SELECT DISTINCT
+                    maker_address
+                    , LAST_VALUE(pool_id)
+                        OVER(
+                            PARTITION BY maker_address
+                            ORDER BY block_number, transaction_index
+                            RANGE BETWEEN
+                                UNBOUNDED PRECEDING AND
+                                UNBOUNDED FOLLOWING
+                        ) AS pool_id
+                FROM events.maker_staking_pool_set_events
+            )
             , makers AS (
                 SELECT
                     pool_id
                     , ARRAY_AGG(maker_address) AS maker_addresses
-                FROM events.maker_staking_pool_set_events
+                FROM maker_current_pool
                 GROUP BY 1
             )
             SELECT
@@ -158,24 +171,45 @@ const upQuery = `
             osc.pool_id
             , e.epoch_id
             , LAST_VALUE(osc.operator_share)
-                OVER (PARTITION BY osc.pool_id ORDER BY osc.block_number, osc.transaction_index) AS operator_share
+                    OVER(
+                        PARTITION BY osc.pool_id
+                        ORDER BY osc.block_number, osc.transaction_index
+                        RANGE BETWEEN
+                            UNBOUNDED PRECEDING AND
+                            UNBOUNDED FOLLOWING
+                    ) AS operator_share
         FROM staking.epochs e
         JOIN staking.operator_share_changes osc
             ON osc.block_number < e.starting_block_number
             OR (osc.block_number = e.starting_block_number AND osc.transaction_index < e.starting_transaction_index)
     );
 
+    CREATE VIEW staking.maker_epochs AS (
+        SELECT DISTINCT
+            sps.maker_address
+            , e.epoch_id
+            , LAST_VALUE(sps.pool_id)
+                OVER(
+                    PARTITION BY sps.maker_address, e.epoch_id
+                    ORDER BY sps.block_number, sps.transaction_index
+                            RANGE BETWEEN
+                                UNBOUNDED PRECEDING AND
+                                UNBOUNDED FOLLOWING
+                ) AS pool_id
+        FROM staking.epochs e
+        JOIN events.maker_staking_pool_set_events sps
+            ON sps.block_number < e.starting_block_number
+            OR (sps.block_number = e.starting_block_number AND sps.transaction_index < e.starting_transaction_index)
+    );
+
     CREATE VIEW staking.epoch_start_pool_status AS (
         WITH
             makers_at_start AS (
                 SELECT
-                    e.epoch_id
-                    , m.pool_id
-                    , ARRAY_AGG(m.maker_address) AS maker_addresses
-                FROM events.maker_staking_pool_set_events m
-                LEFT JOIN staking.epochs e
-                    ON e.starting_block_number > m.block_number
-                    OR (e.starting_block_number = m.block_number AND e.starting_transaction_index > m.transaction_index)
+                    me.epoch_id
+                    , me.pool_id
+                    , ARRAY_AGG(me.maker_address) AS maker_addresses
+                FROM staking.maker_epochs me
                 GROUP BY 1,2
             )
             , delegated_stake_at_start AS (
@@ -200,8 +234,8 @@ const upQuery = `
                 ON e.starting_block_number > spc.block_number
                 OR (e.starting_block_number = spc.block_number AND e.ending_transaction_index > spc.transaction_index)
             JOIN staking.pool_epoch_operator_share peos ON peos.epoch_id = e.epoch_id AND peos.pool_id = spc.pool_id
-            JOIN makers_at_start mas ON mas.epoch_id = e.epoch_id AND mas.pool_id = spc.pool_id
-            JOIN delegated_stake_at_start das ON das.epoch_id =e.epoch_id AND das.pool_id = spc.pool_id
+            LEFT JOIN makers_at_start mas ON mas.epoch_id = e.epoch_id AND mas.pool_id = spc.pool_id
+            LEFT JOIN delegated_stake_at_start das ON das.epoch_id =e.epoch_id AND das.pool_id = spc.pool_id
     );
 
     CREATE VIEW staking.current_params AS (
@@ -214,14 +248,15 @@ const upQuery = `
 `;
 
 const downQuery = `
-    DROP VIEW staking.pool_info;
-    DROP VIEW staking.current_epoch;
-    DROP VIEW staking.epochs;
-    DROP VIEW staking.zrx_staking_changes;
-    DROP VIEW staking.operator_share_changes;
-    DROP VIEW staking.pool_epoch_operator_share;
-    DROP VIEW staking.epoch_start_pool_status;
-    DROP VIEW staking.current_params;
+    DROP VIEW IF EXISTS staking.pool_info CASCADE;
+    DROP VIEW IF EXISTS staking.current_epoch CASCADE;
+    DROP VIEW IF EXISTS staking.epochs CASCADE;
+    DROP VIEW IF EXISTS staking.zrx_staking_changes CASCADE;
+    DROP VIEW IF EXISTS staking.operator_share_changes CASCADE;
+    DROP VIEW IF EXISTS staking.pool_epoch_operator_share CASCADE;
+    DROP VIEW IF EXISTS staking.maker_epochs CASCADE;
+    DROP VIEW IF EXISTS staking.epoch_start_pool_status CASCADE;
+    DROP VIEW IF EXISTS staking.current_params CASCADE;
 `;
 
 export class AddStakingViews1573928462730 implements MigrationInterface {
