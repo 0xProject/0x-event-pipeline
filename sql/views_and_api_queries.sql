@@ -359,12 +359,13 @@
                 GROUP BY 1,2
             )
             SELECT
-                cebs.epoch_id
+                pce.pool_id
                 , cebs.zrx_delegated AS zrx_staked
                 , cebs.operator_share AS operator_share
                 , cebs.maker_addresses AS maker_addresses_set
                 , fbp.protocol_fees AS protocol_fees_generated_in_eth
-            FROM current_epoch_beginning_status cebs
+            FROM events.staking_pool_created_events pce
+            LEFT JOIN current_epoch_beginning_status cebs ON cebs.pool_id = pce.pool_id
             LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id;
 
     -- historical
