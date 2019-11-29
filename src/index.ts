@@ -10,11 +10,13 @@ import { SECONDS_BETWEEN_RUNS } from './config';
 
 import { EventScraper } from './scripts/pull_and_save_events';
 import { DeploymentScraper } from './scripts/pull_and_save_deployment';
+import { MetadataScraper } from './scripts/pull_and_save_pool_metadata';
 
 console.log("App is running...");
 
 const eventScraper = new EventScraper();
 const deploymentScraper = new DeploymentScraper();
+const metadataScraper = new MetadataScraper();
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions).then(async connection => {
@@ -23,6 +25,10 @@ createConnection(ormConfig as ConnectionOptions).then(async connection => {
 
     cron.schedule(`*/${SECONDS_BETWEEN_RUNS} * * * * *`, () => {
         eventScraper.getParseSaveEventsAsync(connection);
+    });
+
+    cron.schedule(`0 * * * * *`, () => {
+        metadataScraper.getParseSaveMetadataAsync(connection);
     });
 
 }).catch(error => console.log(error));
