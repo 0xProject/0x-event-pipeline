@@ -1,8 +1,9 @@
 import { MetadataResponse, PoolMetadataResponse, Pools } from '../../data_sources/staking-pool-registry';
 import { StakingPoolMetadata } from '../../entities';
+import { BASE_GITHUB_LOGO_URL } from '../../config';
 
 // params
-const baseGithubLogoUrl = 'https://github.com/0xProject/0x-staking-pool-registry/raw/master/logos/';
+const baseGithubLogoUrl = BASE_GITHUB_LOGO_URL;
 
 export function parsePools(rawPools: Pools, rawMetadata: MetadataResponse): StakingPoolMetadata[] {
     const parsedPools: StakingPoolMetadata[] = [];

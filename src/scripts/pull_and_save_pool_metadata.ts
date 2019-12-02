@@ -5,12 +5,10 @@ import { StakingPoolRegistrySource } from '../data_sources/staking-pool-registry
 import { parsePools } from '../parsers/staking-pool-registry';
 import { StakingPoolMetadata } from '../entities'
 
-import { CHAIN_ID } from '../config';
+import { CHAIN_ID, STAKING_POOLS_JSON_URL, STAKING_POOLS_METADATA_JSON_URL } from '../config';
 
-const stakingPoolsUrl =
-    'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/staking_pools.json';
-const poolMetadataUrl =
-    'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/pool_metadata.json';
+const stakingPoolsUrl = STAKING_POOLS_JSON_URL;
+const poolMetadataUrl = STAKING_POOLS_METADATA_JSON_URL;
 
 const stakingPoolSource = new StakingPoolRegistrySource(stakingPoolsUrl, poolMetadataUrl, CHAIN_ID);
 
