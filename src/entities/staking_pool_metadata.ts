@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 // Event emitted when a staking pool's operator share is decreased.
-@Entity({ name: 'operator_shared_decreased_events', schema: 'events' })
+@Entity({ name: 'staking_pool_metadata', schema: 'staking' })
 export class StakingPoolMetadata {
     // Unique Id of pool.
     @PrimaryColumn({ name: 'pool_id', type: 'varchar' })
