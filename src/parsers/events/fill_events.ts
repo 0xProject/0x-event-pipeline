@@ -7,7 +7,6 @@ import { ExchangeFillEventArgs } from '@0x/abi-gen-wrappers';
 import { FillEvent } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils';
 import { parseEvent } from './parse_event';
-import { logUtils } from '@0x/utils';
 
 /**
  * Parses raw event logs for a fill event and returns an array of
@@ -40,10 +39,10 @@ export function parseFillEvent(eventLog: LogWithDecodedArgs<ExchangeFillEventArg
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerAssetData);
     const takerAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerAssetData);
 
-    const makerFeeAssetData = eventLog.args.makerFeeAssetData === '0x' ?
+    const makerFeeAssetData = eventLog.args.makerFeeAssetData === '0x' || Number(eventLog.args.makerFeeAssetData) === 0 ?
         null :
         assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerFeeAssetData);
-    const takerFeeAssetData = eventLog.args.takerFeeAssetData === '0x' ?
+    const takerFeeAssetData = eventLog.args.takerFeeAssetData === '0x' || Number(eventLog.args.takerFeeAssetData) === 0 ?
         null :
         assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerFeeAssetData);
 
