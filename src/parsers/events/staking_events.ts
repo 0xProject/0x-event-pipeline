@@ -24,7 +24,7 @@ import {
     StakingOperatorShareDecreasedEventArgs,
     StakingEpochFinalizedEventArgs,
     StakingRewardsPaidEventArgs,
-} from '@0x/abi-gen-wrappers';
+} from '@0x/contract-wrappers';
 import { BigNumber } from '@0x/utils';
 import { LogWithDecodedArgs } from 'ethereum-types';
 

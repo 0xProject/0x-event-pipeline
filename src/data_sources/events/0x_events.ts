@@ -21,12 +21,9 @@ import {
     StakingStakingPoolEarnedRewardsInEpochEventArgs,
     StakingMakerStakingPoolSetEventArgs,
     StakingParamsSetEventArgs,
-} from '@0x/abi-gen-wrappers';
+} from '@0x/contract-wrappers';
 
 import { getEventsWithPaginationAsync, GetEventsFunc } from './utils';
-
-const stakingAddress = '0x89150f5eed50b3528f79bfb539f29d727f92821c';
-const exchangeAddress = '0xca8b1626b3b7a0da722ca9f264c4630c7d34d3b8';
 
 export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract;
