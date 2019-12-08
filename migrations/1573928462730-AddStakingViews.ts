@@ -277,9 +277,9 @@ const upQuery = `
                 SELECT
                     pool_id
                     , epoch_id - 1 AS epoch_id
-                    , operator_reward::NUMERIC / 1e18::NUMERIC AS operator_reward
-                    , members_reward::NUMERIC / 1e18::NUMERIC AS members_reward
-                    , (operator_reward::NUMERIC + members_reward::NUMERIC) / 1e18 AS total_reward
+                    , operator_reward / 1e18 AS operator_reward
+                    , members_reward / 1e18 AS members_reward
+                    , (operator_reward + members_reward) / 1e18 AS total_reward
                 FROM events.rewards_paid_events
             )
             , operator_rewards AS (
