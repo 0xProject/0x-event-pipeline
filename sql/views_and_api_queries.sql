@@ -415,9 +415,9 @@
 -- Staking endpoint
     -- Current epoch info
         WITH
-            zrx_staked AS (
+            zrx_delegated AS (
                 SELECT
-                    SUM(esps.zrx_delegated) AS zrx_staked
+                    SUM(esps.zrx_delegated) AS zrx_delegated
                 FROM staking.epoch_start_pool_status esps
                 JOIN staking.current_epoch ce ON ce.epoch_id = esps.epoch_id
             )
@@ -429,29 +429,56 @@
                     ON fe.block_number > ce.starting_block_number
                     OR (fe.block_number = ce.starting_block_number AND fe.transaction_index > ce.starting_transaction_index)
             )
+            , zrx_staked AS (
+                SELECT
+                    SUM(scc.amount) AS zrx_staked
+                FROM staking.zrx_staking_contract_changes scc
+                JOIN staking.current_epoch ce
+                    ON scc.block_number < ce.starting_block_number
+                    OR (scc.block_number = ce.starting_block_number AND scc.transaction_index < ce.starting_transaction_index)
+            )
             SELECT
                 ce.*
+                , zd.zrx_delegated
                 , zs.zrx_staked
                 , pf.protocol_fees
             FROM staking.current_epoch ce
+            CROSS JOIN zrx_delegated zd
             CROSS JOIN zrx_staked zs
             CROSS JOIN protocol_fees pf;
 
     -- Next epoch info
         WITH
-            zrx_staked AS (
+            zrx_delegated AS (
                 SELECT
-                    SUM(amount) AS zrx_staked
+                    SUM(amount) AS zrx_delegated
                 FROM staking.zrx_staking_changes
+            )
+            , zrx_staked AS (
+                SELECT
+                    SUM(scc.amount) AS zrx_staked
+                FROM staking.zrx_staking_contract_changes scc
             )
             SELECT
                 ce.epoch_id + 1 AS epoch_id
                 , ce.starting_block_number + cp.epoch_duration_in_seconds::NUMERIC / 15::NUMERIC AS starting_block_number
                 , ce.starting_block_timestamp + ((cp.epoch_duration_in_seconds)::VARCHAR || ' seconds')::INTERVAL AS starting_timestamp
                 , zs.zrx_staked
+                , zd.zrx_delegated
             FROM staking.current_epoch ce
             CROSS JOIN staking.current_params cp
-            CROSS JOIN zrx_staked zs;
+            CROSS JOIN zrx_staked zs
+            CROSS JOIN zrx_delegated zd;
+
+    -- Total rewards paid out historically in ETH
+        SELECT
+            SUM(
+                COALESCE(operator_reward,0)
+                + COALESCE(members_reward,0)
+            ) AS total_rewards
+        FROM events.rewards_paid_events
+        LIMIT 500;
+
             
 -- Wizard endpoint data
     -- Return a list of staking pools with
