@@ -23,8 +23,6 @@ $ yarn start
 
 `POSTGRES_URI` - The full postgres URI to connect to. Defaults to local development.
 
-`FIRST_SEARCH_BLOCK` - The first block number to search when scraping.
-
 `START_BLOCK_OFFSET` - How many blocks before the current block to search for events, allowing for updates to previously scraped events that may be in orphaned blocks.
 
 `MAX_BLOCKS_TO_PULL` - The maximum number of blocks to pull at once.
@@ -39,9 +37,15 @@ $ yarn start
 
 `SHOULD_SYNCHRONIZE` - Whether typeorm should synchronize with the database from `POSTGRES_URI`.
 
+`STAKING_POOLS_JSON_URL` - The source for the JSON mapping of staking pools to UUIDs (for grabbing metadata about pools). Defaults to the 0x staking pool registry Github repo.
+
+`STAKING_POOLS_METADATA_JSON_URL` - The source for the JSON mapping of UUIDs to metadata. Defaults to the 0x staking pool registry Github repo.
+
+`BASE_GITHUB_LOGO_URL` - The base URL for grabbing logos for staking pools. Defaults to the 0x staking pool registry Github repo.
+
 ## Database snapshots
 
-When running the app on a new database it can take a long time to find new events depending on the value of `START_BLOCK_OFFSET`. There are options to dump and restore data from other sources using `pg_dump` ([Documentation](https://www.postgresql.org/docs/9.6/app-pgdump.html)) and `pg_restore` ([Documentation](https://www.postgresql.org/docs/9.2/app-pgrestore.html)). Some examples are outlined below.
+When running the app on a new database it can take a long time to find new events depending on how much time has passed since the contracts were deployed. There are options to dump and restore data from other sources using `pg_dump` ([Documentation](https://www.postgresql.org/docs/9.6/app-pgdump.html)) and `pg_restore` ([Documentation](https://www.postgresql.org/docs/9.2/app-pgrestore.html)). Some examples are outlined below.
 
 
 These examples will require `postgresql` to be installed.
