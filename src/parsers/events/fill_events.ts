@@ -1,8 +1,7 @@
-// import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 import { assetDataUtils } from '@0x/order-utils';
 import { AssetProxyId, ERC20AssetData, ERC721AssetData, ERC1155AssetData, StaticCallAssetData, MultiAssetData } from '@0x/types';
 import { LogWithDecodedArgs } from 'ethereum-types';
-import { ExchangeFillEventArgs } from '@0x/abi-gen-wrappers';
+import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
 import { FillEvent } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils';

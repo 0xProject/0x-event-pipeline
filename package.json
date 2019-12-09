@@ -33,10 +33,10 @@
       "typescript": "3.1.1"
    },
    "dependencies": {
-      "@0x/abi-gen-wrappers": "^5.4.0-beta.1",
-      "@0x/contract-addresses": "^3.3.0-beta.2",
-      "@0x/dev-utils": "^2.4.0-beta.1",
-      "@0x/order-utils": "^8.5.0-beta.1",
+      "@0x/contract-wrappers": "^13.0.0",
+      "@0x/contract-addresses": "^4.0.0",
+      "@0x/dev-utils": "^3.0.0",
+      "@0x/order-utils": "^9.0.0",
       "@0x/subproviders": "^5.1.0-beta.1",
       "dotenv": "^8.2.0",
       "node-cron": "^2.0.3",
