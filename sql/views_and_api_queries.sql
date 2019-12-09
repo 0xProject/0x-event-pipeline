@@ -633,10 +633,10 @@
             delegator AS (
                 SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
             )
-            , zrx_staked AS (
+            , zrx_deposited AS (
                 SELECT
                     staker
-                    , SUM(amount) AS zrx_staked
+                    , SUM(amount) AS zrx_deposited
                 FROM staking.zrx_staking_contract_changes scc
                 JOIN delegator d ON d.delegator = scc.staker
                 JOIN staking.current_epoch ce ON
@@ -646,20 +646,20 @@
             )
             SELECT
                 d.delegator
-                , COALESCE(zs.zrx_staked,0) AS zrx_staked
+                , COALESCE(zd.zrx_deposited,0) AS zrx_deposited
             FROM delegator d
-            LEFT JOIN zrx_staked zs ON zs.staker = d.delegator;
+            LEFT JOIN zrx_deposited zd ON zd.staker = d.delegator;
 
         -- delegated
         WITH
             delegator AS (
                 SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
             )
-            , zrx_delegated_by_pool AS (
+            , zrx_staked_by_pool AS (
                 SELECT
                     staker
                     , pool_id
-                    , SUM(amount) AS zrx_delegated
+                    , SUM(amount) AS zrx_staked
                 FROM staking.zrx_staking_changes sc
                 JOIN delegator d ON d.delegator = sc.staker
                 JOIN staking.current_epoch ce ON
@@ -667,71 +667,71 @@
                     OR (sc.block_number = ce.starting_block_number AND sc.transaction_index < ce.starting_transaction_index)
                 GROUP BY 1,2
             )
-            , zrx_delegated AS (
+            , zrx_staked AS (
                 SELECT
                     staker
-                    , SUM(zrx_delegated) AS zrx_delegated
-                FROM zrx_delegated_by_pool
+                    , SUM(zrx_staked) AS zrx_staked
+                FROM zrx_staked_by_pool
                 GROUP BY 1
             )
             SELECT
                 d.delegator
-                , COALESCE(zd.zrx_delegated,0) AS zrx_delegated_overall
-                , zdbp.pool_id
-                , COALESCE(zdbp.zrx_delegated,0) AS zrx_delegated_in_pool
+                , COALESCE(zs.zrx_staked,0) AS zrx_staked_overall
+                , zsbp.pool_id
+                , COALESCE(zsbp.zrx_staked,0) AS zrx_staked_in_pool
             FROM delegator d
-            LEFT JOIN zrx_delegated_by_pool zdbp ON zdbp.staker = d.delegator
-            LEFT JOIN zrx_delegated zd ON zd.staker = d.delegator;
+            LEFT JOIN zrx_staked_by_pool zsbp ON zsbp.staker = d.delegator
+            LEFT JOIN zrx_staked zs ON zs.staker = d.delegator;
 
     -- for next epoch
-        -- staked
+        -- deposited
         WITH
             delegator AS (
                 SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
             )
-            , zrx_staked AS (
+            , zrx_deposited AS (
                 SELECT
                     staker
-                    , SUM(amount) AS zrx_staked
+                    , SUM(amount) AS zrx_deposited
                 FROM staking.zrx_staking_contract_changes scc
                 JOIN delegator d ON d.delegator = scc.staker
                 GROUP BY 1
             )
             SELECT
                 d.delegator
-                , COALESCE(zs.zrx_staked,0) AS zrx_staked
+                , COALESCE(zd.zrx_deposited,0) AS zrx_deposited
             FROM delegator d
-            LEFT JOIN zrx_staked zs ON zs.staker = d.delegator;
+            LEFT JOIN zrx_deposited zd ON zd.staker = d.delegator;
 
         -- delegated
         WITH
             delegator AS (
                 SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
             )
-            , zrx_delegated_by_pool AS (
+            , zrx_staked_by_pool AS (
                 SELECT
                     staker
                     , pool_id
-                    , SUM(amount) AS zrx_delegated
+                    , SUM(amount) AS zrx_staked
                 FROM staking.zrx_staking_changes sc
                 JOIN delegator d ON d.delegator = sc.staker
                 GROUP BY 1,2
             )
-            , zrx_delegated AS (
+            , zrx_staked AS (
                 SELECT
                     staker
-                    , SUM(zrx_delegated) AS zrx_delegated
-                FROM zrx_delegated_by_pool
+                    , SUM(zrx_staked) AS zrx_staked
+                FROM zrx_staked_by_pool
                 GROUP BY 1
             )
             SELECT
                 d.delegator
-                , COALESCE(zd.zrx_delegated,0) AS zrx_delegated_overall
-                , zdbp.pool_id
-                , COALESCE(zdbp.zrx_delegated,0) AS zrx_delegated_in_pool
+                , COALESCE(zs.zrx_staked,0) AS zrx_staked_overall
+                , zsbp.pool_id
+                , COALESCE(zsbp.zrx_staked,0) AS zrx_staked_in_pool
             FROM delegator d
-            LEFT JOIN zrx_delegated_by_pool zdbp ON zdbp.staker = d.delegator
-            LEFT JOIN zrx_delegated zd ON zd.staker = d.delegator;
+            LEFT JOIN zrx_staked_by_pool zsbp ON zsbp.staker = d.delegator
+            LEFT JOIN zrx_staked zs ON zs.staker = d.delegator;
 
     -- rewards earned
         SELECT
