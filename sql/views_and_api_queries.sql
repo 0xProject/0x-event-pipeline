@@ -475,10 +475,8 @@
             SUM(
                 COALESCE(operator_reward,0)
                 + COALESCE(members_reward,0)
-            ) AS total_rewards
-        FROM events.rewards_paid_events
-        LIMIT 500;
-
+            ) / 1e18 AS total_rewards
+        FROM events.rewards_paid_events;
             
 -- Wizard endpoint data
     -- Return a list of staking pools with
