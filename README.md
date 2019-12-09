@@ -5,7 +5,7 @@ A node.js app for pulling 0x event info to inform things like staking.
 
 ```
 $ docker-compose up # get local postgres up
-$ yarn
+$ yarn install
 $ yarn build
 $ yarn migrate:run
 $ yarn start
@@ -37,11 +37,11 @@ $ yarn start
 
 `SHOULD_SYNCHRONIZE` - Whether typeorm should synchronize with the database from `POSTGRES_URI`.
 
-`STAKING_POOLS_JSON_URL` - The source for the JSON mapping of staking pools to UUIDs (for grabbing metadata about pools). Defaults to the 0x staking pool registry Github repo.
+`STAKING_POOLS_JSON_URL` - The source for the JSON mapping of staking pools to UUIDs (for grabbing metadata about pools). Defaults to the 0x staking pool registry GitHub repo.
 
-`STAKING_POOLS_METADATA_JSON_URL` - The source for the JSON mapping of UUIDs to metadata. Defaults to the 0x staking pool registry Github repo.
+`STAKING_POOLS_METADATA_JSON_URL` - The source for the JSON mapping of UUIDs to metadata. Defaults to the 0x staking pool registry GitHub repo.
 
-`BASE_GITHUB_LOGO_URL` - The base URL for grabbing logos for staking pools. Defaults to the 0x staking pool registry Github repo.
+`BASE_GITHUB_LOGO_URL` - The base URL for grabbing logos for staking pools. Defaults to the 0x staking pool registry GitHub repo.
 
 ## Database snapshots
 
