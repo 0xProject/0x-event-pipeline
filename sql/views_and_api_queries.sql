@@ -412,7 +412,7 @@
             , (operator_reward::NUMERIC + members_reward::NUMERIC) / 1e18 AS total_reward
         FROM events.rewards_paid_events;
 
--- Staking endpoint
+-- Stats endpoint
     -- Current epoch info
         WITH
             zrx_staked AS (
