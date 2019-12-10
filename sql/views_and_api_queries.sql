@@ -158,6 +158,34 @@
     );
     SELECT * FROM staking.zrx_staking_changes LIMIT 100;
 
+-- ZRX movements in and out of the staking contract
+    DROP VIEW staking.zrx_staking_contract_changes;
+    CREATE VIEW staking.zrx_staking_contract_changes AS (
+        WITH
+            additions AS (
+                SELECT
+                    staker
+                    , block_number
+                    , transaction_index
+                    , amount / 1e18 AS amount
+                FROM events.stake_events se
+            )
+            , removals AS (
+                SELECT
+                    staker
+                    , block_number
+                    , transaction_index
+                    , -amount / 1e18 AS amount
+                FROM events.unstake_events ue
+            )
+            SELECT * FROM additions
+
+            UNION ALL
+
+            SELECT * FROM removals
+    );
+    SELECT * FROM staking.zrx_staking_contract_changes LIMIT 100;
+
 -- Operator Share changes
     DROP VIEW staking.operator_share_changes CASCADE ;
     CREATE OR REPLACE VIEW staking.operator_share_changes AS (
@@ -272,6 +300,80 @@
     );
     SELECT * FROM staking.current_params;
 
+-- Rewards earned on a per-address basis
+    DROP VIEW staking.address_pool_epoch_rewards;
+    CREATE OR REPLACE VIEW staking.address_pool_epoch_rewards AS (
+        WITH
+            rewards AS (
+                SELECT
+                    pool_id
+                    , epoch_id - 1 AS epoch_id
+                    , operator_reward::NUMERIC / 1e18::NUMERIC AS operator_reward
+                    , members_reward::NUMERIC / 1e18::NUMERIC AS members_reward
+                    , (operator_reward::NUMERIC + members_reward::NUMERIC) / 1e18 AS total_reward
+                FROM events.rewards_paid_events
+            )
+            , operator_rewards AS (
+                SELECT
+                    r.pool_id
+                    , r.epoch_id
+                    , pi.operator AS address
+                    , SUM(operator_reward) AS reward
+                FROM rewards r
+                JOIN staking.pool_info pi ON pi.pool_id = r.pool_id
+                GROUP BY 1,2,3
+            )
+            , delegated_stake_at_start_by_delegator AS (
+                SELECT
+                    e.epoch_id
+                    , zsc.pool_id
+                    , zsc.staker AS delegator
+                    , SUM(zsc.amount) AS zrx_delegated
+                FROM staking.zrx_staking_changes zsc
+                LEFT JOIN events.staking_pool_created_events pce ON pce.pool_id = zsc.pool_id
+                LEFT JOIN staking.epochs e
+                    ON e.starting_block_number > zsc.block_number
+                    OR (e.starting_block_number = zsc.block_number AND e.starting_transaction_index > zsc.transaction_index)
+                WHERE
+                    zsc.staker <> pce.operator_address
+                GROUP BY 1,2,3
+            )
+            , delegated_stake_at_start AS (
+                SELECT
+                    epoch_id
+                    , pool_id
+                    , SUM(zrx_delegated) AS total_zrx_delegated
+                FROM delegated_stake_at_start_by_delegator
+                GROUP BY 1,2
+            )
+            , delegator_rewards AS (
+                SELECT
+                    r.epoch_id
+                    , r.pool_id
+                    , dbd.delegator
+                    , (dbd.zrx_delegated / d.total_zrx_delegated) * r.members_reward AS reward
+                FROM rewards r
+                JOIN delegated_stake_at_start_by_delegator dbd ON
+                    dbd.pool_id = r.pool_id
+                    AND dbd.epoch_id = r.epoch_id
+                JOIN delegated_stake_at_start d ON
+                    d.pool_id = r.pool_id
+                    AND d.epoch_id = r.epoch_id
+            )
+            SELECT
+                COALESCE(opr.address,dr.delegator) AS address
+                , COALESCE(opr.pool_id,dr.pool_id) AS pool_id
+                , COALESCE(opr.epoch_id,dr.epoch_id) AS epoch_id
+                , COALESCE(opr.reward,0) AS operator_reward
+                , COALESCE(dr.reward,0) AS member_reward
+                , COALESCE(opr.reward,0) + COALESCE(dr.reward,0) AS total_reward
+            FROM operator_rewards opr
+            FULL JOIN delegator_rewards dr ON
+                dr.delegator = opr.address
+                AND dr.pool_id = opr.pool_id
+                AND dr.epoch_id = opr.epoch_id
+    );
+    SELECT * FROM staking.address_pool_epoch_rewards;
 
 -- Pools endpoint
     -- Current epoch info
@@ -501,4 +603,141 @@
             FROM staking.pool_info pi
             JOIN operator_share os ON os.pool_id = pi.pool_id
             JOIN current_stake cs ON cs.pool_id = pi.pool_id
-            LEFT JOIN past_7d_fills_fills_by_pool f ON f.pool_id = pi.pool_id
+            LEFT JOIN past_7d_fills_fills_by_pool f ON f.pool_id = pi.pool_id;
+
+-- 7-day pool fills
+    WITH
+        pool_7d_fills AS (
+            SELECT
+                pi.pool_id
+                , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
+            FROM events.fill_events fe
+            LEFT JOIN events.blocks b ON b.block_number = fe.block_number
+            LEFT JOIN staking.pool_info pi ON fe.maker_address = ANY(pi.maker_addresses)
+            WHERE
+                -- fees not accruing to a pool do not count
+                pool_id IS NOT NULL
+                AND TO_TIMESTAMP(b.block_timestamp) > (CURRENT_TIMESTAMP - '7 days'::INTERVAL)
+            GROUP BY 1
+        )
+        SELECT
+            p.pool_id
+            , COALESCE(f.protocol_fees, 0) AS protocol_fees
+        FROM events.staking_pool_created_events p
+        LEFT JOIN pool_7d_fills f ON f.pool_id = p.pool_id;
+
+-- Delegator Endpoint
+    -- for current epoch
+        -- staked
+        WITH
+            delegator AS (
+                SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
+            )
+            , zrx_deposited AS (
+                SELECT
+                    staker
+                    , SUM(amount) AS zrx_deposited
+                FROM staking.zrx_staking_contract_changes scc
+                JOIN delegator d ON d.delegator = scc.staker
+                JOIN staking.current_epoch ce ON
+                    scc.block_number < ce.starting_block_number
+                    OR (scc.block_number = ce.starting_block_number AND scc.transaction_index < ce.starting_transaction_index)
+                GROUP BY 1
+            )
+            SELECT
+                d.delegator
+                , COALESCE(zd.zrx_deposited,0) AS zrx_deposited
+            FROM delegator d
+            LEFT JOIN zrx_deposited zd ON zd.staker = d.delegator;
+
+        -- delegated
+        WITH
+            delegator AS (
+                SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
+            )
+            , zrx_staked_by_pool AS (
+                SELECT
+                    staker
+                    , pool_id
+                    , SUM(amount) AS zrx_staked
+                FROM staking.zrx_staking_changes sc
+                JOIN delegator d ON d.delegator = sc.staker
+                JOIN staking.current_epoch ce ON
+                    sc.block_number < ce.starting_block_number
+                    OR (sc.block_number = ce.starting_block_number AND sc.transaction_index < ce.starting_transaction_index)
+                GROUP BY 1,2
+            )
+            , zrx_staked AS (
+                SELECT
+                    staker
+                    , SUM(zrx_staked) AS zrx_staked
+                FROM zrx_staked_by_pool
+                GROUP BY 1
+            )
+            SELECT
+                d.delegator
+                , COALESCE(zs.zrx_staked,0) AS zrx_staked_overall
+                , zsbp.pool_id
+                , COALESCE(zsbp.zrx_staked,0) AS zrx_staked_in_pool
+            FROM delegator d
+            LEFT JOIN zrx_staked_by_pool zsbp ON zsbp.staker = d.delegator
+            LEFT JOIN zrx_staked zs ON zs.staker = d.delegator;
+
+    -- for next epoch
+        -- deposited
+        WITH
+            delegator AS (
+                SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
+            )
+            , zrx_deposited AS (
+                SELECT
+                    staker
+                    , SUM(amount) AS zrx_deposited
+                FROM staking.zrx_staking_contract_changes scc
+                JOIN delegator d ON d.delegator = scc.staker
+                GROUP BY 1
+            )
+            SELECT
+                d.delegator
+                , COALESCE(zd.zrx_deposited,0) AS zrx_deposited
+            FROM delegator d
+            LEFT JOIN zrx_deposited zd ON zd.staker = d.delegator;
+
+        -- delegated
+        WITH
+            delegator AS (
+                SELECT '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84' AS delegator
+            )
+            , zrx_staked_by_pool AS (
+                SELECT
+                    staker
+                    , pool_id
+                    , SUM(amount) AS zrx_staked
+                FROM staking.zrx_staking_changes sc
+                JOIN delegator d ON d.delegator = sc.staker
+                GROUP BY 1,2
+            )
+            , zrx_staked AS (
+                SELECT
+                    staker
+                    , SUM(zrx_staked) AS zrx_staked
+                FROM zrx_staked_by_pool
+                GROUP BY 1
+            )
+            SELECT
+                d.delegator
+                , COALESCE(zs.zrx_staked,0) AS zrx_staked_overall
+                , zsbp.pool_id
+                , COALESCE(zsbp.zrx_staked,0) AS zrx_staked_in_pool
+            FROM delegator d
+            LEFT JOIN zrx_staked_by_pool zsbp ON zsbp.staker = d.delegator
+            LEFT JOIN zrx_staked zs ON zs.staker = d.delegator;
+
+    -- rewards earned
+        SELECT
+            pool_id
+            , SUM(total_reward) AS reward
+        FROM staking.address_pool_epoch_rewards
+        WHERE
+            address = '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84'
+        GROUP BY 1;
