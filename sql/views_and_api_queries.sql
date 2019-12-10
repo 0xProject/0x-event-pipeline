@@ -741,3 +741,67 @@
         WHERE
             address = '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84'
         GROUP BY 1;
+
+-- historical stats for pool
+    -- historical
+        SELECT
+            '1' AS pool_id
+            , e.epoch_id AS epoch_id
+            , e.starting_block_timestamp
+            , e.starting_block_number
+            , e.starting_transaction_index
+            , e.ending_timestamp
+            , e.ending_block_number
+            , e.ending_transaction_hash
+            , COALESCE(rpe.operator_reward / 1e18,0) AS operator_reward
+            , COALESCE(rpe.members_reward / 1e18,0) AS members_reward
+            , COALESCE((rpe.operator_reward + rpe.members_reward) / 1e18,0) AS total_reward
+        FROM events.rewards_paid_events rpe
+        FULL JOIN staking.epochs e ON e.epoch_id = (rpe.epoch_id - 1)
+        WHERE
+            (
+                pool_id = '1'
+                OR pool_id IS NULL
+            )
+            AND e.epoch_id BETWEEN 1 AND 2;
+
+-- all time numbers by pool
+    -- all time rewards
+        SELECT
+            pool_id
+            , SUM(COALESCE(rpe.operator_reward / 1e18,0)) AS operator_reward
+            , SUM(COALESCE(rpe.members_reward/ 1e18,0)) AS members_reward
+            , SUM(COALESCE((rpe.operator_reward + rpe.members_reward) / 1e18,0)) AS total_rewards
+        FROM events.rewards_paid_events rpe
+        WHERE
+            pool_id = '1'
+        GROUP BY 1;
+
+    -- total fees collected
+        WITH
+            fills_with_epochs AS (
+                SELECT
+                    fe.*
+                    , e.epoch_id
+                FROM events.fill_events fe
+                LEFT JOIN staking.epochs e ON
+                    (
+                        e.starting_block_number < fe.block_number
+                        OR (fe.block_number = e.starting_block_number AND fe.transaction_index > e.starting_transaction_index)
+                    )
+                    AND (
+                        e.ending_block_number > fe.block_number
+                        OR (fe.block_number = e.ending_block_number AND fe.transaction_index < e.ending_transaction_index)
+                    )
+            )
+            SELECT
+                esps.pool_id
+                , SUM(fwe.protocol_fee_paid) / 1e18 AS total_protocol_fees
+                , COUNT(*) AS num_fills
+            FROM fills_with_epochs fwe
+            LEFT JOIN staking.epoch_start_pool_status esps ON
+                fwe.maker_address = ANY(esps.maker_addresses)
+                AND fwe.epoch_id = esps.epoch_id
+            WHERE
+                esps.pool_id = '1'
+            GROUP BY 1;
