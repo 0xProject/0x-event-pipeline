@@ -742,7 +742,7 @@
             address = '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84'
         GROUP BY 1;
 
--- staking-pool-epochs endpoint
+-- historical stats for pool
     -- historical
         SELECT
             '1' AS pool_id
