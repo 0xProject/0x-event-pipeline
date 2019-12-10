@@ -797,6 +797,7 @@
             SELECT
                 esps.pool_id
                 , SUM(fwe.protocol_fee_paid) / 1e18 AS total_protocol_fees
+                , COUNT(*) AS num_fills
             FROM fills_with_epochs fwe
             LEFT JOIN staking.epoch_start_pool_status esps ON
                 fwe.maker_address = ANY(esps.maker_addresses)
