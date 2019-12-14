@@ -7,6 +7,7 @@ import { FillEvent } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils';
 import { parseEvent } from './parse_event';
 
+
 /**
  * Parses raw event logs for a fill event and returns an array of
  * FillEvent entities.

@@ -37,7 +37,7 @@ export class EventsSource {
     public async getFillEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<ExchangeFillEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<ExchangeFillEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeFillEventArgs>(
             ExchangeEvents.Fill,
         );
@@ -47,7 +47,7 @@ export class EventsSource {
     public async getStakeEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingStakeEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingStakeEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakeEventArgs>(
             StakingEvents.Stake,
         );
@@ -57,7 +57,7 @@ export class EventsSource {
     public async getUnstakeEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingUnstakeEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingUnstakeEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingUnstakeEventArgs>(
             StakingEvents.Unstake,
         );
@@ -67,7 +67,7 @@ export class EventsSource {
     public async getMoveStakeEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingMoveStakeEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingMoveStakeEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingMoveStakeEventArgs>(
             StakingEvents.MoveStake,
         );
@@ -77,7 +77,7 @@ export class EventsSource {
     public async getStakingPoolCreatedEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingStakingPoolCreatedEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingStakingPoolCreatedEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakingPoolCreatedEventArgs>(
             StakingEvents.StakingPoolCreated,
         );
@@ -87,7 +87,7 @@ export class EventsSource {
     public async getStakingPoolEarnedRewardsInEpochEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingStakingPoolEarnedRewardsInEpochEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingStakingPoolEarnedRewardsInEpochEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakingPoolEarnedRewardsInEpochEventArgs>(
             StakingEvents.StakingPoolEarnedRewardsInEpoch,
         );
@@ -97,7 +97,7 @@ export class EventsSource {
     public async getMakerStakingPoolSetEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingMakerStakingPoolSetEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingMakerStakingPoolSetEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingMakerStakingPoolSetEventArgs>(
             StakingEvents.MakerStakingPoolSet,
         );
@@ -107,7 +107,7 @@ export class EventsSource {
     public async getParamsSetEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingParamsSetEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingParamsSetEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingParamsSetEventArgs>(
             StakingEvents.ParamsSet,
         );
@@ -117,7 +117,7 @@ export class EventsSource {
     public async getOperatorShareDecreasedEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingOperatorShareDecreasedEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingOperatorShareDecreasedEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingOperatorShareDecreasedEventArgs>(
             StakingEvents.OperatorShareDecreased,
         );
@@ -127,7 +127,7 @@ export class EventsSource {
     public async getEpochEndedEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingEpochEndedEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingEpochEndedEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingEpochEndedEventArgs>(
             StakingEvents.EpochEnded,
         );
@@ -137,7 +137,7 @@ export class EventsSource {
     public async getEpochFinalizedEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<Array<LogWithDecodedArgs<StakingEpochFinalizedEventArgs>>> {
+    ): Promise<Array<LogWithDecodedArgs<StakingEpochFinalizedEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingEpochFinalizedEventArgs>(
             StakingEvents.EpochFinalized,
         );
@@ -147,7 +147,7 @@ export class EventsSource {
     public async getRewardsPaidEventsAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<LogWithDecodedArgs<StakingRewardsPaidEventArgs>[]> {
+    ): Promise<LogWithDecodedArgs<StakingRewardsPaidEventArgs>[] | null> {
         const getterFunction = this._makeGetterFuncForStakingEventType<StakingRewardsPaidEventArgs>(
             StakingEvents.RewardsPaid,
         );
