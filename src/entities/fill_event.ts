@@ -75,4 +75,10 @@ export class FillEvent extends Event {
     // The address of the taker token.
     @Column({ name: 'protocol_fee_paid', type: 'bigint', transformer: bigNumberTransformer })
     public protocolFeePaid!: BigNumber | null;
+
+    // ERC20Bridge Columns
+    @Column({ name: 'taker_bridge_address', type: 'varchar', nullable: true })
+    public takerBridgeAddress!: string | null;
+    @Column({ name: 'maker_bridge_address', type: 'varchar', nullable: true })
+    public makerBridgeAddress!: string | null;
 }
