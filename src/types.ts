@@ -4,6 +4,7 @@ export enum ProxyType {
     MultiAsset = 'multiAsset',
     StaticCall = 'staticCall',
     ERC1155 = 'erc1155',
+    ERC20Bridge = 'erc20Bridge',
 }
 
 export type EventName = 

@@ -18,6 +18,8 @@ export function convertAssetProxyIdToType(assetProxyId: AssetProxyId): ProxyType
             return ProxyType.StaticCall;
         case AssetProxyId.ERC1155:
             return ProxyType.ERC1155;
+        case AssetProxyId.ERC20Bridge:
+            return ProxyType.ERC20Bridge;
         default:
             throw new Error(`${assetProxyId} not a supported assetProxyId`);
     }
