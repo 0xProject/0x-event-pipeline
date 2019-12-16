@@ -22,7 +22,7 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
     getEventsAsync: GetEventsFunc<ArgsType>,
     startBlock: number,
     endBlock: number,
-): Promise<Array<LogWithDecodedArgs<ArgsType>>> {
+): Promise<Array<LogWithDecodedArgs<ArgsType>> | null> {
     let events: Array<LogWithDecodedArgs<ArgsType>> = [];
 
     for (let fromBlock = startBlock; fromBlock <= endBlock; fromBlock += numPaginationBlocks(fromBlock)) {
@@ -31,7 +31,11 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
         logUtils.log(`Query for events in block range ${fromBlock}-${toBlock}`);
 
         const eventsInRange = await _getEventsWithRetriesAsync(getEventsAsync, NUM_RETRIES, fromBlock, toBlock);
-        events = events.concat(eventsInRange);
+        if (eventsInRange === null) {
+            return null;
+        } else {
+            events = events.concat(eventsInRange);    
+        }
     }
 
     logUtils.log(`Retrieved ${events.length} events from block range ${startBlock}-${endBlock}`);
@@ -51,7 +55,7 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
     numRetries: number,
     fromBlock: number,
     toBlock: number,
-): Promise<Array<LogWithDecodedArgs<ArgsType>>> {
+): Promise<Array<LogWithDecodedArgs<ArgsType>> | null> {
     let eventsInRange: Array<LogWithDecodedArgs<ArgsType>> = [];
     for (let i = 0; i <= numRetries; i++) {
         logUtils.log(`Retry ${i}: ${fromBlock}-${toBlock}`);
@@ -62,6 +66,7 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
                 continue;
             } else {
                 logUtils.log(err);
+                return null;
             }
         }
         break;
