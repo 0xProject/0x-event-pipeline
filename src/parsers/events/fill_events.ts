@@ -1,5 +1,5 @@
 import { assetDataUtils } from '@0x/order-utils';
-import { AssetProxyId, ERC20AssetData, ERC721AssetData, ERC1155AssetData, StaticCallAssetData, MultiAssetData } from '@0x/types';
+import { AssetData, AssetProxyId, ERC20BridgeAssetData, MultiAssetData, MultiAssetDataWithRecursiveDecoding, StaticCallAssetData } from '@0x/types';
 import { LogWithDecodedArgs } from 'ethereum-types';
 import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
@@ -18,16 +18,55 @@ export function parseFillEvents(eventLogs: LogWithDecodedArgs<ExchangeFillEventA
 }
 
 export function parse0xAssetTokenAddress(
-    decodedAssetData: ERC20AssetData | ERC721AssetData | ERC1155AssetData | StaticCallAssetData | MultiAssetData):
+    decodedAssetData: AssetData):
 string | null {
-    if (assetDataUtils.isMultiAssetData(decodedAssetData)) {
+    if (isMultiAssetData(decodedAssetData)) {
         return null;
-    } else if (assetDataUtils.isStaticCallAssetData(decodedAssetData)) {
+    } else if (isStaticCallAssetData(decodedAssetData)) {
         return null;
     } else {
         return decodedAssetData.tokenAddress;
     }
 }
+
+/**
+ * Returns the bridge address if it's ERC20Bridge data
+ * @param decodedAssetData decoded 0x asset data
+ */
+export function parseV30xBridgeAddress(
+    decodedAssetData: AssetData):
+string | null {
+    if (isERC20BridgeAssetData(decodedAssetData)) {
+        return decodedAssetData.bridgeAddress;
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Checks if the asset data is ERC20Bridge Data
+ * @param decodedAssetData decoded 0x asset data
+ */
+export function isERC20BridgeAssetData(decodedAssetData: AssetData): decodedAssetData is ERC20BridgeAssetData {
+    return decodedAssetData.assetProxyId === AssetProxyId.ERC20Bridge;
+}
+
+/**
+ * Checks if the asset data is multi-asset data
+ * @param decodedAssetData decoded 0x asset data
+ */
+export function isMultiAssetData(decodedAssetData: AssetData): decodedAssetData is MultiAssetData | MultiAssetDataWithRecursiveDecoding {
+    return decodedAssetData.assetProxyId === AssetProxyId.MultiAsset;
+}
+
+/**
+ * Checks if the asset data is static call asset data
+ * @param decodedAssetData decoded 0x asset data
+ */
+export function isStaticCallAssetData(decodedAssetData: AssetData): decodedAssetData is StaticCallAssetData {
+    return decodedAssetData.assetProxyId === AssetProxyId.StaticCall;
+}
+
 
 export type ExchangeEvent = FillEvent;
 
@@ -84,6 +123,10 @@ export function parseFillEvent(eventLog: LogWithDecodedArgs<ExchangeFillEventArg
         parse0xAssetTokenAddress(takerFeeAssetData);
 
     fillEvent.protocolFeePaid = eventLog.args.protocolFeePaid;
+
+    // ERC20 Bridge-Specific Items
+    fillEvent.takerBridgeAddress = parseV30xBridgeAddress(takerAssetData);
+    fillEvent.makerBridgeAddress = parseV30xBridgeAddress(makerAssetData);
 
     return fillEvent;
 }
