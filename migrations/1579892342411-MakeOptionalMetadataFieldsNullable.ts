@@ -16,9 +16,11 @@ const downQuery = `
 export class MakeOptionalMetadataFieldsNullable1579892342411 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.query(upQuery);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.query(downQuery);
     }
 
 }
