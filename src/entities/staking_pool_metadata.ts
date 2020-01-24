@@ -7,8 +7,8 @@ export class StakingPoolMetadata {
     @PrimaryColumn({ name: 'pool_id', type: 'varchar' })
     public poolId!: string;
     // Name of the pool
-    @Column({ name: 'name', type: 'varchar', nullable: true })
-    public name!: string | null;
+    @Column({ name: 'name', type: 'varchar' })
+    public name!: string;
     // website of the pool operator
     @Column({ name: 'website', type: 'varchar', nullable: true })
     public website!: string | null;
