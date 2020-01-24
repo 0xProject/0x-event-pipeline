@@ -15,8 +15,8 @@ const changedColumns = [
         newColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
     },
     {
-        oldColumn: new TableColumn({ name: 'location', type: 'varchar' }),
-        newColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
+        oldColumn: new TableColumn({ name: 'logo_url', type: 'varchar' }),
+        newColumn: new TableColumn({ name: 'logo_url', type: 'varchar', isNullable: true }),
     },
 ]
 const changedColumnsReverse = [
@@ -33,8 +33,8 @@ const changedColumnsReverse = [
         oldColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
     },
     {
-        newColumn: new TableColumn({ name: 'location', type: 'varchar' }),
-        oldColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
+        newColumn: new TableColumn({ name: 'logo_url', type: 'varchar' }),
+        oldColumn: new TableColumn({ name: 'logo_url', type: 'varchar', isNullable: true }),
     },
 ]
 
