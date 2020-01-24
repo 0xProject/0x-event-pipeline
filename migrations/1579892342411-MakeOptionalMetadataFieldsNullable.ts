@@ -1,26 +1,52 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
-const upQuery = `
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN website DROP NOT NULL;
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN bio DROP NOT NULL;
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN location DROP NOT NULL;
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN logo_url DROP NOT NULL;
-`
-const downQuery = `
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN website SET NOT NULL;
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN bio SET NOT NULL;
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN location SET NOT NULL;
-    ALTER TABLE staking.staking_pool_metadata ALTER COLUMN logo_url SET NOT NULL;
-`
+const targetTable = 'staking.staking_pool_metadata';
+const changedColumns = [
+    {
+        oldColumn: new TableColumn({ name: 'website', type: 'varchar' }),
+        newColumn: new TableColumn({ name: 'website', type: 'varchar', isNullable: true }),
+    },
+    {
+        oldColumn: new TableColumn({ name: 'bio', type: 'varchar' }),
+        newColumn: new TableColumn({ name: 'bio', type: 'varchar', isNullable: true }),
+    },
+    {
+        oldColumn: new TableColumn({ name: 'location', type: 'varchar' }),
+        newColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
+    },
+    {
+        oldColumn: new TableColumn({ name: 'location', type: 'varchar' }),
+        newColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
+    },
+]
+const changedColumnsReverse = [
+    {
+        newColumn: new TableColumn({ name: 'website', type: 'varchar' }),
+        oldColumn: new TableColumn({ name: 'website', type: 'varchar', isNullable: true }),
+    },
+    {
+        newColumn: new TableColumn({ name: 'bio', type: 'varchar' }),
+        oldColumn: new TableColumn({ name: 'bio', type: 'varchar', isNullable: true }),
+    },
+    {
+        newColumn: new TableColumn({ name: 'location', type: 'varchar' }),
+        oldColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
+    },
+    {
+        newColumn: new TableColumn({ name: 'location', type: 'varchar' }),
+        oldColumn: new TableColumn({ name: 'location', type: 'varchar', isNullable: true }),
+    },
+]
+
 
 export class MakeOptionalMetadataFieldsNullable1579892342411 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
-        await queryRunner.query(upQuery);
+        await queryRunner.changeColumns(targetTable, changedColumns);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
-        await queryRunner.query(downQuery);
+        await queryRunner.changeColumns(targetTable, changedColumnsReverse);
     }
 
 }
