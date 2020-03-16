@@ -1,9 +1,16 @@
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { logUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import { BlockWithoutTransactionData, Transaction, BlockWithTransactionData } from 'ethereum-types';
+import { BlockWithoutTransactionData, Transaction, BlockWithTransactionData, RawLog } from 'ethereum-types';
 
 const Web3 = require('web3');
+
+export interface LogPullInfo {
+    address: string;
+    fromBlock: number;
+    toBlock: number;
+    topics: string[];
+};
 
 export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
@@ -34,6 +41,34 @@ export class Web3Source {
         return blocks;
     }
 
+    public async getBatchLogInfoForContractsAsync(
+        logPullInfo: LogPullInfo[]): Promise<any[]> {
+
+        var batch = new this._web3.BatchRequest();
+
+        let promises = logPullInfo.map(logPull => {
+            return new Promise((resolve, reject) => {
+                const reqParams = {
+                    fromBlock: logPull.fromBlock,
+                    toBlock: logPull.toBlock,
+                    address: logPull.address,
+                    topics: logPull.topics,
+                }
+                let req = this._web3.eth.getPastLogs.request( reqParams, (err: any, data: RawLog) => {
+                    if(err) reject(err);
+                    else resolve({ logPull, logs: data });
+                });
+            batch.add(req)
+            })
+        });
+
+        batch.execute();
+
+        const encodedLogs = await Promise.all(promises);
+
+        return encodedLogs;
+    }
+
     public async getBlockInfoForRangeAsync(startBlock: number, endBlock: number): Promise<BlockWithoutTransactionData[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
         const blocks = await Promise.all(iter.map(num => this.getBlockInfoAsync(num + startBlock)));
@@ -58,6 +93,10 @@ export class Web3Source {
 
     public async getTransactionInfoAsync(txHash: string): Promise<Transaction> {
         return this._web3Wrapper.getTransactionByHashAsync(txHash);
+    }
+
+    public async getBlockNumberAsync(): Promise<number> {
+        return this._web3Wrapper.getBlockNumberAsync();
     }
     
 }

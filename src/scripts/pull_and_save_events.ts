@@ -12,13 +12,56 @@ import { EventsSource } from '../data_sources/events/0x_events';
 import { Web3Source } from '../data_sources/web3';
 import { BLOCK_FINALITY_THRESHOLD, CHAIN_ID, ETHEREUM_RPC_URL } from '../config';
 
+import {
+    ExchangeFillEventArgs,
+    StakingStakeEventArgs,
+    StakingUnstakeEventArgs,
+    StakingMoveStakeEventArgs,
+    StakingStakingPoolCreatedEventArgs,
+    StakingStakingPoolEarnedRewardsInEpochEventArgs,
+    StakingMakerStakingPoolSetEventArgs,
+    StakingParamsSetEventArgs,
+    StakingOperatorShareDecreasedEventArgs,
+    StakingEpochEndedEventArgs,
+    StakingEpochFinalizedEventArgs,
+    StakingRewardsPaidEventArgs
+} from '@0x/contract-wrappers';
+
+import { parseFillEvent } from '../parsers/events/fill_events';
+import {
+    FillEvent,
+    StakingPoolCreatedEvent,
+    StakeEvent,
+    UnstakeEvent,
+    MoveStakeEvent,
+    EpochEndedEvent,
+    StakingPoolEarnedRewardsInEpochEvent,
+    MakerStakingPoolSetEvent,
+    ParamsSetEvent,
+    OperatorShareDecreasedEvent,
+    EpochFinalizedEvent,
+    RewardsPaidEvent,
+} from '../entities';
+import { 
+    parseStakeEvent,
+    parseUnstakeEvent,
+    parseMoveStakeEvent,
+    parseStakingPoolCreatedEvent,
+    parseEpochEndedEvent,
+    parseStakingPoolEarnedRewardsInEpochEvent,
+    parseMakerStakingPoolSetEvent,
+    parseParamsSetEvent,
+    parseOperatorShareDecreasedEvent,
+    parseEpochFinalizedEvent,
+    parseRewardsPaidEvent,
+} from '../parsers/events/staking_events';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
 });
 const eventsSource = new EventsSource(provider, CHAIN_ID);
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
-const pullAndSaveEvents = new PullAndSaveEvents(eventsSource);
+const pullAndSaveEvents = new PullAndSaveEvents();
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
 export class EventScraper {
@@ -31,18 +74,18 @@ export class EventScraper {
 
         await Promise.all([
             pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveFillEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveStakeEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveUnstakeEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveMoveStakeEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveStakingPoolCreatedEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveStakingPoolEarnedRewardsInEpochEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveMakerStakingPoolSetEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveParamsSetEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveOperatorShareDecreasedEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveEpochEndedEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveEpochFinalizedEventsAsync(connection, latestBlockWithOffset),
-            pullAndSaveEvents.getParseSaveRewardsPaidEventsAsync(connection, latestBlockWithOffset),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakeEventArgs, StakeEvent>(connection, latestBlockWithOffset, 'StakeEvent', 'stake_events', eventsSource.getStakeEventsAsync.bind(eventsSource), parseStakeEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingUnstakeEventArgs, UnstakeEvent>(connection, latestBlockWithOffset, 'UnstakeEvent', 'unstake_events', eventsSource.getUnstakeEventsAsync.bind(eventsSource), parseUnstakeEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingMoveStakeEventArgs, MoveStakeEvent>(connection, latestBlockWithOffset, 'MoveStake', 'move_stake_events', eventsSource.getMoveStakeEventsAsync.bind(eventsSource), parseMoveStakeEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakingPoolCreatedEventArgs, StakingPoolCreatedEvent>(connection, latestBlockWithOffset, 'StakingPoolCreated', 'staking_pool_created_events', eventsSource.getStakingPoolCreatedEventsAsync.bind(eventsSource), parseStakingPoolCreatedEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakingPoolEarnedRewardsInEpochEventArgs, StakingPoolEarnedRewardsInEpochEvent>(connection, latestBlockWithOffset, 'StakingPoolEarnedRewardsInEpoch', 'staking_pool_earned_rewards_in_epoch_events', eventsSource.getStakingPoolEarnedRewardsInEpochEventsAsync.bind(eventsSource), parseStakingPoolEarnedRewardsInEpochEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingMakerStakingPoolSetEventArgs, MakerStakingPoolSetEvent>(connection, latestBlockWithOffset, 'MakerStakingPoolSet', 'maker_staking_pool_set_events', eventsSource.getMakerStakingPoolSetEventsAsync.bind(eventsSource), parseMakerStakingPoolSetEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingParamsSetEventArgs, ParamsSetEvent>(connection, latestBlockWithOffset, 'ParamsSet', 'params_set_events', eventsSource.getParamsSetEventsAsync.bind(eventsSource), parseParamsSetEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingOperatorShareDecreasedEventArgs, OperatorShareDecreasedEvent>(connection, latestBlockWithOffset, 'ParamsSet', 'params_set_events', eventsSource.getOperatorShareDecreasedEventsAsync.bind(eventsSource), parseOperatorShareDecreasedEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingEpochEndedEventArgs, EpochEndedEvent>(connection, latestBlockWithOffset, 'EpochEnded', 'epoch_ended_events', eventsSource.getEpochEndedEventsAsync.bind(eventsSource), parseEpochEndedEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingEpochFinalizedEventArgs, EpochFinalizedEvent>(connection, latestBlockWithOffset, 'EpochFinalized', 'epoch_finalized_events', eventsSource.getEpochFinalizedEventsAsync.bind(eventsSource), parseEpochFinalizedEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingRewardsPaidEventArgs, RewardsPaidEvent>(connection, latestBlockWithOffset, 'RewardsPaid', 'rewards_paid_events', eventsSource.getRewardsPaidEventsAsync.bind(eventsSource), parseRewardsPaidEvent),
         ]);
     
         const endTime = new Date().getTime();
