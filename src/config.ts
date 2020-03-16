@@ -37,6 +37,7 @@ const bridgeContracts = [
     { contract: '0x2818363fb1686c2720b05c4e789165909cd03fc9', startingBlock: 9684028 },
     { contract: '0xc16f74b07e2409e869bae5de01b2265fe32d64e6', startingBlock: 9684280 },
     { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 9684143 },
+    { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 9684978 },
 ]
 
 // The earlier of the exchange or staking contract being created
