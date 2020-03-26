@@ -22,6 +22,11 @@ const supportedChains = [
     42, // Kovan
 ];
 
+interface BridgeContract {
+    contract: string;
+    startingBlock: number;
+}
+
 const stakingProxyDeploymentTxMap: { [chainId: number]: string } = {
     1: '0x4680e9d59bae9bbde1b0bae0fa5157ceea64ea923f2be434e5da6f5df2bdb907',
     3: '0x0596f07ef9787486c69784cdb9fca2431b5642131770e49a3c53f2f708a76e5b',
@@ -39,6 +44,18 @@ const bridgeContracts = [
     { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 9684143 },
     { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 9684978 },
 ]
+
+// Parses an environment variable for bridge contracts
+// Schema is
+// <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
+function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
+    const contracts = envVar.split('|');
+    const bridgeContracts = contracts.map((element) => {
+        const split = element.split('-');
+        return {contract: split[0], startingBlock: Number(split[1])} 
+    });
+    return bridgeContracts;
+}
 
 // The earlier of the exchange or staking contract being created
 const firstSearchBlockMap: { [chainId: number]: number } = {
@@ -67,5 +84,5 @@ export const SECONDS_BETWEEN_RUNS = process.env.SECONDS_BETWEEN_RUNS ? parseInt(
 export const STAKING_POOLS_JSON_URL = process.env.STAKING_POOLS_JSON_URL || DEFAULT_STAKING_POOLS_JSON_URL;
 export const STAKING_POOLS_METADATA_JSON_URL = process.env.STAKING_POOLS_METADATA_JSON_URL || DEFAULT_STAKING_POOLS_METADATA_JSON_URL;
 export const BASE_GITHUB_LOGO_URL = process.env.BASE_GITHUB_LOGO_URL || DEFAULT_BASE_GITHUB_LOGO_URL;
-export const BRIDGE_CONTRACTS = bridgeContracts;
+export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS)) : bridgeContracts;
 export const BRIDGE_TRADE_TOPIC = ['0x349fc08071558d8e3aa92dec9396e4e9f2dfecd6bb9065759d1932e7da43b8a9'];
