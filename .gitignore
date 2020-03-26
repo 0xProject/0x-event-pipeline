@@ -3,3 +3,6 @@ postgres
 node_modules
 lib
 .vscode
+.env.kovan
+package-lock.json
+yarn-error.log
