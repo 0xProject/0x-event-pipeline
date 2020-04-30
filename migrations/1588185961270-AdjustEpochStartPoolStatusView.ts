@@ -37,6 +37,8 @@ CREATE VIEW staking.epoch_start_pool_status AS (
             , spc.pool_id
             , peos.operator_share AS operator_share
             , mas.maker_addresses
+            , das.operator_zrx_delegated
+            , das.member_zrx_delegated
             , das.zrx_delegated
         FROM events.staking_pool_created_events spc
         JOIN staking.epochs e
