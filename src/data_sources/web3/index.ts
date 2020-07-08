@@ -41,6 +41,26 @@ export class Web3Source {
         return blocks;
     }
 
+    public async getBatchTxInfoAsync(hashes: string[]): Promise<any[]> {
+        var batch = new this._web3.BatchRequest();
+
+        let promises = hashes.map(hash => {
+            return new Promise((resolve, reject) => {
+                let req = this._web3.eth.getTransaction.request(hash, (err: any, data: Transaction) => {
+                    if(err) reject(err);
+                    else resolve(data);
+                });
+            batch.add(req)
+            })
+        });
+
+        batch.execute();
+
+        const transactions = await Promise.all(promises);
+
+        return transactions;
+    }
+
     public async getBatchLogInfoForContractsAsync(
         logPullInfo: LogPullInfo[]): Promise<any[]> {
 
