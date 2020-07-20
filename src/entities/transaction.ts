@@ -1,36 +1,54 @@
+import { BigNumber } from '@0x/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { bigNumberTransformer, numberToBigIntTransformer } from '../utils';
-import { BigNumber } from '@0x/utils';
+import { numberToBigIntTransformer, bigNumberTransformer } from '../utils';
 
-// Ethereum transaction info from events
+// Transaction info for TX containing events
 @Entity({ name: 'transactions', schema: 'events' })
 export class Transaction {
     // When the event was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public observedTimestamp!: number;
-    // The address of the taker (may be null).
-    @PrimaryColumn({ name: 'transaction_hash' })
+    // hash of the transaction
+    @PrimaryColumn({ name: 'transaction_hash', type: 'varchar' })
     public transactionHash!: string;
-    // Hash of the block
-    @PrimaryColumn({ name: 'block_hash' })
+    //  the number of transactions made by the sender prior to this one.
+    @Column({ name: 'nonce', type: 'bigint', transformer: numberToBigIntTransformer })
+    public nonce!: number;
+    // Hash of the block containing the TX
+    @Column({ name: 'block_hash', type: 'varchar' })
     public blockHash!: string;
     // depth of the block
     @PrimaryColumn({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockNumber!: number;
-    // Index of the transaction in the block
+    // integer of the transactions index position in the block. null when its pending.
     @Column({ name: 'transaction_index', type: 'bigint', transformer: numberToBigIntTransformer })
     public transactionIndex!: number;
-    // The address of the sender
-    @Column({ name: 'sender_address' })
-    public sender!: string;
-    // Price of gas in wei
+    // address of the sender
+    @Column({ name: 'sender_address', type: 'varchar' })
+    public senderAddress!: string;
+    // address of the receiver. null when its a contract creation transaction.
+    @Column({ name: 'to_address', type: 'varchar', nullable: true })
+    public toAddress!: string | null;
+    // value transferred in Wei
+    @Column({ name: 'value', type: 'numeric', transformer: bigNumberTransformer })
+    public value!: BigNumber;
+    // gas price provided by the sender in Wei
     @Column({ name: 'gas_price', type: 'numeric', transformer: bigNumberTransformer })
     public gasPrice!: BigNumber;
-    // Gas used mining the transaction
-    @Column({ name: 'gas_used', type: 'numeric', transformer: bigNumberTransformer })
-    public gasUsed!: BigNumber;
-    // Gas used mining the transaction
-    @Column({ name: 'input' })
+    //  gas provided by the sender
+    @Column({ name: 'gas', type: 'numeric', transformer: bigNumberTransformer })
+    public gas!: BigNumber;
+    // the data send along with the transaction.
+    @Column({ name: 'input', type: 'varchar' })
     public input!: string;
+    // api affiliate
+    @Column({ name: 'affiliate_address', type: 'varchar', nullable: true })
+    public affiliateAddress!: string | null;
+    // quote timestamp from affiliate data
+    @Column({ name: 'quote_timestamp', type: 'bigint', transformer: numberToBigIntTransformer, nullable: true })
+    public quoteTimestamp!: number | null;
+    // quote ID from affiliate data
+    @Column({ name: 'quote_id', type: 'bigint', transformer: numberToBigIntTransformer, nullable: true })
+    public quoteId!: number | null;
 }

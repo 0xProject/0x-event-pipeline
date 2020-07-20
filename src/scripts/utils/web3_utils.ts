@@ -1,10 +1,11 @@
 import { logUtils } from '@0x/utils';
-import { Connection } from 'typeorm';
+import { Connection, getRepository } from 'typeorm';
 import {
-    Block
+    Block,
+    Transaction
 } from '../../entities';
 import { 
-   parseBlock
+   parseBlock, parseTransaction
 } from '../../parsers/web3/parse_web3_objects';
 import { Web3Source } from '../../data_sources/web3';
 
@@ -30,6 +31,20 @@ export class PullAndSaveWeb3 {
         this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, tableName);
     }
 
+    public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number): Promise<void> {
+        // Give a small buffer for tx to finalize
+        const endBlock = latestBlockWithOffset - 6;
+        logUtils.log(`Grabbing transaction data`);
+        const hashes = await this._getTxListToPullAsync(connection, endBlock);
+        const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
+        const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
+        
+        logUtils.log(`saving ${parsedTx.length} tx`);
+
+        const txRepo = getRepository(Transaction);
+        txRepo.save(parsedTx);
+    }
+
     private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
         const queryResult = await connection.query(
             `SELECT block_number FROM events.blocks ORDER BY block_number DESC LIMIT 1`,
@@ -39,6 +54,31 @@ export class PullAndSaveWeb3 {
 
         return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }
+
+    private async _getTxListToPullAsync(connection: Connection, beforeBlock: number): Promise<string[]> {
+        const queryResult = await connection.query(`
+            SELECT DISTINCT
+                transaction_hash
+            FROM (
+                SELECT DISTINCT
+                    fe.transaction_hash
+                    , fe.block_number
+                FROM events.fill_events fe
+                LEFT JOIN events.transactions tx ON tx.transaction_hash = fe.transaction_hash
+                WHERE
+                    fe.block_number < ${beforeBlock}
+                    AND tx.transaction_hash IS NULL
+                ORDER BY 2 DESC
+                LIMIT 100
+            ) a
+        `,
+        );
+
+        const txList = queryResult.map((e: {transaction_hash: string}) => e.transaction_hash);
+
+        return txList;
+    }
+
 
     private async _deleteOverlapAndSaveBlocksAsync<T>(
         connection: Connection,
