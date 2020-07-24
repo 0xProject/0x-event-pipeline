@@ -65,7 +65,14 @@ export class PullAndSaveWeb3 {
                 LEFT JOIN events.transactions tx ON tx.transaction_hash = fe.transaction_hash
                 WHERE
                     fe.block_number < ${beforeBlock}
-                    AND tx.transaction_hash IS NULL
+                    AND (
+                        -- tx info hasn't been pulled
+                        tx.transaction_hash IS NULL
+                        -- or tx where the block info has changed
+                        OR (
+                            tx.block_hash <> fe.block_hash
+                        )
+                    )
                 ORDER BY 2 DESC
                 LIMIT 100)
 
@@ -78,7 +85,14 @@ export class PullAndSaveWeb3 {
                 LEFT JOIN events.transactions tx ON tx.transaction_hash = terc20.transaction_hash
                 WHERE
                     terc20.block_number < ${beforeBlock}
-                    AND tx.transaction_hash IS NULL
+                    AND (
+                        -- tx info hasn't been pulled
+                        tx.transaction_hash IS NULL
+                        -- or tx where the block info has changed
+                        OR (
+                            tx.block_hash <> terc20.block_hash
+                        )
+                    )
                 ORDER BY 2 DESC
                 LIMIT 100)
             ) a
