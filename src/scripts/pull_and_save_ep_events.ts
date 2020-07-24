@@ -18,7 +18,7 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class EPScraper {
-    public async getParseSaveEPEvents(connection: Connection): Promise<void> {
+    public async getParseSaveEPEventsAsync(connection: Connection): Promise<void> {
         logUtils.log(`pulling bridge trades`);
 
         const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);

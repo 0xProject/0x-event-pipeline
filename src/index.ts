@@ -31,7 +31,7 @@ createConnection(ormConfig as ConnectionOptions).then(async connection => {
         Promise.all([
             eventScraper.getParseSaveEventsAsync(connection),
             bridgeTradeScraper.getParseSaveBridgeTradesAsync(connection),
-            ePScraper.getParseSaveEPEvents(connection),
+            ePScraper.getParseSaveEPEventsAsync(connection),
         ]);
 
     });
