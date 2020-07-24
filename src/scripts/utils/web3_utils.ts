@@ -32,10 +32,8 @@ export class PullAndSaveWeb3 {
     }
 
     public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number): Promise<void> {
-        // Give a small buffer for tx to finalize
-        const endBlock = latestBlockWithOffset - 6;
         logUtils.log(`Grabbing transaction data`);
-        const hashes = await this._getTxListToPullAsync(connection, endBlock);
+        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset);
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
         
