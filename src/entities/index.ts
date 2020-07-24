@@ -19,3 +19,4 @@ export { EpochFinalizedEvent } from './epoch_finalized_event';
 export { RewardsPaidEvent } from './rewards_paid_event';
 export { StakingProxyDeployment } from './staking_proxy_deployment';
 export { ERC20BridgeTransferEvent } from './erc20_bridge_transfer_event';
+export { TransformedERC20Event } from './transformed_erc20_event';

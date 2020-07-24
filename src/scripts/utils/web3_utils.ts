@@ -32,10 +32,8 @@ export class PullAndSaveWeb3 {
     }
 
     public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number): Promise<void> {
-        // Give a small buffer for tx to finalize
-        const endBlock = latestBlockWithOffset - 6;
         logUtils.log(`Grabbing transaction data`);
-        const hashes = await this._getTxListToPullAsync(connection, endBlock);
+        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset);
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
         
@@ -60,16 +58,43 @@ export class PullAndSaveWeb3 {
             SELECT DISTINCT
                 transaction_hash
             FROM (
-                SELECT DISTINCT
+                (SELECT DISTINCT
                     fe.transaction_hash
                     , fe.block_number
                 FROM events.fill_events fe
                 LEFT JOIN events.transactions tx ON tx.transaction_hash = fe.transaction_hash
                 WHERE
                     fe.block_number < ${beforeBlock}
-                    AND tx.transaction_hash IS NULL
+                    AND (
+                        -- tx info hasn't been pulled
+                        tx.transaction_hash IS NULL
+                        -- or tx where the block info has changed
+                        OR (
+                            tx.block_hash <> fe.block_hash
+                        )
+                    )
                 ORDER BY 2 DESC
-                LIMIT 100
+                LIMIT 100)
+
+                UNION
+
+                (SELECT DISTINCT
+                    terc20.transaction_hash
+                    , terc20.block_number
+                FROM events.transformed_erc20_events terc20
+                LEFT JOIN events.transactions tx ON tx.transaction_hash = terc20.transaction_hash
+                WHERE
+                    terc20.block_number < ${beforeBlock}
+                    AND (
+                        -- tx info hasn't been pulled
+                        tx.transaction_hash IS NULL
+                        -- or tx where the block info has changed
+                        OR (
+                            tx.block_hash <> terc20.block_hash
+                        )
+                    )
+                ORDER BY 2 DESC
+                LIMIT 100)
             ) a
         `,
         );
