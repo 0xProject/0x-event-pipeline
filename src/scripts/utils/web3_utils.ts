@@ -68,10 +68,6 @@ export class PullAndSaveWeb3 {
                     AND (
                         -- tx info hasn't been pulled
                         tx.transaction_hash IS NULL
-                        -- or tx where the block info has changed
-                        OR (
-                            tx.block_hash <> fe.block_hash
-                        )
                     )
                 ORDER BY 2 DESC
                 LIMIT 100)
@@ -88,10 +84,6 @@ export class PullAndSaveWeb3 {
                     AND (
                         -- tx info hasn't been pulled
                         tx.transaction_hash IS NULL
-                        -- or tx where the block info has changed
-                        OR (
-                            tx.block_hash <> terc20.block_hash
-                        )
                     )
                 ORDER BY 2 DESC
                 LIMIT 100)
