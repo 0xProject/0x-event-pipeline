@@ -237,7 +237,6 @@ export class PullAndSaveWeb3 {
     
         await queryRunner.startTransaction();
         try {
-            logUtils.log('its working!');
             await queryRunner.manager.query(`
                 DELETE FROM events.transaction_receipts WHERE transaction_hash IN (${txHashList});
                 DELETE FROM events.transaction_logs WHERE transaction_hash IN (${txHashList});
