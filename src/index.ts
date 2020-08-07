@@ -11,13 +11,11 @@ import { SECONDS_BETWEEN_RUNS } from './config';
 import { EventScraper } from './scripts/pull_and_save_events';
 import { DeploymentScraper } from './scripts/pull_and_save_deployment';
 import { MetadataScraper } from './scripts/pull_and_save_pool_metadata';
-import { BridgeTradeScraper } from "./scripts/pull_and_save_bridge_trades";
 import { EPScraper } from "./scripts/pull_and_save_ep_events";
 
 console.log("App is running...");
 
 const eventScraper = new EventScraper();
-const bridgeTradeScraper = new BridgeTradeScraper();
 const deploymentScraper = new DeploymentScraper();
 const metadataScraper = new MetadataScraper();
 const ePScraper = new EPScraper();
@@ -30,7 +28,6 @@ createConnection(ormConfig as ConnectionOptions).then(async connection => {
     cron.schedule(`*/${SECONDS_BETWEEN_RUNS} * * * * *`, () => {
         Promise.all([
             eventScraper.getParseSaveEventsAsync(connection),
-            bridgeTradeScraper.getParseSaveBridgeTradesAsync(connection),
             ePScraper.getParseSaveEPEventsAsync(connection),
         ]);
 

@@ -1,5 +1,7 @@
 export { Block } from './block';
 export { Transaction } from './transaction';
+export { TransactionLogs } from './transaction_logs';
+export { TransactionReceipt } from './transaction_receipt';
 
 export { Event } from './event';
 export { FillEvent } from './fill_event';

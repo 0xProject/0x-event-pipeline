@@ -19,7 +19,7 @@ export class Transaction {
     @Column({ name: 'block_hash', type: 'varchar' })
     public blockHash!: string;
     // depth of the block
-    @PrimaryColumn({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
+    @Column({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockNumber!: number;
     // integer of the transactions index position in the block. null when its pending.
     @Column({ name: 'transaction_index', type: 'bigint', transformer: numberToBigIntTransformer })
