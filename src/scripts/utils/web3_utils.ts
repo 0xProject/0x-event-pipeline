@@ -58,36 +58,43 @@ export class PullAndSaveWeb3 {
             SELECT DISTINCT
                 transaction_hash
             FROM (
-                (SELECT DISTINCT
-                    fe.transaction_hash
-                    , fe.block_number
-                FROM events.fill_events fe
-                LEFT JOIN events.transactions tx ON tx.transaction_hash = fe.transaction_hash
-                WHERE
-                    fe.block_number < ${beforeBlock}
-                    AND (
-                        -- tx info hasn't been pulled
-                        tx.transaction_hash IS NULL
-                    )
-                ORDER BY 2 DESC
-                LIMIT 100)
+                SELECT DISTINCT
+                    transaction_hash
+                    , block_number
+                FROM (
+                    (SELECT DISTINCT
+                        fe.transaction_hash
+                        , fe.block_number
+                    FROM events.fill_events fe
+                    LEFT JOIN events.transactions tx ON tx.transaction_hash = fe.transaction_hash
+                    WHERE
+                        fe.block_number < ${beforeBlock}
+                        AND (
+                            -- tx info hasn't been pulled
+                            tx.transaction_hash IS NULL
+                        )
+                    ORDER BY 2
+                    LIMIT 100)
 
-                UNION
+                    UNION
 
-                (SELECT DISTINCT
-                    terc20.transaction_hash
-                    , terc20.block_number
-                FROM events.transformed_erc20_events terc20
-                LEFT JOIN events.transactions tx ON tx.transaction_hash = terc20.transaction_hash
-                WHERE
-                    terc20.block_number < ${beforeBlock}
-                    AND (
-                        -- tx info hasn't been pulled
-                        tx.transaction_hash IS NULL
-                    )
-                ORDER BY 2 DESC
-                LIMIT 100)
+                    (SELECT DISTINCT
+                        terc20.transaction_hash
+                        , terc20.block_number
+                    FROM events.transformed_erc20_events terc20
+                    LEFT JOIN events.transactions tx ON tx.transaction_hash = terc20.transaction_hash
+                    WHERE
+                        terc20.block_number < ${beforeBlock}
+                        AND (
+                            -- tx info hasn't been pulled
+                            tx.transaction_hash IS NULL
+                        )
+                    ORDER BY 2
+                    LIMIT 100)
+                ORDER BY 2
+                LIMIT 100
             ) a
+        ) b;
         `,
         );
 
