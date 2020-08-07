@@ -75,6 +75,7 @@ export class EventScraper {
         await Promise.all([
             pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset),
             pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset),
+            pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakeEventArgs, StakeEvent>(connection, latestBlockWithOffset, 'StakeEvent', 'stake_events', eventsSource.getStakeEventsAsync.bind(eventsSource), parseStakeEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingUnstakeEventArgs, UnstakeEvent>(connection, latestBlockWithOffset, 'UnstakeEvent', 'unstake_events', eventsSource.getUnstakeEventsAsync.bind(eventsSource), parseUnstakeEvent),
