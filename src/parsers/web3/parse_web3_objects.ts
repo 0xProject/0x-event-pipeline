@@ -1,9 +1,11 @@
 import { BigNumber } from '@0x/utils';
 import { 
     Block,
-    Transaction
+    Transaction,
+    TransactionLogs,
+    TransactionReceipt,
 } from '../../entities';
-import { BlockWithoutTransactionData, Transaction as RawTx } from 'ethereum-types';
+import { BlockWithoutTransactionData, Transaction as RawTx, TransactionReceipt as RawReceipt } from 'ethereum-types';
 
 /**
  * Converts a raw tx into a Transaction entity
@@ -37,6 +39,40 @@ export function parseTransaction(rawTx: RawTx): Transaction {
 
     return transaction;
 }
+
+/**
+ * Converts a raw receipt into a TransactionReceipt entity
+ * @param rawReceipt Raw transaction receipt returned from JSON RPC
+ */
+export function parseTransactionReceipt(rawReceipt: RawReceipt): TransactionReceipt {
+    const transactionReceipt = new TransactionReceipt();
+
+    transactionReceipt.observedTimestamp = new Date().getTime();
+    transactionReceipt.transactionHash = rawReceipt.transactionHash === null ? '' : rawReceipt.transactionHash;
+    transactionReceipt.blockHash = rawReceipt.blockHash === null ? '' : rawReceipt.blockHash;
+    transactionReceipt.blockNumber = rawReceipt.blockNumber === null ? 0 : rawReceipt.blockNumber;
+    transactionReceipt.transactionIndex = rawReceipt.transactionIndex === null ? 0 : rawReceipt.transactionIndex;
+    transactionReceipt.senderAddress = rawReceipt.from;
+    transactionReceipt.toAddress = rawReceipt.to;
+    transactionReceipt.gasUsed = new BigNumber(rawReceipt.gasUsed);
+
+    return transactionReceipt;
+}
+
+/**
+ * Converts a raw receipt into a TransactionLogs entity
+ * @param rawReceipt Raw transaction receipt returned from JSON RPC
+ */
+export function parseTransactionLogs(rawReceipt: RawReceipt): TransactionLogs {
+    const transactionLogs = new TransactionLogs();
+
+    transactionLogs.observedTimestamp = new Date().getTime();
+    transactionLogs.transactionHash = rawReceipt.transactionHash === null ? '' : rawReceipt.transactionHash;
+    transactionLogs.logs = JSON.stringify(rawReceipt.logs);
+
+    return transactionLogs;
+}
+
 
 /**
  * Converts a raw block into a Block entity

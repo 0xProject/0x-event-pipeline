@@ -5,6 +5,8 @@ import { POSTGRES_URI, SHOULD_SYNCHRONIZE } from './config';
 import {
     Block,
     Transaction,
+    TransactionLogs,
+    TransactionReceipt,
     FillEvent,
     StakeEvent,
     UnstakeEvent,
@@ -28,6 +30,8 @@ import {
 const entities = [
     Block,
     Transaction,
+    TransactionLogs,
+    TransactionReceipt,
     FillEvent,
     StakeEvent,
     UnstakeEvent,
