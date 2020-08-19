@@ -7,6 +7,7 @@ import {
     ExchangeEventArgs,
     ExchangeEvents,
     ExchangeFillEventArgs,
+    ExchangeTransactionExecutionEventArgs,
     StakingContract,
     StakingEventArgs,
     StakingEvents,
@@ -40,6 +41,16 @@ export class EventsSource {
     ): Promise<Array<LogWithDecodedArgs<ExchangeFillEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeFillEventArgs>(
             ExchangeEvents.Fill,
+        );
+        return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
+    }
+
+    public async getTransactionExecutionEventsAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<Array<LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>> | null> {
+        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeTransactionExecutionEventArgs>(
+            ExchangeEvents.TransactionExecution,
         );
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }

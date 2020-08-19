@@ -49,6 +49,6 @@ export class Transaction {
     @Column({ name: 'quote_timestamp', type: 'bigint', transformer: numberToBigIntTransformer, nullable: true })
     public quoteTimestamp!: number | null;
     // quote ID from affiliate data
-    @Column({ name: 'quote_id', type: 'bigint', transformer: numberToBigIntTransformer, nullable: true })
-    public quoteId!: number | null;
+    @Column({ name: 'quote_id', type: 'varchar' })
+    public quoteId!: string | null;
 }
