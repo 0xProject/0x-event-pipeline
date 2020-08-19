@@ -1,5 +1,5 @@
 import { logUtils } from '@0x/utils';
-import { Connection, getRepository } from 'typeorm';
+import { Connection } from 'typeorm';
 import {
     Block,
     ERC20BridgeTransferEvent,
@@ -70,14 +70,22 @@ export class PullAndSaveWeb3 {
                 }
             })
         );
+        
+        let parsedBridgeTradesWithEmptyRecords;
+        let parsedBridgeTrades: ERC20BridgeTransferEvent[];
+        if (parsedBridgeTradesNested.length > 0) {
+            parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) =>
+                acc.concat(val),
+            );
+            parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter(
+                (x: any) => x.observedTimestamp,
+            );
+        } else {
+            parsedBridgeTrades = [];
+        };
 
-        const parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) =>
-            acc.concat(val),
-        );
 
-        const parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter(
-            (x: any) => x.observedTimestamp,
-        );
+
 
         logUtils.log(`saving ${parsedReceipts.length} tx receipts`);
         logUtils.log(`saving ${parsedBridgeTrades.length} bridge trades`);
