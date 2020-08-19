@@ -25,6 +25,7 @@ import {
     StakingProxyDeployment,
     ERC20BridgeTransferEvent,
     TransformedERC20Event,
+    TransactionExecutionEvent,
 } from './entities';
 
 const entities = [
@@ -50,6 +51,7 @@ const entities = [
     StakingProxyDeployment,
     ERC20BridgeTransferEvent,
     TransformedERC20Event,
+    TransactionExecutionEvent,
 ];
 
 const config: ConnectionOptions = {
