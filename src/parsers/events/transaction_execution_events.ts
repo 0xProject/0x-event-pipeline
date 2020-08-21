@@ -22,7 +22,7 @@ export function parseTransactionExecutionEvent(eventLog: LogWithDecodedArgs<Exch
     const transactionExecutionEvent = new TransactionExecutionEvent();
     parseEvent(eventLog, transactionExecutionEvent);
 
-    transactionExecutionEvent.transactionHash = eventLog.args.transactionHash;
+    transactionExecutionEvent.zeroexTransactionHash = eventLog.args.transactionHash;
 
     return transactionExecutionEvent;
 }
