@@ -38,7 +38,7 @@ const changeQuoteIdToVarchar = `
 
 const revertChangeQuoteIdToVarchar = `
     ALTER TABLE events.transactions
-    ALTER COLUMN quote_id TYPE BIGINT;
+    ALTER COLUMN quote_id TYPE BIGINT USING quote_id::BIGINT;
 `;
 
 
