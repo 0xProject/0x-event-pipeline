@@ -24,10 +24,12 @@ import {
     StakingOperatorShareDecreasedEventArgs,
     StakingEpochEndedEventArgs,
     StakingEpochFinalizedEventArgs,
-    StakingRewardsPaidEventArgs
+    StakingRewardsPaidEventArgs,
+    ExchangeTransactionExecutionEventArgs
 } from '@0x/contract-wrappers';
 
 import { parseFillEvent } from '../parsers/events/fill_events';
+import { parseTransactionExecutionEvent } from '../parsers/events/transaction_execution_events';
 import {
     FillEvent,
     StakingPoolCreatedEvent,
@@ -41,6 +43,7 @@ import {
     OperatorShareDecreasedEvent,
     EpochFinalizedEvent,
     RewardsPaidEvent,
+    TransactionExecutionEvent,
 } from '../entities';
 import { 
     parseStakeEvent,
@@ -77,6 +80,7 @@ export class EventScraper {
             pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset),
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
+            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeTransactionExecutionEventArgs, TransactionExecutionEvent>(connection, latestBlockWithOffset, 'TransactionExecutionEvent', 'transaction_execution_events', eventsSource.getTransactionExecutionEventsAsync.bind(eventsSource), parseTransactionExecutionEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakeEventArgs, StakeEvent>(connection, latestBlockWithOffset, 'StakeEvent', 'stake_events', eventsSource.getStakeEventsAsync.bind(eventsSource), parseStakeEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingUnstakeEventArgs, UnstakeEvent>(connection, latestBlockWithOffset, 'UnstakeEvent', 'unstake_events', eventsSource.getUnstakeEventsAsync.bind(eventsSource), parseUnstakeEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingMoveStakeEventArgs, MoveStakeEvent>(connection, latestBlockWithOffset, 'MoveStake', 'move_stake_events', eventsSource.getMoveStakeEventsAsync.bind(eventsSource), parseMoveStakeEvent),
