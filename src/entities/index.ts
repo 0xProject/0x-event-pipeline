@@ -5,6 +5,8 @@ export { TransactionReceipt } from './transaction_receipt';
 
 export { Event } from './event';
 export { FillEvent } from './fill_event';
+export { CancelEvent } from './cancel_event';
+export { CancelUpToEvent } from './cancel_up_to_event';
 export { StakeEvent } from './stake_event';
 export { UnstakeEvent } from './unstake_event';
 export { MoveStakeEvent } from './move_stake_event';
