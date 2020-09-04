@@ -20,12 +20,10 @@ const eventsCancelEvents = new Table({
         { name: 'maker_proxy_type', type: 'varchar', isNullable: true },
         { name: 'maker_asset_proxy_id', type: 'varchar', isNullable: true },
         { name: 'maker_token_address', type: 'char(42)', isNullable: true },
-        { name: 'maker_token_id', type: 'varchar', isNullable: true },
         { name: 'raw_taker_asset_data', type: 'varchar' },
         { name: 'taker_proxy_type', type: 'varchar', isNullable: true },
         { name: 'taker_asset_proxy_id', type: 'varchar', isNullable: true },
         { name: 'taker_token_address', type: 'char(42)', isNullable: true },
-        { name: 'taker_token_id', type: 'varchar', isNullable: true },
     ],
 });
 
