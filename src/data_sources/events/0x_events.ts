@@ -22,6 +22,8 @@ import {
     StakingStakingPoolEarnedRewardsInEpochEventArgs,
     StakingMakerStakingPoolSetEventArgs,
     StakingParamsSetEventArgs,
+    ExchangeCancelEventArgs,
+    ExchangeCancelUpToEventArgs,
 } from '@0x/contract-wrappers';
 
 import { getEventsWithPaginationAsync, GetEventsFunc } from './utils';
@@ -51,6 +53,26 @@ export class EventsSource {
     ): Promise<Array<LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>> | null> {
         const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeTransactionExecutionEventArgs>(
             ExchangeEvents.TransactionExecution,
+        );
+        return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
+    }
+
+    public async getCancelEventsAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<Array<LogWithDecodedArgs<ExchangeCancelEventArgs>> | null> {
+        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeCancelEventArgs>(
+            ExchangeEvents.Cancel,
+        );
+        return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
+    }
+
+    public async getCancelUpToEventsAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<Array<LogWithDecodedArgs<ExchangeCancelUpToEventArgs>> | null> {
+        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeCancelUpToEventArgs>(
+            ExchangeEvents.CancelUpTo,
         );
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }

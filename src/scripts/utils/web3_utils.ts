@@ -151,6 +151,46 @@ export class PullAndSaveWeb3 {
                         )
                     ORDER BY 2
                     LIMIT 100)
+
+                    UNION
+
+                    (SELECT DISTINCT
+                        ce.transaction_hash
+                        , ce.block_number
+                    FROM events.cancel_events ce
+                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
+                    WHERE
+                        ce.block_number < ${beforeBlock}
+                        AND (
+                            -- tx info hasn't been pulled
+                            tx.transaction_hash IS NULL
+                            -- or tx where the block info has changed
+                            OR (
+                                tx.block_hash <> ce.block_hash
+                            )
+                        )
+                    ORDER BY 2
+                    LIMIT 100)
+
+                    UNION
+
+                    (SELECT DISTINCT
+                        ce.transaction_hash
+                        , ce.block_number
+                    FROM events.cancel_up_to_events ce
+                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
+                    WHERE
+                        ce.block_number < ${beforeBlock}
+                        AND (
+                            -- tx info hasn't been pulled
+                            tx.transaction_hash IS NULL
+                            -- or tx where the block info has changed
+                            OR (
+                                tx.block_hash <> ce.block_hash
+                            )
+                        )
+                    ORDER BY 2
+                    LIMIT 100)
                 ORDER BY 2
                 LIMIT 100
             ) a
