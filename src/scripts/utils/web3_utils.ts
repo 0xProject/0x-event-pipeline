@@ -155,6 +155,26 @@ export class PullAndSaveWeb3 {
                     UNION
 
                     (SELECT DISTINCT
+                        bte.transaction_hash
+                        , bte.block_number
+                    FROM events.erc20_bridge_transfer_events bte
+                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = bte.transaction_hash
+                    WHERE
+                        bte.block_number < ${beforeBlock}
+                        AND (
+                            -- tx info hasn't been pulled
+                            tx.transaction_hash IS NULL
+                            -- or tx where the block info has changed
+                            OR (
+                                tx.block_hash <> bte.block_hash
+                            )
+                        )
+                    ORDER BY 2
+                    LIMIT 100)
+
+                    UNION
+
+                    (SELECT DISTINCT
                         ce.transaction_hash
                         , ce.block_number
                     FROM events.cancel_events ce
@@ -288,7 +308,7 @@ export class PullAndSaveWeb3 {
             await queryRunner.manager.query(`
                 DELETE FROM events.transaction_receipts WHERE transaction_hash IN (${txHashList});
                 DELETE FROM events.transaction_logs WHERE transaction_hash IN (${txHashList});
-                DELETE FROM events.erc20_bridge_transfer_events WHERE transaction_hash IN (${txHashList});
+                DELETE FROM events.erc20_bridge_transfer_events WHERE transaction_hash IN (${txHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
             `);
 
             await Promise.all([
