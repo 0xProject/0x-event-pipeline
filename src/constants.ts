@@ -8,9 +8,14 @@ export const DEFAULT_SECONDS_BETWEEN_RUNS = 15;
 export const DEFAULT_STAKING_POOLS_JSON_URL = 'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/staking_pools.json';
 export const DEFAULT_STAKING_POOLS_METADATA_JSON_URL = 'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/pool_metadata.json';
 export const DEFAULT_BASE_GITHUB_LOGO_URL = 'https://github.com/0xProject/0x-staking-pool-registry/raw/master/logos/';
+export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 459;
+export const DEFAULT_MAX_TIME_TO_SEARCH = 1310;
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
 export const EXCHANGE_PROXY_ADDRESS = '0xdef1c0ded9bec7f1a1670819833240f027b25eff';
 export const EXCHANGE_PROXY_DEPLOYMENT_BLOCK = 10247094;
+export const UNISWAPV2_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
+export const SUSHISWAP_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork';
+export const START_DIRECT_UNISWAP_SEARCH = 1600834642;
 
 export const TRANSFORMED_ERC20_ABI = {
     "anonymous": false,
