@@ -21,10 +21,11 @@ export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20
     eRC20BridgeTransferEvent.blockHash = '0x';
     eRC20BridgeTransferEvent.blockNumber = Number(swap.transaction.blockNumber);
 
-    const amount0In = new BigNumber(swap.amount0In);
-    const amount1In = new BigNumber(swap.amount1In);
-    const amount0Out = new BigNumber(swap.amount0Out);
-    const amount1Out = new BigNumber(swap.amount1Out);
+    // scale the values to the raw amounts
+    const amount0In = new BigNumber(swap.amount0In).times(new BigNumber(10).pow(new BigNumber(swap.pair.token0.decimals)));
+    const amount1In = new BigNumber(swap.amount1In).times(new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)));
+    const amount0Out = new BigNumber(swap.amount0Out).times(new BigNumber(10).pow(new BigNumber(swap.pair.token0.decimals)));
+    const amount1Out = new BigNumber(swap.amount1Out).times(new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)));
 
     const fromToken = amount0In.gt(amount1In) ? swap.pair.token0 : swap.pair.token1;
     const toToken = amount0Out.gt(amount1Out) ? swap.pair.token0 : swap.pair.token1;

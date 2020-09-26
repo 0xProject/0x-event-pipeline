@@ -164,10 +164,11 @@ export class PullAndSaveWeb3 {
                         AND (
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
+                            -- commenting out below, since we don't have block hashes from the graph
                             -- or tx where the block info has changed
-                            OR (
-                                tx.block_hash <> bte.block_hash
-                            )
+                            -- OR (
+                            -- tx.block_hash <> bte.block_hash
+                            -- )
                         )
                     ORDER BY 2
                     LIMIT 100)
