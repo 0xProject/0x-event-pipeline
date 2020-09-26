@@ -1,8 +1,6 @@
 import { EXCHANGE_PROXY_ADDRESS } from '../../constants';
 import { request, gql } from 'graphql-request';
 
-import { logUtils } from '@0x/utils';
-
 export interface Token {
     decimals: string;
     id: string;
@@ -112,9 +110,6 @@ export class UniswapV2Source {
           }`;
 
         const resp = await request(endpoint, query);
-
-        logUtils.log(query);
-        logUtils.log(resp);
     
         return resp;
     }
