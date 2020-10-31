@@ -138,5 +138,9 @@ export class Web3Source {
     public async getBlockNumberAsync(): Promise<number> {
         return this._web3Wrapper.getBlockNumberAsync();
     }
+
+    public async getBlockTimestampAsync(blockNumber: number): Promise<number> {
+        return this._web3Wrapper.getBlockTimestampAsync(blockNumber);
+    }
     
 }
