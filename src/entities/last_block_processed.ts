@@ -9,8 +9,11 @@ export class LastBlockProcessed {
     @PrimaryColumn({ name: 'event_name', type: 'varchar' })
     public eventName!: string;
     // Block number last processed
-    @Column({ name: 'last_processed_block_number', type: 'bigint', transformer: numberToBigIntTransformer })
-    public lastProcessedBlockNumber!: number;
+    @Column({ name: 'last_processed_block_number', type: 'bigint', transformer: numberToBigIntTransformer, nullable: true })
+    public lastProcessedBlockNumber!: number | null;
+    // Block timestamp last processed--needed for Uniswap events from theGraph
+    @Column({ name: 'last_processed_block_timestamp', type: 'bigint', transformer: numberToBigIntTransformer, nullable: true })
+    public lastProcessedBlockTimestamp!: number| null;
     // timestamp this entry was updated
     @Column({ name: 'processed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public processedTimestamp!: number;

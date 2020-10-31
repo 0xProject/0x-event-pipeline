@@ -24,4 +24,8 @@ export class ERC20BridgeTransferEvent extends Event {
     public from!: string;
     @Column({ name: 'to', type: 'varchar' })
     public to!: string;
+    @Column({ name: 'direct_flag', type: 'boolean', nullable: true })
+    public directFlag!: boolean | null;
+    @Column({ name: 'direct_protocol', type: 'varchar', nullable: true })
+    public directProtocol!: string | null;
 }

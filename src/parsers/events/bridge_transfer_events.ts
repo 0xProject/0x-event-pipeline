@@ -18,6 +18,7 @@ export function parseErc20BridgeTransfer(eventLog: RawLogEntry): ERC20BridgeTran
     eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(decodedLog.toTokenAmount);
     eRC20BridgeTransferEvent.from = decodedLog.from.toLowerCase();
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase();
+    eRC20BridgeTransferEvent.directFlag = false;
 
     return eRC20BridgeTransferEvent;
 }
