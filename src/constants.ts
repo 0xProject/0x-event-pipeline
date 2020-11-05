@@ -11,6 +11,7 @@ export const DEFAULT_BASE_GITHUB_LOGO_URL = 'https://github.com/0xProject/0x-sta
 export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 459;
 export const DEFAULT_MAX_TIME_TO_SEARCH = 1310;
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
+export const LIQUIDITYPROVIDERSWAP_EVENT_TOPIC = ['0x40a6ba9513d09e3488135e0e0d10e2d4382b792720155b144cbea89ac9db6d34'];
 export const EXCHANGE_PROXY_ADDRESS = '0xdef1c0ded9bec7f1a1670819833240f027b25eff';
 export const EXCHANGE_PROXY_DEPLOYMENT_BLOCK = 10247094;
 export const UNISWAPV2_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
@@ -96,5 +97,51 @@ export const ERC20_BRIDGE_TRADE_ABI = {
         }
     ],
     "name": "ERC20BridgeTransfer",
+    "type": "event"
+};
+
+
+export const LIQUIDITY_PROVIDER_SWAP_ABI = {
+
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "inputToken",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "outputToken",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "inputTokenAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "outputTokenAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "provider",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+        }
+    ],
+    "name": "LiquidityProviderSwap",
     "type": "event"
 };
