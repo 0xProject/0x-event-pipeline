@@ -41,9 +41,9 @@ export class PullAndSaveWeb3 {
         await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, tableName);
     }
 
-    public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number): Promise<void> {
+    public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number, shouldLookForBridgeTrades: boolean): Promise<void> {
         logUtils.log(`Grabbing transaction data`);
-        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transactions');
+        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transactions', shouldLookForBridgeTrades);
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
         
@@ -54,37 +54,40 @@ export class PullAndSaveWeb3 {
         }
     }
 
-    public async getParseSaveTxReceiptsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
+    public async getParseSaveTxReceiptsAsync(connection: Connection, latestBlockWithOffset: number, shouldLookForBridgeTrades: boolean): Promise<void> {
         logUtils.log(`Grabbing transaction receipt data`);
-        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transaction_receipts');
+        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transaction_receipts', shouldLookForBridgeTrades);
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
         const parsedReceipts = rawTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
         const parsedTxLogs = rawTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
 
-        const parsedBridgeTradesNested = rawTxReceipts.map(rawTxReceipt =>
-            rawTxReceipt.logs.map((l: RawLogEntry) => {
-                if(l.topics[0] === BRIDGE_TRADE_TOPIC[0]) {
-                    return parseErc20BridgeTransfer(l);
-                } else {
-                    return new ERC20BridgeTransferEvent();
-                }
-            })
-        );
-        
-        let parsedBridgeTradesWithEmptyRecords;
         let parsedBridgeTrades: ERC20BridgeTransferEvent[];
-        if (parsedBridgeTradesNested.length > 0) {
-            parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) =>
-                acc.concat(val),
+
+        if (shouldLookForBridgeTrades) {
+            const parsedBridgeTradesNested = rawTxReceipts.map(rawTxReceipt =>
+                rawTxReceipt.logs.map((l: RawLogEntry) => {
+                    if(l.topics[0] === BRIDGE_TRADE_TOPIC[0]) {
+                        return parseErc20BridgeTransfer(l);
+                    } else {
+                        return new ERC20BridgeTransferEvent();
+                    }
+                })
             );
-            parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter(
-                (x: any) => x.observedTimestamp,
-            );
+            
+            let parsedBridgeTradesWithEmptyRecords;
+            if (parsedBridgeTradesNested.length > 0) {
+                parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) =>
+                    acc.concat(val),
+                );
+                parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter(
+                    (x: any) => x.observedTimestamp,
+                );
+            } else {
+                parsedBridgeTrades = [];
+            };
         } else {
             parsedBridgeTrades = [];
-        };
-
-
+        }
 
 
         logUtils.log(`saving ${parsedReceipts.length} tx receipts`);
@@ -105,119 +108,134 @@ export class PullAndSaveWeb3 {
         return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }
 
-    private async _getTxListToPullAsync(connection: Connection, beforeBlock: number, txTable: string): Promise<string[]> {
-        const queryResult = await connection.query(`
-            SELECT DISTINCT
-                transaction_hash
-            FROM (
+    private async _getTxListToPullAsync(connection: Connection, beforeBlock: number, txTable: string, shouldLookForBridgeTrades: boolean): Promise<string[]> {
+        let queryResult: any;
+        if (shouldLookForBridgeTrades) {      
+            queryResult = await connection.query(`
                 SELECT DISTINCT
                     transaction_hash
-                    , block_number
                 FROM (
-                    (SELECT DISTINCT
-                        fe.transaction_hash
-                        , fe.block_number
-                    FROM events.fill_events fe
-                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = fe.transaction_hash
-                    WHERE
-                        fe.block_number < ${beforeBlock}
-                        AND (
-                            -- tx info hasn't been pulled
-                            tx.transaction_hash IS NULL
-                            -- or tx where the block info has changed
-                            OR (
-                                tx.block_hash <> fe.block_hash
+                    SELECT DISTINCT
+                        transaction_hash
+                        , block_number
+                    FROM (
+                        (SELECT DISTINCT
+                            fe.transaction_hash
+                            , fe.block_number
+                        FROM events.fill_events fe
+                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = fe.transaction_hash
+                        WHERE
+                            fe.block_number < ${beforeBlock}
+                            AND (
+                                -- tx info hasn't been pulled
+                                tx.transaction_hash IS NULL
+                                -- or tx where the block info has changed
+                                OR (
+                                    tx.block_hash <> fe.block_hash
+                                )
                             )
-                        )
-                    ORDER BY 2
-                    LIMIT 100)
+                        ORDER BY 2
+                        LIMIT 100)
 
-                    UNION
+                        UNION
 
-                    (SELECT DISTINCT
-                        terc20.transaction_hash
-                        , terc20.block_number
-                    FROM events.transformed_erc20_events terc20
-                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = terc20.transaction_hash
-                    WHERE
-                        terc20.block_number < ${beforeBlock}
-                        AND (
-                            -- tx info hasn't been pulled
-                            tx.transaction_hash IS NULL
-                            -- or tx where the block info has changed
-                            OR (
-                                tx.block_hash <> terc20.block_hash
+                        (SELECT DISTINCT
+                            terc20.transaction_hash
+                            , terc20.block_number
+                        FROM events.transformed_erc20_events terc20
+                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = terc20.transaction_hash
+                        WHERE
+                            terc20.block_number < ${beforeBlock}
+                            AND (
+                                -- tx info hasn't been pulled
+                                tx.transaction_hash IS NULL
+                                -- or tx where the block info has changed
+                                OR (
+                                    tx.block_hash <> terc20.block_hash
+                                )
                             )
-                        )
-                    ORDER BY 2
-                    LIMIT 100)
+                        ORDER BY 2
+                        LIMIT 100)
 
-                    UNION
+                        UNION
 
-                    (SELECT DISTINCT
-                        bte.transaction_hash
-                        , bte.block_number
-                    FROM events.erc20_bridge_transfer_events bte
-                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = bte.transaction_hash
-                    WHERE
-                        bte.block_number < ${beforeBlock}
-                        AND (
-                            -- tx info hasn't been pulled
-                            tx.transaction_hash IS NULL
-                            -- commenting out below, since we don't have block hashes from the graph
-                            -- or tx where the block info has changed
-                            -- OR (
-                            -- tx.block_hash <> bte.block_hash
-                            -- )
-                        )
-                    ORDER BY 2
-                    LIMIT 100)
-
-                    UNION
-
-                    (SELECT DISTINCT
-                        ce.transaction_hash
-                        , ce.block_number
-                    FROM events.cancel_events ce
-                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
-                    WHERE
-                        ce.block_number < ${beforeBlock}
-                        AND (
-                            -- tx info hasn't been pulled
-                            tx.transaction_hash IS NULL
-                            -- or tx where the block info has changed
-                            OR (
-                                tx.block_hash <> ce.block_hash
+                        (SELECT DISTINCT
+                            ce.transaction_hash
+                            , ce.block_number
+                        FROM events.cancel_events ce
+                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
+                        WHERE
+                            ce.block_number < ${beforeBlock}
+                            AND (
+                                -- tx info hasn't been pulled
+                                tx.transaction_hash IS NULL
+                                -- or tx where the block info has changed
+                                OR (
+                                    tx.block_hash <> ce.block_hash
+                                )
                             )
-                        )
-                    ORDER BY 2
-                    LIMIT 100)
+                        ORDER BY 2
+                        LIMIT 100)
 
-                    UNION
+                        UNION
 
-                    (SELECT DISTINCT
-                        ce.transaction_hash
-                        , ce.block_number
-                    FROM events.cancel_up_to_events ce
-                    LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
-                    WHERE
-                        ce.block_number < ${beforeBlock}
-                        AND (
-                            -- tx info hasn't been pulled
-                            tx.transaction_hash IS NULL
-                            -- or tx where the block info has changed
-                            OR (
-                                tx.block_hash <> ce.block_hash
+                        (SELECT DISTINCT
+                            ce.transaction_hash
+                            , ce.block_number
+                        FROM events.cancel_up_to_events ce
+                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
+                        WHERE
+                            ce.block_number < ${beforeBlock}
+                            AND (
+                                -- tx info hasn't been pulled
+                                tx.transaction_hash IS NULL
+                                -- or tx where the block info has changed
+                                OR (
+                                    tx.block_hash <> ce.block_hash
+                                )
                             )
-                        )
+                        ORDER BY 2
+                        LIMIT 100)
                     ORDER BY 2
-                    LIMIT 100)
-                ORDER BY 2
-                LIMIT 100
-            ) a
-        ) b;
-        `,
-        );
+                    LIMIT 100
+                ) a
+            ) b;
+            `,
+            );      
+        } else {
+            queryResult = await connection.query(`
+                SELECT DISTINCT
+                    transaction_hash
+                FROM (
+                    SELECT DISTINCT
+                        transaction_hash
+                        , block_number
+                    FROM (
+                        (SELECT DISTINCT
+                            bte.transaction_hash
+                            , bte.block_number
+                        FROM events.erc20_bridge_transfer_events bte
+                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = bte.transaction_hash
+                        WHERE
+                            bte.block_number < ${beforeBlock}
+                            AND (
+                                -- tx info hasn't been pulled
+                                tx.transaction_hash IS NULL
+                                -- commenting out below, since we don't have block hashes from the graph
+                                -- or tx where the block info has changed
+                                -- OR (
+                                -- tx.block_hash <> bte.block_hash
+                                -- )
+                            )
+                            AND direct_flag
+                        ORDER BY 2
+                        LIMIT 100)
+                ) a
+            ) b;
+            `,
+            );
+        }
+
 
         const txList = queryResult.map((e: {transaction_hash: string}) => e.transaction_hash);
 
