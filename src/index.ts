@@ -11,14 +11,14 @@ import { SECONDS_BETWEEN_RUNS } from './config';
 import { EventScraper } from './scripts/pull_and_save_events';
 import { DeploymentScraper } from './scripts/pull_and_save_deployment';
 import { MetadataScraper } from './scripts/pull_and_save_pool_metadata';
-import { EPScraper } from "./scripts/pull_and_save_ep_events";
+import { EventsByTopicScraper } from "./scripts/pull_and_save_events_by_topic";
 
 console.log("App is running...");
 
 const eventScraper = new EventScraper();
 const deploymentScraper = new DeploymentScraper();
 const metadataScraper = new MetadataScraper();
-const ePScraper = new EPScraper();
+const eventsByTopicScraper = new EventsByTopicScraper();
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions).then(async connection => {
@@ -28,7 +28,7 @@ createConnection(ormConfig as ConnectionOptions).then(async connection => {
     cron.schedule(`*/${SECONDS_BETWEEN_RUNS} * * * * *`, () => {
         Promise.all([
             eventScraper.getParseSaveEventsAsync(connection),
-            ePScraper.getParseSaveEPEventsAsync(connection),
+            eventsByTopicScraper.getParseSaveEventsAsync(connection),
         ]);
 
     });
