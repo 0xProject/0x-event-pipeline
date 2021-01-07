@@ -82,3 +82,39 @@ export function parseFillEvent(eventLog: LogWithDecodedArgs<ExchangeFillEventArg
 
     return fillEvent;
 }
+//
+// export function parseNativeFillFromFillEvent(eventLog: LogWithDecodedArgs<ExchangeFillEventArgs>): NativeFill {
+//     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerAssetData);
+//     const takerAssetData = assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerAssetData);
+//
+//     const makerFeeAssetData = eventLog.args.makerFeeAssetData === '0x' || Number(eventLog.args.makerFeeAssetData) === 0 ?
+//         null :
+//         assetDataUtils.decodeAssetDataOrThrow(eventLog.args.makerFeeAssetData);
+//     const takerFeeAssetData = eventLog.args.takerFeeAssetData === '0x' || Number(eventLog.args.takerFeeAssetData) === 0 ?
+//         null :
+//         assetDataUtils.decodeAssetDataOrThrow(eventLog.args.takerFeeAssetData);
+//
+//     const nativeFill = new NativeFill();
+//     parseEvent(eventLog, nativeFill);
+//
+//     nativeFill.maker = eventLog.args.makerAddress;
+//     nativeFill.taker = eventLog.args.takerAddress;
+//     nativeFill.feeRecipientAddress = eventLog.args.feeRecipientAddress;
+//
+//     nativeFill.makerTokenFilledAmount = eventLog.args.makerAssetFilledAmount;
+//     nativeFill.takerTokenFilledAmount = eventLog.args.takerAssetFilledAmount;
+//
+//     nativeFill.orderHash = eventLog.args.orderHash;
+//
+//     nativeFill.makerToken = parse0xAssetTokenAddress(makerAssetData);
+//
+//
+//     nativeFill.takerToken = parse0xAssetTokenAddress(takerAssetData);
+//     nativeFill.takerTokenFeeFilledAmount = eventLog.args.takerFeePaid;
+//     nativeFill.protocolFeePaid = eventLog.args.protocolFeePaid;
+//
+//     // TODO
+//     nativeFill.pool = // ??
+//
+//     return fillEvent;
+// }

@@ -53,7 +53,7 @@ import {
     CancelEvent,
     CancelUpToEvent,
 } from '../entities';
-import { 
+import {
     parseStakeEvent,
     parseUnstakeEvent,
     parseMoveStakeEvent,
@@ -95,6 +95,9 @@ export class EventScraper {
             pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true),
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
+
+            // pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
+
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelEventArgs, CancelEvent>(connection, latestBlockWithOffset, 'CancelEvent', 'cancel_events', eventsSource.getCancelEventsAsync.bind(eventsSource), parseCancelEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelUpToEventArgs, CancelUpToEvent>(connection, latestBlockWithOffset, 'CancelUpToEvent', 'cancel_up_to_events', eventsSource.getCancelUpToEventsAsync.bind(eventsSource), parseCancelUpToEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeTransactionExecutionEventArgs, TransactionExecutionEvent>(connection, latestBlockWithOffset, 'TransactionExecutionEvent', 'transaction_execution_events', eventsSource.getTransactionExecutionEventsAsync.bind(eventsSource), parseTransactionExecutionEvent),
@@ -110,7 +113,7 @@ export class EventScraper {
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingEpochFinalizedEventArgs, EpochFinalizedEvent>(connection, latestBlockWithOffset, 'EpochFinalized', 'epoch_finalized_events', eventsSource.getEpochFinalizedEventsAsync.bind(eventsSource), parseEpochFinalizedEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingRewardsPaidEventArgs, RewardsPaidEvent>(connection, latestBlockWithOffset, 'RewardsPaid', 'rewards_paid_events', eventsSource.getRewardsPaidEventsAsync.bind(eventsSource), parseRewardsPaidEvent),
         ]);
-    
+
         const endTime = new Date().getTime();
         logUtils.log(`finished pulling events and blocks`);
         logUtils.log(`It took ${(endTime - startTime) / 1000 } seconds to complete`);
