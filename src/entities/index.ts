@@ -25,3 +25,6 @@ export { StakingProxyDeployment } from './staking_proxy_deployment';
 export { ERC20BridgeTransferEvent } from './erc20_bridge_transfer_event';
 export { TransformedERC20Event } from './transformed_erc20_event';
 export { TransactionExecutionEvent } from './transaction_execution_event';
+export { NativeFill } from './native_fill';
+export { RfqOrderFilledEvent } from './rfq_order_filled_event';
+export { LimitOrderFilledEvent } from './limit_order_filled_event';
