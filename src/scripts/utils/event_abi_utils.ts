@@ -14,7 +14,7 @@ export class PullAndSaveEventsByTopic {
 
     public async getParseSaveEventsByTopic<EVENT>(
         connection: Connection,
-        web3Source: Web3Source, 
+        web3Source: Web3Source,
         latestBlockWithOffset: number,
         eventName: string,
         tableName: string,
@@ -24,11 +24,13 @@ export class PullAndSaveEventsByTopic {
         parser: ((decodedLog: RawLogEntry) => EVENT),
         isDirectTrade: boolean,
         directProtocol: string,
+        protocolVersion: string,
+        nativeOrderFlag: string,
         ): Promise<void> {
 
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
-    
+
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
         // assert(topics.length === 1);
@@ -56,6 +58,8 @@ export class PullAndSaveEventsByTopic {
                 await this._lastBlockProcessedAsync(eventName, endBlock),
                 isDirectTrade,
                 directProtocol,
+                protocolVersion,
+                nativeOrderFlag,
             );
         }));
     }
@@ -72,7 +76,7 @@ export class PullAndSaveEventsByTopic {
         const queryResult = await connection.query(
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
-    
+
         logUtils.log(queryResult);
         const lastKnownBlock = queryResult[0] || {last_processed_block_number: defaultStartBlock};
 
@@ -88,6 +92,8 @@ export class PullAndSaveEventsByTopic {
         lastBlockProcessed: LastBlockProcessed,
         isDirectTrade: boolean,
         directProtocol: string,
+        protocolVersion: string,
+        nativeOrderFlag: string,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
@@ -95,30 +101,35 @@ export class PullAndSaveEventsByTopic {
         if (isDirectTrade) {
             deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${directProtocol}'`;
         } else {
-            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+            if (protocolVersion !='')
+            {
+              deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${protocolVersion}' AND native_order_flag = '${nativeOrderFlag}' `;
+            } else {
+              deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+            }
         }
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
-            
+
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(deleteQuery);
             await queryRunner.manager.save(toSave);
             await queryRunner.manager.save(lastBlockProcessed);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
+
         } catch (err) {
-            
+
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
+
         } finally {
-            
+
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }

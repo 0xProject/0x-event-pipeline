@@ -21,6 +21,7 @@ export const PLP_VIP_START_BLOCK = 11377457;
 export const UNISWAPV2_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
 export const SUSHISWAP_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork';
 export const START_DIRECT_UNISWAP_SEARCH = 1600834642;
+export const FILL_EVENT_TOPIC = ['0x6869791f0a34781b29882982cc39e882768cf2c96995c2a110c577c53bc932d5'];
 
 export const TRANSFORMED_ERC20_ABI = {
     "anonymous": false,
@@ -279,5 +280,98 @@ export const LIMIT_ORDER_FILLED_ABI = {
         }
     ],
     "name": "LimitOrderFilled",
+    "type": "event"
+};
+
+export const FILL_ABI = {
+
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "makerAddress",
+            "type": "address"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "feeRecipientAddress",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes",
+            "name": "makerAssetData",
+            "type": "bytes"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes",
+            "name": "takerAssetData",
+            "type": "bytes"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes",
+            "name": "makerFeeAssetData",
+            "type": "bytes"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes",
+            "name": "takerFeeAssetData",
+            "type": "bytes"
+        },
+        {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "orderHash",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "takerAddress",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "senderAddress",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "makerAssetFilledAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "takerAssetFilledAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "makerFeePaid",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "takerFeePaid",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "protocolFeePaid",
+            "type": "uint256"
+        }
+    ],
+    "name": "Fill",
     "type": "event"
 };

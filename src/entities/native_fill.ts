@@ -10,34 +10,38 @@ export class NativeFill extends Event {
 
     @Column({ name: 'order_hash' })
     public orderHash!: string;
-
     @Column({ name: 'maker', type: 'varchar' })
     public maker!: string;
     @Column({ name: 'taker', type: 'varchar' })
     public taker!: string;
     @Column({ name: 'fee_recipient', type: 'varchar', nullable: true })
     public feeRecipient!: string | null;
-
     @Column({ name: 'maker_token', type: 'varchar' })
     public makerToken!: string;
     @Column({ name: 'taker_token', type: 'varchar' })
     public takerToken!: string;
-
     @Column({ name: 'taker_token_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
     public takerTokenFilledAmount!: BigNumber;
     @Column({ name: 'maker_token_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
     public makerTokenFilledAmount!: BigNumber;
-    @Column({ name: 'taker_token_fee_filled_amount', type: 'numeric', transformer: bigNumberTransformer, nullable: true })
-    public takerTokenFeeFilledAmount!: BigNumber | null;
-
-    @Column({ name: 'protocol_fee_paid', type: 'numeric', transformer: bigNumberTransformer })
-    public protocolFeePaid!: BigNumber;
-
-    @Column({ name: 'pool' })
-    public pool!: string;
-
-    // TODO: decide if needs to add flags
-
+    @Column({ name: 'taker_fee_paid', type: 'numeric', transformer: bigNumberTransformer, nullable: true })
+    public takerFeePaid!: BigNumber | null;
+    @Column({ name: 'maker_fee_paid', type: 'numeric', transformer: bigNumberTransformer, nullable: true })
+    public makerFeePaid!: BigNumber | null;
+    @Column({ name: 'maker_proxy_type', type: 'varchar', nullable: true })
+    public makerProxyType!: string | null;
+    @Column({ name: 'maker_fee_token', type: 'varchar', nullable: true })
+    public makerFeeToken!: string | null;
+    @Column({ name: 'taker_proxy_type', type: 'varchar', nullable: true })
+    public takerProxyType!: string | null;
+    @Column({ name: 'taker_fee_token', type: 'varchar', nullable: true })
+    public takerFeeToken!: string | null;
+    @Column({ name: 'protocol_fee_paid', type: 'numeric', transformer: bigNumberTransformer,, nullable: true })
+    public protocolFeePaid!: BigNumber | null;
+    @Column({ name: 'pool', nullable: true })
+    public pool!: string | null;
+    @Column({ name: 'protocol_version', type: 'varchar', nullable: true })
+    public nativeOrderFlag!: string | null;
     @Column({ name: 'native_order_flag', type: 'varchar', nullable: true })
     public nativeOrderFlag!: string | null;
 }

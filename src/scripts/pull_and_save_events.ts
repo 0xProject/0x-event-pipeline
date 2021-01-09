@@ -16,7 +16,7 @@ import { BLOCK_FINALITY_THRESHOLD, CHAIN_ID, ETHEREUM_RPC_URL } from '../config'
 import { UNISWAPV2_SUBGRAPH_ENDPOINT, SUSHISWAP_SUBGRAPH_ENDPOINT } from '../constants';
 
 import {
-    ExchangeFillEventArgs,
+    // ExchangeFillEventArgs,
     ExchangeCancelEventArgs,
     ExchangeCancelUpToEventArgs,
     StakingStakeEventArgs,
@@ -33,11 +33,11 @@ import {
     ExchangeTransactionExecutionEventArgs
 } from '@0x/contract-wrappers';
 
-import { parseFillEvent } from '../parsers/events/fill_events';
+// import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseCancelEvent, parseCancelUpToEvent } from '../parsers/events/cancel_events';
 import { parseTransactionExecutionEvent } from '../parsers/events/transaction_execution_events';
 import {
-    FillEvent,
+    // FillEvent,
     StakingPoolCreatedEvent,
     StakeEvent,
     UnstakeEvent,
@@ -94,10 +94,7 @@ export class EventScraper {
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false),
             pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true),
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true),
-            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
-
             // pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeFillEventArgs, FillEvent>(connection, latestBlockWithOffset, 'FillEvent', 'fill_events', eventsSource.getFillEventsAsync.bind(eventsSource), parseFillEvent),
-
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelEventArgs, CancelEvent>(connection, latestBlockWithOffset, 'CancelEvent', 'cancel_events', eventsSource.getCancelEventsAsync.bind(eventsSource), parseCancelEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelUpToEventArgs, CancelUpToEvent>(connection, latestBlockWithOffset, 'CancelUpToEvent', 'cancel_up_to_events', eventsSource.getCancelUpToEventsAsync.bind(eventsSource), parseCancelUpToEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeTransactionExecutionEventArgs, TransactionExecutionEvent>(connection, latestBlockWithOffset, 'TransactionExecutionEvent', 'transaction_execution_events', eventsSource.getTransactionExecutionEventsAsync.bind(eventsSource), parseTransactionExecutionEvent),

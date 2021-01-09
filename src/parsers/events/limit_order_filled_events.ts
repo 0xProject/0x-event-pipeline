@@ -26,7 +26,7 @@ export function parseLimitOrderFilledEvent(eventLog: RawLogEntry): LimitOrderFil
     limitOrderFilledEvent.takerTokenFeeFilledAmount = new BigNumber(decodedLog.takerTokenFeeFilledAmount);
 
     limitOrderFilledEvent.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    limitOrderFilledEvent.pool = decodedLog.pool    // TODO .toLowerCase();
+    limitOrderFilledEvent.pool = decodedLog.pool;    // TODO .toLowerCase();
 
     // TODO
     // limitOrderFilledEvent.directFlag = true;
@@ -51,12 +51,18 @@ export function parseNativeFillFromLimitOrderFilledEvent(eventLog: RawLogEntry):
     nativeFill.takerToken = decodedLog.takerToken.toLowerCase();
     nativeFill.takerTokenFilledAmount = new BigNumber(decodedLog.takerTokenFilledAmount);
     nativeFill.makerTokenFilledAmount = new BigNumber(decodedLog.makerTokenFilledAmount);
-    nativeFill.takerTokenFeeFilledAmount = new BigNumber(decodedLog.takerTokenFeeFilledAmount);
+    nativeFill.takerFeePaid = new BigNumber(decodedLog.takerTokenFeeFilledAmount);
+    nativeFill.makerFeePaid = null;
+    nativeFill.takerProxyType = null;
+    nativeFill.makerProxyType = null;
+    nativeFill.takerFeeToken = decodedLog.takerToken.toLowerCase();
+    nativeFill.makerFeeToken = null;
 
     nativeFill.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    nativeFill.pool = decodedLog.pool    // TODO .toLowerCase();
+    nativeFill.pool = decodedLog.pool;
 
-    nativeFill.nativeOrderFlag = 'Limit Order'
+    nativeFill.nativeOrderFlag = 'Limit Order';
+    nativeFill.protocolVersion = 'v4';
 
     return nativeFill;
 }
