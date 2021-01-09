@@ -36,12 +36,12 @@ export class NativeFill extends Event {
     public takerProxyType!: string | null;
     @Column({ name: 'taker_fee_token', type: 'varchar', nullable: true })
     public takerFeeToken!: string | null;
-    @Column({ name: 'protocol_fee_paid', type: 'numeric', transformer: bigNumberTransformer,, nullable: true })
+    @Column({ name: 'protocol_fee_paid', type: 'numeric', transformer: bigNumberTransformer, nullable: true })
     public protocolFeePaid!: BigNumber | null;
     @Column({ name: 'pool', nullable: true })
     public pool!: string | null;
     @Column({ name: 'protocol_version', type: 'varchar', nullable: true })
-    public nativeOrderFlag!: string | null;
-    @Column({ name: 'native_order_flag', type: 'varchar', nullable: true })
-    public nativeOrderFlag!: string | null;
+    public protocolVersion!: string | null;
+    @Column({ name: 'native_order_type', type: 'varchar', nullable: true })
+    public nativeOrderType!: string | null;
 }

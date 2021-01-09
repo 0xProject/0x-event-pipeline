@@ -6,19 +6,21 @@ import { calculateEndBlockAsync } from './utils/shared_utils';
 
 import { ERC20BridgeTransferEvent, TransformedERC20Event, RfqOrderFilledEvent, LimitOrderFilledEvent, NativeFill, FillEvent} from '../entities';
 
-import { ETHEREUM_RPC_URL } from '../config';
+import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK } from '../config';
 import {
     TRANSFORMEDERC20_EVENT_TOPIC,
     EXCHANGE_PROXY_ADDRESS,
+    V3_EXCHANGE_ADDRESS,
     EXCHANGE_PROXY_DEPLOYMENT_BLOCK,
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     PLP_VIP_START_BLOCK,
     RFQORDERFILLED_EVENT_TOPIC,
     LIMITORDERFILLED_EVENT_TOPIC,
     V4_FILL_START_BLOCK,
-    FILL_EVENT_TOPIC,
+    V3_FILL_EVENT_TOPIC,
     // TODO start block
 } from '../constants';
+
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import { parseRfqOrderFilledEvent } from '../parsers/events/rfq_order_filled_events';
@@ -45,14 +47,14 @@ export class EventsByTopicScraper {
         logUtils.log(`latest block with offset: ${latestBlockWithOffset}`);
 
         await Promise.all([
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(connection, web3Source, latestBlockWithOffset, 'TransformedERC20Event', 'transformed_erc20_events', TRANSFORMEDERC20_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EXCHANGE_PROXY_DEPLOYMENT_BLOCK, parseTransformedERC20Event, false, '', '', ''),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(connection, web3Source, latestBlockWithOffset, 'LiquidityProviderSwapEvent', 'erc20_bridge_transfer_events', LIQUIDITYPROVIDERSWAP_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, PLP_VIP_START_BLOCK, parseLiquidityProviderSwapEvent, true, 'PLP', '', ''),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<RfqOrderFilledEvent>(connection, web3Source, latestBlockWithOffset, 'RfqOrderFilledEvent', 'rfq_order_fills_v4', RFQORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseRfqOrderFilledEvent, false, '', '', ''),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFill', 'native_fills', RFQORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromRfqOrderFilledEvent, false, '', 'v4', 'RFQ Order'),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<LimitOrderFilledEvent>(connection, web3Source, latestBlockWithOffset, 'LimitOrderFilledEvent', 'limit_order_fills_v4', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseLimitOrderFilledEvent, false, '', '', ''),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFill', 'native_fills', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromLimitOrderFilledEvent, false, '', 'v4', 'Limit Order'),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(connection, web3Source, latestBlockWithOffset, 'FillEvent', 'fill_events', FILL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseFillEvent, false, '', 'v3', ''),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFill', 'native_fills', FILL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromFillEvent, false, '', 'v3', ''),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(connection, web3Source, latestBlockWithOffset, 'TransformedERC20Event', 'transformed_erc20_events', TRANSFORMEDERC20_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EXCHANGE_PROXY_DEPLOYMENT_BLOCK, parseTransformedERC20Event, {}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(connection, web3Source, latestBlockWithOffset, 'LiquidityProviderSwapEvent', 'erc20_bridge_transfer_events', LIQUIDITYPROVIDERSWAP_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, PLP_VIP_START_BLOCK, parseLiquidityProviderSwapEvent, {isDirectTrade: true, directProtocol:'PLP'}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<RfqOrderFilledEvent>(connection, web3Source, latestBlockWithOffset, 'RfqOrderFilledEvent', 'rfq_order_fills_v4', RFQORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseRfqOrderFilledEvent, {}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromRFQV4', 'native_fills', RFQORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromRfqOrderFilledEvent, {protocolVersion:'v4', nativeOrderType:'RFQ Order'}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<LimitOrderFilledEvent>(connection, web3Source, latestBlockWithOffset, 'LimitOrderFilledEvent', 'limit_order_fills_v4', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseLimitOrderFilledEvent, {}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromLimitV4', 'native_fills', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromLimitOrderFilledEvent, {protocolVersion:'v4', nativeOrderType:'Limit Order'}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(connection, web3Source, latestBlockWithOffset, 'FillEvent', 'fill_events', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseFillEvent, {}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromV3', 'native_fills', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseNativeFillFromFillEvent, {protocolVersion:'v3'}),
         ]);
 
         const endTime = new Date().getTime();

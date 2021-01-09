@@ -58,7 +58,7 @@ export function parseNativeFillFromRfqOrderFilledEvent(eventLog: RawLogEntry): N
     nativeFill.protocolFeePaid = null;
     nativeFill.pool = decodedLog.pool;
 
-    nativeFill.nativeOrderFlag = 'RFQ Order';
+    nativeFill.nativeOrderType = 'RFQ Order';
     nativeFill.protocolVersion = 'v4';
 
     return nativeFill;

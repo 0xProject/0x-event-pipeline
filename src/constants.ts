@@ -21,7 +21,8 @@ export const PLP_VIP_START_BLOCK = 11377457;
 export const UNISWAPV2_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
 export const SUSHISWAP_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork';
 export const START_DIRECT_UNISWAP_SEARCH = 1600834642;
-export const FILL_EVENT_TOPIC = ['0x6869791f0a34781b29882982cc39e882768cf2c96995c2a110c577c53bc932d5'];
+export const V3_FILL_EVENT_TOPIC = ['0x6869791f0a34781b29882982cc39e882768cf2c96995c2a110c577c53bc932d5'];
+export const V3_EXCHANGE_ADDRESS = '0x61935cbdd02287b511119ddb11aeb42f1593b7ef';
 
 export const TRANSFORMED_ERC20_ABI = {
     "anonymous": false,
@@ -283,7 +284,7 @@ export const LIMIT_ORDER_FILLED_ABI = {
     "type": "event"
 };
 
-export const FILL_ABI = {
+export const V3_FILL_ABI = {
 
     "anonymous": false,
     "inputs": [

@@ -28,10 +28,6 @@ export function parseLimitOrderFilledEvent(eventLog: RawLogEntry): LimitOrderFil
     limitOrderFilledEvent.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
     limitOrderFilledEvent.pool = decodedLog.pool;    // TODO .toLowerCase();
 
-    // TODO
-    // limitOrderFilledEvent.directFlag = true;
-    // limitOrderFilledEvent.directProtocol = 'PLP';
-
     return limitOrderFilledEvent;
 }
 
@@ -61,7 +57,7 @@ export function parseNativeFillFromLimitOrderFilledEvent(eventLog: RawLogEntry):
     nativeFill.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
     nativeFill.pool = decodedLog.pool;
 
-    nativeFill.nativeOrderFlag = 'Limit Order';
+    nativeFill.nativeOrderType = 'Limit Order';
     nativeFill.protocolVersion = 'v4';
 
     return nativeFill;
