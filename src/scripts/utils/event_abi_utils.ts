@@ -10,6 +10,14 @@ import {
     LastBlockProcessed,
 } from '../../entities';
 
+export interface DeleteOptions {
+  isDirectTrade ?: boolean,
+  directProtocol ?: string,
+  protocolVersion ?: string,
+  nativeOrderType ?: string,
+
+}
+
 export class PullAndSaveEventsByTopic {
 
     public async getParseSaveEventsByTopic<EVENT>(
@@ -22,10 +30,7 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: ((decodedLog: RawLogEntry) => EVENT),
-        isDirectTrade: boolean,
-        directProtocol: string,
-        protocolVersion: string,
-        nativeOrderFlag: string,
+        deleteOptions: DeleteOptions,
         ): Promise<void> {
 
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
@@ -56,10 +61,7 @@ export class PullAndSaveEventsByTopic {
                 endBlock,
                 tableName,
                 await this._lastBlockProcessedAsync(eventName, endBlock),
-                isDirectTrade,
-                directProtocol,
-                protocolVersion,
-                nativeOrderFlag,
+                deleteOptions,
             );
         }));
     }
@@ -90,20 +92,22 @@ export class PullAndSaveEventsByTopic {
         endBlock: number,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
-        isDirectTrade: boolean,
-        directProtocol: string,
-        protocolVersion: string,
-        nativeOrderFlag: string,
+        deleteOptions: DeleteOptions,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
         let deleteQuery: string;
-        if (isDirectTrade) {
-            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${directProtocol}'`;
+        if (deleteOptions.isDirectTrade && deleteOptions.deleteOptions.directProtocol != undefined) {
+            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
         } else {
-            if (protocolVersion !='')
+            if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )
             {
-              deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${protocolVersion}' AND native_order_flag = '${nativeOrderFlag}' `;
+              if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined )
+              {
+                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+              } else {
+                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+              }
             } else {
               deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
             }

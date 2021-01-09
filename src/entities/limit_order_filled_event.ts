@@ -8,38 +8,27 @@ import { bigNumberTransformer } from '../utils';
 @Entity({ name: 'limit_order_filled_events', schema: 'events' })
 export class LimitOrderFilledEvent extends Event {
 
-    @Column({ name: 'order_hash' })
+    @Column({ name: 'order_hash', type: 'varchar' })
     public orderHash!: string;
-
     @Column({ name: 'maker', type: 'varchar' })
     public maker!: string;
     @Column({ name: 'taker', type: 'varchar' })
     public taker!: string;
     @Column({ name: 'fee_recipient', type: 'varchar' })
     public feeRecipient!: string;
-
     @Column({ name: 'maker_token', type: 'varchar' })
     public makerToken!: string;
     @Column({ name: 'taker_token', type: 'varchar' })
     public takerToken!: string;
-
     @Column({ name: 'taker_token_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
     public takerTokenFilledAmount!: BigNumber;
     @Column({ name: 'maker_token_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
     public makerTokenFilledAmount!: BigNumber;
     @Column({ name: 'taker_token_fee_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
     public takerTokenFeeFilledAmount!: BigNumber;
-
     @Column({ name: 'protocol_fee_paid', type: 'numeric', transformer: bigNumberTransformer })
     public protocolFeePaid!: BigNumber;
-
-    @Column({ name: 'pool' })
+    @Column({ name: 'pool', type: 'varchar' })
     public pool!: string;
 
-    // TODO: decide if needs to add flags
-
-    // @Column({ name: 'direct_flag', type: 'boolean', nullable: true })
-    // public directFlag!: boolean | null;
-    // @Column({ name: 'direct_protocol', type: 'varchar', nullable: true })
-    // public directProtocol!: string | null;
 }

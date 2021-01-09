@@ -7,7 +7,7 @@ import { FillEvent } from '../../entities';
 import { NativeFill } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils';
 import { parseEvent } from './parse_event';
-import { FILL_ABI } from '../../constants';
+import { V3_FILL_ABI } from '../../constants';
 
 import { parse0xAssetTokenAddress, parseV30xBridgeAddress } from '../utils/asset_data_utils';
 
@@ -45,10 +45,10 @@ export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
         null :
         assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
 
-    fillEvent.makerAddress = decodedLog.makerAddress;
-    fillEvent.takerAddress = decodedLog.takerAddress;
-    fillEvent.feeRecipientAddress = decodedLog.feeRecipientAddress;
-    fillEvent.senderAddress = decodedLog.senderAddress;
+    fillEvent.makerAddress = decodedLog.makerAddress.toLowerCase();
+    fillEvent.takerAddress = decodedLog.takerAddress.toLowerCase();
+    fillEvent.feeRecipientAddress = decodedLog.feeRecipientAddress.toLowerCase();
+    fillEvent.senderAddress = decodedLog.senderAddress.toLowerCase();
     fillEvent.makerAssetFilledAmount = decodedLog.makerAssetFilledAmount;
     fillEvent.takerAssetFilledAmount = decodedLog.takerAssetFilledAmount;
     fillEvent.orderHash = decodedLog.orderHash;
@@ -103,9 +103,9 @@ export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill 
         assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
 
     nativeFill.orderHash = decodedLog.orderHash;
-    nativeFill.maker = decodedLog.makerAddress;
-    nativeFill.taker = decodedLog.takerAddress;
-    nativeFill.feeRecipient = decodedLog.feeRecipientAddress;
+    nativeFill.maker = decodedLog.makerAddress.toLowerCase();
+    nativeFill.taker = decodedLog.takerAddress.toLowerCase();
+    nativeFill.feeRecipient = decodedLog.feeRecipientAddress.toLowerCase();
     nativeFill.makerTokenFilledAmount = decodedLog.makerAssetFilledAmount;
     nativeFill.takerTokenFilledAmount = decodedLog.takerAssetFilledAmount;
     nativeFill.makerProxyType = convertAssetProxyIdToType(makerAssetData.assetProxyId as AssetProxyId);
@@ -116,7 +116,7 @@ export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill 
     nativeFill.makerFeePaid = decodedLog.makerFeePaid;
     nativeFill.protocolFeePaid = decodedLog.protocolFeePaid;
     nativeFill.pool = null;
-    nativeFill.nativeOrderFlag = null;
+    nativeFill.nativeOrderType = null;
     nativeFill.protocolVersion = 'v3';
 
     return nativeFill;
