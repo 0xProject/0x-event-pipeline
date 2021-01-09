@@ -23,7 +23,7 @@ export function parseRfqOrderFilledEvent(eventLog: RawLogEntry): RfqOrderFilledE
     rfqOrderFilledEvent.takerTokenFilledAmount = new BigNumber(decodedLog.takerTokenFilledAmount);
     rfqOrderFilledEvent.makerTokenFilledAmount = new BigNumber(decodedLog.makerTokenFilledAmount);
 
-    rfqOrderFilledEvent.pool = decodedLog.pool    // TODO .toLowerCase();
+    rfqOrderFilledEvent.pool = decodedLog.pool;    // TODO .toLowerCase();
 
     // TODO
     // rfqOrderFilledEvent.directFlag = true;
@@ -49,12 +49,17 @@ export function parseNativeFillFromRfqOrderFilledEvent(eventLog: RawLogEntry): N
     nativeFill.takerToken = decodedLog.takerToken.toLowerCase();
     nativeFill.takerTokenFilledAmount = new BigNumber(decodedLog.takerTokenFilledAmount);
     nativeFill.makerTokenFilledAmount = new BigNumber(decodedLog.makerTokenFilledAmount);
-    nativeFill.takerTokenFeeFilledAmount = null;
+    nativeFill.takerFeePaid = null;
+    nativeFill.makerFeePaid = null;
+    nativeFill.takerProxyType = null;
+    nativeFill.makerProxyType = null;
+    nativeFill.takerFeeToken = null;
+    nativeFill.makerFeeToken = null;
+    nativeFill.protocolFeePaid = null;
+    nativeFill.pool = decodedLog.pool;
 
-    nativeFill.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    nativeFill.pool = decodedLog.pool    // TODO .toLowerCase();
-
-    nativeFill.nativeOrderFlag = 'RFQ Order'
+    nativeFill.nativeOrderFlag = 'RFQ Order';
+    nativeFill.protocolVersion = 'v4';
 
     return nativeFill;
 }
