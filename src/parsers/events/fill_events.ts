@@ -9,7 +9,6 @@ import { parseEvent } from './parse_event';
 import { V3_FILL_ABI } from '../../constants';
 
 import { parse0xAssetTokenAddress, parseV30xBridgeAddress } from '../utils/asset_data_utils';
-import { LessThan } from 'typeorm';
 
 const abiCoder = require('web3-eth-abi');
 
@@ -52,7 +51,7 @@ export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
     fillEvent.senderAddress = decodedLog.senderAddress.toLowerCase();
     fillEvent.makerAssetFilledAmount = decodedLog.makerAssetFilledAmount;
     fillEvent.takerAssetFilledAmount = decodedLog.takerAssetFilledAmount;
-    fillEvent.orderHash = decodedLog.orderHash;
+    fillEvent.orderHash = decodedLog.orderHash.toLowerCase();
     fillEvent.rawMakerAssetData = decodedLog.makerAssetData;
     fillEvent.makerProxyType = convertAssetProxyIdToType(makerAssetData.assetProxyId as AssetProxyId);
     fillEvent.makerProxyId = makerAssetData.assetProxyId;
@@ -103,7 +102,7 @@ export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill 
         null :
         assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
 
-    nativeFill.orderHash = decodedLog.orderHash;
+    nativeFill.orderHash = decodedLog.orderHash.toLowerCase();
     nativeFill.maker = decodedLog.makerAddress.toLowerCase();
     nativeFill.taker = decodedLog.takerAddress.toLowerCase();
     nativeFill.feeRecipient = decodedLog.feeRecipientAddress.toLowerCase();
