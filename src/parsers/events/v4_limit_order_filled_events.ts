@@ -14,7 +14,7 @@ export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrde
 
     const decodedLog = abiCoder.decodeLog(LIMIT_ORDER_FILLED_ABI.inputs, eventLog.data);
 
-    limitOrderFilledEvent.orderHash = decodedLog.orderHash    // TODO .toLowerCase();
+    limitOrderFilledEvent.orderHash = decodedLog.orderHash.toLowerCase();
     limitOrderFilledEvent.maker = decodedLog.maker.toLowerCase();
     limitOrderFilledEvent.taker = decodedLog.taker.toLowerCase();
     limitOrderFilledEvent.feeRecipient = decodedLog.feeRecipient.toLowerCase();
@@ -26,7 +26,7 @@ export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrde
     limitOrderFilledEvent.takerTokenFeeFilledAmount = new BigNumber(decodedLog.takerTokenFeeFilledAmount);
 
     limitOrderFilledEvent.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    limitOrderFilledEvent.pool = decodedLog.pool;    // TODO .toLowerCase();
+    limitOrderFilledEvent.pool = String(Number(decodedLog.poolId));
 
     return limitOrderFilledEvent;
 }
@@ -38,7 +38,7 @@ export function parseNativeFillFromV4LimitOrderFilledEvent(eventLog: RawLogEntry
 
     const decodedLog = abiCoder.decodeLog(LIMIT_ORDER_FILLED_ABI.inputs, eventLog.data);
 
-    nativeFill.orderHash = decodedLog.orderHash    // TODO .toLowerCase();
+    nativeFill.orderHash = decodedLog.orderHash.toLowerCase();
     nativeFill.maker = decodedLog.maker.toLowerCase();
     nativeFill.taker = decodedLog.taker.toLowerCase();
     nativeFill.feeRecipient = decodedLog.feeRecipient.toLowerCase();
@@ -55,7 +55,7 @@ export function parseNativeFillFromV4LimitOrderFilledEvent(eventLog: RawLogEntry
     nativeFill.makerFeeToken = null;
 
     nativeFill.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    nativeFill.pool = decodedLog.pool;
+    nativeFill.pool = String(Number(decodedLog.poolId));
 
     nativeFill.nativeOrderType = 'Limit Order';
     nativeFill.protocolVersion = 'v4';

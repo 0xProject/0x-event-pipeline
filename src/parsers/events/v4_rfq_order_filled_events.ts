@@ -14,7 +14,7 @@ export function parseV4RfqOrderFilledEvent(eventLog: RawLogEntry): V4RfqOrderFil
 
     const decodedLog = abiCoder.decodeLog(RFQ_ORDER_FILLED_ABI.inputs, eventLog.data);
 
-    rfqOrderFilledEvent.orderHash = decodedLog.orderHash    // TODO .toLowerCase();
+    rfqOrderFilledEvent.orderHash = decodedLog.orderHash.toLowerCase();
     rfqOrderFilledEvent.maker = decodedLog.maker.toLowerCase();
     rfqOrderFilledEvent.taker = decodedLog.taker.toLowerCase();
 
@@ -23,7 +23,7 @@ export function parseV4RfqOrderFilledEvent(eventLog: RawLogEntry): V4RfqOrderFil
     rfqOrderFilledEvent.takerTokenFilledAmount = new BigNumber(decodedLog.takerTokenFilledAmount);
     rfqOrderFilledEvent.makerTokenFilledAmount = new BigNumber(decodedLog.makerTokenFilledAmount);
 
-    rfqOrderFilledEvent.pool = decodedLog.pool;    // TODO .toLowerCase();
+    rfqOrderFilledEvent.pool = String(Number(decodedLog.poolId));
 
     // TODO
     // rfqOrderFilledEvent.directFlag = true;
@@ -40,7 +40,7 @@ export function parseNativeFillFromV4RfqOrderFilledEvent(eventLog: RawLogEntry):
 
     const decodedLog = abiCoder.decodeLog(RFQ_ORDER_FILLED_ABI.inputs, eventLog.data);
 
-    nativeFill.orderHash = decodedLog.orderHash    // TODO .toLowerCase();
+    nativeFill.orderHash = decodedLog.orderHash.toLowerCase();
     nativeFill.maker = decodedLog.maker.toLowerCase();
     nativeFill.taker = decodedLog.taker.toLowerCase();
     nativeFill.feeRecipient = null;
@@ -56,7 +56,7 @@ export function parseNativeFillFromV4RfqOrderFilledEvent(eventLog: RawLogEntry):
     nativeFill.takerFeeToken = null;
     nativeFill.makerFeeToken = null;
     nativeFill.protocolFeePaid = null;
-    nativeFill.pool = decodedLog.pool;
+    nativeFill.pool = String(Number(decodedLog.poolId));
 
     nativeFill.nativeOrderType = 'RFQ Order';
     nativeFill.protocolVersion = 'v4';
