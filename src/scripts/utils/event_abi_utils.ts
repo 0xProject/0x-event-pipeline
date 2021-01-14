@@ -97,7 +97,7 @@ export class PullAndSaveEventsByTopic {
         const queryRunner = connection.createQueryRunner();
 
         let deleteQuery: string;
-        if (deleteOptions.isDirectTrade && deleteOptions.deleteOptions.directProtocol != undefined) {
+        if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
             deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
         } else {
             if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )

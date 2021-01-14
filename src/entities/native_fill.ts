@@ -16,10 +16,10 @@ export class NativeFill extends Event {
     public taker!: string;
     @Column({ name: 'fee_recipient', type: 'varchar', nullable: true })
     public feeRecipient!: string | null;
-    @Column({ name: 'maker_token', type: 'varchar' })
-    public makerToken!: string;
-    @Column({ name: 'taker_token', type: 'varchar' })
-    public takerToken!: string;
+    @Column({ name: 'maker_token', type: 'varchar', nullable: true })
+    public makerToken!: string | null;
+    @Column({ name: 'taker_token', type: 'varchar', nullable: true })
+    public takerToken!: string | null;
     @Column({ name: 'taker_token_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
     public takerTokenFilledAmount!: BigNumber;
     @Column({ name: 'maker_token_filled_amount', type: 'numeric', transformer: bigNumberTransformer })
@@ -38,10 +38,10 @@ export class NativeFill extends Event {
     public takerFeeToken!: string | null;
     @Column({ name: 'protocol_fee_paid', type: 'numeric', transformer: bigNumberTransformer, nullable: true })
     public protocolFeePaid!: BigNumber | null;
-    @Column({ name: 'pool', nullable: true })
+    @Column({ name: 'pool', nullable: true, type: 'varchar' })
     public pool!: string | null;
-    @Column({ name: 'protocol_version', type: 'varchar', nullable: true })
-    public protocolVersion!: string | null;
+    @Column({ name: 'protocol_version', type: 'varchar' })
+    public protocolVersion!: string;
     @Column({ name: 'native_order_type', type: 'varchar', nullable: true })
     public nativeOrderType!: string | null;
 }

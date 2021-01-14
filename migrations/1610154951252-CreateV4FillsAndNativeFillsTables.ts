@@ -1,7 +1,7 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
 const eventsRfqOrderFillsV4Table = new Table({
-    name: 'events.rfq_order_fills_v4',
+    name: 'events.v4_rfq_order_filled_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'contract_address', type: 'varchar' },
@@ -24,13 +24,13 @@ const eventsRfqOrderFillsV4Table = new Table({
 
 const createRfqOrderFillsV4IndexQuery = `
     CREATE INDEX rfq_order_fills_v4_transaction_hash_index
-    ON events.rfq_order_fills_v4 (transaction_hash);
+    ON events.v4_rfq_order_filled_events (transaction_hash);
 
     CREATE INDEX rfq_order_fills_v4_block_number_index
-    ON events.rfq_order_fills_v4 (block_number);
+    ON events.v4_rfq_order_filled_events (block_number);
 
     CREATE INDEX rfq_order_fills_v4_maker_index
-    ON events.rfq_order_fills_v4 (maker);
+    ON events.v4_rfq_order_filled_events (maker);
 `;
 
 const dropRfqOrderFillsV4IndexQuery = `
@@ -41,7 +41,7 @@ const dropRfqOrderFillsV4IndexQuery = `
 
 
 const eventsLimitOrderFillsV4Table = new Table({
-    name: 'events.limit_order_fills_v4',
+    name: 'events.v4_limit_order_filled_events',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
         { name: 'contract_address', type: 'varchar' },
@@ -67,13 +67,13 @@ const eventsLimitOrderFillsV4Table = new Table({
 
 const createLimitOrderFillsV4IndexQuery = `
     CREATE INDEX limit_order_fills_v4_transaction_hash_index
-    ON events.limit_order_fills_v4 (transaction_hash);
+    ON events.v4_limit_order_filled_events (transaction_hash);
 
     CREATE INDEX limit_order_fills_v4_block_number_index
-    ON events.limit_order_fills_v4 (block_number);
+    ON events.v4_limit_order_filled_events (block_number);
 
     CREATE INDEX limit_order_fills_v4_maker_index
-    ON events.limit_order_fills_v4 (maker);
+    ON events.v4_limit_order_filled_events (maker);
 `;
 
 const dropLimitOrderFillsV4IndexQuery = `
@@ -95,21 +95,21 @@ const eventsNativeFillTable = new Table({
         { name: 'order_hash', type: 'varchar' },
         { name: 'maker', type: 'varchar' },
         { name: 'taker', type: 'varchar' },
-        { name: 'fee_recipient', type: 'varchar' },
+        { name: 'fee_recipient', type: 'varchar', isNullable: true },
         { name: 'maker_token', type: 'varchar' },
         { name: 'taker_token', type: 'varchar' },
         { name: 'maker_token_filled_amount', type: 'numeric' },
         { name: 'taker_token_filled_amount', type: 'numeric' },
-        { name: 'maker_proxy_type', type: 'varchar' },
-        { name: 'taker_proxy_type', type: 'varchar' },
-        { name: 'maker_fee_paid', type: 'numeric' },
-        { name: 'taker_fee_paid', type: 'numeric' },
-        { name: 'maker_fee_token', type: 'varchar' },
-        { name: 'taker_fee_token', type: 'varchar' },
-        { name: 'protocol_fee_paid', type: 'numeric' },
-        { name: 'pool', type: 'varchar' },
+        { name: 'maker_proxy_type', type: 'varchar', isNullable: true },
+        { name: 'taker_proxy_type', type: 'varchar', isNullable: true },
+        { name: 'maker_fee_paid', type: 'numeric', isNullable: true },
+        { name: 'taker_fee_paid', type: 'numeric', isNullable: true },
+        { name: 'maker_fee_token', type: 'varchar', isNullable: true },
+        { name: 'taker_fee_token', type: 'varchar', isNullable: true },
+        { name: 'protocol_fee_paid', type: 'numeric', isNullable: true },
+        { name: 'pool', type: 'varchar', isNullable: true },
         { name: 'protocol_version', type: 'varchar' },
-        { name: 'native_order_type', type: 'varchar' },
+        { name: 'native_order_type', type: 'varchar', isNullable: true },
     ],
 });
 

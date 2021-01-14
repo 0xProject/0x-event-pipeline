@@ -1,14 +1,14 @@
 const abiCoder = require('web3-eth-abi');
 import { RawLogEntry } from 'ethereum-types';
-import { LimitOrderFilledEvent } from '../../entities';
+import { V4LimitOrderFilledEvent } from '../../entities';
 import { NativeFill } from '../../entities';
 
 import { parseEvent } from './parse_event';
 import { LIMIT_ORDER_FILLED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseLimitOrderFilledEvent(eventLog: RawLogEntry): LimitOrderFilledEvent{
-    const limitOrderFilledEvent = new LimitOrderFilledEvent();
+export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrderFilledEvent{
+    const limitOrderFilledEvent = new V4LimitOrderFilledEvent();
     parseEvent(eventLog, limitOrderFilledEvent);
     // decode the basic info directly into limitOrderFilledEvent
 
@@ -31,7 +31,7 @@ export function parseLimitOrderFilledEvent(eventLog: RawLogEntry): LimitOrderFil
     return limitOrderFilledEvent;
 }
 
-export function parseNativeFillFromLimitOrderFilledEvent(eventLog: RawLogEntry): NativeFill{
+export function parseNativeFillFromV4LimitOrderFilledEvent(eventLog: RawLogEntry): NativeFill{
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
     // decode the basic info directly into nativeFill
