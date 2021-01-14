@@ -28,6 +28,9 @@ import {
     ERC20BridgeTransferEvent,
     TransformedERC20Event,
     TransactionExecutionEvent,
+    NativeFill,
+    V4LimitOrderFilledEvent,
+    V4RfqOrderFilledEvent,
 } from './entities';
 
 const entities = [
@@ -56,6 +59,9 @@ const entities = [
     ERC20BridgeTransferEvent,
     TransformedERC20Event,
     TransactionExecutionEvent,
+    NativeFill,
+    V4LimitOrderFilledEvent,
+    V4RfqOrderFilledEvent,
 ];
 
 const config: ConnectionOptions = {

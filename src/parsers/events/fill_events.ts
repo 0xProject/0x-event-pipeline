@@ -1,7 +1,6 @@
 import { assetDataUtils } from '@0x/order-utils';
 import { AssetProxyId } from '@0x/types';
-import { LogWithDecodedArgs } from 'ethereum-types';
-import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
+import { RawLogEntry } from 'ethereum-types';
 
 import { FillEvent } from '../../entities';
 import { NativeFill } from '../../entities';
@@ -10,7 +9,9 @@ import { parseEvent } from './parse_event';
 import { V3_FILL_ABI } from '../../constants';
 
 import { parse0xAssetTokenAddress, parseV30xBridgeAddress } from '../utils/asset_data_utils';
+import { LessThan } from 'typeorm';
 
+const abiCoder = require('web3-eth-abi');
 
 /**
  * Parses raw event logs for a fill event and returns an array of
@@ -34,7 +35,7 @@ export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
     const fillEvent = new FillEvent();
     parseEvent(eventLog, fillEvent);
 
-    const decodedLog = abiCoder.decodeLog(FILL_ABI.inputs, eventLog.data);
+    const decodedLog = abiCoder.decodeLog(V3_FILL_ABI.inputs, eventLog.data, eventLog.topics.slice(1,(eventLog.topics.length)));
 
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerAssetData);
     const makerFeeAssetData = decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0 ?
@@ -91,7 +92,7 @@ export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill 
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
 
-    const decodedLog = abiCoder.decodeLog(FILL_ABI.inputs, eventLog.data);
+    const decodedLog = abiCoder.decodeLog(V3_FILL_ABI.inputs, eventLog.data, eventLog.topics.slice(1,(eventLog.topics.length)));
 
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerAssetData);
     const makerFeeAssetData = decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0 ?
