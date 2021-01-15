@@ -23,7 +23,7 @@ export function parseV4RfqOrderFilledEvent(eventLog: RawLogEntry): V4RfqOrderFil
     rfqOrderFilledEvent.takerTokenFilledAmount = new BigNumber(decodedLog.takerTokenFilledAmount);
     rfqOrderFilledEvent.makerTokenFilledAmount = new BigNumber(decodedLog.makerTokenFilledAmount);
 
-    rfqOrderFilledEvent.pool = String(Number(decodedLog.poolId));
+    rfqOrderFilledEvent.pool = String(Number(decodedLog.pool));
 
     // TODO
     // rfqOrderFilledEvent.directFlag = true;
@@ -56,7 +56,7 @@ export function parseNativeFillFromV4RfqOrderFilledEvent(eventLog: RawLogEntry):
     nativeFill.takerFeeToken = null;
     nativeFill.makerFeeToken = null;
     nativeFill.protocolFeePaid = null;
-    nativeFill.pool = String(Number(decodedLog.poolId));
+    nativeFill.pool = String(Number(decodedLog.pool));
 
     nativeFill.nativeOrderType = 'RFQ Order';
     nativeFill.protocolVersion = 'v4';
