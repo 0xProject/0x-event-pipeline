@@ -10,11 +10,19 @@ import {
     LastBlockProcessed,
 } from '../../entities';
 
+export interface DeleteOptions {
+  isDirectTrade ?: boolean,
+  directProtocol ?: string,
+  protocolVersion ?: string,
+  nativeOrderType ?: string,
+
+}
+
 export class PullAndSaveEventsByTopic {
 
     public async getParseSaveEventsByTopic<EVENT>(
         connection: Connection,
-        web3Source: Web3Source, 
+        web3Source: Web3Source,
         latestBlockWithOffset: number,
         eventName: string,
         tableName: string,
@@ -22,13 +30,12 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: ((decodedLog: RawLogEntry) => EVENT),
-        isDirectTrade: boolean,
-        directProtocol: string,
+        deleteOptions: DeleteOptions,
         ): Promise<void> {
 
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
-    
+
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
         // assert(topics.length === 1);
@@ -54,8 +61,7 @@ export class PullAndSaveEventsByTopic {
                 endBlock,
                 tableName,
                 await this._lastBlockProcessedAsync(eventName, endBlock),
-                isDirectTrade,
-                directProtocol,
+                deleteOptions,
             );
         }));
     }
@@ -72,7 +78,7 @@ export class PullAndSaveEventsByTopic {
         const queryResult = await connection.query(
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
-    
+
         logUtils.log(queryResult);
         const lastKnownBlock = queryResult[0] || {last_processed_block_number: defaultStartBlock};
 
@@ -86,39 +92,48 @@ export class PullAndSaveEventsByTopic {
         endBlock: number,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
-        isDirectTrade: boolean,
-        directProtocol: string,
+        deleteOptions: DeleteOptions,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
         let deleteQuery: string;
-        if (isDirectTrade) {
-            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${directProtocol}'`;
+        if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
+            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
         } else {
-            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+            if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )
+            {
+              if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined )
+              {
+                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+              } else {
+                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+              }
+            } else {
+              deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+            }
         }
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
-            
+
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(deleteQuery);
             await queryRunner.manager.save(toSave);
             await queryRunner.manager.save(lastBlockProcessed);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
+
         } catch (err) {
-            
+
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
+
         } finally {
-            
+
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }

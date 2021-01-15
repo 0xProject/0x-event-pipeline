@@ -7,7 +7,7 @@ import {
     TransactionLogs,
     TransactionReceipt,
 } from '../../entities';
-import { 
+import {
    parseBlock,
    parseTransaction,
    parseTransactionReceipt,
@@ -35,7 +35,7 @@ export class PullAndSaveWeb3 {
         logUtils.log(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
-        
+
         logUtils.log(`saving ${parsedBlocks.length} blocks`);
 
         await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, tableName);
@@ -46,7 +46,7 @@ export class PullAndSaveWeb3 {
         const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transactions', shouldLookForBridgeTrades);
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
-        
+
         logUtils.log(`saving ${parsedTx.length} tx`);
 
         if(parsedTx.length > 0) {
@@ -73,7 +73,7 @@ export class PullAndSaveWeb3 {
                     }
                 })
             );
-            
+
             let parsedBridgeTradesWithEmptyRecords;
             if (parsedBridgeTradesNested.length > 0) {
                 parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) =>
@@ -102,7 +102,7 @@ export class PullAndSaveWeb3 {
         const queryResult = await connection.query(
             `SELECT block_number FROM events.blocks ORDER BY block_number DESC LIMIT 1`,
         );
-    
+
         const lastKnownBlock = queryResult[0] || {block_number: FIRST_SEARCH_BLOCK};
 
         return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
@@ -110,7 +110,7 @@ export class PullAndSaveWeb3 {
 
     private async _getTxListToPullAsync(connection: Connection, beforeBlock: number, txTable: string, shouldLookForBridgeTrades: boolean): Promise<string[]> {
         let queryResult: any;
-        if (shouldLookForBridgeTrades) {      
+        if (shouldLookForBridgeTrades) {
             queryResult = await connection.query(`
                 SELECT DISTINCT
                     transaction_hash
@@ -122,7 +122,7 @@ export class PullAndSaveWeb3 {
                         (SELECT DISTINCT
                             fe.transaction_hash
                             , fe.block_number
-                        FROM events.fill_events fe
+                        FROM events.native_fills fe
                         LEFT JOIN events.${txTable} tx ON tx.transaction_hash = fe.transaction_hash
                         WHERE
                             fe.block_number < ${beforeBlock}
@@ -201,7 +201,7 @@ export class PullAndSaveWeb3 {
                 ) a
             ) b;
             `,
-            );      
+            );
         } else {
             queryResult = await connection.query(`
                 SELECT DISTINCT
@@ -249,27 +249,27 @@ export class PullAndSaveWeb3 {
         tableName: string,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
-            
+
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock}`);
             await queryRunner.manager.save(toSave);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
+
         } catch (err) {
-            
+
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
+
         } finally {
-            
+
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }
@@ -283,27 +283,27 @@ export class PullAndSaveWeb3 {
 
         const txHashes = transactions.map(e => e.transactionHash);
         const txHashList = txHashes.map(e => `'${e}'`).toString();
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
 
             await queryRunner.manager.query(`DELETE FROM events.transactions WHERE transaction_hash IN (${txHashList})`);
 
             await queryRunner.manager.save(transactions);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
+
         } catch (err) {
-            
+
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
+
         } finally {
-            
+
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }
@@ -319,9 +319,9 @@ export class PullAndSaveWeb3 {
 
         const txHashes = txReceipts.map(e => e.transactionHash);
         const txHashList = txHashes.map(e => `'${e}'`).toString();
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
             await queryRunner.manager.query(`
@@ -335,18 +335,18 @@ export class PullAndSaveWeb3 {
                 queryRunner.manager.save(txLogs),
                 queryRunner.manager.save(bridgeTrades),
             ]);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
+
         } catch (err) {
-            
+
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
+
         } finally {
-            
+
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }
