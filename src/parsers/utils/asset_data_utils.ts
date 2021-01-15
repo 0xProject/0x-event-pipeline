@@ -8,7 +8,7 @@ string | null {
     } else if (isStaticCallAssetData(decodedAssetData)) {
         return null;
     } else {
-        return decodedAssetData.tokenAddress;
+        return decodedAssetData.tokenAddress.toLowerCase();
     }
 }
 
@@ -20,7 +20,7 @@ export function parseV30xBridgeAddress(
     decodedAssetData: AssetData):
 string | null {
     if (isERC20BridgeAssetData(decodedAssetData)) {
-        return decodedAssetData.bridgeAddress;
+        return decodedAssetData.bridgeAddress.toLowerCase();
     } else {
         return null;
     }
