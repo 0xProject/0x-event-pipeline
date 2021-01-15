@@ -26,7 +26,7 @@ export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrde
     limitOrderFilledEvent.takerTokenFeeFilledAmount = new BigNumber(decodedLog.takerTokenFeeFilledAmount);
 
     limitOrderFilledEvent.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    limitOrderFilledEvent.pool = String(Number(decodedLog.poolId));
+    limitOrderFilledEvent.pool = String(Number(decodedLog.pool));
 
     return limitOrderFilledEvent;
 }
@@ -55,7 +55,7 @@ export function parseNativeFillFromV4LimitOrderFilledEvent(eventLog: RawLogEntry
     nativeFill.makerFeeToken = null;
 
     nativeFill.protocolFeePaid = new BigNumber(decodedLog.protocolFeePaid);
-    nativeFill.pool = String(Number(decodedLog.poolId));
+    nativeFill.pool = String(Number(decodedLog.pool));
 
     nativeFill.nativeOrderType = 'Limit Order';
     nativeFill.protocolVersion = 'v4';
