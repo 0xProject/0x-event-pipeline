@@ -12,7 +12,12 @@ import { PullAndSaveTheGraphEvents } from './utils/thegraph_utils';
 import { EventsSource } from '../data_sources/events/0x_events';
 import { Web3Source } from '../data_sources/web3';
 import { UniswapV2Source } from '../data_sources/events/uniswap_events';
-import { BLOCK_FINALITY_THRESHOLD, CHAIN_ID, ETHEREUM_RPC_URL } from '../config';
+import {
+    BLOCK_FINALITY_THRESHOLD,
+    CHAIN_ID,
+    ETHEREUM_RPC_URL,
+    SCRAPE_CANCEL_EVENTS_FLAG,
+} from '../config';
 import { UNISWAPV2_SUBGRAPH_ENDPOINT, SUSHISWAP_SUBGRAPH_ENDPOINT } from '../constants';
 
 import {
@@ -74,6 +79,9 @@ const pullAndSaveTheGraphEvents = new PullAndSaveTheGraphEvents();
 const pullAndSaveEvents = new PullAndSaveEvents();
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
+async function dummyAsync(): Promise<void> {
+};
+
 export class EventScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
@@ -91,8 +99,8 @@ export class EventScraper {
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false),
             pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true),
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true),
-            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelEventArgs, CancelEvent>(connection, latestBlockWithOffset, 'CancelEvent', 'cancel_events', eventsSource.getCancelEventsAsync.bind(eventsSource), parseCancelEvent),
-            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelUpToEventArgs, CancelUpToEvent>(connection, latestBlockWithOffset, 'CancelUpToEvent', 'cancel_up_to_events', eventsSource.getCancelUpToEventsAsync.bind(eventsSource), parseCancelUpToEvent),
+            SCRAPE_CANCEL_EVENTS_FLAG ? pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelEventArgs, CancelEvent>(connection, latestBlockWithOffset, 'CancelEvent', 'cancel_events', eventsSource.getCancelEventsAsync.bind(eventsSource), parseCancelEvent) : dummyAsync(),
+            SCRAPE_CANCEL_EVENTS_FLAG ? pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelUpToEventArgs, CancelUpToEvent>(connection, latestBlockWithOffset, 'CancelUpToEvent', 'cancel_up_to_events', eventsSource.getCancelUpToEventsAsync.bind(eventsSource), parseCancelUpToEvent) : dummyAsync(),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeTransactionExecutionEventArgs, TransactionExecutionEvent>(connection, latestBlockWithOffset, 'TransactionExecutionEvent', 'transaction_execution_events', eventsSource.getTransactionExecutionEventsAsync.bind(eventsSource), parseTransactionExecutionEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakeEventArgs, StakeEvent>(connection, latestBlockWithOffset, 'StakeEvent', 'stake_events', eventsSource.getStakeEventsAsync.bind(eventsSource), parseStakeEvent),
             pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingUnstakeEventArgs, UnstakeEvent>(connection, latestBlockWithOffset, 'UnstakeEvent', 'unstake_events', eventsSource.getUnstakeEventsAsync.bind(eventsSource), parseUnstakeEvent),
