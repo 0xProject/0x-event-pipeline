@@ -106,6 +106,44 @@ export const ERC20_BRIDGE_TRADE_ABI = {
     "type": "event"
 };
 
+export const BRIDGE_FILL_ABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "source",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "inputToken",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "outputToken",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "inputTokenAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "outputTokenAmount",
+            "type": "uint256"
+        },
+    ],
+    "name": "BridgeFill",
+    "type": "event"
+};
+
 
 export const LIQUIDITY_PROVIDER_SWAP_ABI = {
 
