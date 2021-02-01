@@ -38,7 +38,7 @@ export class PullAndSaveWeb3 {
 
         logUtils.log(`saving ${parsedBlocks.length} blocks`);
 
-        await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, tableName);
+        await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
 
     public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number, shouldLookForBridgeTrades: boolean): Promise<void> {
@@ -246,6 +246,7 @@ export class PullAndSaveWeb3 {
         connection: Connection,
         toSave: T[],
         startBlock: number,
+        endBlock: number,
         tableName: string,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
@@ -256,7 +257,7 @@ export class PullAndSaveWeb3 {
         try {
 
             // delete events scraped prior to the most recent block range
-            await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock}`);
+            await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
             await queryRunner.manager.save(toSave);
 
             // commit transaction now:
