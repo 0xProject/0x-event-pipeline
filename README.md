@@ -1,13 +1,43 @@
 # 0x-event-pipeline
-A node.js app for pulling 0x event info to inform things like staking.
+A node.js app that was originally designed for pulling 0x staking events info, but now expanded to all other 0x related events.
 
 ## Getting started
 
+Test locally:
+
+- Step 1   
+Rename the `.env.exmaple` file to `.env`, or create a new `.env` file. Add the required env variables (see below for configureation details)
+
+- Step 2  
+Set up the database variables in `docker-compose.yml` file to the desired database destination.
 ```
-$ docker-compose up # get local postgres up
+$ docker-compose up # get postgres up
+```
+- Step 3  Test build & Debug
+```
 $ yarn install
 $ yarn build
+```
+- Step 4  Build migrations  
+If there are new tables to be created, or schema changes, you will need to create migration files first:
+```
+yarn migrate:create -n <YourMigrationName>
+```
+Modify the migration file in `migrations/` folder with necessary changes.
+
+Run migration:
+```
 $ yarn migrate:run
+
+```
+To revert migration:
+```
+$ yarn migrate:revert
+
+```
+- Step 5  
+Start the scraper:
+```
 $ yarn start
 ```
 
