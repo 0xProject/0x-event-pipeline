@@ -12,6 +12,7 @@ import {
     DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
     DEFAULT_MAX_TIME_TO_SEARCH,
     DEFAULT_SCRAPE_CANCEL_EVENTS_FLAG,
+    DEFAULT_SCRAPE_TRANSACTIONS_FLAG,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -94,3 +95,7 @@ export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH ? parseInt(proc
 export const SCRAPE_CANCEL_EVENTS_FLAG = process.env.SCRAPE_CANCEL_EVENTS_FLAG ?
     process.env.SCRAPE_CANCEL_EVENTS_FLAG === 'true'
     : DEFAULT_SCRAPE_CANCEL_EVENTS_FLAG;
+export const SCRAPE_TRANSACTIONS_FLAG = process.env.SCRAPE_TRANSACTIONS_FLAG ?
+    process.env.SCRAPE_TRANSACTIONS_FLAG === 'true'
+    : DEFAULT_SCRAPE_TRANSACTIONS_FLAG;
+
