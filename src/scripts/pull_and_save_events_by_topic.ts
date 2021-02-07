@@ -4,7 +4,7 @@ import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/web3';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
-import { ERC20BridgeTransferEvent, TransformedERC20Event, V4RfqOrderFilledEvent, V4LimitOrderFilledEvent, NativeFill, FillEvent} from '../entities';
+import { ERC20BridgeTransferEvent, TransformedERC20Event, V4RfqOrderFilledEvent, V4LimitOrderFilledEvent, NativeFill, FillEvent, OneInchSwappedEvent} from '../entities';
 
 import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK } from '../config';
 import {
@@ -18,6 +18,8 @@ import {
     LIMITORDERFILLED_EVENT_TOPIC,
     V4_FILL_START_BLOCK,
     V3_FILL_EVENT_TOPIC,
+    ONEINCH_FIRST_BLOCK,
+    ONEINCH_SWAPPED_EVENT_TOPIC, ONEINCH_CONTRACT_ADDRESS,
     // TODO start block
 } from '../constants';
 
@@ -27,6 +29,7 @@ import { parseV4RfqOrderFilledEvent, parseNativeFillFromV4RfqOrderFilledEvent } 
 import { parseV4LimitOrderFilledEvent, parseNativeFillFromV4LimitOrderFilledEvent } from '../parsers/events/v4_limit_order_filled_events';
 import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
+import { parse1InchSwappedEvent } from '../parsers/events/oneinch_swapped_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
@@ -53,6 +56,7 @@ export class EventsByTopicScraper {
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromLimitV4', 'native_fills', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromV4LimitOrderFilledEvent, {protocolVersion:'v4', nativeOrderType:'Limit Order'}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(connection, web3Source, latestBlockWithOffset, 'FillEvent', 'fill_events', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseFillEvent, {}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromV3', 'native_fills', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseNativeFillFromFillEvent, {protocolVersion:'v3'}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneInchSwappedEvent>(connection, web3Source, latestBlockWithOffset, 'Swapped', 'oneinch_swapped_events', ONEINCH_SWAPPED_EVENT_TOPIC, ONEINCH_CONTRACT_ADDRESS, ONEINCH_FIRST_BLOCK, parse1InchSwappedEvent, {}), // entry to parse 1inch's swapped events
         ]);
 
         const endTime = new Date().getTime();

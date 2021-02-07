@@ -16,10 +16,13 @@ export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67
 export const LIQUIDITYPROVIDERSWAP_EVENT_TOPIC = ['0x40a6ba9513d09e3488135e0e0d10e2d4382b792720155b144cbea89ac9db6d34'];
 export const RFQORDERFILLED_EVENT_TOPIC = ['0x829fa99d94dc4636925b38632e625736a614c154d55006b7ab6bea979c210c32'];
 export const LIMITORDERFILLED_EVENT_TOPIC = ['0xab614d2b738543c0ea21f56347cf696a3a0c42a7cbec3212a5ca22a4dcff2124'];
+export const ONEINCH_SWAPPED_EVENT_TOPIC = ['0x76af224a143865a50b41496e1a73622698692c565c1214bc862f18e22d829c5e']; // 1inch swapped event topic
 export const V4_FILL_START_BLOCK = 11591021; // Native order feature deployment block
 export const EXCHANGE_PROXY_ADDRESS = '0xdef1c0ded9bec7f1a1670819833240f027b25eff';
+export const ONEINCH_CONTRACT_ADDRESS = '0x111111125434b319222cdbf8c261674adb56f3ae';
 export const EXCHANGE_PROXY_DEPLOYMENT_BLOCK = 10247094;
 export const PLP_VIP_START_BLOCK = 11377457;
+export const ONEINCH_FIRST_BLOCK = 11600000; // Set this block# arbitrary as the one containing at least 1 1inch's swapped event
 export const UNISWAPV2_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2';
 export const SUSHISWAP_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork';
 export const START_DIRECT_UNISWAP_SEARCH = 1600834642;
@@ -108,6 +111,73 @@ export const ERC20_BRIDGE_TRADE_ABI = {
     "type": "event"
 };
 
+export const ONEINCH_SWAPPED_ABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+        },
+        {
+            "indexed": true,
+            "internalType": "contract IERC20",
+            "name": "srcToken",
+            "type": "address"
+        },
+        {
+            "indexed": true,
+            "internalType": "contract IERC20",
+            "name": "dstToken",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "dstReceiver",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "spentAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "returnAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "minReturnAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "guaranteedAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+        }
+    ],
+    "name": "Swapped",
+    "type": "event"
+}
 
 export const LIQUIDITY_PROVIDER_SWAP_ABI = {
 
