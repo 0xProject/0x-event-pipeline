@@ -31,6 +31,7 @@ import {
     NativeFill,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    OneInchSwappedEvent,
 } from './entities';
 
 const entities = [
@@ -62,6 +63,7 @@ const entities = [
     NativeFill,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    OneInchSwappedEvent, // Adding reference for 1Inch's swapped event table for typeorm's migration purposes
 ];
 
 const config: ConnectionOptions = {
