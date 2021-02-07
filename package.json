@@ -27,10 +27,13 @@
       "@types/dotenv": "^8.2.0",
       "@types/node": "^8.0.29",
       "@types/node-cron": "^2.0.2",
+      "@types/mocha": "^8.2.0",
       "mocha": "^4.1.0",
+      "shx": "^0.3.3",
       "ts-node": "3.3.0",
       "tslint": "5.11.0",
-      "typescript": "3.1.1"
+      "typescript": "3.1.1",
+      "make-promises-safe": "^5.1.0"
    },
    "dependencies": {
       "@0x/contract-addresses": "^4.0.0",
@@ -43,9 +46,11 @@
       "graphql": "^15.3.0",
       "graphql-request": "^3.1.0",
       "node-cron": "^2.0.3",
+      "node-gyp": "^7.1.2",
       "pg": "^7.5.0",
       "reflect-metadata": "^0.1.13",
       "typeorm": "^0.2.20",
-      "web3": "^1.2.2"
+      "web3": "^1.2.2",
+      "yarn": "^1.22.10"
    }
 }
