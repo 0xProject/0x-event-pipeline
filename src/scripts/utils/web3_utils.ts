@@ -14,12 +14,13 @@ import {
    parseTransactionLogs,
 } from '../../parsers/web3/parse_web3_objects';
 import {
-    parseErc20BridgeTransfer
+    parseErc20BridgeTransfer,
+    parseBridgeFill
 } from '../../parsers/events/bridge_transfer_events';
 import { Web3Source } from '../../data_sources/web3';
 import { RawLogEntry } from 'ethereum-types';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET, BRIDGE_TRADE_TOPIC } from '../../config';
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET, BRIDGE_TRADE_TOPIC, BRIDGEFILL_EVENT_TOPIC } from '../../config';
 
 
 export class PullAndSaveWeb3 {
@@ -69,7 +70,11 @@ export class PullAndSaveWeb3 {
                     if(l.topics[0] === BRIDGE_TRADE_TOPIC[0]) {
                         return parseErc20BridgeTransfer(l);
                     } else {
-                        return new ERC20BridgeTransferEvent();
+                        if(l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
+                            return parseBridgeFill(l);
+                        } else {
+                            return new ERC20BridgeTransferEvent();
+                        }
                     }
                 })
             );
