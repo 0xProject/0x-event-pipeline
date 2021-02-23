@@ -311,7 +311,7 @@ export const LIMIT_ORDER_FILLED_ABI = {
             "indexed": false,
             "internalType": "uint256",
             "name": "protocolFeePaid",
-            "type": "uint128"
+            "type": "uint256"
         },
         {
             "indexed": false,
