@@ -19,6 +19,9 @@
        "declarationMap": true,
        "sourceMap": true
    },
-   "types": ["jasmine, mocha"],
-   "include": ["./src/**/*", "./test/**/*", "./migrations/**/*"]
+   "include": [],
+   "references": [
+        { "path": "./api"},
+        { "path": "./event-pipeline" },
+    ]
 }
