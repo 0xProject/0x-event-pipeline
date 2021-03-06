@@ -29,8 +29,7 @@
       "@types/node-cron": "^2.0.2",
       "mocha": "^4.1.0",
       "ts-node": "3.3.0",
-      "tslint": "5.11.0",
-      "typescript": "3.1.1"
+      "tslint": "5.11.0"
    },
    "dependencies": {
       "@0x/contract-addresses": "^4.0.0",
@@ -45,6 +44,7 @@
       "node-cron": "^2.0.3",
       "pg": "^7.5.0",
       "reflect-metadata": "^0.1.13",
+      "typescript": "3.1.1",
       "typeorm": "^0.2.20",
       "web3": "^1.2.2"
    }
