@@ -2,28 +2,21 @@
 FROM node:12-alpine as yarn-install
 WORKDIR /usr/src/app
 # Install app dependencies
-COPY api/package.json .
-COPY yarn.lock .
+COPY package.json yarn.lock ./
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache --virtual build-dependencies git && \
+    apk add --no-cache --virtual build-dependencies bash git openssh python make g++ && \
     yarn --frozen-lockfile --no-cache && \
     apk del build-dependencies && \
     yarn cache clean
 
 # Runtime container with minimal dependencies
-FROM node:12-alpine
-
-RUN apk update && \
-    apk upgrade && \
-    apk add ca-certificates
-
+FROM node:11-alpine
 WORKDIR /usr/src/app
 COPY --from=yarn-install /usr/src/app/node_modules /usr/src/app/node_modules
 # Bundle app source
-COPY api .
+COPY . .
 
-WORKDIR /usr/src/app/api
 RUN yarn build
 
 EXPOSE 4000
