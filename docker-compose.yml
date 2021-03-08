@@ -3,8 +3,8 @@ services:
     postgres:
         image: postgres:9.6
         environment:
-            - POSTGRES_USER=user
-            - POSTGRES_PASSWORD=password
+            - POSTGRES_USER=api
+            - POSTGRES_PASSWORD=api
             - POSTGRES_DB=events
             - POSTGRES_PORT=5432
         # persist the postgres data to disk so we don't lose it
@@ -12,30 +12,25 @@ services:
         volumes:
             - ./postgres:/var/lib/postgresql/data
         ports:
-            - "5432:5432"
+            - '5432:5432'
     events-pipeline:
         depends_on:
             - postgres
         build:
-            context: .
-            dockerfile: ./event-pipeline/Dockerfile
-        restart: always
+            context: ./event-pipeline
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
             CHAIN_ID: '${CHAIN_ID}'
-            POSTGRES_URI: 'postgres://user:password@localhost/events'
+            POSTGRES_URI: 'postgres://api:api@localhost/events'
         ports:
-            - "3000:3000"
+            - '3000:3000'
     staking-api:
         depends_on:
             - postgres
         build:
-            context: .
-            dockerfile: ./api/Dockerfile
+            context: ./api
         restart: always
         environment:
-            POSTGRES_URI: 'postgres://user:password@localhost/events'
+            POSTGRES_URI: 'postgres://api:api@localhost/events'
         ports:
-            - "4000:4000"
-
-
+            - '4000:4000'

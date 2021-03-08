@@ -2,8 +2,7 @@
 FROM node:12-alpine as yarn-install
 WORKDIR /usr/src/app
 # Install app dependencies
-COPY event-pipeline/package.json .
-COPY yarn.lock .
+COPY package.json yarn.lock ./
 RUN apk update && \
     apk upgrade && \
     apk add --no-cache --virtual build-dependencies bash git openssh python make g++ && \
@@ -16,9 +15,8 @@ FROM node:11-alpine
 WORKDIR /usr/src/app
 COPY --from=yarn-install /usr/src/app/node_modules /usr/src/app/node_modules
 # Bundle app source
-COPY event-pipeline/ .
+COPY . .
 
-WORKDIR /usr/src/app/event-pipeline
 RUN yarn build
 
 EXPOSE 3000

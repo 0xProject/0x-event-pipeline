@@ -1,6 +1,23 @@
-{ 
-    "extends": "../tsconfig",
-    "compilerOptions": { "outDir": "lib", "rootDir": ".", "resolveJsonModule": true },
-    "include": ["./src/**/*", "./test/**/*", "./migrations/*"],
-    "types": ["jasmine, mocha"]
+{
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": ".",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "lib": ["es2017"],
+        "module": "commonjs",
+        "target": "es5",
+        "downlevelIteration": true,
+        "noImplicitReturns": true,
+        "pretty": true,
+        "skipLibCheck": true,
+        "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"],
+        "strict": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true
+    },
+    "types": ["jasmine, mocha"],
+    "include": ["./src/**/*", "./test/**/*", "./migrations/**/*"]
 }
