@@ -18,10 +18,11 @@ services:
             - postgres
         build:
             context: ./event-pipeline
+        restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
             CHAIN_ID: '${CHAIN_ID}'
-            POSTGRES_URI: 'postgres://api:api@localhost/events'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
         ports:
             - '3000:3000'
     staking-api:
@@ -31,6 +32,6 @@ services:
             context: ./api
         restart: always
         environment:
-            POSTGRES_URI: 'postgres://api:api@localhost/events'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
         ports:
             - '4000:4000'
