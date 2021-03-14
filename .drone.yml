@@ -41,7 +41,7 @@ steps:
       context: event-pipeline
       dockerfile: event-pipeline/Dockerfile
       repo:
-        from_secret: ecr_repo
+        from_secret: ecr_repo_event-pipeline
       registry:
         from_secret: ecr_registry
       region: us-east-1
@@ -85,7 +85,7 @@ trigger:
 node_selector:
   drone-builds: true
 ---
-name: 0x-event-pipeline
+name: 0x-staking-api
 kind: pipeline
 type: kubernetes
 
@@ -100,7 +100,7 @@ steps:
       context: api
       dockerfile: api/Dockerfile
       repo:
-        from_secret: ecr_repo
+        from_secret: ecr_repo_staking-api
       registry:
         from_secret: ecr_registry
       region: us-east-1
