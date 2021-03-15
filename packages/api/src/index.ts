@@ -9,11 +9,11 @@ import { Server } from 'http';
 // import { errorHandler } from '../middleware/error_handling';
 // import { rootHandler } from '../handlers/root_handler';
 
-import { defaultHttpServiceConfig } from './config';
+import { defaultHttpServiceConfig, API_ROOT } from './config';
 import { logger } from './logger';
 import { createStakingRouter } from './router';
 import { QueryRunner } from './query_runner';
-import { API_PATH, DEFAULT_CACHE_AGE_SECONDS } from './constants';
+import { DEFAULT_CACHE_AGE_SECONDS } from './constants';
 
 process.on('uncaughtException', err => {
     logger.error(err);
@@ -45,7 +45,7 @@ async function runHttpServiceAsync(config: HttpServiceConfig, _app?: express.Exp
     // app.get('/', rootHandler);
     // staking http service
     const db = new QueryRunner();
-    app.use(API_PATH, createStakingRouter(db));
+    app.use(API_ROOT, createStakingRouter(db));
     // app.use(errorHandler);
 
     server.listen(config.httpPort);

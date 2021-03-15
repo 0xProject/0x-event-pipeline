@@ -1,8 +1,7 @@
-export const API_PATH = '/staking';
-
 export const DEFAULT_CACHE_AGE_SECONDS = 10;
 
 // Http service config
+export const DEFAULT_API_ROOT = '/staking';
 export const DEFAULT_HTTP_PORT = 4000;
 export const DEFAULT_HEALTHCHECK_HTTP_PORT = 4000;
 export const DEFAULT_HEALTHCHECK_PATH = '/healthz';
