@@ -3,12 +3,14 @@
     "version": "1.0.0",
     "main": "index.js",
     "license": "MIT",
+    "nohoist": ["**types**"],
     "scripts": {
-        "build": "tsc -b",
+        "build": "yarn tsc -b",
         "clean": "rm -rf lib",
         "lint": "tslint --project . --format stylish && yarn prettier:ci",
-        "prettier": "prettier --write '**/*.{ts,tsx,json,md}' --config ../.prettierrc --ignore-path ../.prettierignore",
-        "prettier:ci": "prettier --list-different '**/*.{ts,tsx,json,md}' --config ../.prettierrc --ignore-path ../.prettierignore",
+        "prettier": "prettier --write '**/*.{ts,tsx,json,md}' --config ../.prettierrc --ignore-path ../../.prettierignore",
+        "prettier:ci": "prettier --list-different '**/*.{ts,tsx,json,md}' --config ../.prettierrc --ignore-path ../../.prettierignore",
+        "start": "node -r dotenv/config lib/src/index.js",
         "test": "mocha --require source-map-support/register --require make-promises-safe lib/test/**/*.test.js --timeout 200000 --exit --bail"
     },
     "devDependencies": {
