@@ -3,6 +3,7 @@ import { assert } from '@0x/assert';
 import { isEmpty } from 'lodash';
 
 import {
+    DEFAULT_API_ROOT,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOGGER_INCLUDE_TIMESTAMP,
     DEFAULT_HTTP_PORT,
@@ -19,6 +20,7 @@ import {
 // TODO (xianny): assert that values are non-empty
 
 // HTTP service configs
+export const API_ROOT = isEmpty(process.env.API_ROOT) ? DEFAULT_API_ROOT : String(process.env.API_ROOT);
 export const HTTP_PORT = isEmpty(process.env.HTTP_PORT) ? DEFAULT_HTTP_PORT : parseInt(process.env.HTTP_PORT!);
 export const HEALTHCHECK_HTTP_PORT = isEmpty(process.env.HEALTHCHECK_HTTP_PORT)
     ? DEFAULT_HEALTHCHECK_HTTP_PORT
