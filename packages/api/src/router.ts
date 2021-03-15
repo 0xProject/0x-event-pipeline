@@ -8,6 +8,7 @@ import { QueryRunner } from './query_runner';
 export function createStakingRouter(db: QueryRunner): express.Router {
     const router = express.Router();
     const handlers = new Handlers(db);
+    router.get('/', (_, res) => { res.send({message: 'This is the root of the 0x Staking API.'})})
     router.get('/pools/:id', asyncHandler(handlers.getStakingPoolByIdAsync.bind(handlers)));
     router.get('/pools', asyncHandler(handlers.getStakingPoolsAsync.bind(handlers)));
     router.get('/epochs/:n', asyncHandler(handlers.getStakingEpochNAsync.bind(handlers)));
