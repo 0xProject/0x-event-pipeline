@@ -12,6 +12,8 @@
         "build": "lerna link && wsrun build $PKG -r --stages --fast-exit --exclude-missing",
         "build:ts": "tsc -b",
         "clean": "wsrun clean $PKG --fast-exit -r --parallel --exclude-missing",
+        "clean:all": "yarn clean:db && yarn clean",
+        "clean:db": "rm -rf postgres",
         "coverage:report:lcov": "nyc report --reporter=text-lcov > coverage/lcov.info",
         "lerna": "lerna",
         "lint": "wsrun lint $PKG --fast-exit --parallel --exclude-missing",
