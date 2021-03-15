@@ -17,7 +17,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: ./event-pipeline
+            context: ./packages/event-pipeline
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
@@ -29,7 +29,7 @@ services:
         depends_on:
             - events-pipeline
         build:
-            context: ./api
+            context: ./packages/api
         restart: always
         environment:
             POSTGRES_URI: 'postgres://api:api@postgres/events'

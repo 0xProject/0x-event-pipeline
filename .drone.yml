@@ -10,8 +10,8 @@ steps:
   - name: publish-sha
     image: plugins/ecr
     settings:
-      context: event-pipeline
-      dockerfile: event-pipeline/Dockerfile
+      context: packages/event-pipeline
+      dockerfile: packages/event-pipeline/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline
       registry:
@@ -38,8 +38,8 @@ steps:
   - name: publish  
     image: plugins/ecr
     settings:
-      context: event-pipeline
-      dockerfile: event-pipeline/Dockerfile
+      context: packages/event-pipeline
+      dockerfile: packages/event-pipeline/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline
       registry:
@@ -69,8 +69,8 @@ steps:
   - name: publish-sha
     image: plugins/ecr
     settings:
-      context: api
-      dockerfile: api/Dockerfile
+      context: packages/api
+      dockerfile: packages/api/Dockerfile
       repo:
         from_secret: ecr_repo_staking-api
       registry:
@@ -97,8 +97,8 @@ steps:
   - name: publish  
     image: plugins/ecr
     settings:
-      context: api
-      dockerfile: api/Dockerfile
+      context: packages/api
+      dockerfile: packages/api/Dockerfile
       repo:
         from_secret: ecr_repo_staking-api
       registry:
