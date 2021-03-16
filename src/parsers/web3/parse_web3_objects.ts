@@ -30,7 +30,8 @@ export function parseTransaction(rawTx: RawTx): Transaction {
     if(transaction.input.includes('869584cd')) {
         const bytesPos = rawTx.input.indexOf('869584cd');
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos+32,bytesPos+72));
-        transaction.quoteTimestamp = parseInt(rawTx.input.slice(bytesPos+128,bytesPos+136),16);
+        const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos+128,bytesPos+136),16)
+        transaction.quoteTimestamp = isNaN(parsedQuoteTimestamp) ? null : parsedQuoteTimestamp;
         transaction.quoteId = rawTx.input.slice(bytesPos+118,bytesPos+128);
     } else if(transaction.input.includes('fbc019a7')) {
         const bytesPos = rawTx.input.indexOf('fbc019a7');
