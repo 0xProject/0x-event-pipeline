@@ -5,6 +5,7 @@
     "license": "Apache-2.0",
     "scripts": {
         "build": "yarn tsc -b",
+        "dev": "nodemon -r dotenv/config src/index.ts | pino-pretty",
         "start": "node lib/src/index.js",
         "test": "yarn run_mocha",
         "migrate_and_start": "yarn migrate:run && yarn start",
