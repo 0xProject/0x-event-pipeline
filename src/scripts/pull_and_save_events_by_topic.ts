@@ -4,7 +4,16 @@ import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/web3';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
-import { ERC20BridgeTransferEvent, TransformedERC20Event, V4RfqOrderFilledEvent, V4LimitOrderFilledEvent, NativeFill, FillEvent, V4CancelEvent, ExpiredRfqOrderEvent} from '../entities';
+import { 
+    ERC20BridgeTransferEvent, 
+    TransformedERC20Event, 
+    V4RfqOrderFilledEvent, 
+    V4LimitOrderFilledEvent, 
+    NativeFill, 
+    FillEvent, 
+    V4CancelEvent, 
+    ExpiredRfqOrderEvent
+} from '../entities';
 
 import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK } from '../config';
 import {
