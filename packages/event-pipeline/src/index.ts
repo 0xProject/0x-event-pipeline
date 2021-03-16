@@ -25,8 +25,8 @@ createConnection(ormConfig as ConnectionOptions).then(async connection => {
 
     await deploymentScraper.getParseSaveStakingProxyContractDeployment(connection);
 
-    cron.schedule(`*/${SECONDS_BETWEEN_RUNS} * * * * *`, () => {
-        Promise.all([
+    // cron.schedule(`*/${SECONDS_BETWEEN_RUNS} * * * * *`, () => {
+    cron.schedule(`*/3 * * * *`, () => {        Promise.all([
             eventScraper.getParseSaveEventsAsync(connection),
             eventsByTopicScraper.getParseSaveEventsAsync(connection),
         ]);
