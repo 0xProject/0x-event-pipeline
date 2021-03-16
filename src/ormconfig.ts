@@ -31,6 +31,8 @@ import {
     NativeFill,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    ExpiredRfqOrderEvent,
+    V4CancelEvent
 } from './entities';
 
 const entities = [
@@ -62,6 +64,8 @@ const entities = [
     NativeFill,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    ExpiredRfqOrderEvent,
+    V4CancelEvent
 ];
 
 const config: ConnectionOptions = {
