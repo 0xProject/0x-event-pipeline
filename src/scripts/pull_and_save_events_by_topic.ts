@@ -4,7 +4,7 @@ import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/web3';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
-import { ERC20BridgeTransferEvent, TransformedERC20Event, V4RfqOrderFilledEvent, V4LimitOrderFilledEvent, NativeFill, FillEvent} from '../entities';
+import { ERC20BridgeTransferEvent, TransformedERC20Event, V4RfqOrderFilledEvent, V4LimitOrderFilledEvent, NativeFill, FillEvent, V4CancelEvent, ExpiredRfqOrderEvent} from '../entities';
 
 import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK } from '../config';
 import {
@@ -18,7 +18,11 @@ import {
     LIMITORDERFILLED_EVENT_TOPIC,
     V4_FILL_START_BLOCK,
     V3_FILL_EVENT_TOPIC,
-    // TODO start block
+    V4_CANCEL_START_BLOCK,
+    EXPIRED_RFQ_ORDER_EVENT_TOPIC,
+    V4_CANCEL_EVENT_TOPIC,
+    MULTIPLEX_START_BLOCK
+
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
@@ -27,6 +31,8 @@ import { parseV4RfqOrderFilledEvent, parseNativeFillFromV4RfqOrderFilledEvent } 
 import { parseV4LimitOrderFilledEvent, parseNativeFillFromV4LimitOrderFilledEvent } from '../parsers/events/v4_limit_order_filled_events';
 import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
+import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
+import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
@@ -53,6 +59,9 @@ export class EventsByTopicScraper {
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromLimitV4', 'native_fills', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromV4LimitOrderFilledEvent, {protocolVersion:'v4', nativeOrderType:'Limit Order'}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(connection, web3Source, latestBlockWithOffset, 'FillEvent', 'fill_events', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseFillEvent, {}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromV3', 'native_fills', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseNativeFillFromFillEvent, {protocolVersion:'v3'}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_CANCEL_START_BLOCK, parseV4CancelEvent, {}), 
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, MULTIPLEX_START_BLOCK, parseExpiredRfqOrderEvent, {}), 
+        
         ]);
 
         const endTime = new Date().getTime();
