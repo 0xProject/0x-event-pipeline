@@ -28,3 +28,5 @@ export { TransactionExecutionEvent } from './transaction_execution_event';
 export { NativeFill } from './native_fill';
 export { V4RfqOrderFilledEvent } from './v4_rfq_order_filled_event';
 export { V4LimitOrderFilledEvent } from './v4_limit_order_filled_event';
+export { V4CancelEvent } from './v4_cancel_event';
+export { ExpiredRfqOrderEvent } from './expired_rfq_order_event';
