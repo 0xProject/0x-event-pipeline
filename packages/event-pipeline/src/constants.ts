@@ -25,6 +25,56 @@ export const SUSHISWAP_SUBGRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/n
 export const START_DIRECT_UNISWAP_SEARCH = 1600834642;
 export const V3_FILL_EVENT_TOPIC = ['0x6869791f0a34781b29882982cc39e882768cf2c96995c2a110c577c53bc932d5'];
 export const V3_EXCHANGE_ADDRESS = '0x61935cbdd02287b511119ddb11aeb42f1593b7ef';
+export const V4_CANCEL_START_BLOCK = 11674215; // first seen block - 1
+export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f1569db3e84256ba981ba52753'];
+export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
+export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST 
+
+export const EXPIRED_RFQ_ORDER_ABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "orderHash",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "maker",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint64",
+            "name": "expiry",
+            "type": "uint64"
+        }
+    ],
+    "name": "ExpiredRfqOrder",
+    "type": "event"
+};
+
+export const V4_CANCEL_ABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "orderHash",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "maker",
+            "type": "address"
+        }
+    ],
+    "name": "OrderCancelled",
+    "type": "event"
+};
 
 export const TRANSFORMED_ERC20_ABI = {
     "anonymous": false,
