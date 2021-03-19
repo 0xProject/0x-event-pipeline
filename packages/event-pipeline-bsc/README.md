@@ -71,7 +71,7 @@ $ yarn start
 
 `MAX_BLOCKS_TO_SEARCH` - The maximum number of blocks to search for events at once.
 
-`CHAIN_ID` - The Ethereum chain id.
+`CHAIN_ID` - The BSC chain id.
 
 `BLOCK_FINALITY_THRESHOLD` - How many blocks before the current block to end the search, allowing you to limit your event scrape to blocks that are relatively more settled.
 
