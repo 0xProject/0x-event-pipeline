@@ -1,4 +1,4 @@
-export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events';
+export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://api:api@localhost/events';
 export const DEFAULT_START_BLOCK_OFFSET = 35;
 export const DEFAULT_MAX_BLOCKS_TO_PULL = 100;
 export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 100;
@@ -28,7 +28,7 @@ export const V3_EXCHANGE_ADDRESS = '0x61935cbdd02287b511119ddb11aeb42f1593b7ef';
 export const V4_CANCEL_START_BLOCK = 11674215; // first seen block - 1
 export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f1569db3e84256ba981ba52753'];
 export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
-export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST 
+export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST
 
 export const EXPIRED_RFQ_ORDER_ABI = {
     "anonymous": false,
