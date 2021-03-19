@@ -15,10 +15,7 @@ const throwError = (err: string) => {
 };
 
 const supportedChains = [
-    1, // Mainnet
-    3, // Ropsten
-    4, // Rinkeby
-    42, // Kovan
+    56 // BSC
 ];
 
 interface BridgeContract {
@@ -52,10 +49,7 @@ function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
 
 // The earlier of the exchange or staking contract being created
 const firstSearchBlockMap: { [chainId: number]: number } = {
-    1: 8952139,
-    3: 6659261,
-    4: 5339071,
-    42: 14425606,
+    56: 5375047 // the block when EP was deployed on BSC // BSC
 };
 
 export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL ? 
