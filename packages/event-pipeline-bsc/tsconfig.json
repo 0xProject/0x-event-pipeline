@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": ".",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "lib": ["es2017"],
+        "module": "commonjs",
+        "target": "es5",
+        "downlevelIteration": true,
+        "noImplicitReturns": true,
+        "pretty": true,
+        "skipLibCheck": true,
+        "typeRoots": ["../../node_modules/@0x/typescript-typings/types", "node_modules/@types", "../../node_modules/@types", "node_modules/@0x/typescript-typings/types"],
+        "strict": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true
+    },
+    "include": ["./src/**/*", "./test/**/*", "./migrations/**/*"]
+}
