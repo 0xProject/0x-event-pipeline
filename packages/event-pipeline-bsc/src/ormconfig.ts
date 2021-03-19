@@ -10,7 +10,6 @@ import {
     ParamsSetEvent,
     LastBlockProcessed,
     TransformedERC20Event,
-    TransactionExecutionEvent,
     NativeFill,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
@@ -26,7 +25,6 @@ const entities = [
     ParamsSetEvent,
     LastBlockProcessed,
     TransformedERC20Event,
-    TransactionExecutionEvent,
     NativeFill,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
@@ -41,7 +39,7 @@ const config: ConnectionOptions = {
     logging: ['error'],
     entities,
     migrations: ['lib/migrations/*.js'],
-    migrationsTableName: 'event_pipeline_migrations'
+    migrationsTableName: 'bsc_event_pipeline_migrations'
 };
 
 module.exports = config;

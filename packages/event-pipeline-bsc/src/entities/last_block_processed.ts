@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { numberToBigIntTransformer } from '../utils';
 
 // Table of the block number for which an event was last updated
-@Entity({ name: 'last_block_processed', schema: 'events' })
+@Entity({ name: 'last_block_processed', schema: 'events_bsc' })
 export class LastBlockProcessed {
     // When the event was scraped
     @PrimaryColumn({ name: 'event_name', type: 'varchar' })

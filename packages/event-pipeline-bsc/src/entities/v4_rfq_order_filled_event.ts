@@ -5,7 +5,7 @@ import { Event } from './event';
 import { bigNumberTransformer } from '../utils';
 
 // Emitted whenever an `RfqOrder` is filled.
-@Entity({ name: 'v4_rfq_order_filled_events', schema: 'events' })
+@Entity({ name: 'v4_rfq_order_filled_events', schema: 'events_bsc' })
 export class V4RfqOrderFilledEvent extends Event {
 
     @Column({ name: 'order_hash', type: 'varchar' })

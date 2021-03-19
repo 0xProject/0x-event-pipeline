@@ -5,7 +5,7 @@ import { Event } from './event';
 import { bigNumberTransformer } from '../utils';
 
 // Emitted whenever a `LimitOrder` or `RfqOrder` is filled.
-@Entity({ name: 'native_fills', schema: 'events' })
+@Entity({ name: 'native_fills', schema: 'events_bsc' })
 export class NativeFill extends Event {
 
     @Column({ name: 'order_hash' })

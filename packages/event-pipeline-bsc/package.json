@@ -1,5 +1,5 @@
 {
-    "name": "0x-event-pipeline",
+    "name": "0x-event-pipeline-bsc",
     "version": "0.0.1",
     "description": "A node.js app for pulling 0x event info to inform things like staking.",
     "license": "Apache-2.0",
