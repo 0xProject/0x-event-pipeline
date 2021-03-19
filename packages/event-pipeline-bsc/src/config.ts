@@ -73,7 +73,6 @@ if (!supportedChains.includes(CHAIN_ID)) {
 export const FIRST_SEARCH_BLOCK = firstSearchBlockMap[CHAIN_ID];
 export const BLOCK_FINALITY_THRESHOLD = process.env.BLOCK_FINALITY_THRESHOLD ? parseInt(process.env.BLOCK_FINALITY_THRESHOLD, 10) : DEFAULT_BLOCK_FINALITY_THRESHOLD;
 export const SECONDS_BETWEEN_RUNS = process.env.SECONDS_BETWEEN_RUNS ? parseInt(process.env.SECONDS_BETWEEN_RUNS, 10) : DEFAULT_SECONDS_BETWEEN_RUNS;
-export const BASE_GITHUB_LOGO_URL = process.env.BASE_GITHUB_LOGO_URL || DEFAULT_BASE_GITHUB_LOGO_URL;
 export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS)) : bridgeContracts;
 export const BRIDGE_TRADE_TOPIC = ['0x349fc08071558d8e3aa92dec9396e4e9f2dfecd6bb9065759d1932e7da43b8a9'];
 export const BRIDGEFILL_EVENT_TOPIC = ['0xff3bc5e46464411f331d1b093e1587d2d1aa667f5618f98a95afc4132709d3a9'];
