@@ -6,7 +6,7 @@ import { bigNumberTransformer } from '../utils';
 
 
 // These events come directly from the Exchange contract and are fired for meta transactions
-@Entity({ name: 'expired_rfq_order_events', schema: 'events' })
+@Entity({ name: 'expired_rfq_order_events', schema: 'events_bsc' })
 export class ExpiredRfqOrderEvent extends Event {
 
     // The hash of the order that was cancelled.

@@ -5,7 +5,7 @@ import { Event } from './event';
 import { bigNumberTransformer } from '../utils';
 
 // These events are fired when someone uses the exchange proxy to trade
-@Entity({ name: 'transformed_erc20_events', schema: 'events' })
+@Entity({ name: 'transformed_erc20_events', schema: 'events_bsc' })
 export class TransformedERC20Event extends Event {
     // The address of the taker
     @Column({ name: 'taker', type: 'varchar' })

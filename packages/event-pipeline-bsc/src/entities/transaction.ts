@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { numberToBigIntTransformer, bigNumberTransformer } from '../utils';
 
 // Transaction info for TX containing events
-@Entity({ name: 'transactions', schema: 'events' })
+@Entity({ name: 'transactions', schema: 'events_bsc' })
 export class Transaction {
     // When the event was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })

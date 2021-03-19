@@ -5,7 +5,7 @@ import { numberToBigIntTransformer, bigNumberTransformer } from '../utils';
 import { BigNumber } from '@0x/utils';
 
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.
-@Entity({ name: 'params_set_events', schema: 'events' })
+@Entity({ name: 'params_set_events', schema: 'events_bsc' })
 export class ParamsSetEvent extends Event {
     // Minimum seconds between epochs.
     @Column({ name: 'epoch_duration_in_seconds', type: 'bigint', transformer: numberToBigIntTransformer })
