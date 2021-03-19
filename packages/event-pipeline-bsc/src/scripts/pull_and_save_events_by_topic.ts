@@ -10,7 +10,6 @@ import {
     V4RfqOrderFilledEvent, 
     V4LimitOrderFilledEvent, 
     NativeFill, 
-    FillEvent, 
     V4CancelEvent, 
     ExpiredRfqOrderEvent
 } from '../entities';

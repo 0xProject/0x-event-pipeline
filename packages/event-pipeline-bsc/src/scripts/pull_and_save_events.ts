@@ -8,8 +8,6 @@ import { Connection } from 'typeorm';
 import { PullAndSaveEvents } from './utils/event_utils';
 import { PullAndSaveWeb3 } from './utils/web3_utils';
 import { PullAndSaveTheGraphEvents } from './utils/thegraph_utils';
-
-import { EventsSource } from '../data_sources/events/0x_events';
 import { Web3Source } from '../data_sources/web3';
 import { UniswapV2Source } from '../data_sources/events/uniswap_events';
 import {
@@ -19,20 +17,10 @@ import {
 } from '../config';
 import { UNISWAPV2_SUBGRAPH_ENDPOINT, SUSHISWAP_SUBGRAPH_ENDPOINT } from '../constants';
 
-import {
-    ExchangeTransactionExecutionEventArgs
-} from '@0x/contract-wrappers';
-
-import { parseTransactionExecutionEvent } from '../parsers/events/transaction_execution_events';
-import {
-    ParamsSetEvent,
-    TransactionExecutionEvent,
-} from '../entities';
-
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
 });
-const eventsSource = new EventsSource(provider, CHAIN_ID);
+
 const uniswapV2Source = new UniswapV2Source();
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const pullAndSaveTheGraphEvents = new PullAndSaveTheGraphEvents();
@@ -59,7 +47,6 @@ export class EventScraper {
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false),
             pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true),
             pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true),
-            pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeTransactionExecutionEventArgs, TransactionExecutionEvent>(connection, latestBlockWithOffset, 'TransactionExecutionEvent', 'transaction_execution_events', eventsSource.getTransactionExecutionEventsAsync.bind(eventsSource), parseTransactionExecutionEvent),
         ]);
 
         const endTime = new Date().getTime();

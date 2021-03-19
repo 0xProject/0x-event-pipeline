@@ -14,7 +14,6 @@ import {
    parseTransactionLogs,
 } from '../../parsers/web3/parse_web3_objects';
 import {
-    parseErc20BridgeTransfer,
     parseBridgeFill
 } from '../../parsers/events/bridge_transfer_events';
 import { Web3Source } from '../../data_sources/web3';
@@ -67,14 +66,10 @@ export class PullAndSaveWeb3 {
         if (shouldLookForBridgeTrades) {
             const parsedBridgeTradesNested = rawTxReceipts.map(rawTxReceipt =>
                 rawTxReceipt.logs.map((l: RawLogEntry) => {
-                    if(l.topics[0] === BRIDGE_TRADE_TOPIC[0]) {
-                        return parseErc20BridgeTransfer(l);
+                    if(l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
+                        return parseBridgeFill(l);
                     } else {
-                        if(l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
-                            return parseBridgeFill(l);
-                        } else {
-                            return new ERC20BridgeTransferEvent();
-                        }
+                        return new ERC20BridgeTransferEvent();
                     }
                 })
             );
