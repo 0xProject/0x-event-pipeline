@@ -32,7 +32,8 @@ import {
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
+    BalancerSwapEvent,
 } from './entities';
 
 const entities = [
@@ -65,7 +66,8 @@ const entities = [
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
+    BalancerSwapEvent
 ];
 
 const config: ConnectionOptions = {

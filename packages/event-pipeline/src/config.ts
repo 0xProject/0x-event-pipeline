@@ -1,4 +1,4 @@
-import { 
+import {
     DEFAULT_LOCAL_POSTGRES_URI,
     DEFAULT_START_BLOCK_OFFSET,
     DEFAULT_MAX_BLOCKS_TO_PULL,
@@ -56,7 +56,7 @@ function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     const contracts = envVar.split('|');
     const bridgeContracts = contracts.map((element) => {
         const split = element.split('-');
-        return {contract: split[0], startingBlock: Number(split[1])} 
+        return {contract: split[0], startingBlock: Number(split[1])}
     });
     return bridgeContracts;
 }
@@ -69,8 +69,8 @@ const firstSearchBlockMap: { [chainId: number]: number } = {
     42: 14425606,
 };
 
-export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL ? 
-    process.env.ETHEREUM_RPC_URL : 
+export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL ?
+    process.env.ETHEREUM_RPC_URL :
     throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
 export const POSTGRES_URI = process.env.POSTGRES_URI || DEFAULT_LOCAL_POSTGRES_URI;
 export const SHOULD_SYNCHRONIZE = process.env.SHOULD_SYNCHRONIZE === 'true';
@@ -99,4 +99,3 @@ export const SCRAPE_CANCEL_EVENTS_FLAG = process.env.SCRAPE_CANCEL_EVENTS_FLAG ?
 export const SCRAPE_TRANSACTIONS_FLAG = process.env.SCRAPE_TRANSACTIONS_FLAG ?
     process.env.SCRAPE_TRANSACTIONS_FLAG === 'true'
     : DEFAULT_SCRAPE_TRANSACTIONS_FLAG;
-

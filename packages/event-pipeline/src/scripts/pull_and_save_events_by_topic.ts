@@ -4,15 +4,16 @@ import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/web3';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
-import { 
-    ERC20BridgeTransferEvent, 
-    TransformedERC20Event, 
-    V4RfqOrderFilledEvent, 
-    V4LimitOrderFilledEvent, 
-    NativeFill, 
-    FillEvent, 
-    V4CancelEvent, 
-    ExpiredRfqOrderEvent
+import {
+    ERC20BridgeTransferEvent,
+    TransformedERC20Event,
+    V4RfqOrderFilledEvent,
+    V4LimitOrderFilledEvent,
+    NativeFill,
+    FillEvent,
+    V4CancelEvent,
+    ExpiredRfqOrderEvent,
+    BalancerSwapEvent
 } from '../entities';
 
 import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK } from '../config';
@@ -30,7 +31,9 @@ import {
     V4_CANCEL_START_BLOCK,
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
-    MULTIPLEX_START_BLOCK
+    MULTIPLEX_START_BLOCK,
+    BALANCER_SWAP_TOPIC,
+    BALANCER_PROXY_ADDRESS
 
 } from '../constants';
 
@@ -42,6 +45,7 @@ import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
 import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
 import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
+import { parseBalancerSwapEvent } from '../parsers/events/balancer_swap_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
@@ -68,9 +72,10 @@ export class EventsByTopicScraper {
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromLimitV4', 'native_fills', LIMITORDERFILLED_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_FILL_START_BLOCK, parseNativeFillFromV4LimitOrderFilledEvent, {protocolVersion:'v4', nativeOrderType:'Limit Order'}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(connection, web3Source, latestBlockWithOffset, 'FillEvent', 'fill_events', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseFillEvent, {}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromV3', 'native_fills', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseNativeFillFromFillEvent, {protocolVersion:'v3'}),
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_CANCEL_START_BLOCK, parseV4CancelEvent, {}), 
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, MULTIPLEX_START_BLOCK, parseExpiredRfqOrderEvent, {}), 
-        
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_CANCEL_START_BLOCK, parseV4CancelEvent, {}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, MULTIPLEX_START_BLOCK, parseExpiredRfqOrderEvent, {}),
+            // using first search block cuz i have no idea why this matters
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<BalancerSwapEvent>(connection, web3Source, latestBlockWithOffset, 'BalancerSwapEvent', 'balancer_swap_events', BALANCER_SWAP_TOPIC, BALANCER_PROXY_ADDRESS, FIRST_SEARCH_BLOCK, parseBalancerSwapEvent, {}),
         ]);
 
         const endTime = new Date().getTime();

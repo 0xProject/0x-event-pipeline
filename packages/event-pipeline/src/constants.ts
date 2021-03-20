@@ -29,6 +29,48 @@ export const V4_CANCEL_START_BLOCK = 11674215; // first seen block - 1
 export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f1569db3e84256ba981ba52753'];
 export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
 export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST
+export const BALANCER_SWAP_TOPIC = ['0x908fb5ee8f16c6bc9bc3690973819f32a4d4b10188134543c88706e0e1d43378'];
+export const BALANCER_PROXY_ADDRESS = '0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21';
+
+// I created the ABI manually - I suspect there's a way to generate it automatically but not worth my time to figure out
+export const BALANCER_SWAP_ABI = {
+
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "caller",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "tokenAmountIn",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "tokenAmountOut",
+            "type": "uint256"
+        }
+    ],
+    "name": "BalancerSwap",
+    "type": "event"
+};
 
 export const EXPIRED_RFQ_ORDER_ABI = {
     "anonymous": false,
