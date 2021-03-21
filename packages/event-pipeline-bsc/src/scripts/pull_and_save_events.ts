@@ -5,7 +5,6 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import 'reflect-metadata';
 import { Connection } from 'typeorm';
 
-import { PullAndSaveEvents } from './utils/event_utils';
 import { PullAndSaveWeb3 } from './utils/web3_utils';
 import { Web3Source } from '../data_sources/web3';
 import {
@@ -18,7 +17,6 @@ const provider = web3Factory.getRpcProvider({
 });
 
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
-const pullAndSaveEvents = new PullAndSaveEvents();
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
 async function dummyAsync(): Promise<void> {
