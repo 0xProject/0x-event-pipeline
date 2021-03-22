@@ -408,6 +408,7 @@ export const stakingUtils = {
             epochEndTimestamp: epochReward.ending_timestamp,
             operatorRewardsPaidInEth: Number(epochReward.operator_reward || 0),
             membersRewardsPaidInEth: Number(epochReward.members_reward || 0),
+            memberZrxStaked: Number(epochReward.member_zrx_staked || 0),
             totalRewardsPaidInEth: Number(epochReward.total_reward || 0),
         }));
     },
