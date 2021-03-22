@@ -30,7 +30,8 @@ export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f
 export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
 export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST
 export const BALANCER_SWAP_TOPIC = ['0x908fb5ee8f16c6bc9bc3690973819f32a4d4b10188134543c88706e0e1d43378'];
-export const BALANCER_PROXY_ADDRESS = '0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21';
+export const BALANCER_PROXY_ADDRESS = '0x21c4509100443f756b6fff33382bc5e42849d49b'; // currently using a specific Bpool's address
+export const BALANCER_START_BLOCK = 12027350; // this is an arbitrary test block just to start out
 
 // I created the ABI manually - I suspect there's a way to generate it automatically but not worth my time to figure out
 export const BALANCER_SWAP_ABI = {
@@ -38,19 +39,19 @@ export const BALANCER_SWAP_ABI = {
     "anonymous": false,
     "inputs": [
         {
-            "indexed": false,
+            "indexed": true,
             "internalType": "address",
             "name": "caller",
             "type": "address"
         },
         {
-            "indexed": false,
+            "indexed": true,
             "internalType": "address",
             "name": "tokenIn",
             "type": "address"
         },
         {
-            "indexed": false,
+            "indexed": true,
             "internalType": "address",
             "name": "tokenOut",
             "type": "address"

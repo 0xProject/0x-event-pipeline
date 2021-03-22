@@ -11,7 +11,7 @@ export function parseBalancerSwapEvent(eventLog: RawLogEntry): BalancerSwapEvent
     parseEvent(eventLog, balancerSwapEvent);
     // decode the basic info directly into balancerSwapEvent
 
-    const decodedLog = abiCoder.decodeLog(BALANCER_SWAP_ABI.inputs, eventLog.data);
+    const decodedLog = abiCoder.decodeLog(BALANCER_SWAP_ABI.inputs, eventLog.data, eventLog.topics.slice(1,4));
 
     balancerSwapEvent.caller = decodedLog.caller.toLowerCase();
     balancerSwapEvent.tokenIn = decodedLog.tokenIn.toLowerCase();

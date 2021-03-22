@@ -21,7 +21,8 @@ export class PullAndSaveEvents {
 
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
-    
+        // logUtils.log(`For ${eventName}, Latest Block with Offset: ${latestBlockWithOffset}, Start Block: ${startBlock}, Max Blocks to Search: ${MAX_BLOCKS_TO_SEARCH}, End Block ${endBlock}`);
+
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs= await getterFunction(startBlock, endBlock);
 
@@ -31,9 +32,9 @@ export class PullAndSaveEvents {
         else {
             const parsedEventLogs = eventLogs.map(log => parser(log));
             const lastBlockProcessed: LastBlockProcessed = await this._lastBlockProcessedAsync(eventName, endBlock);
-        
+
             logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
-    
+
             await this._deleteOverlapAndSaveAsync<EVENT>(connection, parsedEventLogs, startBlock, endBlock, tableName, lastBlockProcessed);
         }
     }
@@ -50,7 +51,7 @@ export class PullAndSaveEvents {
         const queryResult = await connection.query(
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
-    
+
         logUtils.log(queryResult);
         const lastKnownBlock = queryResult[0] || {last_processed_block_number: FIRST_SEARCH_BLOCK};
 
@@ -66,28 +67,28 @@ export class PullAndSaveEvents {
         lastBlockProcessed: LastBlockProcessed,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
-            
+
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
             await queryRunner.manager.save(toSave);
             await queryRunner.manager.save(lastBlockProcessed);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
+
         } catch (err) {
-            
+
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
+
         } finally {
-            
+
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }

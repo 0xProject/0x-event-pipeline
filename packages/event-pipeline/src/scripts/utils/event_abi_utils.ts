@@ -34,11 +34,15 @@ export class PullAndSaveEventsByTopic {
         ): Promise<void> {
 
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
+        // logUtils.log(`For ${eventName}, Latest Block with Offset: ${latestBlockWithOffset}, Start Block: ${startBlock}, Max Blocks to Search: ${MAX_BLOCKS_TO_SEARCH}, End Block ${endBlock}`);
 
         logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
         // assert(topics.length === 1);
+
+        
 
         const logPullInfo: LogPullInfo = {
             address: contractAddress,
@@ -48,6 +52,11 @@ export class PullAndSaveEventsByTopic {
         };
 
         const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
+
+        // if(eventName == 'BalancerSwapEvent') {
+        //     logUtils.log(` !! Balancer event contract address: ${contractAddress} !!`);
+        //     logUtils.log(` !! Raw event: ${JSON.stringify(rawLogsArray, null, 2)}`);
+        // }
 
         await Promise.all(rawLogsArray.map(async rawLogs => {
             const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
@@ -81,6 +90,8 @@ export class PullAndSaveEventsByTopic {
 
         logUtils.log(queryResult);
         const lastKnownBlock = queryResult[0] || {last_processed_block_number: defaultStartBlock};
+
+        // logUtils.log(`For ${eventName}, Last Known Block: ${Number(lastKnownBlock.last_processed_block_number)}, Start Block Offset: ${START_BLOCK_OFFSET}`);
 
         return Math.min(Number(lastKnownBlock.last_processed_block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }

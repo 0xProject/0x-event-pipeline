@@ -33,7 +33,8 @@ import {
     V4_CANCEL_EVENT_TOPIC,
     MULTIPLEX_START_BLOCK,
     BALANCER_SWAP_TOPIC,
-    BALANCER_PROXY_ADDRESS
+    BALANCER_PROXY_ADDRESS,
+    BALANCER_START_BLOCK,
 
 } from '../constants';
 
@@ -74,8 +75,7 @@ export class EventsByTopicScraper {
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(connection, web3Source, latestBlockWithOffset, 'NativeFillFromV3', 'native_fills', V3_FILL_EVENT_TOPIC, V3_EXCHANGE_ADDRESS, FIRST_SEARCH_BLOCK, parseNativeFillFromFillEvent, {protocolVersion:'v3'}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, V4_CANCEL_START_BLOCK, parseV4CancelEvent, {}),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, MULTIPLEX_START_BLOCK, parseExpiredRfqOrderEvent, {}),
-            // using first search block cuz i have no idea why this matters
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<BalancerSwapEvent>(connection, web3Source, latestBlockWithOffset, 'BalancerSwapEvent', 'balancer_swap_events', BALANCER_SWAP_TOPIC, BALANCER_PROXY_ADDRESS, FIRST_SEARCH_BLOCK, parseBalancerSwapEvent, {}),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<BalancerSwapEvent>(connection, web3Source, latestBlockWithOffset, 'BalancerSwapEvent', 'balancer_swap_events', BALANCER_SWAP_TOPIC, BALANCER_PROXY_ADDRESS, BALANCER_START_BLOCK, parseBalancerSwapEvent, {}),
         ]);
 
         const endTime = new Date().getTime();

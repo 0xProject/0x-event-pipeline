@@ -4,7 +4,7 @@ import { Column, Entity } from 'typeorm';
 import { Event } from './event';
 import { bigNumberTransformer } from '../utils';
 
-// Emitted whenever an `RfqOrder` is filled.
+// Emitted whenever a Balancer swap is made
 @Entity({ name: 'balancer_swap_events', schema: 'events' })
 export class BalancerSwapEvent extends Event {
 
