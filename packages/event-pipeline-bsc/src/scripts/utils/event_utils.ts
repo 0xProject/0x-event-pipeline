@@ -26,7 +26,7 @@ export class PullAndSaveEvents {
         const eventLogs= await getterFunction(startBlock, endBlock);
 
         if (eventLogs === null) {
-            logUtils.log(`Encountered an error searching for ${eventName} events. Waiting until next iteration.`)
+            logUtils.log(`Encountered an error searching for ${eventName} events_bsc. Waiting until next iteration.`)
         }
         else {
             const parsedEventLogs = eventLogs.map(log => parser(log));
@@ -48,7 +48,7 @@ export class PullAndSaveEvents {
 
     private async _getStartBlockAsync(eventName: string, connection: Connection, latestBlockWithOffset: number): Promise<number> {
         const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
+            `SELECT last_processed_block_number FROM events_bsc.last_block_processed WHERE event_name = '${eventName}'`,
         );
     
         logUtils.log(queryResult);
@@ -73,7 +73,7 @@ export class PullAndSaveEvents {
         try {
             
             // delete events scraped prior to the most recent block range
-            await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
+            await queryRunner.manager.query(`DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
             await queryRunner.manager.save(toSave);
             await queryRunner.manager.save(lastBlockProcessed);
             

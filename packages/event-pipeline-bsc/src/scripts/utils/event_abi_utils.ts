@@ -76,7 +76,7 @@ export class PullAndSaveEventsByTopic {
 
     private async _getStartBlockAsync(eventName: string, connection: Connection, latestBlockWithOffset: number, defaultStartBlock: number): Promise<number> {
         const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
+            `SELECT last_processed_block_number FROM events_bsc.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
         logUtils.log(queryResult);
@@ -98,18 +98,18 @@ export class PullAndSaveEventsByTopic {
 
         let deleteQuery: string;
         if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
-            deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
+            deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
         } else {
             if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )
             {
               if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined )
               {
-                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
               } else {
-                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
               }
             } else {
-              deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+              deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
             }
         }
 

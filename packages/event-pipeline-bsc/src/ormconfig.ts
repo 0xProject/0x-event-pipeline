@@ -14,7 +14,8 @@ import {
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
+    ERC20BridgeTransferEvent,
 } from './entities';
 
 const entities = [
@@ -29,7 +30,8 @@ const entities = [
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
+    ERC20BridgeTransferEvent
 ];
 
 const config: ConnectionOptions = {

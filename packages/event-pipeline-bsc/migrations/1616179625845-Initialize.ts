@@ -45,7 +45,7 @@ create table events_bsc.erc20_bridge_transfer_events
 	from_token_amount numeric not null,
 	to_token_amount numeric not null,
 	"from" varchar not null,
-	"to" varchar not null,
+	"to" varchar,
 	direct_flag boolean,
 	direct_protocol varchar,
 	constraint "PK_0e29a12f959d1552d589f49c66a"

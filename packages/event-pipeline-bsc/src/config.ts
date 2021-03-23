@@ -25,14 +25,14 @@ interface BridgeContract {
 
 
 const bridgeContracts = [
-    { contract: '0x1c29670f7a77f1052d30813a0a4f632c78a02610', startingBlock: 9613431 },
-    { contract: '0x991c745401d5b5e469b8c3e2cb02c748f08754f1', startingBlock: 9613441 },
-    { contract: '0x6dc7950423ada9f56fb2c93a23edb787f1e29088', startingBlock: 9613455 },
-    { contract: '0x36691c4f426eb8f42f150ebde43069a31cb080ad', startingBlock: 9613448 },
-    { contract: '0x2818363fb1686c2720b05c4e789165909cd03fc9', startingBlock: 9684028 },
-    { contract: '0xc16f74b07e2409e869bae5de01b2265fe32d64e6', startingBlock: 9684280 },
-    { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 9684143 },
-    { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 9684978 },
+    { contract: '0x1c29670f7a77f1052d30813a0a4f632c78a02610', startingBlock: 5375047 },
+    { contract: '0x991c745401d5b5e469b8c3e2cb02c748f08754f1', startingBlock: 5375047 },
+    { contract: '0x6dc7950423ada9f56fb2c93a23edb787f1e29088', startingBlock: 5375047 },
+    { contract: '0x36691c4f426eb8f42f150ebde43069a31cb080ad', startingBlock: 5375047 },
+    { contract: '0x2818363fb1686c2720b05c4e789165909cd03fc9', startingBlock: 5375047 },
+    { contract: '0xc16f74b07e2409e869bae5de01b2265fe32d64e6', startingBlock: 5375047 },
+    { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 5375047 },
+    { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 5375047 },
 ]
 
 // Parses an environment variable for bridge contracts
@@ -68,7 +68,6 @@ export const FIRST_SEARCH_BLOCK = firstSearchBlockMap[CHAIN_ID];
 export const BLOCK_FINALITY_THRESHOLD = process.env.BLOCK_FINALITY_THRESHOLD ? parseInt(process.env.BLOCK_FINALITY_THRESHOLD, 10) : DEFAULT_BLOCK_FINALITY_THRESHOLD;
 export const SECONDS_BETWEEN_RUNS = process.env.SECONDS_BETWEEN_RUNS ? parseInt(process.env.SECONDS_BETWEEN_RUNS, 10) : DEFAULT_SECONDS_BETWEEN_RUNS;
 export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS)) : bridgeContracts;
-export const BRIDGE_TRADE_TOPIC = ['0x349fc08071558d8e3aa92dec9396e4e9f2dfecd6bb9065759d1932e7da43b8a9'];
-export const BRIDGEFILL_EVENT_TOPIC = ['0xff3bc5e46464411f331d1b093e1587d2d1aa667f5618f98a95afc4132709d3a9'];
+export const BRIDGEFILL_EVENT_TOPIC = ['0xe59e71a14fe90157eedc866c4f8c767d3943d6b6b2e8cd64dddcc92ab4c55af8'];
 export const START_BLOCK_TIMESTAMP_OFFSET = process.env.START_BLOCK_TIMESTAMP_OFFSET ? parseInt(process.env.START_BLOCK_TIMESTAMP_OFFSET, 10) : DEFAULT_START_BLOCK_TIMESTAMP_OFFSET;
 export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH ? parseInt(process.env.MAX_TIME_TO_SEARCH, 10) : DEFAULT_MAX_TIME_TO_SEARCH;
