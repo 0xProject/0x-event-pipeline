@@ -91,7 +91,7 @@ export class Web3Source {
                 const reqParams = {
                     fromBlock: logPull.fromBlock,
                     toBlock: logPull.toBlock,
-                    address: logPull.address,
+                    address: logPull.address==='nofilter'? null: logPull.address,
                     topics: logPull.topics,
                 }
                 let req = this._web3.eth.getPastLogs.request( reqParams, (err: any, data: RawLog) => {

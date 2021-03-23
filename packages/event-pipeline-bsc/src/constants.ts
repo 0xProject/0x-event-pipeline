@@ -1,4 +1,4 @@
-export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events';
+export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events_bsc';
 export const DEFAULT_START_BLOCK_OFFSET = 35;
 export const DEFAULT_MAX_BLOCKS_TO_PULL = 100;
 export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 100;
@@ -17,7 +17,7 @@ export const EXCHANGE_PROXY_ADDRESS = '0xdef1c0ded9bec7f1a1670819833240f027b25ef
 export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f1569db3e84256ba981ba52753'];
 export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
 export const EP_DEPLOYMENT_START_BLOCK = 5375047; // the block when EP was deployed on BSC
-export const SWAP_EVENT_TOPIC = ['0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822']
+export const SWAP_EVENT_TOPIC = ['0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822','0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff']
 
 export const SWAP_ABI = {
     "anonymous": false,
@@ -57,18 +57,11 @@ export const SWAP_ABI = {
             "internalType": "address",
             "name": "to",
             "type": "address"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint64",
-            "name": "expiry",
-            "type": "uint64"
         }
     ],
     "name": "Swap",
     "type": "event"
 };
-
 
 
 export const EXPIRED_RFQ_ORDER_ABI = {
@@ -161,9 +154,9 @@ export const BRIDGE_FILL_ABI = {
     "inputs": [
         {
             "indexed": false,
-            "internalType": "uint256",
+            "internalType": "bytes32",
             "name": "source",
-            "type": "uint256"
+            "type": "bytes32"
         },
         {
             "indexed": false,
@@ -369,98 +362,5 @@ export const LIMIT_ORDER_FILLED_ABI = {
         }
     ],
     "name": "LimitOrderFilled",
-    "type": "event"
-};
-
-export const V3_FILL_ABI = {
-
-    "anonymous": false,
-    "inputs": [
-        {
-            "indexed": true,
-            "internalType": "address",
-            "name": "makerAddress",
-            "type": "address"
-        },
-        {
-            "indexed": true,
-            "internalType": "address",
-            "name": "feeRecipientAddress",
-            "type": "address"
-        },
-        {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "makerAssetData",
-            "type": "bytes"
-        },
-        {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "takerAssetData",
-            "type": "bytes"
-        },
-        {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "makerFeeAssetData",
-            "type": "bytes"
-        },
-        {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "takerFeeAssetData",
-            "type": "bytes"
-        },
-        {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "orderHash",
-            "type": "bytes32"
-        },
-        {
-            "indexed": false,
-            "internalType": "address",
-            "name": "takerAddress",
-            "type": "address"
-        },
-        {
-            "indexed": false,
-            "internalType": "address",
-            "name": "senderAddress",
-            "type": "address"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "makerAssetFilledAmount",
-            "type": "uint256"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "takerAssetFilledAmount",
-            "type": "uint256"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "makerFeePaid",
-            "type": "uint256"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "takerFeePaid",
-            "type": "uint256"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "protocolFeePaid",
-            "type": "uint256"
-        }
-    ],
-    "name": "Fill",
     "type": "event"
 };

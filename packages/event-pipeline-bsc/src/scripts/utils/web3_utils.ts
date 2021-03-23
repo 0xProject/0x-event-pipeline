@@ -19,7 +19,7 @@ import {
 import { Web3Source } from '../../data_sources/web3';
 import { RawLogEntry } from 'ethereum-types';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET, BRIDGE_TRADE_TOPIC, BRIDGEFILL_EVENT_TOPIC } from '../../config';
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET, BRIDGEFILL_EVENT_TOPIC } from '../../config';
 
 
 export class PullAndSaveWeb3 {
@@ -100,7 +100,7 @@ export class PullAndSaveWeb3 {
 
     private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
         const queryResult = await connection.query(
-            `SELECT block_number FROM events.blocks ORDER BY block_number DESC LIMIT 1`,
+            `SELECT block_number FROM events_bsc.blocks ORDER BY block_number DESC LIMIT 1`,
         );
 
         const lastKnownBlock = queryResult[0] || {block_number: FIRST_SEARCH_BLOCK};
@@ -122,8 +122,8 @@ export class PullAndSaveWeb3 {
                         (SELECT DISTINCT
                             fe.transaction_hash
                             , fe.block_number
-                        FROM events.native_fills fe
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = fe.transaction_hash
+                        FROM events_bsc.native_fills fe
+                        LEFT JOIN events_bsc.${txTable} tx ON tx.transaction_hash = fe.transaction_hash
                         WHERE
                             fe.block_number < ${beforeBlock}
                             AND (
@@ -142,8 +142,8 @@ export class PullAndSaveWeb3 {
                         (SELECT DISTINCT
                             terc20.transaction_hash
                             , terc20.block_number
-                        FROM events.transformed_erc20_events terc20
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = terc20.transaction_hash
+                        FROM events_bsc.transformed_erc20_events terc20
+                        LEFT JOIN events_bsc.${txTable} tx ON tx.transaction_hash = terc20.transaction_hash
                         WHERE
                             terc20.block_number < ${beforeBlock}
                             AND (
@@ -152,46 +152,6 @@ export class PullAndSaveWeb3 {
                                 -- or tx where the block info has changed
                                 OR (
                                     tx.block_hash <> terc20.block_hash
-                                )
-                            )
-                        ORDER BY 2
-                        LIMIT 100)
-
-                        UNION
-
-                        (SELECT DISTINCT
-                            ce.transaction_hash
-                            , ce.block_number
-                        FROM events.cancel_events ce
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
-                        WHERE
-                            ce.block_number < ${beforeBlock}
-                            AND (
-                                -- tx info hasn't been pulled
-                                tx.transaction_hash IS NULL
-                                -- or tx where the block info has changed
-                                OR (
-                                    tx.block_hash <> ce.block_hash
-                                )
-                            )
-                        ORDER BY 2
-                        LIMIT 100)
-
-                        UNION
-
-                        (SELECT DISTINCT
-                            ce.transaction_hash
-                            , ce.block_number
-                        FROM events.cancel_up_to_events ce
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
-                        WHERE
-                            ce.block_number < ${beforeBlock}
-                            AND (
-                                -- tx info hasn't been pulled
-                                tx.transaction_hash IS NULL
-                                -- or tx where the block info has changed
-                                OR (
-                                    tx.block_hash <> ce.block_hash
                                 )
                             )
                         ORDER BY 2
@@ -214,8 +174,8 @@ export class PullAndSaveWeb3 {
                         (SELECT DISTINCT
                             bte.transaction_hash
                             , bte.block_number
-                        FROM events.erc20_bridge_transfer_events bte
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = bte.transaction_hash
+                        FROM events_bsc.erc20_bridge_transfer_events bte
+                        LEFT JOIN events_bsc.${txTable} tx ON tx.transaction_hash = bte.transaction_hash
                         WHERE
                             bte.block_number < ${beforeBlock}
                             AND (
@@ -257,7 +217,7 @@ export class PullAndSaveWeb3 {
         try {
 
             // delete events scraped prior to the most recent block range
-            await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
+            await queryRunner.manager.query(`DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
             await queryRunner.manager.save(toSave);
 
             // commit transaction now:
@@ -290,7 +250,7 @@ export class PullAndSaveWeb3 {
         await queryRunner.startTransaction();
         try {
 
-            await queryRunner.manager.query(`DELETE FROM events.transactions WHERE transaction_hash IN (${txHashList})`);
+            await queryRunner.manager.query(`DELETE FROM events_bsc.transactions WHERE transaction_hash IN (${txHashList})`);
 
             await queryRunner.manager.save(transactions);
 
@@ -326,9 +286,9 @@ export class PullAndSaveWeb3 {
         await queryRunner.startTransaction();
         try {
             await queryRunner.manager.query(`
-                DELETE FROM events.transaction_receipts WHERE transaction_hash IN (${txHashList});
-                DELETE FROM events.transaction_logs WHERE transaction_hash IN (${txHashList});
-                DELETE FROM events.erc20_bridge_transfer_events WHERE transaction_hash IN (${txHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
+                DELETE FROM events_bsc.transaction_receipts WHERE transaction_hash IN (${txHashList});
+                DELETE FROM events_bsc.transaction_logs WHERE transaction_hash IN (${txHashList});
+                DELETE FROM events_bsc.erc20_bridge_transfer_events WHERE transaction_hash IN (${txHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
             `);
 
             await Promise.all([
