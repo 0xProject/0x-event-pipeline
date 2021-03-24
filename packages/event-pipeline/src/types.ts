@@ -7,6 +7,4 @@ export enum ProxyType {
     ERC20Bridge = 'erc20Bridge',
 }
 
-export type EventName = 
-    'fill' |
-    'stakingPoolCreated';
+export type EventName = 'fill' | 'stakingPoolCreated';

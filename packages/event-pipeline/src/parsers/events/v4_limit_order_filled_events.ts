@@ -7,7 +7,7 @@ import { parseEvent } from './parse_event';
 import { LIMIT_ORDER_FILLED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrderFilledEvent{
+export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrderFilledEvent {
     const limitOrderFilledEvent = new V4LimitOrderFilledEvent();
     parseEvent(eventLog, limitOrderFilledEvent);
     // decode the basic info directly into limitOrderFilledEvent
@@ -31,7 +31,7 @@ export function parseV4LimitOrderFilledEvent(eventLog: RawLogEntry): V4LimitOrde
     return limitOrderFilledEvent;
 }
 
-export function parseNativeFillFromV4LimitOrderFilledEvent(eventLog: RawLogEntry): NativeFill{
+export function parseNativeFillFromV4LimitOrderFilledEvent(eventLog: RawLogEntry): NativeFill {
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
     // decode the basic info directly into nativeFill

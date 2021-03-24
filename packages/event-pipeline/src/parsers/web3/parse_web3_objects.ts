@@ -1,10 +1,5 @@
 import { BigNumber } from '@0x/utils';
-import { 
-    Block,
-    Transaction,
-    TransactionLogs,
-    TransactionReceipt,
-} from '../../entities';
+import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { BlockWithoutTransactionData, Transaction as RawTx, TransactionReceipt as RawReceipt } from 'ethereum-types';
 
 /**
@@ -27,15 +22,15 @@ export function parseTransaction(rawTx: RawTx): Transaction {
     transaction.gas = new BigNumber(rawTx.gas);
     transaction.input = rawTx.input;
 
-    if(transaction.input.includes('869584cd')) {
+    if (transaction.input.includes('869584cd')) {
         const bytesPos = rawTx.input.indexOf('869584cd');
-        transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos+32,bytesPos+72));
-        const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos+128,bytesPos+136),16)
+        transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
+        const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
         transaction.quoteTimestamp = isNaN(parsedQuoteTimestamp) ? null : parsedQuoteTimestamp;
-        transaction.quoteId = rawTx.input.slice(bytesPos+118,bytesPos+128);
-    } else if(transaction.input.includes('fbc019a7')) {
+        transaction.quoteId = rawTx.input.slice(bytesPos + 118, bytesPos + 128);
+    } else if (transaction.input.includes('fbc019a7')) {
         const bytesPos = rawTx.input.indexOf('fbc019a7');
-        transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos+32,bytesPos+72));
+        transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         transaction.quoteTimestamp = null;
     }
 
@@ -74,7 +69,6 @@ export function parseTransactionLogs(rawReceipt: RawReceipt): TransactionLogs {
 
     return transactionLogs;
 }
-
 
 /**
  * Converts a raw block into a Block entity

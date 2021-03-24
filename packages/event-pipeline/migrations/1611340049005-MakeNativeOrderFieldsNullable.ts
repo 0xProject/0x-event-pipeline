@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner, TableColumn} from "typeorm";
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 const nativeFillsColumnsToNullable = [
     {
@@ -23,13 +23,11 @@ const nativeFillsColumnsToNullableReverse = [
 ];
 
 export class MakeNativeOrderFieldsNullable1611340049005 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
-      await queryRunner.changeColumns('events.native_fills', nativeFillsColumnsToNullable);
+        await queryRunner.changeColumns('events.native_fills', nativeFillsColumnsToNullable);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
-      await queryRunner.changeColumns('events.native_fills', nativeFillsColumnsToNullableReverse);
+        await queryRunner.changeColumns('events.native_fills', nativeFillsColumnsToNullableReverse);
     }
-
 }

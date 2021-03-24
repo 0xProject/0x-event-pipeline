@@ -9,16 +9,19 @@ import { parseEvent } from './parse_event';
  * TransactionExecutionEvent entities.
  * @param eventLogs Raw event logs (e.g. returned from contract-wrappers).
  */
-export function parseTransactionExecutionEvents(eventLogs: LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>[]): TransactionExecutionEvent[] {
-    return eventLogs.map(event => parseTransactionExecutionEvent(event))
+export function parseTransactionExecutionEvents(
+    eventLogs: LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>[],
+): TransactionExecutionEvent[] {
+    return eventLogs.map(event => parseTransactionExecutionEvent(event));
 }
 
 /**
  * Converts a raw event log for a fill event into an ExchangeFillEvent entity.
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
-export function parseTransactionExecutionEvent(eventLog: LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>): TransactionExecutionEvent {
-
+export function parseTransactionExecutionEvent(
+    eventLog: LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>,
+): TransactionExecutionEvent {
     const transactionExecutionEvent = new TransactionExecutionEvent();
     parseEvent(eventLog, transactionExecutionEvent);
 

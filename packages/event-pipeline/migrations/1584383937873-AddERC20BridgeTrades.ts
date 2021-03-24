@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsERC20BridgeTransferEventsTable = new Table({
     name: 'events.erc20_bridge_transfer_events',
@@ -37,7 +37,6 @@ const dropBridgeTradesIndexQuery = `
 `;
 
 export class AddERC20BridgeTrades1584383937873 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsERC20BridgeTransferEventsTable);
         await queryRunner.query(createBridgeTradesIndexQuery);
@@ -47,5 +46,4 @@ export class AddERC20BridgeTrades1584383937873 implements MigrationInterface {
         await queryRunner.query(dropBridgeTradesIndexQuery);
         await queryRunner.dropTable(eventsERC20BridgeTransferEventsTable);
     }
-
 }

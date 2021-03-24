@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const upQuery = `
     DROP VIEW IF EXISTS staking.address_pool_epoch_rewards;
@@ -156,11 +156,11 @@ const downQuery = `
 `;
 
 export class HandleZeroRewardsSharingPoolsRewardsView1606052182276 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<any> {
-    await queryRunner.query(upQuery);
-  }
+    public async up(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.query(upQuery);
+    }
 
-  public async down(queryRunner: QueryRunner): Promise<any> {
-    await queryRunner.query(downQuery);
-  }
+    public async down(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.query(downQuery);
+    }
 }

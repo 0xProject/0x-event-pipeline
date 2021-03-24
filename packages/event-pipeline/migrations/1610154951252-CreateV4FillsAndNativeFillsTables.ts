@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsRfqOrderFillsV4Table = new Table({
     name: 'events.v4_rfq_order_filled_events',
@@ -21,7 +21,6 @@ const eventsRfqOrderFillsV4Table = new Table({
     ],
 });
 
-
 const createRfqOrderFillsV4IndexQuery = `
     CREATE INDEX rfq_order_fills_v4_transaction_hash_index
     ON events.v4_rfq_order_filled_events (transaction_hash);
@@ -38,7 +37,6 @@ const dropRfqOrderFillsV4IndexQuery = `
     DROP INDEX events.rfq_order_fills_v4_block_number_index;
     DROP INDEX events.rfq_order_fills_v4_maker_index;
 `;
-
 
 const eventsLimitOrderFillsV4Table = new Table({
     name: 'events.v4_limit_order_filled_events',
@@ -63,7 +61,6 @@ const eventsLimitOrderFillsV4Table = new Table({
         { name: 'pool', type: 'varchar' },
     ],
 });
-
 
 const createLimitOrderFillsV4IndexQuery = `
     CREATE INDEX limit_order_fills_v4_transaction_hash_index
@@ -113,7 +110,6 @@ const eventsNativeFillTable = new Table({
     ],
 });
 
-
 const createNativeFillsIndexQuery = `
     CREATE INDEX native_fills_transaction_hash_index
     ON events.native_fills (transaction_hash);
@@ -132,7 +128,6 @@ const dropNativeFillsIndexQuery = `
 `;
 
 export class CreateV4FillsAndNativeFillsTables1610154951252 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsRfqOrderFillsV4Table);
         await queryRunner.query(createRfqOrderFillsV4IndexQuery);
@@ -150,5 +145,4 @@ export class CreateV4FillsAndNativeFillsTables1610154951252 implements Migration
         await queryRunner.query(dropNativeFillsIndexQuery);
         await queryRunner.dropTable(eventsNativeFillTable);
     }
-
 }

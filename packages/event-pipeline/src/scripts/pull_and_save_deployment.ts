@@ -30,36 +30,31 @@ export class DeploymentScraper {
         logUtils.log(`finished pulling staking proxy deployment info`);
 
         await this._deleteAndSaveDeploymentAsync(connection, stakingProxyDeployment);
-    };
+    }
 
     private async _deleteAndSaveDeploymentAsync(
         connection: Connection,
         stakingProxyDeployment: StakingProxyDeployment,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
-    
+
         await queryRunner.connect();
-    
+
         await queryRunner.startTransaction();
         try {
-            
             // delete any previous entry and overwrite
             await queryRunner.manager.query(`DELETE FROM events.staking_proxy_deployment WHERE TRUE`);
             await queryRunner.manager.save(stakingProxyDeployment);
-            
+
             // commit transaction now:
             await queryRunner.commitTransaction();
-            
         } catch (err) {
-            
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-            
         } finally {
-            
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }
     }
-};
+}

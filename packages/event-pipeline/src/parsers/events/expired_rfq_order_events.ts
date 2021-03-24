@@ -6,7 +6,7 @@ import { parseEvent } from './parse_event';
 import { EXPIRED_RFQ_ORDER_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseExpiredRfqOrderEvent(eventLog: RawLogEntry): ExpiredRfqOrderEvent{
+export function parseExpiredRfqOrderEvent(eventLog: RawLogEntry): ExpiredRfqOrderEvent {
     const expiredRfqOrderEvent = new ExpiredRfqOrderEvent();
     parseEvent(eventLog, expiredRfqOrderEvent);
 

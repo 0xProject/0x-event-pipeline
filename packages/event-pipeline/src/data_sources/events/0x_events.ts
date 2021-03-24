@@ -41,9 +41,7 @@ export class EventsSource {
         startBlock: number,
         endBlock: number,
     ): Promise<Array<LogWithDecodedArgs<ExchangeFillEventArgs>> | null> {
-        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeFillEventArgs>(
-            ExchangeEvents.Fill,
-        );
+        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeFillEventArgs>(ExchangeEvents.Fill);
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }
 
@@ -61,9 +59,7 @@ export class EventsSource {
         startBlock: number,
         endBlock: number,
     ): Promise<Array<LogWithDecodedArgs<ExchangeCancelEventArgs>> | null> {
-        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeCancelEventArgs>(
-            ExchangeEvents.Cancel,
-        );
+        const getterFunction = this._makeGetterFuncForExchangeEventType<ExchangeCancelEventArgs>(ExchangeEvents.Cancel);
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }
 
@@ -81,9 +77,7 @@ export class EventsSource {
         startBlock: number,
         endBlock: number,
     ): Promise<Array<LogWithDecodedArgs<StakingStakeEventArgs>> | null> {
-        const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakeEventArgs>(
-            StakingEvents.Stake,
-        );
+        const getterFunction = this._makeGetterFuncForStakingEventType<StakingStakeEventArgs>(StakingEvents.Stake);
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }
 
@@ -91,9 +85,7 @@ export class EventsSource {
         startBlock: number,
         endBlock: number,
     ): Promise<Array<LogWithDecodedArgs<StakingUnstakeEventArgs>> | null> {
-        const getterFunction = this._makeGetterFuncForStakingEventType<StakingUnstakeEventArgs>(
-            StakingEvents.Unstake,
-        );
+        const getterFunction = this._makeGetterFuncForStakingEventType<StakingUnstakeEventArgs>(StakingEvents.Unstake);
         return getEventsWithPaginationAsync(getterFunction, startBlock, endBlock);
     }
 

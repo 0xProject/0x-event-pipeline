@@ -12,7 +12,7 @@ export function convertAssetProxyIdToType(assetProxyId: AssetProxyId): ProxyType
             return ProxyType.ERC20;
         case AssetProxyId.ERC721:
             return ProxyType.ERC721;
-        case AssetProxyId.MultiAsset: 
+        case AssetProxyId.MultiAsset:
             return ProxyType.MultiAsset;
         case AssetProxyId.StaticCall:
             return ProxyType.StaticCall;

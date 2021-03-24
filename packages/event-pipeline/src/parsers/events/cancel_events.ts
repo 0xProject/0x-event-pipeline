@@ -15,7 +15,6 @@ import { parse0xAssetTokenAddress } from '../utils/asset_data_utils';
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
 export function parseCancelEvent(eventLog: LogWithDecodedArgs<ExchangeCancelEventArgs>): CancelEvent {
-
     const cancelEvent = new CancelEvent();
     parseEvent(eventLog, cancelEvent);
 
@@ -58,7 +57,6 @@ export function parseCancelEvent(eventLog: LogWithDecodedArgs<ExchangeCancelEven
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
 export function parseCancelUpToEvent(eventLog: LogWithDecodedArgs<ExchangeCancelUpToEventArgs>): CancelUpToEvent {
-
     const cancelUpToEvent = new CancelUpToEvent();
     parseEvent(eventLog, cancelUpToEvent);
 

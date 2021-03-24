@@ -1,15 +1,15 @@
-import { 
-        StakeEvent,
-        UnstakeEvent,
-        MoveStakeEvent,
-        EpochEndedEvent,
-        StakingPoolCreatedEvent,
-        StakingPoolEarnedRewardsInEpochEvent,
-        MakerStakingPoolSetEvent,
-        ParamsSetEvent,
-        OperatorShareDecreasedEvent,
-        EpochFinalizedEvent,
-        RewardsPaidEvent,
+import {
+    StakeEvent,
+    UnstakeEvent,
+    MoveStakeEvent,
+    EpochEndedEvent,
+    StakingPoolCreatedEvent,
+    StakingPoolEarnedRewardsInEpochEvent,
+    MakerStakingPoolSetEvent,
+    ParamsSetEvent,
+    OperatorShareDecreasedEvent,
+    EpochFinalizedEvent,
+    RewardsPaidEvent,
 } from '../../entities';
 import { parseEvent } from './parse_event';
 import {
@@ -78,7 +78,9 @@ export function parseMoveStakeEvent(eventLog: LogWithDecodedArgs<StakingMoveStak
  * Converts a raw event log for a stakingPoolCreated event into an StakingPoolCreatedEvent entity.
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
-export function parseStakingPoolCreatedEvent(eventLog: LogWithDecodedArgs<StakingStakingPoolCreatedEventArgs>): StakingPoolCreatedEvent {
+export function parseStakingPoolCreatedEvent(
+    eventLog: LogWithDecodedArgs<StakingStakingPoolCreatedEventArgs>,
+): StakingPoolCreatedEvent {
     const parsedEvent = new StakingPoolCreatedEvent();
     parseEvent(eventLog, parsedEvent);
 
@@ -93,7 +95,9 @@ export function parseStakingPoolCreatedEvent(eventLog: LogWithDecodedArgs<Stakin
  * Converts a raw event log for a stakingPoolEarnedRewardsInEpoch event into an StakingPoolEarnedRewardsInEpochEvent entity.
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
-export function parseStakingPoolEarnedRewardsInEpochEvent(eventLog: LogWithDecodedArgs<StakingStakingPoolEarnedRewardsInEpochEventArgs>): StakingPoolEarnedRewardsInEpochEvent {
+export function parseStakingPoolEarnedRewardsInEpochEvent(
+    eventLog: LogWithDecodedArgs<StakingStakingPoolEarnedRewardsInEpochEventArgs>,
+): StakingPoolEarnedRewardsInEpochEvent {
     const parsedEvent = new StakingPoolEarnedRewardsInEpochEvent();
     parseEvent(eventLog, parsedEvent);
 
@@ -107,7 +111,9 @@ export function parseStakingPoolEarnedRewardsInEpochEvent(eventLog: LogWithDecod
  * Converts a raw event log for a makerStakingPoolSet event into an MakerStakingPoolSetEvent entity.
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
-export function parseMakerStakingPoolSetEvent(eventLog: LogWithDecodedArgs<StakingMakerStakingPoolSetEventArgs>): MakerStakingPoolSetEvent {
+export function parseMakerStakingPoolSetEvent(
+    eventLog: LogWithDecodedArgs<StakingMakerStakingPoolSetEventArgs>,
+): MakerStakingPoolSetEvent {
     const parsedEvent = new MakerStakingPoolSetEvent();
     parseEvent(eventLog, parsedEvent);
 
@@ -138,7 +144,9 @@ export function parseParamsSetEvent(eventLog: LogWithDecodedArgs<StakingParamsSe
  * Converts a raw event log for a operatorShareDecreased event into an OperatorShareDecreasedEvent entity.
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
-export function parseOperatorShareDecreasedEvent(eventLog: LogWithDecodedArgs<StakingOperatorShareDecreasedEventArgs>): OperatorShareDecreasedEvent {
+export function parseOperatorShareDecreasedEvent(
+    eventLog: LogWithDecodedArgs<StakingOperatorShareDecreasedEventArgs>,
+): OperatorShareDecreasedEvent {
     const parsedEvent = new OperatorShareDecreasedEvent();
     parseEvent(eventLog, parsedEvent);
 
@@ -148,7 +156,6 @@ export function parseOperatorShareDecreasedEvent(eventLog: LogWithDecodedArgs<St
 
     return parsedEvent;
 }
-
 
 /**
  * Converts a raw event log for a epochEnded event into an EpochEndedEvent entity.
@@ -171,7 +178,9 @@ export function parseEpochEndedEvent(eventLog: LogWithDecodedArgs<StakingEpochEn
  * Converts a raw event log for a epochFinalized event into an EpochFinalizedEvent entity.
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
-export function parseEpochFinalizedEvent(eventLog: LogWithDecodedArgs<StakingEpochFinalizedEventArgs>): EpochFinalizedEvent {
+export function parseEpochFinalizedEvent(
+    eventLog: LogWithDecodedArgs<StakingEpochFinalizedEventArgs>,
+): EpochFinalizedEvent {
     const parsedEvent = new EpochFinalizedEvent();
     parseEvent(eventLog, parsedEvent);
 
@@ -197,4 +206,3 @@ export function parseRewardsPaidEvent(eventLog: LogWithDecodedArgs<StakingReward
 
     return parsedEvent;
 }
-

@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const upQuery = `
     CREATE OR REPLACE VIEW staking.pool_epoch_operator_share AS (
@@ -43,7 +43,6 @@ const downQuery = `
 `;
 
 export class FixRewardsShared1591315195502 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(upQuery);
     }

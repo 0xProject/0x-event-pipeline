@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsTransactionExecutionEvents = new Table({
     name: 'events.transaction_execution_events',
@@ -41,9 +41,7 @@ const revertChangeQuoteIdToVarchar = `
     ALTER COLUMN quote_id TYPE BIGINT USING quote_id::BIGINT;
 `;
 
-
 export class AddTransactionExecutionEvents1597875723415 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsTransactionExecutionEvents);
         await queryRunner.query(createIndexQuery);
@@ -55,5 +53,4 @@ export class AddTransactionExecutionEvents1597875723415 implements MigrationInte
         await queryRunner.dropTable(eventsTransactionExecutionEvents);
         await queryRunner.query(revertChangeQuoteIdToVarchar);
     }
-
 }

@@ -32,7 +32,7 @@ import {
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
 } from './entities';
 
 const entities = [
@@ -65,7 +65,7 @@ const entities = [
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
 ];
 
 const config: ConnectionOptions = {
@@ -75,7 +75,7 @@ const config: ConnectionOptions = {
     logging: ['error'],
     entities,
     migrations: ['lib/migrations/*.js'],
-    migrationsTableName: 'event_pipeline_migrations'
+    migrationsTableName: 'event_pipeline_migrations',
 };
 
 module.exports = config;

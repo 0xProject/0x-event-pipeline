@@ -5,9 +5,12 @@ import { BigNumber } from '@0x/utils';
 
 export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20BridgeTransferEvent {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
-    
+
     // set the 'from' field as an existing bridge address, sushi or Uniswap
-    const from = protocol === 'Sushiswap' ? '0x47ed0262a0b688dcb836d254c6a2e96b6c48a9f5' : '0xdcd6011f4c6b80e470d9487f5871a0cba7c93f48';
+    const from =
+        protocol === 'Sushiswap'
+            ? '0x47ed0262a0b688dcb836d254c6a2e96b6c48a9f5'
+            : '0xdcd6011f4c6b80e470d9487f5871a0cba7c93f48';
 
     eRC20BridgeTransferEvent.observedTimestamp = new Date().getTime();
     eRC20BridgeTransferEvent.contractAddress = swap.pair.id;
@@ -22,10 +25,18 @@ export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20
     eRC20BridgeTransferEvent.blockNumber = Number(swap.transaction.blockNumber);
 
     // scale the values to the raw amounts
-    const amount0In = new BigNumber(swap.amount0In).times(new BigNumber(10).pow(new BigNumber(swap.pair.token0.decimals)));
-    const amount1In = new BigNumber(swap.amount1In).times(new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)));
-    const amount0Out = new BigNumber(swap.amount0Out).times(new BigNumber(10).pow(new BigNumber(swap.pair.token0.decimals)));
-    const amount1Out = new BigNumber(swap.amount1Out).times(new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)));
+    const amount0In = new BigNumber(swap.amount0In).times(
+        new BigNumber(10).pow(new BigNumber(swap.pair.token0.decimals)),
+    );
+    const amount1In = new BigNumber(swap.amount1In).times(
+        new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)),
+    );
+    const amount0Out = new BigNumber(swap.amount0Out).times(
+        new BigNumber(10).pow(new BigNumber(swap.pair.token0.decimals)),
+    );
+    const amount1Out = new BigNumber(swap.amount1Out).times(
+        new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)),
+    );
 
     const fromToken = amount0In.gt(amount1In) ? swap.pair.token0 : swap.pair.token1;
     const toToken = amount0Out.gt(amount1Out) ? swap.pair.token0 : swap.pair.token1;
