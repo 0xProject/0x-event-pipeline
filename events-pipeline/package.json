@@ -1,5 +1,6 @@
 {
     "name": "0x-event-pipeline",
+    "private": true,
     "version": "0.0.1",
     "description": "A node.js app for pulling 0x event info to inform things like staking.",
     "license": "Apache-2.0",
@@ -25,10 +26,13 @@
     },
     "devDependencies": {
         "@0x/tslint-config": "^3.0.0",
+        "@0x/types": "^3.3.1",
+        "@0x/typescript-typings": "^5.1.6",
         "@types/dotenv": "^8.2.0",
         "@types/mocha": "^8.2.1",
         "@types/node": "^8.0.29",
         "@types/node-cron": "^2.0.2",
+        "@types/pino": "^6.3.6",
         "mocha": "^4.1.0",
         "ts-node": "3.3.0",
         "tslint": "5.11.0"
@@ -39,7 +43,6 @@
         "@0x/dev-utils": "^3.0.0",
         "@0x/order-utils": "^10.0.0",
         "@0x/subproviders": "^5.1.0-beta.1",
-        "@0x/types": "^3.1.0",
         "dotenv": "^8.2.0",
         "graphql": "^15.3.0",
         "graphql-request": "^3.1.0",
