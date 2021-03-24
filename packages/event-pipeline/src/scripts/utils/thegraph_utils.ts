@@ -1,4 +1,4 @@
-import { logUtils } from '@0x/utils';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 import { ERC20BridgeTransferEvent, LastBlockProcessed } from '../../entities';
 
@@ -19,7 +19,7 @@ export class PullAndSaveTheGraphEvents {
     ): Promise<void> {
         const startTime = await this._getStartTimestampAsync(connection, latestBlockTimestampWithOffset, protocol);
         const endTime = Math.min(latestBlockTimestampWithOffset, startTime + MAX_TIME_TO_SEARCH);
-        logUtils.log(`Grabbing swap events between ${startTime} and ${endTime}`);
+        logger.child({ startTime, endTime }).info(`Grabbing swap events`);
         const rawSwaps = await uniswapV2Source.getSwapEventsAsync(startTime, endTime, endpoint, 100);
         const parsedSwaps = rawSwaps.map(rawSwap => parseUniswapSushiswapEvents(rawSwap, protocol));
 
@@ -29,7 +29,7 @@ export class PullAndSaveTheGraphEvents {
             return acc;
         }, 99999999999999);
 
-        logUtils.log(`saving ${parsedSwaps.length} external swap events`);
+        logger.child({ count: parsedSwaps.length }).info(`saving external swap events`);
 
         const lastBlockProcessed = await this._lastBlockProcessedAsync(protocol, endTime);
 
@@ -59,7 +59,7 @@ export class PullAndSaveTheGraphEvents {
             `SELECT last_processed_block_timestamp FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logUtils.log(queryResult);
+        logger.child({ ...queryResult, eventName }).info(`Last processed block timestamp for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_timestamp: START_DIRECT_UNISWAP_SEARCH };
 
         return Math.min(
@@ -92,7 +92,7 @@ export class PullAndSaveTheGraphEvents {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {

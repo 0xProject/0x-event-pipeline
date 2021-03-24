@@ -1,4 +1,4 @@
-import { logUtils } from '@0x/utils';
+import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
 
 import { StakingPoolRegistrySource } from '../data_sources/staking-pool-registry';
@@ -14,7 +14,7 @@ const stakingPoolSource = new StakingPoolRegistrySource(stakingPoolsUrl, poolMet
 
 export class MetadataScraper {
     public async getParseSaveMetadataAsync(connection: Connection): Promise<void> {
-        logUtils.log(`pulling metadata`);
+        logger.info(`pulling metadata`);
 
         const stakingPools = await stakingPoolSource.getStakingPoolsAsync();
         const poolMetadata = await stakingPoolSource.getStakingPoolMetadata();
@@ -23,8 +23,8 @@ export class MetadataScraper {
 
         const repostiory = connection.getRepository(StakingPoolMetadata);
 
-        logUtils.log('Saving metadata');
+        logger.info('Saving metadata');
         await repostiory.save(parsedPools);
-        logUtils.log(`finished updating metadata`);
+        logger.info(`finished updating metadata`);
     }
 }

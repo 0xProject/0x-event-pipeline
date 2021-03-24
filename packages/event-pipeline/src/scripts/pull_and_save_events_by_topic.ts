@@ -1,5 +1,5 @@
 import { web3Factory } from '@0x/dev-utils';
-import { logUtils } from '@0x/utils';
+import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/web3';
 import { calculateEndBlockAsync } from './utils/shared_utils';
@@ -59,10 +59,10 @@ const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 export class EventsByTopicScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
-        logUtils.log(`pulling events`);
+        logger.info(`pulling events`);
         const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);
 
-        logUtils.log(`latest block with offset: ${latestBlockWithOffset}`);
+        logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
 
         await Promise.all([
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(
@@ -188,7 +188,9 @@ export class EventsByTopicScraper {
         ]);
 
         const endTime = new Date().getTime();
-        logUtils.log(`finished pulling events by topic`);
-        logUtils.log(`It took ${(endTime - startTime) / 1000} seconds to complete`);
+        const scriptDurationSeconds = (endTime - startTime) / 1000;
+        logger
+            .child({ scriptDurationSeconds, scriptName: `pull_and_save_events_by_topic` })
+            .info(`Finished pulling events by topic, it took ${scriptDurationSeconds} seconds to complete`);
     }
 }

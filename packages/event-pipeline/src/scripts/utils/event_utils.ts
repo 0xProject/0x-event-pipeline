@@ -1,4 +1,4 @@
-import { logUtils } from '@0x/utils';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 
 import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET } from '../../config';
@@ -17,16 +17,18 @@ export class PullAndSaveEvents {
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
-        logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+        logger.child({ eventName, startBlock, endBlock }).info(`Searching for events`);
         const eventLogs = await getterFunction(startBlock, endBlock);
 
         if (eventLogs === null) {
-            logUtils.log(`Encountered an error searching for ${eventName} events. Waiting until next iteration.`);
+            logger
+                .child({ eventName })
+                .info(`Encountered an error searching for events. Waiting until next iteration.`);
         } else {
             const parsedEventLogs = eventLogs.map(log => parser(log));
             const lastBlockProcessed: LastBlockProcessed = await this._lastBlockProcessedAsync(eventName, endBlock);
 
-            logUtils.log(`saving ${parsedEventLogs.length} ${eventName} events`);
+            logger.child({ count: parsedEventLogs.length, eventName }).info(`Saving events`);
 
             await this._deleteOverlapAndSaveAsync<EVENT>(
                 connection,
@@ -56,7 +58,7 @@ export class PullAndSaveEvents {
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logUtils.log(queryResult);
+        logger.child({ ...queryResult, eventName }).info(`Last processed block number for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_number: FIRST_SEARCH_BLOCK };
 
         return Math.min(
@@ -89,7 +91,7 @@ export class PullAndSaveEvents {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
