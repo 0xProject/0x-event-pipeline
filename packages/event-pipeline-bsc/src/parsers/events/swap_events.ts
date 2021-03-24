@@ -13,8 +13,8 @@ export function parsePancakeSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransfe
     const decodedLog = abiCoder.decodeLog(SWAP_ABI.inputs, eventLog.data,[eventLog.topics[1],eventLog.topics[2]]);
 
 
-    eRC20BridgeTransferEvent.fromToken = new BigNumber(decodedLog.amount0In)> new BigNumber(decodedLog.amount1In)? '0':'1'; // taker_token ??
-    eRC20BridgeTransferEvent.toToken = new BigNumber(decodedLog.amount0In)> new BigNumber(decodedLog.amount1In)? '1':'0'; // maker_token ??
+    eRC20BridgeTransferEvent.fromToken = new BigNumber(decodedLog.amount0In)> new BigNumber(decodedLog.amount1In)? '0':'1'; // taker_token
+    eRC20BridgeTransferEvent.toToken = new BigNumber(decodedLog.amount0In)> new BigNumber(decodedLog.amount1In)? '1':'0'; // maker_token
 
     const amount0In = new BigNumber(decodedLog.amount0In);
     const amount1In = new BigNumber(decodedLog.amount1In);

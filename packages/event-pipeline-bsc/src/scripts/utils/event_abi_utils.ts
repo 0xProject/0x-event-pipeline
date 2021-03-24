@@ -3,7 +3,7 @@ import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
 
-import { Web3Source, LogPullInfo } from '../../data_sources/web3';
+import { Web3Source, LogPullInfo, ContractCallInfo } from '../../data_sources/web3';
 
 import { MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET } from '../../config';
 import {
@@ -56,9 +56,11 @@ export class PullAndSaveEventsByTopic {
 
             await this._deleteOverlapAndSaveAsync<EVENT>(
                 connection,
+                web3Source,
                 parsedLogs,
                 startBlock,
                 endBlock,
+                eventName,
                 tableName,
                 await this._lastBlockProcessedAsync(eventName, endBlock),
                 deleteOptions,
@@ -87,55 +89,138 @@ export class PullAndSaveEventsByTopic {
 
     private async _deleteOverlapAndSaveAsync<T>(
         connection: Connection,
+        web3Source: Web3Source,
         toSave: T[],
         startBlock: number,
         endBlock: number,
+        eventName: string,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
         deleteOptions: DeleteOptions,
     ): Promise<void> {
-        const queryRunner = connection.createQueryRunner();
 
-        let deleteQuery: string;
-        if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
-            deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
-        } else {
-            if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )
-            {
-              if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined )
-              {
-                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
-              } else {
-                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
-              }
-            } else {
-              deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+        if (eventName==='PancakeVIPEvent' && toSave.length>0){
+
+            for(var index in toSave)
+            { 
+                // logUtils.log(`Making Function Call for ${(toSave[index] as any).contractAddress} contracts' token info`)
+                const contractCallToken0: ContractCallInfo = {
+                    to: (toSave[index] as any).contractAddress,
+                    data: '0x0dfe1681',
+                };
+                const token0 = await web3Source.callContractMethodsAsync([contractCallToken0]);
+                // logUtils.log(`token0 returned ${token0}`);
+
+                const contractCallToken1: ContractCallInfo = {
+                    to: (toSave[index] as any).contractAddress,
+                    data: '0xd21220a7',
+                };
+    
+                const token1 = await web3Source.callContractMethodsAsync([contractCallToken1]);
+                // logUtils.log(`token1 returned ${token1}`);
+                
+                // logUtils.log(`(toSave[index] as any).fromToken ${(toSave[index] as any).fromToken}`);
+                // logUtils.log(`(toSave[index] as any).toToken ${(toSave[index] as any).toToken}`);
+
+                (toSave[index] as any).fromToken = ((toSave[index] as any).fromToken === '0') ? String(token0): String(token1);
+                (toSave[index] as any).toToken = ((toSave[index] as any).toToken === '0' )? String(token0): String(token1);
+                
+                // logUtils.log(`assigned fromToken ${(toSave[index] as any).fromToken}`);
+                // logUtils.log(`assigned toToken ${(toSave[index] as any).toToken} \n`);
+
+
             }
-        }
 
-        await queryRunner.connect();
+            
+            const queryRunner = connection.createQueryRunner();
 
-        await queryRunner.startTransaction();
-        try {
+            let deleteQuery: string;
+            if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
+                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
+            } else {
+                if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )
+                {
+                if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined )
+                {
+                    deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+                } else {
+                    deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+                }
+                } else {
+                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+                }
+            }
 
-            // delete events scraped prior to the most recent block range
-            await queryRunner.manager.query(deleteQuery);
-            await queryRunner.manager.save(toSave);
-            await queryRunner.manager.save(lastBlockProcessed);
+            await queryRunner.connect();
 
-            // commit transaction now:
-            await queryRunner.commitTransaction();
+            await queryRunner.startTransaction();
+            try {
 
-        } catch (err) {
+                // delete events scraped prior to the most recent block range
+                await queryRunner.manager.query(deleteQuery);
+                await queryRunner.manager.save(toSave);
+                await queryRunner.manager.save(lastBlockProcessed);
 
-            logUtils.log(err);
-            // since we have errors lets rollback changes we made
-            await queryRunner.rollbackTransaction();
+                // commit transaction now:
+                await queryRunner.commitTransaction();
 
-        } finally {
+            } catch (err) {
 
-            // you need to release query runner which is manually created:
-            await queryRunner.release();
+                logUtils.log(err);
+                // since we have errors lets rollback changes we made
+                await queryRunner.rollbackTransaction();
+
+            } finally {
+
+                // you need to release query runner which is manually created:
+                await queryRunner.release();
+            }
+
+        } else {
+
+            const queryRunner = connection.createQueryRunner();
+
+            let deleteQuery: string;
+            if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
+                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${deleteOptions.directProtocol}'`;
+            } else {
+                if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined )
+                {
+                if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined )
+                {
+                    deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+                } else {
+                    deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+                }
+                } else {
+                deleteQuery = `DELETE FROM events_bsc.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+                }
+            }
+
+            await queryRunner.connect();
+
+            await queryRunner.startTransaction();
+            try {
+
+                // delete events scraped prior to the most recent block range
+                await queryRunner.manager.query(deleteQuery);
+                await queryRunner.manager.save(toSave);
+                await queryRunner.manager.save(lastBlockProcessed);
+
+                // commit transaction now:
+                await queryRunner.commitTransaction();
+
+            } catch (err) {
+
+                logUtils.log(err);
+                // since we have errors lets rollback changes we made
+                await queryRunner.rollbackTransaction();
+
+            } finally {
+
+                // you need to release query runner which is manually created:
+                await queryRunner.release();
+            }
         }
     }
 }
