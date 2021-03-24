@@ -18,22 +18,6 @@ const supportedChains = [
     56 // BSC
 ];
 
-interface BridgeContract {
-    contract: string;
-    startingBlock: number;
-}
-
-
-const bridgeContracts = [
-    { contract: '0x1c29670f7a77f1052d30813a0a4f632c78a02610', startingBlock: 5375047 },
-    { contract: '0x991c745401d5b5e469b8c3e2cb02c748f08754f1', startingBlock: 5375047 },
-    { contract: '0x6dc7950423ada9f56fb2c93a23edb787f1e29088', startingBlock: 5375047 },
-    { contract: '0x36691c4f426eb8f42f150ebde43069a31cb080ad', startingBlock: 5375047 },
-    { contract: '0x2818363fb1686c2720b05c4e789165909cd03fc9', startingBlock: 5375047 },
-    { contract: '0xc16f74b07e2409e869bae5de01b2265fe32d64e6', startingBlock: 5375047 },
-    { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 5375047 },
-    { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 5375047 },
-]
 
 // Parses an environment variable for bridge contracts
 // Schema is
