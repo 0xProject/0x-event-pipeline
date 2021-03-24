@@ -18,19 +18,6 @@ const supportedChains = [
     56 // BSC
 ];
 
-
-// Parses an environment variable for bridge contracts
-// Schema is
-// <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
-function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
-    const contracts = envVar.split('|');
-    const bridgeContracts = contracts.map((element) => {
-        const split = element.split('-');
-        return {contract: split[0], startingBlock: Number(split[1])} 
-    });
-    return bridgeContracts;
-}
-
 // The earlier of the exchange or staking contract being created
 const firstSearchBlockMap: { [chainId: number]: number } = {
     56: 5375047 // the block when EP was deployed on BSC // BSC
@@ -51,7 +38,6 @@ if (!supportedChains.includes(CHAIN_ID)) {
 export const FIRST_SEARCH_BLOCK = firstSearchBlockMap[CHAIN_ID];
 export const BLOCK_FINALITY_THRESHOLD = process.env.BLOCK_FINALITY_THRESHOLD ? parseInt(process.env.BLOCK_FINALITY_THRESHOLD, 10) : DEFAULT_BLOCK_FINALITY_THRESHOLD;
 export const SECONDS_BETWEEN_RUNS = process.env.SECONDS_BETWEEN_RUNS ? parseInt(process.env.SECONDS_BETWEEN_RUNS, 10) : DEFAULT_SECONDS_BETWEEN_RUNS;
-export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS)) : bridgeContracts;
 export const BRIDGEFILL_EVENT_TOPIC = ['0xe59e71a14fe90157eedc866c4f8c767d3943d6b6b2e8cd64dddcc92ab4c55af8'];
 export const START_BLOCK_TIMESTAMP_OFFSET = process.env.START_BLOCK_TIMESTAMP_OFFSET ? parseInt(process.env.START_BLOCK_TIMESTAMP_OFFSET, 10) : DEFAULT_START_BLOCK_TIMESTAMP_OFFSET;
 export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH ? parseInt(process.env.MAX_TIME_TO_SEARCH, 10) : DEFAULT_MAX_TIME_TO_SEARCH;
