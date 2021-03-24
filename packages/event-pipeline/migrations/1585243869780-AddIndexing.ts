@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const createEventIndexes = `
     CREATE INDEX fill_events_block_number_index
@@ -62,7 +62,6 @@ const dropEventIndexes = `
 `;
 
 export class AddIndexing1585243869780 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(createEventIndexes);
     }
@@ -70,5 +69,4 @@ export class AddIndexing1585243869780 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(dropEventIndexes);
     }
-
 }

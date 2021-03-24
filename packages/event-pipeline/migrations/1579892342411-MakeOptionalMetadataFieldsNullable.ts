@@ -18,7 +18,7 @@ const changedColumns = [
         oldColumn: new TableColumn({ name: 'logo_url', type: 'varchar' }),
         newColumn: new TableColumn({ name: 'logo_url', type: 'varchar', isNullable: true }),
     },
-]
+];
 const changedColumnsReverse = [
     {
         newColumn: new TableColumn({ name: 'website', type: 'varchar' }),
@@ -36,11 +36,9 @@ const changedColumnsReverse = [
         newColumn: new TableColumn({ name: 'logo_url', type: 'varchar' }),
         oldColumn: new TableColumn({ name: 'logo_url', type: 'varchar', isNullable: true }),
     },
-]
-
+];
 
 export class MakeOptionalMetadataFieldsNullable1579892342411 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.changeColumns(targetTable, changedColumns);
     }
@@ -48,5 +46,4 @@ export class MakeOptionalMetadataFieldsNullable1579892342411 implements Migratio
     public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.changeColumns(targetTable, changedColumnsReverse);
     }
-
 }

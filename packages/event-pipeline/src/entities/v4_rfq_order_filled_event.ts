@@ -7,7 +7,6 @@ import { bigNumberTransformer } from '../utils';
 // Emitted whenever an `RfqOrder` is filled.
 @Entity({ name: 'v4_rfq_order_filled_events', schema: 'events' })
 export class V4RfqOrderFilledEvent extends Event {
-
     @Column({ name: 'order_hash', type: 'varchar' })
     public orderHash!: string;
     @Column({ name: 'maker', type: 'varchar' })
@@ -24,5 +23,4 @@ export class V4RfqOrderFilledEvent extends Event {
     public makerTokenFilledAmount!: BigNumber;
     @Column({ name: 'pool', type: 'varchar' })
     public pool!: string;
-
 }

@@ -9,10 +9,10 @@ export function parsePools(rawPools: Pools, rawMetadata: MetadataResponse): Stak
     const parsedPools: StakingPoolMetadata[] = [];
 
     function pushIfDefined(poolId: string) {
-        if(!(rawMetadata[rawPools[poolId]] === undefined)) {
-            parsedPools.push(parseStakingPoolMetadata(rawMetadata[rawPools[poolId]],poolId));
+        if (!(rawMetadata[rawPools[poolId]] === undefined)) {
+            parsedPools.push(parseStakingPoolMetadata(rawMetadata[rawPools[poolId]], poolId));
         }
-    };
+    }
 
     Object.keys(rawPools).forEach(pushIfDefined);
 
@@ -23,10 +23,12 @@ function parseStakingPoolMetadata(poolMetadataResponse: PoolMetadataResponse, po
     const stakingPoolMetadata = new StakingPoolMetadata();
     stakingPoolMetadata.poolId = poolId;
     stakingPoolMetadata.name = poolMetadataResponse.name;
-    stakingPoolMetadata.website = poolMetadataResponse.website_url === undefined ? null : poolMetadataResponse.website_url;
+    stakingPoolMetadata.website =
+        poolMetadataResponse.website_url === undefined ? null : poolMetadataResponse.website_url;
     stakingPoolMetadata.bio = poolMetadataResponse.bio === undefined ? null : poolMetadataResponse.bio;
     stakingPoolMetadata.location = poolMetadataResponse.location === undefined ? null : poolMetadataResponse.location;
-    stakingPoolMetadata.logoUrl = poolMetadataResponse.logo_img === undefined ? null : baseGithubLogoUrl.concat(poolMetadataResponse.logo_img);
+    stakingPoolMetadata.logoUrl =
+        poolMetadataResponse.logo_img === undefined ? null : baseGithubLogoUrl.concat(poolMetadataResponse.logo_img);
     stakingPoolMetadata.verified = poolMetadataResponse.verified;
 
     return stakingPoolMetadata;

@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsTransactionReceiptsTable = new Table({
     name: 'events.transaction_receipts',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
-        { name: 'transaction_hash', type: 'varchar', isPrimary: true},
+        { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'transaction_index', type: 'bigint' },
@@ -18,7 +18,7 @@ const eventsTransactionLogsTable = new Table({
     name: 'events.transaction_logs',
     columns: [
         { name: 'observed_timestamp', type: 'bigint' },
-        { name: 'transaction_hash', type: 'varchar', isPrimary: true},
+        { name: 'transaction_hash', type: 'varchar', isPrimary: true },
         { name: 'logs', type: 'varchar' },
     ],
 });
@@ -33,7 +33,6 @@ const dropIndex = `
 `;
 
 export class AddTransactionRecieptsTable1596821038691 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsTransactionReceiptsTable);
         await queryRunner.createTable(eventsTransactionLogsTable);
@@ -45,5 +44,4 @@ export class AddTransactionRecieptsTable1596821038691 implements MigrationInterf
         await queryRunner.dropTable(eventsTransactionReceiptsTable);
         await queryRunner.dropTable(eventsTransactionLogsTable);
     }
-
 }

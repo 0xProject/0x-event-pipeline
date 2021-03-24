@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const upQuery = `
 DROP VIEW IF EXISTS staking.epoch_start_pool_status;
@@ -48,7 +48,7 @@ CREATE VIEW staking.epoch_start_pool_status AS (
         LEFT JOIN makers_at_start mas ON mas.epoch_id = e.epoch_id AND mas.pool_id = spc.pool_id
         LEFT JOIN delegated_stake_at_start das ON das.epoch_id =e.epoch_id AND das.pool_id = spc.pool_id
 );
-`
+`;
 
 const downQuery = `
 DROP VIEW IF EXISTS staking.epoch_start_pool_status;
@@ -87,10 +87,9 @@ CREATE VIEW staking.epoch_start_pool_status AS (
         LEFT JOIN makers_at_start mas ON mas.epoch_id = e.epoch_id AND mas.pool_id = spc.pool_id
         LEFT JOIN delegated_stake_at_start das ON das.epoch_id =e.epoch_id AND das.pool_id = spc.pool_id
 );
-`
+`;
 
 export class AdjustEpochStartPoolStatusView1588185961270 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(upQuery);
     }
@@ -98,5 +97,4 @@ export class AdjustEpochStartPoolStatusView1588185961270 implements MigrationInt
     public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(downQuery);
     }
-
 }

@@ -10,7 +10,7 @@ export interface LogPullInfo {
     fromBlock: number;
     toBlock: number;
     topics: string[];
-};
+}
 
 export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
@@ -26,12 +26,15 @@ export class Web3Source {
 
         let promises = iter.map(i => {
             return new Promise((resolve, reject) => {
-                let req = this._web3.eth.getBlock.request(i + startBlock, (err: any, data: BlockWithTransactionData) => {
-                    if(err) reject(err);
-                    else resolve(data);
-                });
-            batch.add(req)
-            })
+                let req = this._web3.eth.getBlock.request(
+                    i + startBlock,
+                    (err: any, data: BlockWithTransactionData) => {
+                        if (err) reject(err);
+                        else resolve(data);
+                    },
+                );
+                batch.add(req);
+            });
         });
 
         batch.execute();
@@ -47,11 +50,11 @@ export class Web3Source {
         let promises = hashes.map(hash => {
             return new Promise((resolve, reject) => {
                 let req = this._web3.eth.getTransaction.request(hash, (err: any, data: Transaction) => {
-                    if(err) reject(err);
+                    if (err) reject(err);
                     else resolve(data);
                 });
-            batch.add(req)
-            })
+                batch.add(req);
+            });
         });
 
         batch.execute();
@@ -67,11 +70,11 @@ export class Web3Source {
         let promises = hashes.map(hash => {
             return new Promise((resolve, reject) => {
                 let req = this._web3.eth.getTransactionReceipt.request(hash, (err: any, data: Transaction) => {
-                    if(err) reject(err);
+                    if (err) reject(err);
                     else resolve(data);
                 });
-            batch.add(req)
-            })
+                batch.add(req);
+            });
         });
 
         batch.execute();
@@ -81,9 +84,7 @@ export class Web3Source {
         return transactionReceipts;
     }
 
-    public async getBatchLogInfoForContractsAsync(
-        logPullInfo: LogPullInfo[]): Promise<any[]> {
-
+    public async getBatchLogInfoForContractsAsync(logPullInfo: LogPullInfo[]): Promise<any[]> {
         var batch = new this._web3.BatchRequest();
 
         let promises = logPullInfo.map(logPull => {
@@ -93,13 +94,13 @@ export class Web3Source {
                     toBlock: logPull.toBlock,
                     address: logPull.address,
                     topics: logPull.topics,
-                }
-                let req = this._web3.eth.getPastLogs.request( reqParams, (err: any, data: RawLog) => {
-                    if(err) reject(err);
+                };
+                let req = this._web3.eth.getPastLogs.request(reqParams, (err: any, data: RawLog) => {
+                    if (err) reject(err);
                     else resolve({ logPull, logs: data });
                 });
-            batch.add(req)
-            })
+                batch.add(req);
+            });
         });
 
         batch.execute();
@@ -109,11 +110,14 @@ export class Web3Source {
         return encodedLogs;
     }
 
-    public async getBlockInfoForRangeAsync(startBlock: number, endBlock: number): Promise<BlockWithoutTransactionData[]> {
+    public async getBlockInfoForRangeAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<BlockWithoutTransactionData[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
         const blocks = await Promise.all(iter.map(num => this.getBlockInfoAsync(num + startBlock)));
 
-        return blocks
+        return blocks;
     }
 
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
@@ -142,5 +146,4 @@ export class Web3Source {
     public async getBlockTimestampAsync(blockNumber: number): Promise<number> {
         return this._web3Wrapper.getBlockTimestampAsync(blockNumber);
     }
-    
 }

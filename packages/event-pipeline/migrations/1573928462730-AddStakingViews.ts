@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsStakingProxyDeploymentTable = new Table({
     name: 'events.staking_proxy_deployment',
@@ -359,7 +359,6 @@ const downQuery = `
 `;
 
 export class AddStakingViews1573928462730 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsStakingProxyDeploymentTable);
         await queryRunner.query(upQuery);
@@ -369,5 +368,4 @@ export class AddStakingViews1573928462730 implements MigrationInterface {
         await queryRunner.query(downQuery);
         await queryRunner.dropTable(eventsStakingProxyDeploymentTable);
     }
-
 }

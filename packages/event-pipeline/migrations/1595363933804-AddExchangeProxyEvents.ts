@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsTransformedERC20EventsTable = new Table({
     name: 'events.transformed_erc20_events',
@@ -36,7 +36,6 @@ const dropTransformedERC20IndexQuery = `
 `;
 
 export class AddExchangeProxyEvents1595363933804 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsTransformedERC20EventsTable);
         await queryRunner.query(createTransformedERC20IndexQuery);
@@ -46,5 +45,4 @@ export class AddExchangeProxyEvents1595363933804 implements MigrationInterface {
         await queryRunner.query(dropTransformedERC20IndexQuery);
         await queryRunner.dropTable(eventsTransformedERC20EventsTable);
     }
-
 }

@@ -3,7 +3,7 @@ import { Connection } from 'typeorm';
 
 import { StakingPoolRegistrySource } from '../data_sources/staking-pool-registry';
 import { parsePools } from '../parsers/staking-pool-registry';
-import { StakingPoolMetadata } from '../entities'
+import { StakingPoolMetadata } from '../entities';
 
 import { CHAIN_ID, STAKING_POOLS_JSON_URL, STAKING_POOLS_METADATA_JSON_URL } from '../config';
 
@@ -26,5 +26,5 @@ export class MetadataScraper {
         logUtils.log('Saving metadata');
         await repostiory.save(parsedPools);
         logUtils.log(`finished updating metadata`);
-    };
-};
+    }
+}

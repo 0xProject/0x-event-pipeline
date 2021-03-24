@@ -1,4 +1,4 @@
-import { 
+import {
     DEFAULT_LOCAL_POSTGRES_URI,
     DEFAULT_START_BLOCK_OFFSET,
     DEFAULT_MAX_BLOCKS_TO_PULL,
@@ -47,16 +47,16 @@ const bridgeContracts = [
     { contract: '0xc16f74b07e2409e869bae5de01b2265fe32d64e6', startingBlock: 9684280 },
     { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 9684143 },
     { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 9684978 },
-]
+];
 
 // Parses an environment variable for bridge contracts
 // Schema is
 // <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
 function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     const contracts = envVar.split('|');
-    const bridgeContracts = contracts.map((element) => {
+    const bridgeContracts = contracts.map(element => {
         const split = element.split('-');
-        return {contract: split[0], startingBlock: Number(split[1])} 
+        return { contract: split[0], startingBlock: Number(split[1]) };
     });
     return bridgeContracts;
 }
@@ -69,34 +69,50 @@ const firstSearchBlockMap: { [chainId: number]: number } = {
     42: 14425606,
 };
 
-export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL ? 
-    process.env.ETHEREUM_RPC_URL : 
-    throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
+export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL
+    ? process.env.ETHEREUM_RPC_URL
+    : throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
 export const POSTGRES_URI = process.env.POSTGRES_URI || DEFAULT_LOCAL_POSTGRES_URI;
 export const SHOULD_SYNCHRONIZE = process.env.SHOULD_SYNCHRONIZE === 'true';
-export const START_BLOCK_OFFSET = process.env.START_BLOCK_OFFSET ? parseInt(process.env.START_BLOCK_OFFSET, 10) : DEFAULT_START_BLOCK_OFFSET;
-export const MAX_BLOCKS_TO_PULL = process.env.MAX_BLOCKS_TO_PULL ? parseInt(process.env.MAX_BLOCKS_TO_PULL, 10) : DEFAULT_MAX_BLOCKS_TO_PULL;
-export const MAX_BLOCKS_TO_SEARCH = process.env.MAX_BLOCKS_TO_SEARCH ? parseInt(process.env.MAX_BLOCKS_TO_SEARCH, 10) : DEFAULT_MAX_BLOCKS_TO_SEARCH;
+export const START_BLOCK_OFFSET = process.env.START_BLOCK_OFFSET
+    ? parseInt(process.env.START_BLOCK_OFFSET, 10)
+    : DEFAULT_START_BLOCK_OFFSET;
+export const MAX_BLOCKS_TO_PULL = process.env.MAX_BLOCKS_TO_PULL
+    ? parseInt(process.env.MAX_BLOCKS_TO_PULL, 10)
+    : DEFAULT_MAX_BLOCKS_TO_PULL;
+export const MAX_BLOCKS_TO_SEARCH = process.env.MAX_BLOCKS_TO_SEARCH
+    ? parseInt(process.env.MAX_BLOCKS_TO_SEARCH, 10)
+    : DEFAULT_MAX_BLOCKS_TO_SEARCH;
 export const CHAIN_ID = process.env.CHAIN_ID ? parseInt(process.env.CHAIN_ID, 10) : DEFAULT_CHAIN_ID;
 if (!supportedChains.includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
-};
+}
 export const FIRST_SEARCH_BLOCK = firstSearchBlockMap[CHAIN_ID];
 export const STAKING_PROXY_DEPLOYMENT_TRANSACTION = stakingProxyDeploymentTxMap[CHAIN_ID];
-export const BLOCK_FINALITY_THRESHOLD = process.env.BLOCK_FINALITY_THRESHOLD ? parseInt(process.env.BLOCK_FINALITY_THRESHOLD, 10) : DEFAULT_BLOCK_FINALITY_THRESHOLD;
-export const SECONDS_BETWEEN_RUNS = process.env.SECONDS_BETWEEN_RUNS ? parseInt(process.env.SECONDS_BETWEEN_RUNS, 10) : DEFAULT_SECONDS_BETWEEN_RUNS;
+export const BLOCK_FINALITY_THRESHOLD = process.env.BLOCK_FINALITY_THRESHOLD
+    ? parseInt(process.env.BLOCK_FINALITY_THRESHOLD, 10)
+    : DEFAULT_BLOCK_FINALITY_THRESHOLD;
+export const SECONDS_BETWEEN_RUNS = process.env.SECONDS_BETWEEN_RUNS
+    ? parseInt(process.env.SECONDS_BETWEEN_RUNS, 10)
+    : DEFAULT_SECONDS_BETWEEN_RUNS;
 export const STAKING_POOLS_JSON_URL = process.env.STAKING_POOLS_JSON_URL || DEFAULT_STAKING_POOLS_JSON_URL;
-export const STAKING_POOLS_METADATA_JSON_URL = process.env.STAKING_POOLS_METADATA_JSON_URL || DEFAULT_STAKING_POOLS_METADATA_JSON_URL;
+export const STAKING_POOLS_METADATA_JSON_URL =
+    process.env.STAKING_POOLS_METADATA_JSON_URL || DEFAULT_STAKING_POOLS_METADATA_JSON_URL;
 export const BASE_GITHUB_LOGO_URL = process.env.BASE_GITHUB_LOGO_URL || DEFAULT_BASE_GITHUB_LOGO_URL;
-export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS)) : bridgeContracts;
+export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS
+    ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS))
+    : bridgeContracts;
 export const BRIDGE_TRADE_TOPIC = ['0x349fc08071558d8e3aa92dec9396e4e9f2dfecd6bb9065759d1932e7da43b8a9'];
 export const BRIDGEFILL_EVENT_TOPIC = ['0xff3bc5e46464411f331d1b093e1587d2d1aa667f5618f98a95afc4132709d3a9'];
-export const START_BLOCK_TIMESTAMP_OFFSET = process.env.START_BLOCK_TIMESTAMP_OFFSET ? parseInt(process.env.START_BLOCK_TIMESTAMP_OFFSET, 10) : DEFAULT_START_BLOCK_TIMESTAMP_OFFSET;
-export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH ? parseInt(process.env.MAX_TIME_TO_SEARCH, 10) : DEFAULT_MAX_TIME_TO_SEARCH;
-export const SCRAPE_CANCEL_EVENTS_FLAG = process.env.SCRAPE_CANCEL_EVENTS_FLAG ?
-    process.env.SCRAPE_CANCEL_EVENTS_FLAG === 'true'
+export const START_BLOCK_TIMESTAMP_OFFSET = process.env.START_BLOCK_TIMESTAMP_OFFSET
+    ? parseInt(process.env.START_BLOCK_TIMESTAMP_OFFSET, 10)
+    : DEFAULT_START_BLOCK_TIMESTAMP_OFFSET;
+export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH
+    ? parseInt(process.env.MAX_TIME_TO_SEARCH, 10)
+    : DEFAULT_MAX_TIME_TO_SEARCH;
+export const SCRAPE_CANCEL_EVENTS_FLAG = process.env.SCRAPE_CANCEL_EVENTS_FLAG
+    ? process.env.SCRAPE_CANCEL_EVENTS_FLAG === 'true'
     : DEFAULT_SCRAPE_CANCEL_EVENTS_FLAG;
-export const SCRAPE_TRANSACTIONS_FLAG = process.env.SCRAPE_TRANSACTIONS_FLAG ?
-    process.env.SCRAPE_TRANSACTIONS_FLAG === 'true'
+export const SCRAPE_TRANSACTIONS_FLAG = process.env.SCRAPE_TRANSACTIONS_FLAG
+    ? process.env.SCRAPE_TRANSACTIONS_FLAG === 'true'
     : DEFAULT_SCRAPE_TRANSACTIONS_FLAG;
-

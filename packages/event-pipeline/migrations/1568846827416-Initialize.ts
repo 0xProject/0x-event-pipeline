@@ -263,9 +263,7 @@ const stakingStakingPoolMetadataTable = new Table({
     ],
 });
 
-
 export class Initialize1568846827416 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createSchema('events');
         await queryRunner.createSchema('staking');
@@ -309,5 +307,4 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropSchema('events');
         await queryRunner.dropSchema('staking');
     }
-
 }

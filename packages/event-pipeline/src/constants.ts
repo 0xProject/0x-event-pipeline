@@ -5,8 +5,10 @@ export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 100;
 export const DEFAULT_CHAIN_ID = 1;
 export const DEFAULT_BLOCK_FINALITY_THRESHOLD = 0;
 export const DEFAULT_SECONDS_BETWEEN_RUNS = 15;
-export const DEFAULT_STAKING_POOLS_JSON_URL = 'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/staking_pools.json';
-export const DEFAULT_STAKING_POOLS_METADATA_JSON_URL = 'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/pool_metadata.json';
+export const DEFAULT_STAKING_POOLS_JSON_URL =
+    'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/staking_pools.json';
+export const DEFAULT_STAKING_POOLS_METADATA_JSON_URL =
+    'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/pool_metadata.json';
 export const DEFAULT_BASE_GITHUB_LOGO_URL = 'https://github.com/0xProject/0x-staking-pool-registry/raw/master/logos/';
 export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 459;
 export const DEFAULT_MAX_TIME_TO_SEARCH = 1310;
@@ -28,441 +30,436 @@ export const V3_EXCHANGE_ADDRESS = '0x61935cbdd02287b511119ddb11aeb42f1593b7ef';
 export const V4_CANCEL_START_BLOCK = 11674215; // first seen block - 1
 export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f1569db3e84256ba981ba52753'];
 export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
-export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST 
+export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST
 
 export const EXPIRED_RFQ_ORDER_ABI = {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "bytes32",
-            "name": "orderHash",
-            "type": "bytes32"
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "maker",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint64",
-            "name": "expiry",
-            "type": "uint64"
-        }
+            indexed: false,
+            internalType: 'uint64',
+            name: 'expiry',
+            type: 'uint64',
+        },
     ],
-    "name": "ExpiredRfqOrder",
-    "type": "event"
+    name: 'ExpiredRfqOrder',
+    type: 'event',
 };
 
 export const V4_CANCEL_ABI = {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "bytes32",
-            "name": "orderHash",
-            "type": "bytes32"
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "maker",
-            "type": "address"
-        }
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
     ],
-    "name": "OrderCancelled",
-    "type": "event"
+    name: 'OrderCancelled',
+    type: 'event',
 };
 
 export const TRANSFORMED_ERC20_ABI = {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": true,
-            "internalType": "address",
-            "name": "taker",
-            "type": "address"
+            indexed: true,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "inputToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'inputToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "outputToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'outputToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "inputTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'inputTokenAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "outputTokenAmount",
-            "type": "uint256"
-        }
+            indexed: false,
+            internalType: 'uint256',
+            name: 'outputTokenAmount',
+            type: 'uint256',
+        },
     ],
-    "name": "TransformedERC20",
-    "type": "event"
+    name: 'TransformedERC20',
+    type: 'event',
 };
 
 export const ERC20_BRIDGE_TRADE_ABI = {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "fromToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'fromToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "toToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'toToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "fromTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'fromTokenAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "toTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'toTokenAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'from',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-        }
+            indexed: false,
+            internalType: 'address',
+            name: 'to',
+            type: 'address',
+        },
     ],
-    "name": "ERC20BridgeTransfer",
-    "type": "event"
+    name: 'ERC20BridgeTransfer',
+    type: 'event',
 };
 
 export const BRIDGE_FILL_ABI = {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "source",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'source',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "inputToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'inputToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "outputToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'outputToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "inputTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'inputTokenAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "outputTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'outputTokenAmount',
+            type: 'uint256',
         },
     ],
-    "name": "BridgeFill",
-    "type": "event"
+    name: 'BridgeFill',
+    type: 'event',
 };
 
-
 export const LIQUIDITY_PROVIDER_SWAP_ABI = {
-
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "inputToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'inputToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "outputToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'outputToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "inputTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'inputTokenAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "outputTokenAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'outputTokenAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "provider",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'provider',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-        }
+            indexed: false,
+            internalType: 'address',
+            name: 'recipient',
+            type: 'address',
+        },
     ],
-    "name": "LiquidityProviderSwap",
-    "type": "event"
+    name: 'LiquidityProviderSwap',
+    type: 'event',
 };
 
 export const RFQ_ORDER_FILLED_ABI = {
-
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "bytes32",
-            "name": "orderHash",
-            "type": "bytes32"
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "maker",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "taker",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "makerToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'makerToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "takerToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'takerToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint128",
-            "name": "takerTokenFilledAmount",
-            "type": "uint128"
+            indexed: false,
+            internalType: 'uint128',
+            name: 'takerTokenFilledAmount',
+            type: 'uint128',
         },
         {
-            "indexed": false,
-            "internalType": "uint128",
-            "name": "makerTokenFilledAmount",
-            "type": "uint128"
+            indexed: false,
+            internalType: 'uint128',
+            name: 'makerTokenFilledAmount',
+            type: 'uint128',
         },
         {
-            "indexed": false,
-            "internalType": "bytes32",
-            "name": "pool",
-            "type": "bytes32"
-        }
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'pool',
+            type: 'bytes32',
+        },
     ],
-    "name": "RfqOrderFilled",
-    "type": "event"
+    name: 'RfqOrderFilled',
+    type: 'event',
 };
 
 export const LIMIT_ORDER_FILLED_ABI = {
-
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": false,
-            "internalType": "bytes32",
-            "name": "orderHash",
-            "type": "bytes32"
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "maker",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "taker",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "feeRecipient",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'feeRecipient',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "makerToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'makerToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "takerToken",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'takerToken',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint128",
-            "name": "takerTokenFilledAmount",
-            "type": "uint128"
+            indexed: false,
+            internalType: 'uint128',
+            name: 'takerTokenFilledAmount',
+            type: 'uint128',
         },
         {
-            "indexed": false,
-            "internalType": "uint128",
-            "name": "makerTokenFilledAmount",
-            "type": "uint128"
+            indexed: false,
+            internalType: 'uint128',
+            name: 'makerTokenFilledAmount',
+            type: 'uint128',
         },
         {
-            "indexed": false,
-            "internalType": "uint128",
-            "name": "takerTokenFeeFilledAmount",
-            "type": "uint128"
+            indexed: false,
+            internalType: 'uint128',
+            name: 'takerTokenFeeFilledAmount',
+            type: 'uint128',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "protocolFeePaid",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'protocolFeePaid',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "bytes32",
-            "name": "pool",
-            "type": "bytes32"
-        }
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'pool',
+            type: 'bytes32',
+        },
     ],
-    "name": "LimitOrderFilled",
-    "type": "event"
+    name: 'LimitOrderFilled',
+    type: 'event',
 };
 
 export const V3_FILL_ABI = {
-
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
         {
-            "indexed": true,
-            "internalType": "address",
-            "name": "makerAddress",
-            "type": "address"
+            indexed: true,
+            internalType: 'address',
+            name: 'makerAddress',
+            type: 'address',
         },
         {
-            "indexed": true,
-            "internalType": "address",
-            "name": "feeRecipientAddress",
-            "type": "address"
+            indexed: true,
+            internalType: 'address',
+            name: 'feeRecipientAddress',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "makerAssetData",
-            "type": "bytes"
+            indexed: false,
+            internalType: 'bytes',
+            name: 'makerAssetData',
+            type: 'bytes',
         },
         {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "takerAssetData",
-            "type": "bytes"
+            indexed: false,
+            internalType: 'bytes',
+            name: 'takerAssetData',
+            type: 'bytes',
         },
         {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "makerFeeAssetData",
-            "type": "bytes"
+            indexed: false,
+            internalType: 'bytes',
+            name: 'makerFeeAssetData',
+            type: 'bytes',
         },
         {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "takerFeeAssetData",
-            "type": "bytes"
+            indexed: false,
+            internalType: 'bytes',
+            name: 'takerFeeAssetData',
+            type: 'bytes',
         },
         {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "orderHash",
-            "type": "bytes32"
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "takerAddress",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'takerAddress',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "address",
-            "name": "senderAddress",
-            "type": "address"
+            indexed: false,
+            internalType: 'address',
+            name: 'senderAddress',
+            type: 'address',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "makerAssetFilledAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'makerAssetFilledAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "takerAssetFilledAmount",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'takerAssetFilledAmount',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "makerFeePaid",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'makerFeePaid',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "takerFeePaid",
-            "type": "uint256"
+            indexed: false,
+            internalType: 'uint256',
+            name: 'takerFeePaid',
+            type: 'uint256',
         },
         {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "protocolFeePaid",
-            "type": "uint256"
-        }
+            indexed: false,
+            internalType: 'uint256',
+            name: 'protocolFeePaid',
+            type: 'uint256',
+        },
     ],
-    "name": "Fill",
-    "type": "event"
+    name: 'Fill',
+    type: 'event',
 };

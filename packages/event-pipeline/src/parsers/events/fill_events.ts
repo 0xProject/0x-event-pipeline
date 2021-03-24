@@ -21,7 +21,6 @@ const abiCoder = require('web3-eth-abi');
 //     return eventLogs.map(fill => parseFillEvent(fill))
 // }
 
-
 export type ExchangeEvent = FillEvent;
 
 /**
@@ -30,20 +29,25 @@ export type ExchangeEvent = FillEvent;
  */
 
 export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
-
     const fillEvent = new FillEvent();
     parseEvent(eventLog, fillEvent);
 
-    const decodedLog = abiCoder.decodeLog(V3_FILL_ABI.inputs, eventLog.data, eventLog.topics.slice(1,(eventLog.topics.length)));
+    const decodedLog = abiCoder.decodeLog(
+        V3_FILL_ABI.inputs,
+        eventLog.data,
+        eventLog.topics.slice(1, eventLog.topics.length),
+    );
 
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerAssetData);
-    const makerFeeAssetData = decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0 ?
-        null :
-        assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerFeeAssetData);
+    const makerFeeAssetData =
+        decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0
+            ? null
+            : assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerFeeAssetData);
     const takerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerAssetData);
-    const takerFeeAssetData = decodedLog.takerFeeAssetData === '0x' || Number(decodedLog.takerFeeAssetData) === 0 ?
-        null :
-        assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
+    const takerFeeAssetData =
+        decodedLog.takerFeeAssetData === '0x' || Number(decodedLog.takerFeeAssetData) === 0
+            ? null
+            : assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
 
     fillEvent.makerAddress = decodedLog.makerAddress.toLowerCase();
     fillEvent.takerAddress = decodedLog.takerAddress.toLowerCase();
@@ -64,18 +68,12 @@ export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
     // fees
     fillEvent.makerFeePaid = decodedLog.makerFeePaid;
     fillEvent.takerFeePaid = decodedLog.takerFeePaid;
-    fillEvent.makerFeeProxyType = makerFeeAssetData === null ?
-        null :
-        convertAssetProxyIdToType(makerFeeAssetData.assetProxyId as AssetProxyId);
-    fillEvent.makerFeeTokenAddress = makerFeeAssetData === null ?
-        null :
-        parse0xAssetTokenAddress(makerFeeAssetData);
-    fillEvent.takerFeeProxyType = takerFeeAssetData === null ?
-        null :
-        convertAssetProxyIdToType(takerFeeAssetData.assetProxyId as AssetProxyId);
-    fillEvent.takerFeeTokenAddress = takerFeeAssetData === null ?
-        null :
-        parse0xAssetTokenAddress(takerFeeAssetData);
+    fillEvent.makerFeeProxyType =
+        makerFeeAssetData === null ? null : convertAssetProxyIdToType(makerFeeAssetData.assetProxyId as AssetProxyId);
+    fillEvent.makerFeeTokenAddress = makerFeeAssetData === null ? null : parse0xAssetTokenAddress(makerFeeAssetData);
+    fillEvent.takerFeeProxyType =
+        takerFeeAssetData === null ? null : convertAssetProxyIdToType(takerFeeAssetData.assetProxyId as AssetProxyId);
+    fillEvent.takerFeeTokenAddress = takerFeeAssetData === null ? null : parse0xAssetTokenAddress(takerFeeAssetData);
 
     fillEvent.protocolFeePaid = decodedLog.protocolFeePaid;
 
@@ -87,20 +85,25 @@ export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
 }
 
 export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill {
-
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
 
-    const decodedLog = abiCoder.decodeLog(V3_FILL_ABI.inputs, eventLog.data, eventLog.topics.slice(1,(eventLog.topics.length)));
+    const decodedLog = abiCoder.decodeLog(
+        V3_FILL_ABI.inputs,
+        eventLog.data,
+        eventLog.topics.slice(1, eventLog.topics.length),
+    );
 
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerAssetData);
-    const makerFeeAssetData = decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0 ?
-        null :
-        assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerFeeAssetData);
+    const makerFeeAssetData =
+        decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0
+            ? null
+            : assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerFeeAssetData);
     const takerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerAssetData);
-    const takerFeeAssetData = decodedLog.takerFeeAssetData === '0x' || Number(decodedLog.takerFeeAssetData) === 0 ?
-        null :
-        assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
+    const takerFeeAssetData =
+        decodedLog.takerFeeAssetData === '0x' || Number(decodedLog.takerFeeAssetData) === 0
+            ? null
+            : assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
 
     nativeFill.orderHash = decodedLog.orderHash.toLowerCase();
     nativeFill.maker = decodedLog.makerAddress.toLowerCase();

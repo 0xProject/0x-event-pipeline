@@ -39,7 +39,6 @@ export interface TheGraphResponse {
 }
 
 export class UniswapV2Source {
-
     public async getSwapEventsAsync(
         startTime: number,
         endTime: number,
@@ -50,7 +49,7 @@ export class UniswapV2Source {
         let skip = 0;
         let swaps: Swap[] = [];
         while (numEntries === limit) {
-            const resp = await this.swapRequestAsync(startTime, endTime, endpoint,limit, skip);
+            const resp = await this.swapRequestAsync(startTime, endTime, endpoint, limit, skip);
             const newSwaps = resp.swaps;
             numEntries = newSwaps.length;
             skip = skip + numEntries;
@@ -110,8 +109,7 @@ export class UniswapV2Source {
           }`;
 
         const resp = await request(endpoint, query);
-    
+
         return resp;
     }
-
 }

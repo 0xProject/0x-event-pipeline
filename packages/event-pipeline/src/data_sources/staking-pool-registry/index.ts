@@ -48,7 +48,7 @@ export class StakingPoolRegistrySource {
 
         const chainToPools: { [chainId: number]: Pools } = await resp.json();
 
-        const stakingPools =  chainToPools[this._chainId];
+        const stakingPools = chainToPools[this._chainId];
 
         return stakingPools;
     }

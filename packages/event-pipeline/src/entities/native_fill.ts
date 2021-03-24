@@ -7,7 +7,6 @@ import { bigNumberTransformer } from '../utils';
 // Emitted whenever a `LimitOrder` or `RfqOrder` is filled.
 @Entity({ name: 'native_fills', schema: 'events' })
 export class NativeFill extends Event {
-
     @Column({ name: 'order_hash' })
     public orderHash!: string;
     @Column({ name: 'maker', type: 'varchar' })

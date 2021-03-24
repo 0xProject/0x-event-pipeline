@@ -1,5 +1,4 @@
-import {MigrationInterface, QueryRunner, Table} from "typeorm";
-
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsV4CancelEvents = new Table({
     name: 'events.v4_cancel_events',
@@ -31,10 +30,8 @@ const eventsExpiredRfqOrderEvents = new Table({
         { name: 'maker', type: 'varchar' },
         { name: 'order_hash', type: 'varchar' },
         { name: 'expiry', type: 'numeric' },
-
     ],
 });
-
 
 const indexQuery = `
 
@@ -69,9 +66,7 @@ const dropIndexQuery = `
     DROP INDEX events.expired_rfq_events_order_hash_index;
 `;
 
-
 export class AddV4CancelAndMultiplexEvents1615870349094 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsV4CancelEvents);
         await queryRunner.createTable(eventsExpiredRfqOrderEvents);

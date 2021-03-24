@@ -5,7 +5,7 @@ import { V4CancelEvent } from '../../entities';
 import { parseEvent } from './parse_event';
 import { V4_CANCEL_ABI } from '../../constants';
 
-export function parseV4CancelEvent(eventLog: RawLogEntry): V4CancelEvent{
+export function parseV4CancelEvent(eventLog: RawLogEntry): V4CancelEvent {
     const v4CancelEvent = new V4CancelEvent();
     parseEvent(eventLog, v4CancelEvent);
 
@@ -13,6 +13,6 @@ export function parseV4CancelEvent(eventLog: RawLogEntry): V4CancelEvent{
 
     v4CancelEvent.orderHash = decodedLog.orderHash.toLowerCase();
     v4CancelEvent.maker = decodedLog.maker.toLowerCase();
-   
+
     return v4CancelEvent;
 }

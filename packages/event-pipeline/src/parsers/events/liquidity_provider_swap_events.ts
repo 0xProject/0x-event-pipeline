@@ -6,7 +6,7 @@ import { parseEvent } from './parse_event';
 import { LIQUIDITY_PROVIDER_SWAP_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseLiquidityProviderSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent{
+export function parseLiquidityProviderSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent

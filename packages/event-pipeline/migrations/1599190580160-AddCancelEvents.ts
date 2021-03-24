@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 const eventsCancelEvents = new Table({
     name: 'events.cancel_events',
@@ -72,7 +72,6 @@ const dropIndexQuery = `
 `;
 
 export class AddCancelEvents1599190580160 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsCancelEvents);
         await queryRunner.createTable(eventsCancelUpToEvents);
@@ -84,5 +83,4 @@ export class AddCancelEvents1599190580160 implements MigrationInterface {
         await queryRunner.dropTable(eventsCancelEvents);
         await queryRunner.dropTable(eventsCancelUpToEvents);
     }
-
 }

@@ -1,27 +1,23 @@
 import { logUtils } from '@0x/utils';
 import { Connection } from 'typeorm';
+import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
-    Block,
-    ERC20BridgeTransferEvent,
-    Transaction,
-    TransactionLogs,
-    TransactionReceipt,
-} from '../../entities';
-import {
-   parseBlock,
-   parseTransaction,
-   parseTransactionReceipt,
-   parseTransactionLogs,
+    parseBlock,
+    parseTransaction,
+    parseTransactionReceipt,
+    parseTransactionLogs,
 } from '../../parsers/web3/parse_web3_objects';
-import {
-    parseErc20BridgeTransfer,
-    parseBridgeFill
-} from '../../parsers/events/bridge_transfer_events';
+import { parseErc20BridgeTransfer, parseBridgeFill } from '../../parsers/events/bridge_transfer_events';
 import { Web3Source } from '../../data_sources/web3';
 import { RawLogEntry } from 'ethereum-types';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET, BRIDGE_TRADE_TOPIC, BRIDGEFILL_EVENT_TOPIC } from '../../config';
-
+import {
+    FIRST_SEARCH_BLOCK,
+    MAX_BLOCKS_TO_PULL,
+    START_BLOCK_OFFSET,
+    BRIDGE_TRADE_TOPIC,
+    BRIDGEFILL_EVENT_TOPIC,
+} from '../../config';
 
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
@@ -42,22 +38,40 @@ export class PullAndSaveWeb3 {
         await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
 
-    public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number, shouldLookForBridgeTrades: boolean): Promise<void> {
+    public async getParseSaveTx(
+        connection: Connection,
+        latestBlockWithOffset: number,
+        shouldLookForBridgeTrades: boolean,
+    ): Promise<void> {
         logUtils.log(`Grabbing transaction data`);
-        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transactions', shouldLookForBridgeTrades);
+        const hashes = await this._getTxListToPullAsync(
+            connection,
+            latestBlockWithOffset,
+            'transactions',
+            shouldLookForBridgeTrades,
+        );
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
 
         logUtils.log(`saving ${parsedTx.length} tx`);
 
-        if(parsedTx.length > 0) {
+        if (parsedTx.length > 0) {
             await this._saveTransactionInfo(connection, parsedTx);
         }
     }
 
-    public async getParseSaveTxReceiptsAsync(connection: Connection, latestBlockWithOffset: number, shouldLookForBridgeTrades: boolean): Promise<void> {
+    public async getParseSaveTxReceiptsAsync(
+        connection: Connection,
+        latestBlockWithOffset: number,
+        shouldLookForBridgeTrades: boolean,
+    ): Promise<void> {
         logUtils.log(`Grabbing transaction receipt data`);
-        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transaction_receipts', shouldLookForBridgeTrades);
+        const hashes = await this._getTxListToPullAsync(
+            connection,
+            latestBlockWithOffset,
+            'transaction_receipts',
+            shouldLookForBridgeTrades,
+        );
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
         const parsedReceipts = rawTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
         const parsedTxLogs = rawTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
@@ -67,38 +81,33 @@ export class PullAndSaveWeb3 {
         if (shouldLookForBridgeTrades) {
             const parsedBridgeTradesNested = rawTxReceipts.map(rawTxReceipt =>
                 rawTxReceipt.logs.map((l: RawLogEntry) => {
-                    if(l.topics[0] === BRIDGE_TRADE_TOPIC[0]) {
+                    if (l.topics[0] === BRIDGE_TRADE_TOPIC[0]) {
                         return parseErc20BridgeTransfer(l);
                     } else {
-                        if(l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
+                        if (l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
                             return parseBridgeFill(l);
                         } else {
                             return new ERC20BridgeTransferEvent();
                         }
                     }
-                })
+                }),
             );
 
             let parsedBridgeTradesWithEmptyRecords;
             if (parsedBridgeTradesNested.length > 0) {
-                parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) =>
-                    acc.concat(val),
-                );
-                parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter(
-                    (x: any) => x.observedTimestamp,
-                );
+                parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) => acc.concat(val));
+                parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter((x: any) => x.observedTimestamp);
             } else {
                 parsedBridgeTrades = [];
-            };
+            }
         } else {
             parsedBridgeTrades = [];
         }
 
-
         logUtils.log(`saving ${parsedReceipts.length} tx receipts`);
         logUtils.log(`saving ${parsedBridgeTrades.length} bridge trades`);
 
-        if(parsedReceipts.length > 0) {
+        if (parsedReceipts.length > 0) {
             await this._saveTransactionReceiptInfo(connection, parsedReceipts, parsedTxLogs, parsedBridgeTrades);
         }
     }
@@ -108,12 +117,17 @@ export class PullAndSaveWeb3 {
             `SELECT block_number FROM events.blocks ORDER BY block_number DESC LIMIT 1`,
         );
 
-        const lastKnownBlock = queryResult[0] || {block_number: FIRST_SEARCH_BLOCK};
+        const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK };
 
         return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }
 
-    private async _getTxListToPullAsync(connection: Connection, beforeBlock: number, txTable: string, shouldLookForBridgeTrades: boolean): Promise<string[]> {
+    private async _getTxListToPullAsync(
+        connection: Connection,
+        beforeBlock: number,
+        txTable: string,
+        shouldLookForBridgeTrades: boolean,
+    ): Promise<string[]> {
         let queryResult: any;
         if (shouldLookForBridgeTrades) {
             queryResult = await connection.query(`
@@ -205,8 +219,7 @@ export class PullAndSaveWeb3 {
                     LIMIT 100
                 ) a
             ) b;
-            `,
-            );
+            `);
         } else {
             queryResult = await connection.query(`
                 SELECT DISTINCT
@@ -237,12 +250,10 @@ export class PullAndSaveWeb3 {
                         LIMIT 100)
                 ) a
             ) b;
-            `,
-            );
+            `);
         }
 
-
-        const txList = queryResult.map((e: {transaction_hash: string}) => e.transaction_hash);
+        const txList = queryResult.map((e: { transaction_hash: string }) => e.transaction_hash);
 
         return txList;
     }
@@ -260,31 +271,25 @@ export class PullAndSaveWeb3 {
 
         await queryRunner.startTransaction();
         try {
-
             // delete events scraped prior to the most recent block range
-            await queryRunner.manager.query(`DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`);
+            await queryRunner.manager.query(
+                `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`,
+            );
             await queryRunner.manager.save(toSave);
 
             // commit transaction now:
             await queryRunner.commitTransaction();
-
         } catch (err) {
-
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-
         } finally {
-
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }
     }
 
-    private async _saveTransactionInfo(
-        connection: Connection,
-        transactions: Transaction[],
-    ): Promise<void> {
+    private async _saveTransactionInfo(connection: Connection, transactions: Transaction[]): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
         const txHashes = transactions.map(e => e.transactionHash);
@@ -294,22 +299,19 @@ export class PullAndSaveWeb3 {
 
         await queryRunner.startTransaction();
         try {
-
-            await queryRunner.manager.query(`DELETE FROM events.transactions WHERE transaction_hash IN (${txHashList})`);
+            await queryRunner.manager.query(
+                `DELETE FROM events.transactions WHERE transaction_hash IN (${txHashList})`,
+            );
 
             await queryRunner.manager.save(transactions);
 
             // commit transaction now:
             await queryRunner.commitTransaction();
-
         } catch (err) {
-
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-
         } finally {
-
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }
@@ -344,15 +346,11 @@ export class PullAndSaveWeb3 {
 
             // commit transaction now:
             await queryRunner.commitTransaction();
-
         } catch (err) {
-
             logUtils.log(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
-
         } finally {
-
             // you need to release query runner which is manually created:
             await queryRunner.release();
         }

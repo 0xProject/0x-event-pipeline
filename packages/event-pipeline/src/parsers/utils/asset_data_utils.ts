@@ -1,8 +1,13 @@
-import { AssetData, AssetProxyId, ERC20BridgeAssetData, MultiAssetData, MultiAssetDataWithRecursiveDecoding, StaticCallAssetData } from '@0x/types';
+import {
+    AssetData,
+    AssetProxyId,
+    ERC20BridgeAssetData,
+    MultiAssetData,
+    MultiAssetDataWithRecursiveDecoding,
+    StaticCallAssetData,
+} from '@0x/types';
 
-export function parse0xAssetTokenAddress(
-    decodedAssetData: AssetData):
-string | null {
+export function parse0xAssetTokenAddress(decodedAssetData: AssetData): string | null {
     if (isMultiAssetData(decodedAssetData)) {
         return null;
     } else if (isStaticCallAssetData(decodedAssetData)) {
@@ -16,9 +21,7 @@ string | null {
  * Returns the bridge address if it's ERC20Bridge data
  * @param decodedAssetData decoded 0x asset data
  */
-export function parseV30xBridgeAddress(
-    decodedAssetData: AssetData):
-string | null {
+export function parseV30xBridgeAddress(decodedAssetData: AssetData): string | null {
     if (isERC20BridgeAssetData(decodedAssetData)) {
         return decodedAssetData.bridgeAddress.toLowerCase();
     } else {
@@ -38,7 +41,9 @@ export function isERC20BridgeAssetData(decodedAssetData: AssetData): decodedAsse
  * Checks if the asset data is multi-asset data
  * @param decodedAssetData decoded 0x asset data
  */
-export function isMultiAssetData(decodedAssetData: AssetData): decodedAssetData is MultiAssetData | MultiAssetDataWithRecursiveDecoding {
+export function isMultiAssetData(
+    decodedAssetData: AssetData,
+): decodedAssetData is MultiAssetData | MultiAssetDataWithRecursiveDecoding {
     return decodedAssetData.assetProxyId === AssetProxyId.MultiAsset;
 }
 

@@ -34,7 +34,7 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
         if (eventsInRange === null) {
             return null;
         } else {
-            events = events.concat(eventsInRange);    
+            events = events.concat(eventsInRange);
         }
     }
 

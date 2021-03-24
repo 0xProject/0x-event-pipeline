@@ -23,7 +23,6 @@ export function parseErc20BridgeTransfer(eventLog: RawLogEntry): ERC20BridgeTran
     return eRC20BridgeTransferEvent;
 }
 
-
 export function parseBridgeFill(eventLog: RawLogEntry): ERC20BridgeTransferEvent {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
 
