@@ -1,9 +1,9 @@
-import { Schema, SchemaValidator } from '@0x/json-schemas';
+import { SchemaValidator } from '@0x/json-schemas';
 
 import * as stakingEpochRequestSchema from './staking_epoch_request_schema.json';
 
 // Use to validate incoming requests
-export const schemas: { [id: string]: Schema } = {
+export const schemas: { [id: string]: object } = {
     stakingEpochRequestSchema,
 };
 

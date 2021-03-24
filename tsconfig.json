@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "lib": ["es2017", "dom", "esnext.asynciterable", "es2018.promise"],
+        "experimentalDecorators": true,
+        "downlevelIteration": true,
+        "noImplicitReturns": true,
+        "pretty": true,
+        "skipLibCheck": true,
+        "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"],
+        "strict": true,
+        // These settings are required for TypeScript project references
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true
+    },
+    // The root of the project is just a list of references and does not contain
+    // any top-level TypeScript code.
+    "include": [],
+    "references": [
+        { "path": "./events-pipeline" },
+        { "path": "./api" }
+    ]
+}
