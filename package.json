@@ -1,5 +1,5 @@
 {
-    "name": "0x-staking-and-events",
+    "name": "0x-events-and-staking",
     "private": true,
     "version": "0.0.1",
     "description": "Combined repo for event pipeline and staking API",

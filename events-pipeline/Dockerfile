@@ -19,12 +19,12 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production
 
 # Install runtime dependencies
-COPY events-pipeline/package.json yarn.lock ./events-pipeline/
+COPY events-pipeline/package.json yarn.lock ./
+RUN apk add git
 RUN yarn install --frozen-lockfile --no-cache
 
 # Copy built files
-COPY --from=build /usr/src/app/events-pipeline/lib /usr/src/app/events-pipeline/lib
+COPY --from=build /usr/src/app/events-pipeline/lib /usr/src/app/lib
 
 EXPOSE 3000
-WORKDIR /usr/src/app/events-pipeline
 CMD [ "yarn", "migrate_and_start" ]

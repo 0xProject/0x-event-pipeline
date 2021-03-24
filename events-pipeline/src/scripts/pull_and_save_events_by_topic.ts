@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
