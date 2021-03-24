@@ -1,5 +1,4 @@
 import { HttpServiceConfig } from '@0x/api-utils';
-import { assert } from '@0x/assert';
 import { isEmpty } from 'lodash';
 
 import {
