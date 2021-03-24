@@ -1,6 +1,6 @@
 import { web3Factory } from '@0x/dev-utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
-import { logUtils } from '@0x/utils';
+import { logger } from '../utils/logger';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import 'reflect-metadata';
 import { Connection } from 'typeorm';
@@ -85,12 +85,12 @@ async function dummyAsync(): Promise<void> {}
 export class EventScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
-        logUtils.log(`pulling events`);
+        logger.info(`pulling events`);
         const latestBlockWithOffset = await calculateEndBlockAsync(provider);
         const latestBlockTimestampWithOffset = await (await web3Source.getBlockInfoAsync(latestBlockWithOffset))
             .timestamp;
 
-        logUtils.log(`latest block with offset: ${latestBlockWithOffset}`);
+        logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
 
         await Promise.all([
             pullAndSaveTheGraphEvents.getParseSaveUniswapSwapsAsync(
@@ -260,8 +260,10 @@ export class EventScraper {
         ]);
 
         const endTime = new Date().getTime();
-        logUtils.log(`finished pulling events and blocks`);
-        logUtils.log(`It took ${(endTime - startTime) / 1000} seconds to complete`);
+        const scriptDurationSeconds = (endTime - startTime) / 1000;
+        logger
+            .child({ scriptDurationSeconds, scriptName: `pull_and_save_events` })
+            .info(`Finished pulling events and blocks, it took ${scriptDurationSeconds} seconds to complete`);
     }
 }
 

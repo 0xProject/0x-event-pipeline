@@ -6,7 +6,6 @@ config({ path: resolve(__dirname, '../../.env') });
 
 import { ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
-import { SECONDS_BETWEEN_RUNS } from './config';
 
 import { EventScraper } from './scripts/pull_and_save_events';
 import { DeploymentScraper } from './scripts/pull_and_save_deployment';

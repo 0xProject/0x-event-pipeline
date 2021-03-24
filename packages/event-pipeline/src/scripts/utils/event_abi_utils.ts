@@ -1,4 +1,4 @@
-import { logUtils } from '@0x/utils';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
@@ -36,7 +36,9 @@ export class PullAndSaveEventsByTopic {
         );
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
-        logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+        logger
+            .child({ eventName, startBlock, endBlock })
+            .info(`Searching for ${eventName} between blocks ${startBlock}-${endBlock}`);
 
         // assert(topics.length === 1);
 
@@ -53,7 +55,9 @@ export class PullAndSaveEventsByTopic {
             rawLogsArray.map(async rawLogs => {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
-                logUtils.log(`Saving ${parsedLogs.length} ${eventName} events`);
+                logger
+                    .child({ numLogs: parsedLogs.length, eventName })
+                    .info(`Saving ${parsedLogs.length} ${eventName} events`);
 
                 await this._deleteOverlapAndSaveAsync<EVENT>(
                     connection,
@@ -86,7 +90,7 @@ export class PullAndSaveEventsByTopic {
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logUtils.log(queryResult);
+        logger.child({ ...queryResult, eventName }).info(`Last processed block number for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
 
         return Math.min(
@@ -139,7 +143,7 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {

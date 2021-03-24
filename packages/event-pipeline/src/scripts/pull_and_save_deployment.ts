@@ -1,5 +1,5 @@
 import { web3Factory } from '@0x/dev-utils';
-import { logUtils } from '@0x/utils';
+import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/web3';
 
@@ -14,7 +14,7 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class DeploymentScraper {
     public async getParseSaveStakingProxyContractDeployment(connection: Connection): Promise<void> {
-        logUtils.log(`pulling deployment info for transaction ${STAKING_PROXY_DEPLOYMENT_TRANSACTION}`);
+        logger.info(`pulling deployment info for transaction ${STAKING_PROXY_DEPLOYMENT_TRANSACTION}`);
         const deploymentTxInfo = await web3Source.getTransactionInfoAsync(STAKING_PROXY_DEPLOYMENT_TRANSACTION);
         const deploymentBlockInfo = await web3Source.getBlockInfoAsync(Number(deploymentTxInfo.blockNumber));
 
@@ -27,7 +27,7 @@ export class DeploymentScraper {
         stakingProxyDeployment.blockNumber = Number(deploymentBlockInfo.number);
         stakingProxyDeployment.blockTimestamp = Number(deploymentBlockInfo.timestamp);
 
-        logUtils.log(`finished pulling staking proxy deployment info`);
+        logger.info(`finished pulling staking proxy deployment info`);
 
         await this._deleteAndSaveDeploymentAsync(connection, stakingProxyDeployment);
     }
@@ -49,7 +49,7 @@ export class DeploymentScraper {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {

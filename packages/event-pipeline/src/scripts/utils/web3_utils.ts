@@ -1,4 +1,4 @@
-import { logUtils } from '@0x/utils';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -29,11 +29,11 @@ export class PullAndSaveWeb3 {
         const tableName = 'blocks';
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
-        logUtils.log(`Grabbing blocks between ${startBlock} and ${endBlock}`);
+        logger.child({ startBlock, endBlock }).info(`Grabbing blocks`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
-        logUtils.log(`saving ${parsedBlocks.length} blocks`);
+        logger.child({ count: parsedBlocks.length }).info(`saving blocks`);
 
         await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
@@ -43,7 +43,7 @@ export class PullAndSaveWeb3 {
         latestBlockWithOffset: number,
         shouldLookForBridgeTrades: boolean,
     ): Promise<void> {
-        logUtils.log(`Grabbing transaction data`);
+        logger.info(`Grabbing transaction data`);
         const hashes = await this._getTxListToPullAsync(
             connection,
             latestBlockWithOffset,
@@ -53,7 +53,7 @@ export class PullAndSaveWeb3 {
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
 
-        logUtils.log(`saving ${parsedTx.length} tx`);
+        logger.child({ count: parsedTx.length }).info(`saving batch txs`);
 
         if (parsedTx.length > 0) {
             await this._saveTransactionInfo(connection, parsedTx);
@@ -65,7 +65,7 @@ export class PullAndSaveWeb3 {
         latestBlockWithOffset: number,
         shouldLookForBridgeTrades: boolean,
     ): Promise<void> {
-        logUtils.log(`Grabbing transaction receipt data`);
+        logger.info(`Grabbing transaction receipt data`);
         const hashes = await this._getTxListToPullAsync(
             connection,
             latestBlockWithOffset,
@@ -104,8 +104,8 @@ export class PullAndSaveWeb3 {
             parsedBridgeTrades = [];
         }
 
-        logUtils.log(`saving ${parsedReceipts.length} tx receipts`);
-        logUtils.log(`saving ${parsedBridgeTrades.length} bridge trades`);
+        logger.child({ count: parsedReceipts.length }).info(`saving tx receipts`);
+        logger.child({ count: parsedBridgeTrades.length }).info(`saving bridge trades`);
 
         if (parsedReceipts.length > 0) {
             await this._saveTransactionReceiptInfo(connection, parsedReceipts, parsedTxLogs, parsedBridgeTrades);
@@ -280,7 +280,7 @@ export class PullAndSaveWeb3 {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -308,7 +308,7 @@ export class PullAndSaveWeb3 {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -347,7 +347,7 @@ export class PullAndSaveWeb3 {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
