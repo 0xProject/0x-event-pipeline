@@ -1,6 +1,7 @@
 # Stage 1
 FROM node:12-alpine as build
 WORKDIR /usr/src/app
+
 # Install app dependencies
 COPY events-pipeline events-pipeline
 COPY package.json yarn.lock tsconfig.json lerna.json ./
