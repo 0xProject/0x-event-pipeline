@@ -2,7 +2,7 @@
     "name": "0x-events-and-staking",
     "private": true,
     "version": "0.0.1",
-    "description": "Combined repo for event pipeline and staking API",
+    "description": "Combined repo for event pipelines and staking API",
     "license": "Apache-2.0",
     "engines": {
         "node": ">=12"

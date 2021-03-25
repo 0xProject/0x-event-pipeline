@@ -1,0 +1,30 @@
+# Stage 1
+FROM node:12-alpine as build
+WORKDIR /usr/src/app
+
+# Install app dependencies
+COPY event-pipeline-bsc event-pipeline-bsc
+COPY package.json yarn.lock tsconfig.json lerna.json ./
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache --virtual build-dependencies bash git openssh python make g++ && \
+    yarn --frozen-lockfile --no-cache
+    
+RUN yarn build
+
+# Stage 2
+FROM node:12-alpine
+WORKDIR /usr/src/app
+
+# Skip dev dependencies
+ENV NODE_ENV=production
+
+# Install runtime dependencies
+COPY event-pipeline-bsc/package.json yarn.lock ./
+RUN apk add git
+RUN yarn install --frozen-lockfile --no-cache
+
+# Copy built files
+COPY --from=build /usr/src/app/event-pipeline-bsc/lib /usr/src/app/lib
+
+CMD [ "yarn", "migrate_and_start" ]

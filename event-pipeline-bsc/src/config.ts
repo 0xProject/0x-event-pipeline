@@ -23,15 +23,15 @@ const firstSearchBlockMap: { [chainId: number]: number } = {
     56: 5375047 // the block when EP was deployed on BSC // BSC
 };
 
-export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL ? 
-    process.env.ETHEREUM_RPC_URL : 
-    throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
+export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL_BSC ? 
+    process.env.ETHEREUM_RPC_URL_BSC : 
+    throwError(`Must specify valid ETHEREUM_RPC_URL_BSC. Got: ${process.env.ETHEREUM_RPC_URL_BSC}`);
 export const POSTGRES_URI = process.env.POSTGRES_URI || DEFAULT_LOCAL_POSTGRES_URI;
 export const SHOULD_SYNCHRONIZE = process.env.SHOULD_SYNCHRONIZE === 'true';
 export const START_BLOCK_OFFSET = process.env.START_BLOCK_OFFSET ? parseInt(process.env.START_BLOCK_OFFSET, 10) : DEFAULT_START_BLOCK_OFFSET;
 export const MAX_BLOCKS_TO_PULL = process.env.MAX_BLOCKS_TO_PULL ? parseInt(process.env.MAX_BLOCKS_TO_PULL, 10) : DEFAULT_MAX_BLOCKS_TO_PULL;
 export const MAX_BLOCKS_TO_SEARCH = process.env.MAX_BLOCKS_TO_SEARCH ? parseInt(process.env.MAX_BLOCKS_TO_SEARCH, 10) : DEFAULT_MAX_BLOCKS_TO_SEARCH;
-export const CHAIN_ID = process.env.CHAIN_ID ? parseInt(process.env.CHAIN_ID, 10) : DEFAULT_CHAIN_ID;
+export const CHAIN_ID = process.env.CHAIN_ID_BSC ? parseInt(process.env.CHAIN_ID_BSC, 10) : DEFAULT_CHAIN_ID;
 if (!supportedChains.includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
 };
