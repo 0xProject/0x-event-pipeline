@@ -1,3 +1,4 @@
+export * from './abis';
 export { logger } from './logger';
 export { GetEventsFunc, getEventsWithPaginationAsync } from './sources/get_events';
 export { ContractCallInfo, LogPullInfo, Web3Source } from './sources/web3';
