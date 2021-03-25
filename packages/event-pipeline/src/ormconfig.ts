@@ -32,7 +32,9 @@ import {
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
+    UniswapPair,
+    UniswapSwapEvent
 } from './entities';
 
 const entities = [
@@ -65,7 +67,9 @@ const entities = [
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
-    V4CancelEvent
+    V4CancelEvent,
+    UniswapPair,
+    UniswapSwapEvent,
 ];
 
 const config: ConnectionOptions = {
