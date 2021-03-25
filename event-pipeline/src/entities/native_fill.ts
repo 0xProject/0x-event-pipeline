@@ -2,7 +2,7 @@ import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '../utils';
+import { bigNumberTransformer } from '@0x/pipeline-utils';
 
 // Emitted whenever a `LimitOrder` or `RfqOrder` is filled.
 @Entity({ name: 'native_fills', schema: 'events' })

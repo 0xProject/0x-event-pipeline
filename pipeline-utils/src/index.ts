@@ -1,6 +1,11 @@
-import { BigNumber } from '@0x/utils';
-
+export * from './abis';
+export { logger } from './logger';
+export { GetEventsFunc, getEventsWithPaginationAsync } from './sources/get_events';
+export { ContractCallInfo, LogPullInfo, Web3Source } from './sources/web3';
 export * from './transformers';
+
+import { BigNumber } from '@0x/utils';
+import { logger } from './logger';
 
 /**
  * If the given BigNumber is not null, returns the string representation of that
@@ -22,17 +27,17 @@ export function bigNumbertoStringOrNull(n: BigNumber): string | null {
 export function handleError(e: any): void {
     if (e.message != null) {
         // tslint:disable-next-line:no-console
-        console.error(e.message);
+        logger.error(e.message);
     } else {
         // tslint:disable-next-line:no-console
-        console.error('Unknown error');
+        logger.error('Unknown error');
     }
     if (e.stack != null) {
         // tslint:disable-next-line:no-console
-        console.error(e.stack);
+        logger.error(e.stack);
     } else {
         // tslint:disable-next-line:no-console
-        console.error('(No stack trace)');
+        logger.error('(No stack trace)');
     }
     process.exit(1);
 }

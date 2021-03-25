@@ -24,8 +24,17 @@ services:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
             CHAIN_ID: '${CHAIN_ID}'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
-        ports:
-            - '3000:3000'
+    event-pipeline-bsc:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: event-pipeline-bsc/Dockerfile
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
+            CHAIN_ID: '56'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
     staking-api:
         depends_on:
             - event-pipeline

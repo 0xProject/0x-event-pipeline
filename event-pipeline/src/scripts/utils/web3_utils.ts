@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger';
+import { logger } from '@0x/pipeline-utils';
 import { Connection } from 'typeorm';
 import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -8,7 +8,7 @@ import {
     parseTransactionLogs,
 } from '../../parsers/web3/parse_web3_objects';
 import { parseErc20BridgeTransfer, parseBridgeFill } from '../../parsers/events/bridge_transfer_events';
-import { Web3Source } from '../../data_sources/web3';
+import { Web3Source } from '@0x/pipeline-utils';
 import { RawLogEntry } from 'ethereum-types';
 
 import {

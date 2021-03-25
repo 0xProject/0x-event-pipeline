@@ -1,5 +1,6 @@
-import { logger } from '../../utils/logger';
 import { DecodedLogArgs, LogWithDecodedArgs } from 'ethereum-types';
+
+import { logger } from '../logger';
 
 const NUM_RETRIES = 1; // Number of retries if a request fails or times out.
 
@@ -52,7 +53,7 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
  * @param fromBlock the start of the sub-range of blocks we are getting events for.
  * @param toBlock the end of the sub-range of blocks we are getting events for.
  */
-export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
+async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
     getEventsAsync: GetEventsFunc<ArgsType>,
     numRetries: number,
     fromBlock: number,
@@ -64,7 +65,7 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
         try {
             eventsInRange = await getEventsAsync(fromBlock, toBlock);
         } catch (err) {
-            if (isErrorRetryable(err) && i < numRetries) {
+            if (_isErrorRetryable(err) && i < numRetries) {
                 continue;
             } else {
                 logger.error(err);
@@ -76,7 +77,7 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
     return eventsInRange;
 }
 
-function isErrorRetryable(err: Error): boolean {
+function _isErrorRetryable(err: Error): boolean {
     return err.message.includes('network timeout');
 }
 

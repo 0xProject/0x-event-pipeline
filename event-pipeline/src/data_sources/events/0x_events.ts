@@ -1,3 +1,4 @@
+import { getEventsWithPaginationAsync, GetEventsFunc } from '@0x/pipeline-utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { LogWithDecodedArgs } from 'ethereum-types';
 import { getContractAddressesForChainOrThrow } from '@0x/contract-addresses';
@@ -25,8 +26,6 @@ import {
     ExchangeCancelEventArgs,
     ExchangeCancelUpToEventArgs,
 } from '@0x/contract-wrappers';
-
-import { getEventsWithPaginationAsync, GetEventsFunc } from './utils';
 
 export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract;
