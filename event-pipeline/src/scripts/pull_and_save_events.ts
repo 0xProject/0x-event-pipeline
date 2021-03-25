@@ -1,6 +1,6 @@
 import { web3Factory } from '@0x/dev-utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
-import { logger } from '../utils/logger';
+import { logger } from '@0x/pipeline-utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import 'reflect-metadata';
 import { Connection } from 'typeorm';
@@ -10,7 +10,7 @@ import { PullAndSaveWeb3 } from './utils/web3_utils';
 import { PullAndSaveTheGraphEvents } from './utils/thegraph_utils';
 
 import { EventsSource } from '../data_sources/events/0x_events';
-import { Web3Source } from '../data_sources/web3';
+import { Web3Source } from '@0x/pipeline-utils';
 import { UniswapV2Source } from '../data_sources/events/uniswap_events';
 import {
     BLOCK_FINALITY_THRESHOLD,

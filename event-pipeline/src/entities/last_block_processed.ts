@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Table of the block number for which an event was last updated
 @Entity({ name: 'last_block_processed', schema: 'events' })

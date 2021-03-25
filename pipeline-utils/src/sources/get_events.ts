@@ -1,5 +1,6 @@
-import { logUtils } from '@0x/utils';
 import { DecodedLogArgs, LogWithDecodedArgs } from 'ethereum-types';
+
+import { logger } from '../logger';
 
 const NUM_RETRIES = 1; // Number of retries if a request fails or times out.
 
@@ -28,17 +29,19 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
     for (let fromBlock = startBlock; fromBlock <= endBlock; fromBlock += numPaginationBlocks(fromBlock)) {
         const toBlock = Math.min(fromBlock + numPaginationBlocks(fromBlock) - 1, endBlock);
 
-        logUtils.log(`Query for events in block range ${fromBlock}-${toBlock}`);
+        logger.child({ fromBlock, toBlock }).info(`Query for events in block range ${fromBlock}-${toBlock}`);
 
         const eventsInRange = await _getEventsWithRetriesAsync(getEventsAsync, NUM_RETRIES, fromBlock, toBlock);
         if (eventsInRange === null) {
             return null;
         } else {
-            events = events.concat(eventsInRange);    
+            events = events.concat(eventsInRange);
         }
     }
 
-    logUtils.log(`Retrieved ${events.length} events from block range ${startBlock}-${endBlock}`);
+    logger
+        .child({ count: events.length, startBlock, endBlock })
+        .info(`Retrieved ${events.length} events from block range ${startBlock}-${endBlock}`);
     return events;
 }
 
@@ -50,7 +53,7 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
  * @param fromBlock the start of the sub-range of blocks we are getting events for.
  * @param toBlock the end of the sub-range of blocks we are getting events for.
  */
-export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
+async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
     getEventsAsync: GetEventsFunc<ArgsType>,
     numRetries: number,
     fromBlock: number,
@@ -58,14 +61,14 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
 ): Promise<Array<LogWithDecodedArgs<ArgsType>> | null> {
     let eventsInRange: Array<LogWithDecodedArgs<ArgsType>> = [];
     for (let i = 0; i <= numRetries; i++) {
-        logUtils.log(`Retry ${i}: ${fromBlock}-${toBlock}`);
+        logger.child({ retry: i, fromBlock, toBlock }).info(`Retry ${i}: ${fromBlock}-${toBlock}`);
         try {
             eventsInRange = await getEventsAsync(fromBlock, toBlock);
         } catch (err) {
-            if (isErrorRetryable(err) && i < numRetries) {
+            if (_isErrorRetryable(err) && i < numRetries) {
                 continue;
             } else {
-                logUtils.log(err);
+                logger.error(err);
                 return null;
             }
         }
@@ -74,7 +77,7 @@ export async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs
     return eventsInRange;
 }
 
-function isErrorRetryable(err: Error): boolean {
+function _isErrorRetryable(err: Error): boolean {
     return err.message.includes('network timeout');
 }
 

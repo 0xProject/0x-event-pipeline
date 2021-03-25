@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // These events come directly from the Exchange contract and are fired whenever
 // someone fills an order.

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
+import { logger } from '@0x/pipeline-utils';
 import { Connection } from 'typeorm';
-import { Web3Source } from '../data_sources/web3';
+import { Web3Source } from '@0x/pipeline-utils';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
 import {

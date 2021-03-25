@@ -1,7 +1,7 @@
 import { BigNumber } from '@0x/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer, bigNumberTransformer } from '../utils';
+import { numberToBigIntTransformer, bigNumberTransformer } from '@0x/pipeline-utils';
 
 // Transaction Receipt info for TX containing events
 @Entity({ name: 'transaction_receipts', schema: 'events_bsc' })

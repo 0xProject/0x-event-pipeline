@@ -1,9 +1,10 @@
-# Stage 1
+# Stage 1 - Build
 FROM node:12-alpine as build
 WORKDIR /usr/src/app
 
 # Install app dependencies
 COPY event-pipeline event-pipeline
+COPY pipeline-utils pipeline-utils
 COPY package.json yarn.lock tsconfig.json lerna.json ./
 RUN apk update && \
     apk upgrade && \
@@ -16,15 +17,22 @@ RUN yarn build
 FROM node:12-alpine
 WORKDIR /usr/src/app
 
-# Skip dev dependencies
-ENV NODE_ENV=production
+# Setup monorepo
+COPY package.json yarn.lock tsconfig.json lerna.json ./
 
-# Install runtime dependencies
-COPY event-pipeline/package.json yarn.lock ./
-RUN apk add git
-RUN yarn install --frozen-lockfile --no-cache
+# Setup pipeline-utils
+COPY pipeline-utils/package.json pipeline-utils/
+COPY --from=build /usr/src/app/pipeline-utils/lib pipeline-utils/lib
+
+# Install event-pipeline runtime dependencies
+COPY event-pipeline/package.json event-pipeline/
+RUN apk add git && \
+    yarn install --frozen-lockfile --no-cache --production && \
+    apk del git
 
 # Copy built files
-COPY --from=build /usr/src/app/event-pipeline/lib /usr/src/app/lib
+COPY --from=build /usr/src/app/event-pipeline/lib event-pipeline/lib/
 
+#Start
+WORKDIR /usr/src/app/event-pipeline
 CMD [ "yarn", "migrate_and_start" ]

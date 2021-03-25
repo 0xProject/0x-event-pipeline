@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Event emitted when a staking pool's operator share is decreased.
 @Entity({ name: 'operator_share_decreased_events', schema: 'events' })

@@ -32,7 +32,7 @@ services:
             dockerfile: event-pipeline-bsc/Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL_BSC: '${ETHEREUM_RPC_URL_BSC}'
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
             CHAIN_ID: '56'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
     staking-api:

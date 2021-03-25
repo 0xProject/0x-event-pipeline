@@ -1,6 +1,6 @@
 import { Column, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Abstract class with common event fields
 export abstract class Event {
@@ -20,7 +20,7 @@ export abstract class Event {
     @PrimaryColumn({ name: 'log_index' })
     public logIndex!: number;
     // The block hash where the event was fired.
-    @Column({ name: 'block_hash', })
+    @Column({ name: 'block_hash' })
     public blockHash!: string;
     // The block number where the event occurred.
     @Column({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })

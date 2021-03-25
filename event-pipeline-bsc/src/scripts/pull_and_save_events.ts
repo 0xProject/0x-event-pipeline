@@ -6,11 +6,8 @@ import 'reflect-metadata';
 import { Connection } from 'typeorm';
 
 import { PullAndSaveWeb3 } from './utils/web3_utils';
-import { Web3Source } from '../data_sources/web3';
-import {
-    BLOCK_FINALITY_THRESHOLD,
-    ETHEREUM_RPC_URL,
-} from '../config';
+import { Web3Source } from '@0x/pipeline-utils';
+import { BLOCK_FINALITY_THRESHOLD, ETHEREUM_RPC_URL } from '../config';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -19,8 +16,7 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
-async function dummyAsync(): Promise<void> {
-};
+async function dummyAsync(): Promise<void> {}
 
 export class EventScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
@@ -40,9 +36,9 @@ export class EventScraper {
 
         const endTime = new Date().getTime();
         logUtils.log(`finished pulling events and blocks`);
-        logUtils.log(`It took ${(endTime - startTime) / 1000 } seconds to complete`);
-    };
-};
+        logUtils.log(`It took ${(endTime - startTime) / 1000} seconds to complete`);
+    }
+}
 
 async function calculateEndBlockAsync(provider: Web3ProviderEngine): Promise<number> {
     const web3Wrapper = new Web3Wrapper(provider);
