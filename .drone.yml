@@ -1,4 +1,4 @@
-name: 0x-event-pipeline-sha
+name: event-pipeline-sha
 kind: pipeline
 type: kubernetes
 
@@ -11,7 +11,7 @@ steps:
     image: plugins/ecr
     settings:
       context: .
-      dockerfile: events-pipeline/Dockerfile
+      dockerfile: event-pipeline/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline
       registry:
@@ -26,7 +26,7 @@ trigger:
 node_selector:
   drone-builds: true
 ---
-name: 0x-event-pipeline
+name: event-pipeline
 kind: pipeline
 type: kubernetes
 
@@ -39,7 +39,7 @@ steps:
     image: plugins/ecr
     settings:
       context: .
-      dockerfile: events-pipeline/Dockerfile
+      dockerfile: event-pipeline/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline
       registry:
@@ -57,7 +57,66 @@ trigger:
 node_selector:
   drone-builds: true
 ---
-name: 0x-staking-api-sha
+name: event-pipeline-bsc-sha
+kind: pipeline
+type: kubernetes
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: publish-sha
+    image: plugins/ecr
+    settings:
+      context: .
+      dockerfile: event-pipeline-bsc/Dockerfile
+      repo:
+        from_secret: ecr_repo_event-pipeline-bsc
+      registry:
+        from_secret: ecr_registry
+      region: us-east-1
+      tags:
+        - ${DRONE_COMMIT_SHA}
+trigger:
+  event:
+    exclude:
+    - pull_request
+node_selector:
+  drone-builds: true
+---
+name: event-pipeline-bsc
+kind: pipeline
+type: kubernetes
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: publish  
+    image: plugins/ecr
+    settings:
+      context: .
+      dockerfile: event-pipeline-bsc/Dockerfile
+      repo:
+        from_secret: ecr_repo_event-pipeline-bsc
+      registry:
+        from_secret: ecr_registry
+      region: us-east-1
+      tags:
+        - latest
+
+trigger:
+  branch:
+  - master
+  event:
+    include:
+      - push
+node_selector:
+  drone-builds: true
+---
+name: staking-api-sha
 kind: pipeline
 type: kubernetes
 
@@ -85,7 +144,7 @@ trigger:
 node_selector:
   drone-builds: true
 ---
-name: 0x-staking-api
+name: staking-api
 kind: pipeline
 type: kubernetes
 

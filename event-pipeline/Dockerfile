@@ -3,7 +3,7 @@ FROM node:12-alpine as build
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY events-pipeline events-pipeline
+COPY event-pipeline event-pipeline
 COPY package.json yarn.lock tsconfig.json lerna.json ./
 RUN apk update && \
     apk upgrade && \
@@ -20,12 +20,11 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production
 
 # Install runtime dependencies
-COPY events-pipeline/package.json yarn.lock ./
+COPY event-pipeline/package.json yarn.lock ./
 RUN apk add git
 RUN yarn install --frozen-lockfile --no-cache
 
 # Copy built files
-COPY --from=build /usr/src/app/events-pipeline/lib /usr/src/app/lib
+COPY --from=build /usr/src/app/event-pipeline/lib /usr/src/app/lib
 
-EXPOSE 3000
 CMD [ "yarn", "migrate_and_start" ]
