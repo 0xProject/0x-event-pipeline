@@ -11,7 +11,7 @@ steps:
     image: plugins/ecr
     settings:
       context: .
-      dockerfile: events-pipeline/Dockerfile
+      dockerfile: event-pipeline/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline
       registry:
@@ -39,7 +39,7 @@ steps:
     image: plugins/ecr
     settings:
       context: .
-      dockerfile: events-pipeline/Dockerfile
+      dockerfile: event-pipeline/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline
       registry:
