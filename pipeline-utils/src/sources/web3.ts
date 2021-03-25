@@ -1,7 +1,8 @@
 import { Web3ProviderEngine } from '@0x/subproviders';
-import { logger } from '../../utils/logger';
+import { logUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import { BlockWithoutTransactionData, Transaction, BlockWithTransactionData, RawLog } from 'ethereum-types';
+const Web3Utils = require('web3-utils');
 
 const Web3 = require('web3');
 
@@ -10,6 +11,10 @@ export interface LogPullInfo {
     fromBlock: number;
     toBlock: number;
     topics: string[];
+}
+export interface ContractCallInfo {
+    to: string;
+    data: string;
 }
 
 export class Web3Source {
@@ -92,7 +97,7 @@ export class Web3Source {
                 const reqParams = {
                     fromBlock: logPull.fromBlock,
                     toBlock: logPull.toBlock,
-                    address: logPull.address,
+                    address: logPull.address === 'nofilter' ? null : logPull.address,
                     topics: logPull.topics,
                 };
                 let req = this._web3.eth.getPastLogs.request(reqParams, (err: any, data: RawLog) => {
@@ -110,6 +115,26 @@ export class Web3Source {
         return encodedLogs;
     }
 
+    public async callContractMethodsAsync(contractCallInfo: ContractCallInfo[]): Promise<any[]> {
+        var batch = new this._web3.BatchRequest();
+
+        let promises = contractCallInfo.map(contractCall => {
+            return new Promise((resolve, reject) => {
+                let req = this._web3.eth.call.request(contractCall, (err: any, data: String) => {
+                    if (err) reject(err);
+                    else resolve(`0x${data.slice(2).slice(data.length == 66 ? 64 - 40 : 0)}`);
+                });
+                batch.add(req);
+            });
+        });
+
+        batch.execute();
+
+        const contractMethodValues = await Promise.all(promises);
+
+        return contractMethodValues;
+    }
+
     public async getBlockInfoForRangeAsync(
         startBlock: number,
         endBlock: number,
@@ -122,7 +147,7 @@ export class Web3Source {
 
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
         try {
-            logger.child({ blockNumber }).info(`Fetching block ${blockNumber}`);
+            logUtils.log(`Fetching block ${blockNumber}`);
 
             const block = await this._web3Wrapper.getBlockIfExistsAsync(blockNumber);
 

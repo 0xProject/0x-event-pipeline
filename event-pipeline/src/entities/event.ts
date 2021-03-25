@@ -1,6 +1,6 @@
 import { Column, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Abstract class with common event fields
 export abstract class Event {

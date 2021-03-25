@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Transaction Receipt Logs for storage
 @Entity({ name: 'transaction_logs', schema: 'events_bsc' })

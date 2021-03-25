@@ -1,6 +1,13 @@
 import { AssetProxyId } from '@0x/types';
 
-import { ProxyType } from '../../types';
+export enum ProxyType {
+    ERC20 = 'erc20',
+    ERC721 = 'erc721',
+    MultiAsset = 'multiAsset',
+    StaticCall = 'staticCall',
+    ERC1155 = 'erc1155',
+    ERC20Bridge = 'erc20Bridge',
+}
 
 /**
  * Converts an assetProxyId to its string equivalent

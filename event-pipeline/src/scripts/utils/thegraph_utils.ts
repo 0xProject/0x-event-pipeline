@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger';
+import { logger } from '@0x/pipeline-utils';
 import { Connection } from 'typeorm';
 import { ERC20BridgeTransferEvent, LastBlockProcessed } from '../../entities';
 

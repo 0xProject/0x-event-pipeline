@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { logger } from '../utils/logger';
+import { logger } from '@0x/pipeline-utils';
 import { Connection } from 'typeorm';
 
 import { StakingPoolRegistrySource } from '../data_sources/staking-pool-registry';

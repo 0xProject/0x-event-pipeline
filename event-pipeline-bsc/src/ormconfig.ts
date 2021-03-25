@@ -31,7 +31,7 @@ const entities = [
     V4RfqOrderFilledEvent,
     ExpiredRfqOrderEvent,
     V4CancelEvent,
-    ERC20BridgeTransferEvent
+    ERC20BridgeTransferEvent,
 ];
 
 const config: ConnectionOptions = {
@@ -41,7 +41,7 @@ const config: ConnectionOptions = {
     logging: ['error'],
     entities,
     migrations: ['lib/migrations/*.js'],
-    migrationsTableName: 'bsc_event_pipeline_migrations'
+    migrationsTableName: 'bsc_event_pipeline_migrations',
 };
 
 module.exports = config;

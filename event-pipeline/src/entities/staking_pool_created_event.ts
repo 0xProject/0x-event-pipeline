@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
-import { numberToBigIntTransformer } from '../utils';
+import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Event emitted by MixinStake when a new pool is created.
 @Entity({ name: 'staking_pool_created_events', schema: 'events' })

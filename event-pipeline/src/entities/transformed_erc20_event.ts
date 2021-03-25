@@ -2,7 +2,7 @@ import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '../utils';
+import { bigNumberTransformer } from '@0x/pipeline-utils';
 
 // These events are fired when someone uses the exchange proxy to trade
 @Entity({ name: 'transformed_erc20_events', schema: 'events' })
