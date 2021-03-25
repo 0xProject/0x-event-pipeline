@@ -74,14 +74,9 @@ export class PullAndSaveEventsByTopic {
                 const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
                 const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
 
-                logUtils.log(`token0 batch results ${token0}`);
-                logUtils.log(`token1 batch results ${token1}`);
 
                 for(var i = 0; i<parsedLogs.length; i++)
                 { 
-                    logUtils.log(`${i}th token0 in batch ${token0[i]}`);
-                    logUtils.log(`${i}th token1 in batch ${token0[i]}`);
-
                     parsedLogs[i].fromToken = (parsedLogs[i].fromToken === '0') ? token0[i]: token1[i];
                     parsedLogs[i].toToken = (parsedLogs[i].toToken === '0' )? token0[i]: token1[i];
                 }
