@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
-import { ProxyType } from '../types';
+import { ProxyType } from '../utils';
 
 // These events come directly from the Exchange contract and are fired for meta transactions
 @Entity({ name: 'cancel_events', schema: 'events' })
