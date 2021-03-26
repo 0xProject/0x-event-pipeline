@@ -24,10 +24,10 @@ export function parsePancakeSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransfe
 
     eRC20BridgeTransferEvent.fromTokenAmount = amount0In.gt(amount1In) ? amount0In : amount1In; // taker_token_amount
     eRC20BridgeTransferEvent.toTokenAmount = amount0In.gt(amount1In) ? amount1Out : amount0Out; // maker_token_amount
-    eRC20BridgeTransferEvent.from = 'PancakeSwap'; // maker
+    eRC20BridgeTransferEvent.from = ''; // maker
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase(); // taker
     eRC20BridgeTransferEvent.directFlag = true;
-    eRC20BridgeTransferEvent.directProtocol = 'PancakeSwap';
+    eRC20BridgeTransferEvent.directProtocol = '';
 
     return eRC20BridgeTransferEvent;
 }
