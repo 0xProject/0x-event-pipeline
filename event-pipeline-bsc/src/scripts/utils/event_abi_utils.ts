@@ -6,6 +6,7 @@ import { RawLogEntry } from 'ethereum-types';
 
 import { MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
+const Web3Utils = require('web3-utils');
 
 export interface DeleteOptions {
     isDirectTrade?: boolean;
@@ -56,6 +57,8 @@ export class PullAndSaveEventsByTopic {
                     var contractCallToken0Array = [];
                     var contractCallToken1Array = [];
 
+                    var contractCallProtocolNameArray = [];
+
                     for (var index in parsedLogs) {
                         const contractCallToken0: ContractCallInfo = {
                             to: (parsedLogs[index] as any).contractAddress,
@@ -68,13 +71,31 @@ export class PullAndSaveEventsByTopic {
                             data: '0xd21220a7',
                         };
                         contractCallToken1Array.push(contractCallToken1);
+
+                        const contractCallProtocolName: ContractCallInfo = {
+                            to: (parsedLogs[index] as any).contractAddress,
+                            data: '0x06fdde03',
+                        };
+                        contractCallProtocolNameArray.push(contractCallProtocolName);
                     }
                     const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
                     const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
+                    const protocolName = await web3Source.callContractMethodsAsync(contractCallProtocolNameArray);
 
                     for (var i = 0; i < parsedLogs.length; i++) {
-                        parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0[i] : token1[i];
-                        parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0[i] : token1[i];
+
+                        const token0_i =   '0x'+ token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0)
+                        const token1_i =   '0x'+ token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0)
+                        parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
+                        parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
+                        // logUtils.log(Web3Utils.hexToUtf8('0x' + protocolName[i].slice(98)).split(' ')) // [ '\u0012SushiSwap', 'LP', 'Token' ] [ '\u000bPancake', 'LPs' ]
+                        // logUtils.log(Web3Utils.hexToUtf8('0x' + protocolName[i].slice(98)).split(' ')[0]) // SushiSwap, \n Pancake
+                        // logUtils.log(Web3Utils.hexToUtf8('0x' + protocolName[i].slice(98)).split(' ')[1])
+
+                        const protocolName_i = Web3Utils.hexToUtf8('0x' + protocolName[i].slice(98)).split('LP')[0].split(' ')[0].slice(1);
+                        parsedLogs[i].from = protocolName_i.includes('Swap')? protocolName_i: (protocolName_i + 'Swap');
+                        parsedLogs[i].directProtocol = protocolName_i.includes('Swap')? protocolName_i: (protocolName_i + 'Swap');
+
                     }
                 }
 
