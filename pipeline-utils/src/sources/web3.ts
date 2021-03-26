@@ -122,7 +122,7 @@ export class Web3Source {
             return new Promise((resolve, reject) => {
                 let req = this._web3.eth.call.request(contractCall, (err: any, data: String) => {
                     if (err) reject(err);
-                    else resolve(`0x${data.slice(2).slice(data.length == 66 ? 64 - 40 : 0)}`);
+                    else resolve(data);
                 });
                 batch.add(req);
             });
