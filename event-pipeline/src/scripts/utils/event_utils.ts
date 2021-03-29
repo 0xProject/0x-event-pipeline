@@ -17,7 +17,9 @@ export class PullAndSaveEvents {
         const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
-        logger.child({ eventName, startBlock, endBlock }).info(`Searching for events`);
+        logger
+            .child({ eventName, startBlock, endBlock, lag: latestBlockWithOffset - startBlock, type: 'BLOCK_LAG' })
+            .info(`Searching for events`);
         const eventLogs = await getterFunction(startBlock, endBlock);
 
         if (eventLogs === null) {
