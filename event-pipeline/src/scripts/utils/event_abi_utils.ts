@@ -35,8 +35,8 @@ export class PullAndSaveEventsByTopic {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger
-            .child({ eventName, startBlock, endBlock })
-            .info(`Searching for ${eventName} between blocks ${startBlock}-${endBlock}`);
+            .child({ eventName, startBlock, endBlock, lag: latestBlockWithOffset - startBlock, type: 'BLOCK_LAG' })
+            .info(`Searching for events: ${eventName} between blocks ${startBlock}-${endBlock}`);
 
         // assert(topics.length === 1);
 

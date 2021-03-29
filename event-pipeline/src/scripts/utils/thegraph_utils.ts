@@ -19,7 +19,9 @@ export class PullAndSaveTheGraphEvents {
     ): Promise<void> {
         const startTime = await this._getStartTimestampAsync(connection, latestBlockTimestampWithOffset, protocol);
         const endTime = Math.min(latestBlockTimestampWithOffset, startTime + MAX_TIME_TO_SEARCH);
-        logger.child({ startTime, endTime }).info(`Grabbing swap events`);
+        logger
+            .child({ startTime, endTime, lag: latestBlockTimestampWithOffset - startTime, type: 'TIMESTAMP_LAG' })
+            .info(`Searching for swap events`);
         const rawSwaps = await uniswapV2Source.getSwapEventsAsync(startTime, endTime, endpoint, 100);
         const parsedSwaps = rawSwaps.map(rawSwap => parseUniswapSushiswapEvents(rawSwap, protocol));
 
