@@ -60,7 +60,7 @@ export class PullAndSaveTheGraphEvents {
         );
 
         logger
-            .child({ last_processed_block_number: queryResult[0].last_processed_block_number || 0, eventName })
+            .child({ last_processed_block_timestamp: queryResult[0].last_processed_block_timestamp || 0, eventName })
             .info(`Last processed block timestamp for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_timestamp: START_DIRECT_UNISWAP_SEARCH };
 
