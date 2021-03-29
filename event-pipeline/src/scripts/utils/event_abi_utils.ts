@@ -88,7 +88,9 @@ export class PullAndSaveEventsByTopic {
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logger.child({ ...queryResult, eventName }).info(`Last processed block number for ${eventName}`);
+        logger
+            .child({ last_processed_block_number: queryResult[0].last_processed_block_number || 0, eventName })
+            .info(`Last processed block number for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
 
         return Math.min(
