@@ -13,23 +13,34 @@ services:
             - ./postgres:/var/lib/postgresql/data
         ports:
             - '5432:5432'
-    events-pipeline:
+    event-pipeline:
         depends_on:
             - postgres
         build:
-            context: ./packages/event-pipeline
+            context: .
+            dockerfile: event-pipeline/Dockerfile
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
             CHAIN_ID: '${CHAIN_ID}'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
-        ports:
-            - '3000:3000'
+    event-pipeline-bsc:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: event-pipeline-bsc/Dockerfile
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
+            CHAIN_ID: '56'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
     staking-api:
         depends_on:
-            - events-pipeline
+            - event-pipeline
         build:
-            context: ./packages/api
+            context: .
+            dockerfile: staking-api/Dockerfile
         restart: always
         environment:
             POSTGRES_URI: 'postgres://api:api@postgres/events'
