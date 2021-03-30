@@ -39,7 +39,7 @@ export const currentEpochWithFeesQuery = `
     , protocol_fees AS (
         SELECT
             SUM(protocol_fee_paid) / 1e18::NUMERIC AS protocol_fees_generated_in_eth
-        FROM events.fill_events fe
+        FROM events.native_fills fe
         JOIN staking.current_epoch ce
             ON fe.block_number > ce.starting_block_number
             OR (fe.block_number = ce.starting_block_number AND fe.transaction_index > ce.starting_transaction_index)
@@ -153,7 +153,7 @@ WITH
     , protocol_fees AS (
         SELECT
             SUM(protocol_fee_paid) / 1e18::NUMERIC AS protocol_fees_generated_in_eth
-        FROM events.fill_events fe
+        FROM events.native_fills fe
         JOIN epoch e
             ON
             -- Start of epoch
@@ -181,17 +181,25 @@ export const stakingPoolByIdQuery = `SELECT * FROM staking.pool_info WHERE pool_
 export const poolSevenDayProtocolFeesGeneratedQuery = `
     WITH pool_7d_fills AS (
         SELECT
-            pi.pool_id
+            case when fe.protocol_version='v4' then fe.pool
+                else pi.pool_id end
+             as pool_id
             , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
             , COUNT(*) AS number_of_fills
-        FROM events.fill_events fe
+        FROM events.native_fills fe
         LEFT JOIN events.blocks b ON b.block_number = fe.block_number
-        LEFT JOIN staking.pool_info pi ON fe.maker_address = ANY(pi.maker_addresses)
+        LEFT JOIN staking.pool_info pi ON fe.maker = ANY(pi.maker_addresses)
         WHERE
             -- fees not accruing to a pool do not count
-            pool_id IS NOT NULL
+            (case when fe.protocol_version='v4'
+                then fe.pool != '0'
+                else pi.pool_id is not null
+            end)
             AND TO_TIMESTAMP(b.block_timestamp) > (CURRENT_TIMESTAMP - '7 days'::INTERVAL)
-            AND pool_id = $1
+            AND (case when fe.protocol_version='v4'
+                then fe.pool = $1
+                else pi.pool_id = $1
+                end)
         GROUP BY 1
     )
     SELECT
@@ -207,15 +215,20 @@ export const poolSevenDayProtocolFeesGeneratedQuery = `
 export const sevenDayProtocolFeesGeneratedQuery = `
     WITH pool_7d_fills AS (
         SELECT
-            pi.pool_id
+            case when fe.protocol_version='v4' then fe.pool
+                else pi.pool_id end
+             as pool_id
             , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
             , COUNT(*) AS number_of_fills
-        FROM events.fill_events fe
+        FROM events.native_fills fe
         LEFT JOIN events.blocks b ON b.block_number = fe.block_number
-        LEFT JOIN staking.pool_info pi ON fe.maker_address = ANY(pi.maker_addresses)
+        LEFT JOIN staking.pool_info pi ON fe.maker = ANY(pi.maker_addresses)
         WHERE
             -- fees not accruing to a pool do not count
-            pool_id IS NOT NULL
+            (case when fe.protocol_version='v4'
+                then fe.pool != '0'
+                else pi.pool_id is not null
+            end)
             AND TO_TIMESTAMP(b.block_timestamp) > (CURRENT_TIMESTAMP - '7 days'::INTERVAL)
         GROUP BY 1
     )
@@ -289,7 +302,7 @@ export const poolTotalProtocolFeesGeneratedQuery = `
                 SELECT
                     fe.*
                     , COALESCE(e.epoch_id, ce.epoch_id) AS epoch_id
-                FROM events.fill_events fe
+                FROM events.native_fills fe
                 LEFT JOIN staking.epochs e ON
                     (
                         e.starting_block_number < fe.block_number
@@ -306,15 +319,20 @@ export const poolTotalProtocolFeesGeneratedQuery = `
                     )
             )
             SELECT
-                esps.pool_id
-                , SUM(fwe.protocol_fee_paid) / 1e18 AS total_protocol_fees
+                  case when fwe.protocol_version='v4' then fwe.pool
+                      else esps.pool_id end
+                   as pool_id
+                , SUM(protocol_fee_paid) / 1e18 AS total_protocol_fees
                 , COUNT(*) AS number_of_fills
             FROM fills_with_epochs fwe
             LEFT JOIN staking.epoch_start_pool_status esps ON
-                fwe.maker_address = ANY(esps.maker_addresses)
+                fwe.maker = ANY(esps.maker_addresses)
                 AND fwe.epoch_id = esps.epoch_id
             WHERE
-                esps.pool_id = $1
+                (case when protocol_version='v4'
+                      then pool = $1
+                      else pool_id = $1
+                      end)
             GROUP BY 1;
 `;
 
@@ -353,17 +371,22 @@ export const currentEpochPoolsStatsQuery = `
     , current_epoch_fills_by_pool AS (
         SELECT
             ce.epoch_id
-            , cebs.pool_id
+            , case when fe.protocol_version='v4' then fe.pool
+                else cebs.pool_id end
+             as pool_id
             , COUNT(*) AS num_fills
             , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
-        FROM events.fill_events fe
-        LEFT JOIN current_epoch_beginning_status cebs ON fe.maker_address = ANY(cebs.maker_addresses)
+        FROM events.native_fills fe
+        LEFT JOIN current_epoch_beginning_status cebs ON fe.maker = ANY(cebs.maker_addresses)
         JOIN staking.current_epoch ce
             ON fe.block_number > ce.starting_block_number
             OR (fe.block_number = ce.starting_block_number AND fe.transaction_index >= ce.starting_transaction_index)
         WHERE
             -- fees not accruing to a pool do not count
-            pool_id IS NOT NULL
+            (case when fe.protocol_version='v4'
+                then pool !='0'
+                else pool_id is not null
+            end)
         GROUP BY 1,2
     )
     , total_staked AS (
@@ -411,17 +434,22 @@ export const currentEpochPoolStatsQuery = `
         , current_epoch_fills_by_pool AS (
             SELECT
                 ce.epoch_id
-                , cebs.pool_id
+                , case when fe.protocol_version='v4' then fe.pool
+                    else cebs.pool_id end
+                as pool_id
                 , COUNT(*) AS num_fills
                 , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
-            FROM events.fill_events fe
-            LEFT JOIN current_epoch_beginning_status cebs ON fe.maker_address = ANY(cebs.maker_addresses)
+            FROM events.native_fills fe
+            LEFT JOIN current_epoch_beginning_status cebs ON fe.maker = ANY(cebs.maker_addresses)
             JOIN staking.current_epoch ce
                 ON fe.block_number > ce.starting_block_number
                 OR (fe.block_number = ce.starting_block_number AND fe.transaction_index >= ce.starting_transaction_index)
             WHERE
                 -- fees not accruing to a pool do not count
-                pool_id IS NOT NULL
+                (case when fe.protocol_version='v4'
+                    then pool !='0'
+                    else pool_id is not null
+                end)
             GROUP BY 1,2
         )
         , total_staked AS (
@@ -480,17 +508,22 @@ export const nextEpochPoolsStatsQuery = `
         )
         , current_epoch_fills_by_pool AS (
             SELECT
-                pi.pool_id
+                  case when fe.protocol_version='v4' then fe.pool
+                      else pi.pool_id end
+                  as pool_id
                 , COUNT(*) AS num_fills
                 , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
-            FROM events.fill_events fe
-            LEFT JOIN staking.pool_info pi ON fe.maker_address = ANY(pi.maker_addresses)
+            FROM events.native_fills fe
+            LEFT JOIN staking.pool_info pi ON fe.maker = ANY(pi.maker_addresses)
             JOIN staking.current_epoch ce
                 ON fe.block_number > ce.starting_block_number
                 OR (fe.block_number = ce.starting_block_number AND fe.transaction_index >= ce.starting_transaction_index)
             WHERE
                 -- fees not accruing to a pool do not count
-                pool_id IS NOT NULL
+                (case when fe.protocol_version='v4'
+                    then pool !='0'
+                    else pool_id is not null
+                end)
             GROUP BY 1
         )
         , total_staked AS (
@@ -559,17 +592,22 @@ export const nextEpochPoolStatsQuery = `
         )
         , current_epoch_fills_by_pool AS (
             SELECT
-                pi.pool_id
+                  case when fe.protocol_version='v4' then fe.pool
+                      else pi.pool_id end
+                  as pool_id
                 , COUNT(*) AS num_fills
                 , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
-            FROM events.fill_events fe
-            LEFT JOIN staking.pool_info pi ON fe.maker_address = ANY(pi.maker_addresses)
+            FROM events.native_fills fe
+            LEFT JOIN staking.pool_info pi ON fe.maker = ANY(pi.maker_addresses)
             JOIN staking.current_epoch ce
                 ON fe.block_number > ce.starting_block_number
                 OR (fe.block_number = ce.starting_block_number AND fe.transaction_index >= ce.starting_transaction_index)
             WHERE
                 -- fees not accruing to a pool do not count
-                pool_id IS NOT NULL
+                (case when fe.protocol_version='v4'
+                    then pool !='0'
+                    else pool_id is not null
+                end)
             GROUP BY 1
         )
         , total_staked AS (
