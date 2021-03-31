@@ -6,7 +6,6 @@ import {
     AllTimeDelegatorPoolStats,
     AllTimeDelegatorStats,
     AllTimePoolStats,
-    AllTimePoolStakedAmount,
     AllTimePoolStakedAmounts,
     AllTimeStakingStats,
     DelegatorEvent,
@@ -120,10 +119,9 @@ export class QueryRunner {
     }
 
     public async getStakingPoolEpochRewardsAsync(poolId: string): Promise<PoolEpochRewards[]> {
-        const rawPoolEpochRewards: RawPoolEpochRewards[] = await (await getDbAsync()).query(
-            queries.poolEpochRewardsOldQuery,
-            [poolId],
-        );
+        const rawPoolEpochRewards: RawPoolEpochRewards[] = await (
+            await getDbAsync()
+        ).query(queries.poolEpochRewardsOldQuery, [poolId]);
         const poolEpochRewards = stakingUtils.getPoolEpochRewardsFromRaw(rawPoolEpochRewards);
         return poolEpochRewards;
     }
@@ -132,10 +130,9 @@ export class QueryRunner {
         const rawAllTimePoolRewards = (await (await getDbAsync()).query(queries.allTimePoolRewardsQuery, [
             poolId,
         ])) as RawAllTimePoolRewards[];
-        const rawTotalPoolProtocolFeesGenerated = (await (await getDbAsync()).query(
-            queries.poolTotalProtocolFeesGeneratedQuery,
-            [poolId],
-        )) as RawPoolTotalProtocolFeesGenerated[];
+        const rawTotalPoolProtocolFeesGenerated = (await (
+            await getDbAsync()
+        ).query(queries.poolTotalProtocolFeesGeneratedQuery, [poolId])) as RawPoolTotalProtocolFeesGenerated[];
 
         const rawAllTimePoolRewardsHead = _.head(rawAllTimePoolRewards);
         const rawTotalPoolProtocolFeesGeneratedHead = _.head(rawTotalPoolProtocolFeesGenerated);
@@ -162,10 +159,9 @@ export class QueryRunner {
         const pool = await this.getStakingPoolAsync(poolId);
         const rawCurrentEpochPoolStats = await (await getDbAsync()).query(queries.currentEpochPoolStatsQuery, [poolId]);
         const rawNextEpochPoolStats = await (await getDbAsync()).query(queries.nextEpochPoolStatsQuery, [poolId]);
-        const rawPoolSevenDayProtocolFeesGenerated = await (await getDbAsync()).query(
-            queries.poolSevenDayProtocolFeesGeneratedQuery,
-            [poolId],
-        );
+        const rawPoolSevenDayProtocolFeesGenerated = await (
+            await getDbAsync()
+        ).query(queries.poolSevenDayProtocolFeesGeneratedQuery, [poolId]);
         const rawAvgReward = await (await getDbAsync()).query(queries.poolAvgRewardsQuery, [poolId]);
 
         const currentEpochPoolStats = stakingUtils.getEpochPoolStatsFromRaw(rawCurrentEpochPoolStats[0]);
