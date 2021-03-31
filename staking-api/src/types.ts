@@ -274,3 +274,18 @@ export interface DelegatorEvent {
     transactionHash: string | null;
     eventArgs: object;
 }
+
+export interface RawAllTimePoolStakedAmount {
+    pool_id: string;
+    epoch_id: string;
+    member_zrx_staked: string;
+}
+
+export interface AllTimePoolStakedAmount {
+    epochId: number;
+    memberZrxStaked: number;
+}
+
+export interface AllTimePoolStakedAmounts {
+    [key: string]: AllTimePoolStakedAmount[];
+}

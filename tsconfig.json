@@ -12,7 +12,7 @@
         "strict": true,
         // These settings are required for TypeScript project references
         "declaration": true,
-        "declarationMap": true,
+        // "declarationMap": true,
         "sourceMap": true
     },
     // The root of the project is just a list of references and does not contain
