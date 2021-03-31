@@ -60,6 +60,7 @@ export interface RawPoolEpochRewards {
     operator_reward: string;
     members_reward: string;
     total_reward: string;
+    member_zrx_staked: string;
     // Fields below are available but not used in response
     starting_block_timestamp: string;
     starting_block_number: string;
@@ -272,4 +273,19 @@ export interface DelegatorEvent {
     eventTimestamp: string;
     transactionHash: string | null;
     eventArgs: object;
+}
+
+export interface RawAllTimePoolStakedAmount {
+    pool_id: string;
+    epoch_id: string;
+    member_zrx_staked: string;
+}
+
+export interface AllTimePoolStakedAmount {
+    epochId: number;
+    memberZrxStaked: number;
+}
+
+export interface AllTimePoolStakedAmounts {
+    [key: string]: AllTimePoolStakedAmount[];
 }
