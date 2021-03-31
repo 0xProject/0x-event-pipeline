@@ -178,6 +178,18 @@ export const stakingPoolsQuery = `SELECT * FROM staking.pool_info;`;
 
 export const stakingPoolByIdQuery = `SELECT * FROM staking.pool_info WHERE pool_id = $1;`;
 
+export const allTimePoolStakedAmountsQuery = `
+    SELECT
+        rpe.pool_id AS pool_id
+        , e.epoch_id AS epoch_id
+        , COALESCE(esps.member_zrx_delegated, 0.00) AS member_zrx_staked
+    FROM events.rewards_paid_events rpe
+    FULL JOIN staking.epochs e ON e.epoch_id = (rpe.epoch_id - 1)
+    LEFT JOIN staking.epoch_start_pool_status esps ON (esps.epoch_id = e.epoch_id AND esps.pool_id = rpe.pool_id)
+    WHERE rpe.pool_id IS NOT NULL
+    ORDER BY rpe.pool_id::int ASC, epoch_id;
+`;
+
 export const poolSevenDayProtocolFeesGeneratedQuery = `
     WITH pool_7d_fills AS (
         SELECT
@@ -328,7 +340,7 @@ export const poolEpochRewardsQuery = `
         , e.ending_timestamp
         , e.ending_block_number
         , e.ending_transaction_hash
-        , esps.member_zrx_delegated AS member_zrx_staked
+        , COALESCE(esps.member_zrx_delegated, 0) AS member_zrx_staked
         , COALESCE(rpe.operator_reward / 1e18,0) AS operator_reward
         , COALESCE(rpe.members_reward / 1e18,0) AS members_reward
         , COALESCE((rpe.operator_reward + rpe.members_reward) / 1e18,0) AS total_reward
@@ -343,6 +355,30 @@ export const poolEpochRewardsQuery = `
         )
         AND ce.epoch_id IS NULL
         ORDER BY epoch_id ASC;
+`;
+
+export const poolEpochRewardsOldQuery = `
+    SELECT
+        $1::text AS pool_id
+        , e.epoch_id AS epoch_id
+        , e.starting_block_timestamp
+        , e.starting_block_number
+        , e.starting_transaction_index
+        , e.ending_timestamp
+        , e.ending_block_number
+        , e.ending_transaction_hash
+        , COALESCE(rpe.operator_reward / 1e18,0) AS operator_reward
+        , COALESCE(rpe.members_reward / 1e18,0) AS members_reward
+        , COALESCE((rpe.operator_reward + rpe.members_reward) / 1e18,0) AS total_reward
+    FROM events.rewards_paid_events rpe
+    FULL JOIN staking.epochs e ON e.epoch_id = (rpe.epoch_id - 1)
+    LEFT JOIN staking.current_epoch ce ON ce.epoch_id = e.epoch_id
+    WHERE
+        (
+            pool_id = $1
+            OR pool_id IS NULL
+        )
+        AND ce.epoch_id IS NULL;
 `;
 
 export const currentEpochPoolsStatsQuery = `
