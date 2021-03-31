@@ -29,7 +29,9 @@ export class PullAndSaveWeb3 {
         const tableName = 'blocks';
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
-        logger.child({ startBlock, endBlock }).info(`Grabbing blocks`);
+        logger
+            .child({ startBlock, endBlock, lag: latestBlockWithOffset - startBlock, type: 'BLOCK_LAG' })
+            .info(`Grabbing blocks`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
