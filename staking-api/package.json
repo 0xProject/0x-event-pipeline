@@ -8,6 +8,7 @@
     "scripts": {
         "build": "yarn tsc -b",
         "clean": "rm -rf lib",
+        "dev": "nodemon -r dotenv/config src/index.ts | pino-pretty",
         "lint": "tslint --project . --format stylish && yarn prettier:ci",
         "prettier": "prettier --write '**/*.{ts,tsx,json,md}' --config ../.prettierrc --ignore-path ../../.prettierignore",
         "prettier:ci": "prettier --list-different '**/*.{ts,tsx,json,md}' --config ../.prettierrc --ignore-path ../../.prettierignore",
@@ -29,6 +30,8 @@
         "mocha": "^6.2.2",
         "prettier": "^1.18.2",
         "source-map-support": "^0.5.19",
+        "nodemon": "^1.19.4",
+        "pino-pretty": "^3.2.2",
         "supertest": "^4.0.2",
         "tslint": "^6.1.3"
     },
