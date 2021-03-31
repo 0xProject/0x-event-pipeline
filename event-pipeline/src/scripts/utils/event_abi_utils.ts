@@ -35,8 +35,8 @@ export class PullAndSaveEventsByTopic {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger
-            .child({ eventName, startBlock, endBlock })
-            .info(`Searching for ${eventName} between blocks ${startBlock}-${endBlock}`);
+            .child({ eventName, startBlock, endBlock, lag: latestBlockWithOffset - startBlock, type: 'BLOCK_LAG' })
+            .info(`Searching for events: ${eventName} between blocks ${startBlock}-${endBlock}`);
 
         // assert(topics.length === 1);
 
@@ -88,7 +88,9 @@ export class PullAndSaveEventsByTopic {
             `SELECT last_processed_block_number FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logger.child({ ...queryResult, eventName }).info(`Last processed block number for ${eventName}`);
+        logger
+            .child({ last_processed_block_number: queryResult[0].last_processed_block_number || 0, eventName })
+            .info(`Last processed block number for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
 
         return Math.min(

@@ -19,7 +19,9 @@ export class PullAndSaveTheGraphEvents {
     ): Promise<void> {
         const startTime = await this._getStartTimestampAsync(connection, latestBlockTimestampWithOffset, protocol);
         const endTime = Math.min(latestBlockTimestampWithOffset, startTime + MAX_TIME_TO_SEARCH);
-        logger.child({ startTime, endTime }).info(`Grabbing swap events`);
+        logger
+            .child({ startTime, endTime, lag: latestBlockTimestampWithOffset - startTime, type: 'TIMESTAMP_LAG' })
+            .info(`Searching for swap events`);
         const rawSwaps = await uniswapV2Source.getSwapEventsAsync(startTime, endTime, endpoint, 100);
         const parsedSwaps = rawSwaps.map(rawSwap => parseUniswapSushiswapEvents(rawSwap, protocol));
 
@@ -59,7 +61,9 @@ export class PullAndSaveTheGraphEvents {
             `SELECT last_processed_block_timestamp FROM events.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logger.child({ ...queryResult, eventName }).info(`Last processed block timestamp for ${eventName}`);
+        logger
+            .child({ last_processed_block_timestamp: queryResult[0].last_processed_block_timestamp || 0, eventName })
+            .info(`Last processed block timestamp for ${eventName}`);
         const lastKnownBlock = queryResult[0] || { last_processed_block_timestamp: START_DIRECT_UNISWAP_SEARCH };
 
         return Math.min(
