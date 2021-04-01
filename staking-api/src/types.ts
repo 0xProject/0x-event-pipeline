@@ -279,11 +279,13 @@ export interface RawAllTimePoolStakedAmount {
     pool_id: string;
     epoch_id: string;
     member_zrx_staked: string;
+    members_reward: string;
 }
 
 export interface AllTimePoolStakedAmount {
     epochId: number;
     memberZrxStaked: number;
+    membersReward: number;
 }
 
 export interface AllTimePoolStakedAmounts {

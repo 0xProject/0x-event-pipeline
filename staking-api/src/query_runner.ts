@@ -121,7 +121,7 @@ export class QueryRunner {
     public async getStakingPoolEpochRewardsAsync(poolId: string): Promise<PoolEpochRewards[]> {
         const rawPoolEpochRewards: RawPoolEpochRewards[] = await (
             await getDbAsync()
-        ).query(queries.poolEpochRewardsOldQuery, [poolId]);
+        ).query(queries.poolEpochRewardsQuery, [poolId]);
         const poolEpochRewards = stakingUtils.getPoolEpochRewardsFromRaw(rawPoolEpochRewards);
         return poolEpochRewards;
     }
@@ -544,6 +544,7 @@ export const stakingUtils = {
             const poolStakedAmountForEpochData = {
                 epochId: Number(poolStakedAmountForEpoch.epoch_id),
                 memberZrxStaked: Number(poolStakedAmountForEpoch.member_zrx_staked || 0),
+                membersReward: Number(poolStakedAmountForEpoch.members_reward || 0),
             };
             if (allTimePoolStakedAmounts[poolId]) {
                 allTimePoolStakedAmounts[poolId].push(poolStakedAmountForEpochData);
