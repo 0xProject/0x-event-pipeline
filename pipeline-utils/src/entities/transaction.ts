@@ -1,11 +1,10 @@
 import { BigNumber } from '@0x/utils';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer, bigNumberTransformer } from '@0x/pipeline-utils';
+import { numberToBigIntTransformer, bigNumberTransformer } from '../transformers';
 
 // Transaction info for TX containing events
-@Entity({ name: 'transactions', schema: 'events' })
-export class Transaction {
+export abstract class Transaction {
     // When the event was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public observedTimestamp!: number;

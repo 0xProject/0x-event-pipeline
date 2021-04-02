@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 import { BigNumber } from '@0x/utils';
 
-import { Event } from './event';
+import { Event } from '@0x/pipeline-utils';
 import { bigNumberTransformer } from '@0x/pipeline-utils';
 
 // These events come directly from the Exchange contract and are fired for meta transactions

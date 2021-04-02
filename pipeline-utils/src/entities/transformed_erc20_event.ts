@@ -1,12 +1,11 @@
 import { BigNumber } from '@0x/utils';
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '@0x/pipeline-utils';
+import { bigNumberTransformer } from '../transformers';
 
 // These events are fired when someone uses the exchange proxy to trade
-@Entity({ name: 'transformed_erc20_events', schema: 'events' })
-export class TransformedERC20Event extends Event {
+export abstract class TransformedERC20Event extends Event {
     // The address of the taker
     @Column({ name: 'taker', type: 'varchar' })
     public taker!: string;

@@ -1,10 +1,9 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '@0x/pipeline-utils';
+import { numberToBigIntTransformer } from '../transformers';
 
 // Table of the block number for which an event was last updated
-@Entity({ name: 'last_block_processed', schema: 'events' })
-export class LastBlockProcessed {
+export abstract class LastBlockProcessed {
     // When the event was scraped
     @PrimaryColumn({ name: 'event_name', type: 'varchar' })
     public eventName!: string;

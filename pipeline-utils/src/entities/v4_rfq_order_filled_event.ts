@@ -1,12 +1,11 @@
 import { BigNumber } from '@0x/utils';
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '@0x/pipeline-utils';
+import { bigNumberTransformer } from '../transformers';
 
 // Emitted whenever an `RfqOrder` is filled.
-@Entity({ name: 'v4_rfq_order_filled_events', schema: 'events' })
-export class V4RfqOrderFilledEvent extends Event {
+export abstract class V4RfqOrderFilledEvent extends Event {
     @Column({ name: 'order_hash', type: 'varchar' })
     public orderHash!: string;
     @Column({ name: 'maker', type: 'varchar' })

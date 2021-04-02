@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 
-import { Event } from './event';
+import { Event } from '@0x/pipeline-utils';
 
 // These events come directly from the Exchange contract and are fired for meta transactions
 @Entity({ name: 'transaction_execution_events', schema: 'events' })
