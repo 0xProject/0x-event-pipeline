@@ -1,12 +1,11 @@
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
-import { numberToBigIntTransformer, bigNumberTransformer } from '@0x/pipeline-utils';
+import { numberToBigIntTransformer, bigNumberTransformer } from '../transformers';
 import { BigNumber } from '@0x/utils';
 
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.
-@Entity({ name: 'params_set_events', schema: 'events' })
-export class ParamsSetEvent extends Event {
+export abstract class ParamsSetEvent extends Event {
     // Minimum seconds between epochs.
     @Column({ name: 'epoch_duration_in_seconds', type: 'bigint', transformer: numberToBigIntTransformer })
     public epochDurationInSeconds!: number;

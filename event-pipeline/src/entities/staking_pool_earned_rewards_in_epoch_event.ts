@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 
-import { Event } from './event';
+import { Event } from '@0x/pipeline-utils';
 import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.

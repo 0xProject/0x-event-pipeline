@@ -1,7 +1,7 @@
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
 
-import { Event } from './event';
+import { Event } from '@0x/pipeline-utils';
 import { bigNumberTransformer } from '@0x/pipeline-utils';
 
 // Event emitted by MixinStake when the stake changes states.

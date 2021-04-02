@@ -1,11 +1,8 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, PrimaryColumn } from 'typeorm';
 
-import { numberToBigIntTransformer } from '@0x/pipeline-utils';
+import { numberToBigIntTransformer } from '../transformers';
 
-// These events come directly from the Exchange contract and are fired whenever
-// someone fills an order.
-@Entity({ name: 'blocks', schema: 'events' })
-export class Block {
+export abstract class Block {
     // When the event was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public observedTimestamp!: number;

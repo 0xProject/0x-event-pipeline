@@ -7,6 +7,23 @@ export * from './transformers';
 import { BigNumber } from '@0x/utils';
 import { logger } from './logger';
 
+export {
+    Block,
+    ERC20BridgeTransferEvent,
+    ExpiredRfqOrderEvent,
+    Event,
+    LastBlockProcessed,
+    NativeFill,
+    ParamsSetEvent,
+    TransactionLogs,
+    TransactionReceipt,
+    Transaction,
+    TransformedERC20Event,
+    V4CancelEvent,
+    V4LimitOrderFilledEvent,
+    V4RfqOrderFilledEvent,
+} from './entities';
+
 /**
  * If the given BigNumber is not null, returns the string representation of that
  * number. Otherwise, returns null.

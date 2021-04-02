@@ -1,10 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
 
 // These events come directly from the Exchange contract and are fired for meta transactions
-@Entity({ name: 'v4_cancel_events', schema: 'events_bsc' })
-export class V4CancelEvent extends Event {
+export abstract class V4CancelEvent extends Event {
     // The address of the maker.
     @Column({ name: 'maker', type: 'varchar' })
     public maker!: string;

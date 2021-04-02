@@ -1,12 +1,11 @@
 import { BigNumber } from '@0x/utils';
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '@0x/pipeline-utils';
+import { bigNumberTransformer } from '../transformers';
 
 // Emitted whenever a `LimitOrder` is filled.
-@Entity({ name: 'v4_limit_order_filled_events', schema: 'events_bsc' })
-export class V4LimitOrderFilledEvent extends Event {
+export abstract class V4LimitOrderFilledEvent extends Event {
     @Column({ name: 'order_hash', type: 'varchar' })
     public orderHash!: string;
     @Column({ name: 'maker', type: 'varchar' })
