@@ -1,12 +1,11 @@
 import { BigNumber } from '@0x/utils';
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '@0x/pipeline-utils';
+import { bigNumberTransformer } from '../transformers';
 
 // Emitted whenever a `LimitOrder` or `RfqOrder` is filled.
-@Entity({ name: 'native_fills', schema: 'events' })
-export class NativeFill extends Event {
+export abstract class NativeFill extends Event {
     @Column({ name: 'order_hash' })
     public orderHash!: string;
     @Column({ name: 'maker', type: 'varchar' })

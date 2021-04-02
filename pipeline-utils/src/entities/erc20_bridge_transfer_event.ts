@@ -1,13 +1,12 @@
 import { BigNumber } from '@0x/utils';
-import { Column, Entity } from 'typeorm';
+import { Column } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '@0x/pipeline-utils';
+import { bigNumberTransformer } from '../transformers';
 
 // These events come directly from the Exchange contract and are fired whenever
 // someone fills an order.
-@Entity({ name: 'erc20_bridge_transfer_events', schema: 'events' })
-export class ERC20BridgeTransferEvent extends Event {
+export abstract class ERC20BridgeTransferEvent extends Event {
     // The address of the from token
     @Column({ name: 'from_token', type: 'varchar' })
     public fromToken!: string;

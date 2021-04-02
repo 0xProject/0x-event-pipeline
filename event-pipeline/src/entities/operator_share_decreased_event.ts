@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 
-import { Event } from './event';
+import { Event } from '@0x/pipeline-utils';
 import { numberToBigIntTransformer } from '@0x/pipeline-utils';
 
 // Event emitted when a staking pool's operator share is decreased.
