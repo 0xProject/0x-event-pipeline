@@ -26,9 +26,9 @@ COPY --from=build /usr/src/app/pipeline-utils/lib pipeline-utils/lib
 
 # Install event-pipeline runtime dependencies
 COPY event-pipeline/package.json event-pipeline/
-RUN apk add git && \
+RUN apk add git python && \
     yarn install --frozen-lockfile --no-cache --production && \
-    apk del git
+    apk del git python
 
 # Copy built files
 COPY --from=build /usr/src/app/event-pipeline/lib event-pipeline/lib/
