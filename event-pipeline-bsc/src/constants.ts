@@ -1,12 +1,12 @@
 export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events_bsc';
 export const DEFAULT_START_BLOCK_OFFSET = 35;
-export const DEFAULT_MAX_BLOCKS_TO_PULL = 500;
-export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 500;
+export const DEFAULT_MAX_BLOCKS_TO_PULL = 120;
+export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 120;
 export const DEFAULT_CHAIN_ID = 56;
 export const DEFAULT_BLOCK_FINALITY_THRESHOLD = 0;
 export const DEFAULT_SECONDS_BETWEEN_RUNS = 3;
 export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 105;
-export const DEFAULT_MAX_TIME_TO_SEARCH = 1500;
+export const DEFAULT_MAX_TIME_TO_SEARCH = 360;
 export const DEFAULT_SCRAPE_CANCEL_EVENTS_FLAG = false;
 export const DEFAULT_SCRAPE_TRANSACTIONS_FLAG = false;
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
