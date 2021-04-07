@@ -20,9 +20,16 @@ export function parsePancakeSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransfe
     eRC20BridgeTransferEvent.fromToken = amount0In.gt(amount0Out) ? '0' : '1'; // taker_token
     eRC20BridgeTransferEvent.toToken = amount0In.gt(amount0Out) ? '1' : '0'; // maker_token
 
-
-    eRC20BridgeTransferEvent.fromTokenAmount = new BigNumber( amount0In.gt(amount0Out) ? (decodedLog.amount0In-decodedLog.amount0Out) : (decodedLog.amount1In-decodedLog.amount1Out) ); // taker_token_amount
-    eRC20BridgeTransferEvent.toTokenAmount = new BigNumber( amount0In.gt(amount0Out) ? (decodedLog.amount1Out-decodedLog.amount1In) : (decodedLog.amount0Out-decodedLog.amount0In) ); // maker_token_amount
+    eRC20BridgeTransferEvent.fromTokenAmount = new BigNumber(
+        amount0In.gt(amount0Out)
+            ? decodedLog.amount0In - decodedLog.amount0Out
+            : decodedLog.amount1In - decodedLog.amount1Out,
+    ); // taker_token_amount
+    eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(
+        amount0In.gt(amount0Out)
+            ? decodedLog.amount1Out - decodedLog.amount1In
+            : decodedLog.amount0Out - decodedLog.amount0In,
+    ); // maker_token_amount
     eRC20BridgeTransferEvent.from = ''; // maker
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase(); // taker
     eRC20BridgeTransferEvent.directFlag = true;
