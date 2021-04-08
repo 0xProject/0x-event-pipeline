@@ -38,7 +38,7 @@ import {
     RawPoolTotalProtocolFeesGenerated,
     TransactionDate,
 } from './types';
-import { arrayToMapWithId, getPriceAtTimestamp } from './utils';
+import { arrayToMapWithId } from './utils';
 
 export class QueryRunner {
     public async getEpochNAsync(epochId: number): Promise<Epoch> {
@@ -432,32 +432,65 @@ export const stakingUtils = {
         return rawEpochPoolsStats.map(stakingUtils.getEpochPoolStatsFromRaw);
     },
 
-    getPoolEpochAPY: async (epochReward: RawPoolEpochRewards | RawAllTimePoolStakedAmount): Promise<PoolEpochAPY> => {
-        const { ending_timestamp } = epochReward;
-        const formattedEpochTimestamp = new Date(ending_timestamp).getTime() / 1000;
+    // todo: clean this up w/ types, pull out filter func
+    getPoolEpochAPY: (epochReward: RawPoolEpochRewards, ethPrices: any, zrxPrices: any) => {
+        const { ending_timestamp, starting_block_timestamp } = epochReward;
 
-        const zrxPriceAtEpoch = await getPriceAtTimestamp('ZRX', formattedEpochTimestamp);
-        const ethPriceAtEpoch = await getPriceAtTimestamp('ETH', formattedEpochTimestamp);
-
+        const epochEndTime = new Date(ending_timestamp).getTime();
+        const epochStartTime = new Date(starting_block_timestamp).getTime();
         const membersRewardsPaidInEth = Number(epochReward.members_reward || 0);
         const memberZrxStaked = Number(epochReward.member_zrx_staked || 0);
+
+        if (!membersRewardsPaidInEth || !memberZrxStaked) {
+            return 0;
+        }
+
+        const ethPricesForEpoch = ethPrices.filter((priceData: any) => {
+            const a = Number(priceData.end_time) <= new Date(epochEndTime).getTime();
+            const b = Number(priceData.start_time) >= new Date(epochStartTime).getTime();
+            return a && b;
+        });
+        const zrxPricesForEpoch = zrxPrices.filter((priceData: any) => {
+            const a = Number(priceData.end_time) <= new Date(epochEndTime).getTime();
+            const b = Number(priceData.start_time) >= new Date(epochStartTime).getTime();
+            return a && b;
+        });
+
+        const ethPriceAtEpoch = ethPricesForEpoch[ethPricesForEpoch.length - 1].close;
+        const zrxPriceAtEpoch = zrxPricesForEpoch[zrxPricesForEpoch.length - 1].close;
 
         const apy = Number(
             ((membersRewardsPaidInEth * ethPriceAtEpoch) / (memberZrxStaked * zrxPriceAtEpoch)) * (365 / 7) || 0,
         );
 
-        return {
-            apy,
-            epochId: Number(epochReward.epoch_id),
-        };
+        return apy;
     },
     getPoolEpochRewardsFromRaw: async (rawPoolEpochRewards: RawPoolEpochRewards[]): Promise<PoolEpochRewards[]> => {
-        const poolEpochsAPY: PoolEpochAPY[] = await asyncPool(5, rawPoolEpochRewards, stakingUtils.getPoolEpochAPY);
-        const poolEpochsAPYMap = arrayToMapWithId(poolEpochsAPY, 'epochId');
+        const sortedRawPoolEpochRewards = rawPoolEpochRewards.sort(
+            (a, b) => Number(a.ending_timestamp) - Number(b.ending_timestamp),
+        );
+
+        const firstPriceNeeded = sortedRawPoolEpochRewards[0].ending_timestamp;
+        const lastPriceNeeded = sortedRawPoolEpochRewards[sortedRawPoolEpochRewards.length - 1].ending_timestamp;
+
+        const ZRXprices = await (await getDbAsync()).query(queries.usdPriceForSymbol, [
+            'USD',
+            'ZRX',
+            new Date(firstPriceNeeded).getTime(),
+            new Date(lastPriceNeeded).getTime(),
+        ]);
+
+        const ETHprices = await (await getDbAsync()).query(queries.usdPriceForSymbol, [
+            'USD',
+            'ETH',
+            new Date(firstPriceNeeded).getTime(),
+            new Date(lastPriceNeeded).getTime(),
+        ]);
+
         return rawPoolEpochRewards.map(epochReward => {
-            const poolEpochAPY = poolEpochsAPYMap[epochReward.epoch_id];
+            const apy = stakingUtils.getPoolEpochAPY(epochReward, ETHprices, ZRXprices);
             return {
-                apy: poolEpochAPY.apy,
+                apy,
                 epochId: Number(epochReward.epoch_id),
                 epochStartTimestamp: epochReward.starting_block_timestamp,
                 epochEndTimestamp: epochReward.ending_timestamp,

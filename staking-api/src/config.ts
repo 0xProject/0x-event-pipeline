@@ -64,7 +64,3 @@ export const LOG_LEVEL = isEmpty(process.env.LOG_LEVEL) ? DEFAULT_LOG_LEVEL : pr
 export const LOGGER_INCLUDE_TIMESTAMP = isEmpty(process.env.LOGGER_INCLUDE_TIMESTAMP)
     ? DEFAULT_LOGGER_INCLUDE_TIMESTAMP
     : process.env.LOGGER_INCLUDE_TIMESTAMP === 'true';
-
-export const CRYPTOCOMPARE_API_KEY = isEmpty(process.env.CRYPTOCOMPARE_API_KEY)
-    ? '067417cc9d4579046df22265d8df909bffae169f3a5c73321377ab97ff4289d1'
-    : process.env.CRYPTOCOMPARE_API_KEY;
