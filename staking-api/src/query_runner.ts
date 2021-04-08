@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+const asyncPool = require('tiny-async-pool');
 
 import { getDbAsync } from './db';
 import * as queries from './queries';
@@ -15,6 +16,7 @@ import {
     EpochWithFees,
     Pool,
     PoolAvgRewards,
+    PoolEpochAPY,
     PoolEpochDelegatorStats,
     PoolEpochRewards,
     PoolProtocolFeesGenerated,
@@ -36,7 +38,7 @@ import {
     RawPoolTotalProtocolFeesGenerated,
     TransactionDate,
 } from './types';
-import { arrayToMapWithId } from './utils';
+import { arrayToMapWithId, getPriceAtTimestamp } from './utils';
 
 export class QueryRunner {
     public async getEpochNAsync(epochId: number): Promise<Epoch> {
@@ -122,7 +124,7 @@ export class QueryRunner {
         const rawPoolEpochRewards: RawPoolEpochRewards[] = await (
             await getDbAsync()
         ).query(queries.poolEpochRewardsQuery, [poolId]);
-        const poolEpochRewards = stakingUtils.getPoolEpochRewardsFromRaw(rawPoolEpochRewards);
+        const poolEpochRewards = await stakingUtils.getPoolEpochRewardsFromRaw(rawPoolEpochRewards);
         return poolEpochRewards;
     }
 
@@ -429,16 +431,42 @@ export const stakingUtils = {
     getEpochPoolsStatsFromRaw: (rawEpochPoolsStats: RawEpochPoolStats[]): EpochPoolStats[] => {
         return rawEpochPoolsStats.map(stakingUtils.getEpochPoolStatsFromRaw);
     },
-    getPoolEpochRewardsFromRaw: (rawPoolEpochRewards: RawPoolEpochRewards[]): PoolEpochRewards[] => {
-        return rawPoolEpochRewards.map(epochReward => ({
+
+    getPoolEpochAPY: async (epochReward: RawPoolEpochRewards | RawAllTimePoolStakedAmount): Promise<PoolEpochAPY> => {
+        const { ending_timestamp } = epochReward;
+        const formattedEpochTimestamp = new Date(ending_timestamp).getTime() / 1000;
+
+        const zrxPriceAtEpoch = await getPriceAtTimestamp('ZRX', formattedEpochTimestamp);
+        const ethPriceAtEpoch = await getPriceAtTimestamp('ETH', formattedEpochTimestamp);
+
+        const membersRewardsPaidInEth = Number(epochReward.members_reward || 0);
+        const memberZrxStaked = Number(epochReward.member_zrx_staked || 0);
+
+        const apy = Number(
+            ((membersRewardsPaidInEth * ethPriceAtEpoch) / (memberZrxStaked * zrxPriceAtEpoch)) * (365 / 7) || 0,
+        );
+
+        return {
+            apy,
             epochId: Number(epochReward.epoch_id),
-            epochStartTimestamp: epochReward.starting_block_timestamp,
-            epochEndTimestamp: epochReward.ending_timestamp,
-            operatorRewardsPaidInEth: Number(epochReward.operator_reward || 0),
-            membersRewardsPaidInEth: Number(epochReward.members_reward || 0),
-            memberZrxStaked: Number(epochReward.member_zrx_staked || 0),
-            totalRewardsPaidInEth: Number(epochReward.total_reward || 0),
-        }));
+        };
+    },
+    getPoolEpochRewardsFromRaw: async (rawPoolEpochRewards: RawPoolEpochRewards[]): Promise<PoolEpochRewards[]> => {
+        const poolEpochsAPY: PoolEpochAPY[] = await asyncPool(5, rawPoolEpochRewards, stakingUtils.getPoolEpochAPY);
+        const poolEpochsAPYMap = arrayToMapWithId(poolEpochsAPY, 'epochId');
+        return rawPoolEpochRewards.map(epochReward => {
+            const poolEpochAPY = poolEpochsAPYMap[epochReward.epoch_id];
+            return {
+                apy: poolEpochAPY.apy,
+                epochId: Number(epochReward.epoch_id),
+                epochStartTimestamp: epochReward.starting_block_timestamp,
+                epochEndTimestamp: epochReward.ending_timestamp,
+                operatorRewardsPaidInEth: Number(epochReward.operator_reward || 0),
+                membersRewardsPaidInEth: Number(epochReward.members_reward || 0),
+                memberZrxStaked: Number(epochReward.member_zrx_staked || 0),
+                totalRewardsPaidInEth: Number(epochReward.total_reward || 0),
+            };
+        });
     },
     getPoolProtocolFeesGeneratedFromRaw: (
         rawPoolProtocolFeesGenerated: RawPoolProtocolFeesGenerated,
