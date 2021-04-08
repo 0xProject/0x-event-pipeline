@@ -12,6 +12,7 @@ export function createStakingRouter(db: QueryRunner): express.Router {
         res.send({ message: 'This is the root of the 0x Staking API.' });
     });
     router.get('/pools/:id', asyncHandler(handlers.getStakingPoolByIdAsync.bind(handlers)));
+    router.get('/pools/rewards/:id', asyncHandler(handlers.getStakingPoolRewardsByIdAsync.bind(handlers)));
     router.get('/pools', asyncHandler(handlers.getStakingPoolsAsync.bind(handlers)));
     router.get('/epochs/:n', asyncHandler(handlers.getStakingEpochNAsync.bind(handlers)));
     router.get('/epochs', asyncHandler(handlers.getStakingEpochsAsync.bind(handlers)));

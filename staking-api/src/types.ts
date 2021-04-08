@@ -97,6 +97,10 @@ export interface PoolWithStats extends Pool {
 
 export interface PoolWithHistoricalStats extends PoolWithStats {
     allTimeStats: AllTimePoolStats;
+    // epochRewards: PoolEpochRewards[];
+}
+
+export interface PoolRewards {
     epochRewards: PoolEpochRewards[];
 }
 
@@ -187,6 +191,12 @@ export interface StakingPoolResponse {
     poolId: string;
     stakingPool: PoolWithHistoricalStats;
 }
+
+export interface StakingPoolRewardsResponse {
+    poolId: string;
+    stakingPoolRewards: PoolRewards;
+}
+
 export interface StakingPoolsResponse {
     stakingPools: PoolWithStats[];
 }
