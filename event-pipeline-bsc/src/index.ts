@@ -20,7 +20,7 @@ const eventsByTopicScraper = new EventsByTopicScraper();
 createConnection(ormConfig as ConnectionOptions)
     .then(async connection => {
         // cron.schedule(`*/${MINUTES_BETWEEN_RUNS} * * * * *`, () => {
-        cron.schedule(`*/3 * * * *`, () => {
+        cron.schedule(`*/1 * * * *`, () => {
             Promise.all([
                 eventScraper.getParseSaveEventsAsync(connection),
                 eventsByTopicScraper.getParseSaveEventsAsync(connection),
