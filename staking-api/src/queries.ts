@@ -182,6 +182,7 @@ export const allTimePoolStakedAmountsQuery = `
     SELECT
         rpe.pool_id AS pool_id
         , e.epoch_id AS epoch_id
+        , e.ending_timestamp
         , COALESCE(rpe.members_reward / 1e18,0) AS members_reward
         , COALESCE(esps.member_zrx_delegated, 0.00) AS member_zrx_staked
     FROM events.rewards_paid_events rpe

@@ -25,6 +25,7 @@ export class Handlers {
     }
     public async getStakingPoolByIdAsync(req: express.Request, res: express.Response): Promise<void> {
         const poolId = req.params.id;
+        console.log('yo1');
         const pool = await this._db.getStakingPoolWithStatsAsync(poolId);
         const epochRewards = await this._db.getStakingPoolEpochRewardsAsync(poolId);
         const allTimeStats = await this._db.getStakingPoolAllTimeRewardsAsync(poolId);
