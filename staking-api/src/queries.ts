@@ -954,4 +954,6 @@ export const delegatorEventsQuery = `
         FROM combined
         ORDER BY event_timestamp DESC;
 `;
+
+export const usdPriceForSymbol = `SELECT * from raw.ohlcv_external WHERE to_symbol = $1 AND from_symbol = $2 AND start_time >= $3 AND end_time <= $4;`;
 // tslint:disable-next-line: max-file-line-count
