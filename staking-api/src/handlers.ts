@@ -10,6 +10,7 @@ import {
     StakingEpochsResponse,
     StakingEpochsWithFeesResponse,
     StakingPoolResponse,
+    StakingPoolRewardsResponse,
     StakingPoolsResponse,
     StakingStatsResponse,
 } from './types';
@@ -26,7 +27,6 @@ export class Handlers {
     public async getStakingPoolByIdAsync(req: express.Request, res: express.Response): Promise<void> {
         const poolId = req.params.id;
         const pool = await this._db.getStakingPoolWithStatsAsync(poolId);
-        const epochRewards = await this._db.getStakingPoolEpochRewardsAsync(poolId);
         const allTimeStats = await this._db.getStakingPoolAllTimeRewardsAsync(poolId);
 
         const response: StakingPoolResponse = {
@@ -34,6 +34,18 @@ export class Handlers {
             stakingPool: {
                 ...pool,
                 allTimeStats,
+            },
+        };
+
+        res.status(HttpStatus.OK).send(response);
+    }
+    public async getStakingPoolRewardsByIdAsync(req: express.Request, res: express.Response): Promise<void> {
+        const poolId = req.params.id;
+        const epochRewards = await this._db.getStakingPoolEpochRewardsAsync(poolId);
+
+        const response: StakingPoolRewardsResponse = {
+            poolId,
+            stakingPoolRewards: {
                 epochRewards,
             },
         };
