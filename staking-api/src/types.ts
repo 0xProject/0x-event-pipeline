@@ -293,6 +293,22 @@ export interface RawAllTimePoolStakedAmount {
     ending_timestamp: string;
 }
 
+export interface PoolEpochAPY {
+    epochId: number;
+    apy: number;
+}
+
+export interface OHLCVData {
+    open: number;
+    close: number;
+    low: number;
+    high: number;
+    end_time: string;
+    start_time: string;
+    from_symbol: string;
+    to_symbol: string;
+}
+
 export interface AllTimePoolStakedAmount {
     epochId: number;
     memberZrxStaked: number;
@@ -301,9 +317,4 @@ export interface AllTimePoolStakedAmount {
 
 export interface AllTimePoolStakedAmounts {
     [key: string]: AllTimePoolStakedAmount[];
-}
-
-export interface PoolEpochAPY {
-    epochId: number;
-    apy: number;
 }
