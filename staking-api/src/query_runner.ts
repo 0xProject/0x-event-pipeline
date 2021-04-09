@@ -440,7 +440,7 @@ export const stakingUtils = {
         });
 
         const ethPriceAtEpoch = ethPricesForEpoch[ethPricesForEpoch.length - 1].close;
-        const zrxPriceAtEpoch = zrxPricesForEpoch[zrxPricesForEpoch.length - 1].close;
+        const zrxPriceAtEpoch = zrxPricesForEpoch[0].close;
 
         const apy =
             ((membersRewardsPaidInEth * ethPriceAtEpoch) / (memberZrxStaked * zrxPriceAtEpoch)) * (365 / 7) || 0;
