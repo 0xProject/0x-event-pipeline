@@ -182,6 +182,8 @@ export const allTimePoolStakedAmountsQuery = `
     SELECT
         rpe.pool_id AS pool_id
         , e.epoch_id AS epoch_id
+        , e.ending_timestamp
+        , COALESCE(rpe.members_reward / 1e18,0) AS members_reward
         , COALESCE(esps.member_zrx_delegated, 0.00) AS member_zrx_staked
     FROM events.rewards_paid_events rpe
     FULL JOIN staking.epochs e ON e.epoch_id = (rpe.epoch_id - 1)
@@ -952,4 +954,6 @@ export const delegatorEventsQuery = `
         FROM combined
         ORDER BY event_timestamp DESC;
 `;
+
+export const usdPriceForSymbol = `SELECT * from raw.ohlcv_external WHERE to_symbol = $1 AND from_symbol = $2 AND start_time >= $3 AND end_time <= $4;`;
 // tslint:disable-next-line: max-file-line-count
