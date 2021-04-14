@@ -116,18 +116,22 @@ export class PullAndSaveEventsByTopic {
                 deleteOptions.directProtocol
             }'`;
         } else {
-            if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
-                if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
-                    deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${
-                        deleteOptions.protocolVersion
-                    }' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
-                } else {
-                    deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${
-                        deleteOptions.protocolVersion
-                    }'`;
-                }
+            if (tableName === 'erc20_bridge_transfer_events') {
+                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND "from" like 'New Bridge%'`;
             } else {
-                deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+                if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
+                    if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
+                        deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${
+                            deleteOptions.protocolVersion
+                        }' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+                    } else {
+                        deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${
+                            deleteOptions.protocolVersion
+                        }'`;
+                    }
+                } else {
+                    deleteQuery = `DELETE FROM events.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+                }
             }
         }
 
