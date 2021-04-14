@@ -32,10 +32,14 @@ import {
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
     MULTIPLEX_START_BLOCK,
+    NEWBRIDGEFILL_EVENT_TOPIC,
+    NEW_BRIDGEFILL_BLOCK,
+    FLASHWALLET_ADDRESS,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
+import { parseNewBridgeFill } from '../parsers/events/bridge_transfer_events';
 import {
     parseV4RfqOrderFilledEvent,
     parseNativeFillFromV4RfqOrderFilledEvent,
@@ -89,6 +93,18 @@ export class EventsByTopicScraper {
                 PLP_VIP_START_BLOCK,
                 parseLiquidityProviderSwapEvent,
                 { isDirectTrade: true, directProtocol: 'PLP' },
+            ),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
+                connection,
+                web3Source,
+                latestBlockWithOffset,
+                'NewBridgeFillEvent',
+                'erc20_bridge_transfer_events',
+                NEWBRIDGEFILL_EVENT_TOPIC,
+                FLASHWALLET_ADDRESS,
+                NEW_BRIDGEFILL_BLOCK,
+                parseNewBridgeFill,
+                {},
             ),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4RfqOrderFilledEvent>(
                 connection,
