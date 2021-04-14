@@ -31,6 +31,9 @@ export const V4_CANCEL_START_BLOCK = 11674215; // first seen block - 1
 export const V4_CANCEL_EVENT_TOPIC = ['0xa6eb7cdc219e1518ced964e9a34e61d68a94e4f1569db3e84256ba981ba52753'];
 export const EXPIRED_RFQ_ORDER_EVENT_TOPIC = ['0xd9ee00a67daf7d99c37893015dc900862c9a02650ef2d318697e502e5fb8bbe2'];
 export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW FOR DATA PIPELINE TEST
+export const NEWBRIDGEFILL_EVENT_TOPIC = ['0xe59e71a14fe90157eedc866c4f8c767d3943d6b6b2e8cd64dddcc92ab4c55af8'];
+export const NEW_BRIDGEFILL_BLOCK = 12231666; // first seen block - 1
+export const FLASHWALLET_ADDRESS = '0x22f9dcf4647084d6c31b2765f6910cd85c178c18';
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
@@ -40,6 +43,44 @@ export {
     TRANSFORMED_ERC20_ABI,
     V4_CANCEL_ABI,
 } from '@0x/pipeline-utils';
+
+export const NEW_BRIDGE_FILL_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'source',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'inputToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'outputToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'inputTokenAmount',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'outputTokenAmount',
+            type: 'uint256',
+        },
+    ],
+    name: 'BridgeFill',
+    type: 'event',
+};
 
 export const ERC20_BRIDGE_TRADE_ABI = {
     anonymous: false,
