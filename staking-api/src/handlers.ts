@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as HttpStatus from 'http-status-codes';
+import { logger } from './logger';
 
 import { QueryRunner } from './query_runner';
 import { schemaValidator, schemas } from './schemas';
