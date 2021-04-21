@@ -291,11 +291,17 @@ export interface RawAllTimePoolStakedAmount {
     member_zrx_staked: string;
     members_reward: string;
     ending_timestamp: string;
+    starting_block_timestamp: string;
 }
 
 export interface PoolEpochAPY {
     epochId: number;
     apy: number;
+}
+
+export interface ETHZRXPriceData {
+    ethPrices: OHLCVData[];
+    zrxPrices: OHLCVData[];
 }
 
 export interface OHLCVData {
