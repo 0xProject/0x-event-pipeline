@@ -299,6 +299,11 @@ export interface PoolEpochAPY {
     apy: number;
 }
 
+export interface ETHZRXPriceData {
+    ethPrices: OHLCVData[];
+    zrxPrices: OHLCVData[];
+}
+
 export interface OHLCVData {
     open: number;
     close: number;
