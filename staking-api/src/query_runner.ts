@@ -189,18 +189,23 @@ export class QueryRunner {
     }
 
     public async getStakingPoolsWithStatsAsync(): Promise<PoolWithStats[]> {
-        const pools = await this.getStakingPoolsAsync();
-        const rawCurrentEpochPoolStats = await (await getDbAsync()).query(queries.currentEpochPoolsStatsQuery);
-        const rawNextEpochPoolStats = await (await getDbAsync()).query(queries.nextEpochPoolsStatsQuery);
-        const rawPoolSevenDayProtocolFeesGenerated = await (await getDbAsync()).query(
-            queries.sevenDayProtocolFeesGeneratedQuery,
-        );
-        const rawPoolsAvgRewards = await (await getDbAsync()).query(queries.poolsAvgRewardsQuery);
-        const rawAllTimePoolStakedAmounts = await (await getDbAsync()).query(queries.allTimePoolStakedAmountsQuery);
-
-        const allTimePoolStakedAmounts = await stakingUtils.getAllTimePoolStakedAmountsFromRaw(
-            rawAllTimePoolStakedAmounts,
-        );
+        const [
+            pools, 
+            rawCurrentEpochPoolStats,
+            rawNextEpochPoolStats,
+            rawPoolSevenDayProtocolFeesGenerated,
+            rawPoolsAvgRewards,
+            allTimePoolStakedAmounts,
+        ] = await Promise.all([
+            this.getStakingPoolsAsync(),
+            (await getDbAsync()).query(queries.currentEpochPoolsStatsQuery),
+            (await getDbAsync()).query(queries.nextEpochPoolsStatsQuery),
+            (await getDbAsync()).query(
+                queries.sevenDayProtocolFeesGeneratedQuery,
+            ),
+            (await getDbAsync()).query(queries.poolsAvgRewardsQuery),
+            stakingUtils.getAllTimePoolStakedAmounts(),
+        ]);
         const currentEpochPoolStats = stakingUtils.getEpochPoolsStatsFromRaw(rawCurrentEpochPoolStats);
         const nextEpochPoolStats = stakingUtils.getEpochPoolsStatsFromRaw(rawNextEpochPoolStats);
         const poolProtocolFeesGenerated = stakingUtils.getPoolsProtocolFeesGeneratedFromRaw(
@@ -592,20 +597,22 @@ export const stakingUtils = {
 
         return { ethPrices, zrxPrices };
     },
-    getAllTimePoolStakedAmountsFromRaw: async (
-        rawAllTimePoolStakedAmounts: RawAllTimePoolStakedAmount[],
-    ): Promise<AllTimePoolStakedAmounts> => {
-        const allTimePoolStakedAmounts: AllTimePoolStakedAmounts = {};
+    getAllTimePoolStakedAmounts: async(): Promise<AllTimePoolStakedAmounts> => {
+        // get raw all time pool staked amounts
+        const rawAllTimePoolStakedAmounts: RawAllTimePoolStakedAmount[] = await (await getDbAsync()).query(queries.allTimePoolStakedAmountsQuery);
 
+        // find earliest and latest timestamp
         const sortedDataByTime = rawAllTimePoolStakedAmounts.sort(
             (a, b) => Number(a.ending_timestamp) - Number(b.ending_timestamp),
         );
-
         const firstPriceNeeded = sortedDataByTime[0].ending_timestamp;
         const lastPriceNeeded = sortedDataByTime[sortedDataByTime.length - 1].ending_timestamp;
 
+        // fetch prices
         const { ethPrices, zrxPrices } = await stakingUtils.getETHZRXPriceData(firstPriceNeeded, lastPriceNeeded);
 
+        // match prices and calculate APY
+        const allTimePoolStakedAmounts: AllTimePoolStakedAmounts = {};
         rawAllTimePoolStakedAmounts.forEach(poolStakedAmountForEpoch => {
             const poolId = poolStakedAmountForEpoch.pool_id;
 
