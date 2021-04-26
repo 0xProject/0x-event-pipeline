@@ -189,7 +189,8 @@ export const allTimePoolStakedAmountsQuery = `
     FROM events.rewards_paid_events rpe
     FULL JOIN staking.epochs e ON e.epoch_id = (rpe.epoch_id - 1)
     LEFT JOIN staking.epoch_start_pool_status esps ON (esps.epoch_id = e.epoch_id AND esps.pool_id = rpe.pool_id)
-    WHERE rpe.pool_id IS NOT NULL
+    LEFT JOIN staking.current_epoch ce ON ce.epoch_id = e.epoch_id
+    WHERE rpe.pool_id IS NOT NULL AND ce.epoch_id IS NULL
     ORDER BY rpe.pool_id::int ASC, epoch_id;
 `;
 
