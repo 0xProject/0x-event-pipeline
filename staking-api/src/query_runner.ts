@@ -190,7 +190,7 @@ export class QueryRunner {
 
     public async getStakingPoolsWithStatsAsync(): Promise<PoolWithStats[]> {
         const [
-            pools, 
+            pools,
             rawCurrentEpochPoolStats,
             rawNextEpochPoolStats,
             rawPoolSevenDayProtocolFeesGenerated,
@@ -200,9 +200,7 @@ export class QueryRunner {
             this.getStakingPoolsAsync(),
             (await getDbAsync()).query(queries.currentEpochPoolsStatsQuery),
             (await getDbAsync()).query(queries.nextEpochPoolsStatsQuery),
-            (await getDbAsync()).query(
-                queries.sevenDayProtocolFeesGeneratedQuery,
-            ),
+            (await getDbAsync()).query(queries.sevenDayProtocolFeesGeneratedQuery),
             (await getDbAsync()).query(queries.poolsAvgRewardsQuery),
             stakingUtils.getAllTimePoolStakedAmounts(),
         ]);
@@ -597,9 +595,11 @@ export const stakingUtils = {
 
         return { ethPrices, zrxPrices };
     },
-    getAllTimePoolStakedAmounts: async(): Promise<AllTimePoolStakedAmounts> => {
+    getAllTimePoolStakedAmounts: async (): Promise<AllTimePoolStakedAmounts> => {
         // get raw all time pool staked amounts
-        const rawAllTimePoolStakedAmounts: RawAllTimePoolStakedAmount[] = await (await getDbAsync()).query(queries.allTimePoolStakedAmountsQuery);
+        const rawAllTimePoolStakedAmounts: RawAllTimePoolStakedAmount[] = await (await getDbAsync()).query(
+            queries.allTimePoolStakedAmountsQuery,
+        );
 
         // find earliest and latest timestamp
         const sortedDataByTime = rawAllTimePoolStakedAmounts.sort(
