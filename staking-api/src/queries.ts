@@ -404,7 +404,7 @@ export const poolEpochRewardsOldQuery = `
 `;
 
 export const currentEpochPoolsStatsQuery = `
-    WITH
+WITH
     current_epoch_beginning_status AS (
         SELECT
             esps.*
@@ -434,8 +434,12 @@ export const currentEpochPoolsStatsQuery = `
     )
     , total_staked AS (
         SELECT
-            SUM(zrx_delegated) AS total_staked
-        FROM current_epoch_beginning_status
+            SUM(CASE
+                WHEN fbp.protocol_fees > 0 THEN zrx_delegated
+                ELSE 0.00
+            END) AS total_staked
+        FROM current_epoch_beginning_status cebs
+		LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
     )
     , total_fees AS (
         SELECT
@@ -497,8 +501,12 @@ export const currentEpochPoolStatsQuery = `
         )
         , total_staked AS (
             SELECT
-                SUM(zrx_delegated) AS total_staked
-            FROM current_epoch_beginning_status
+                SUM(CASE
+                    WHEN fbp.protocol_fees > 0 THEN zrx_delegated
+                    ELSE 0.00
+                END) AS total_staked
+            FROM current_epoch_beginning_status cebs
+            LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
         )
         , total_fees AS (
             SELECT
@@ -571,8 +579,12 @@ export const nextEpochPoolsStatsQuery = `
         )
         , total_staked AS (
             SELECT
-                SUM(zrx_staked) AS total_staked
-            FROM current_stake
+                SUM(CASE
+                    WHEN fbp.protocol_fees > 0 THEN zrx_staked
+                    ELSE 0.00
+                END) AS total_staked
+            FROM current_stake cs
+            LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.pool_id = cs.pool_id
         )
         , total_rewards AS (
             SELECT
@@ -655,8 +667,12 @@ export const nextEpochPoolStatsQuery = `
         )
         , total_staked AS (
             SELECT
-                SUM(zrx_staked) AS total_staked
-            FROM current_stake
+                SUM(CASE
+                    WHEN fbp.protocol_fees > 0 THEN zrx_staked
+                    ELSE 0.00
+                END) AS total_staked
+            FROM current_stake cs
+            LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.pool_id = cs.pool_id
         )
         , total_rewards AS (
             SELECT
