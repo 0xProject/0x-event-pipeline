@@ -97,6 +97,10 @@ export interface PoolWithStats extends Pool {
 
 export interface PoolWithHistoricalStats extends PoolWithStats {
     allTimeStats: AllTimePoolStats;
+    // epochRewards: PoolEpochRewards[];
+}
+
+export interface PoolRewards {
     epochRewards: PoolEpochRewards[];
 }
 
@@ -187,6 +191,12 @@ export interface StakingPoolResponse {
     poolId: string;
     stakingPool: PoolWithHistoricalStats;
 }
+
+export interface StakingPoolRewardsResponse {
+    poolId: string;
+    stakingPoolRewards: PoolRewards;
+}
+
 export interface StakingPoolsResponse {
     stakingPools: PoolWithStats[];
 }
@@ -279,11 +289,36 @@ export interface RawAllTimePoolStakedAmount {
     pool_id: string;
     epoch_id: string;
     member_zrx_staked: string;
+    members_reward: string;
+    ending_timestamp: string;
+    starting_block_timestamp: string;
+}
+
+export interface PoolEpochAPY {
+    epochId: number;
+    apy: number;
+}
+
+export interface ETHZRXPriceData {
+    ethPrices: OHLCVData[];
+    zrxPrices: OHLCVData[];
+}
+
+export interface OHLCVData {
+    open: number;
+    close: number;
+    low: number;
+    high: number;
+    end_time: string;
+    start_time: string;
+    from_symbol: string;
+    to_symbol: string;
 }
 
 export interface AllTimePoolStakedAmount {
     epochId: number;
     memberZrxStaked: number;
+    membersReward: number;
 }
 
 export interface AllTimePoolStakedAmounts {

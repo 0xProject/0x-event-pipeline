@@ -182,11 +182,15 @@ export const allTimePoolStakedAmountsQuery = `
     SELECT
         rpe.pool_id AS pool_id
         , e.epoch_id AS epoch_id
+        , e.ending_timestamp
+        , e.starting_block_timestamp
+        , COALESCE(rpe.members_reward / 1e18,0) AS members_reward
         , COALESCE(esps.member_zrx_delegated, 0.00) AS member_zrx_staked
     FROM events.rewards_paid_events rpe
     FULL JOIN staking.epochs e ON e.epoch_id = (rpe.epoch_id - 1)
     LEFT JOIN staking.epoch_start_pool_status esps ON (esps.epoch_id = e.epoch_id AND esps.pool_id = rpe.pool_id)
-    WHERE rpe.pool_id IS NOT NULL
+    LEFT JOIN staking.current_epoch ce ON ce.epoch_id = e.epoch_id
+    WHERE rpe.pool_id IS NOT NULL AND ce.epoch_id IS NULL
     ORDER BY rpe.pool_id::int ASC, epoch_id;
 `;
 
@@ -400,7 +404,7 @@ export const poolEpochRewardsOldQuery = `
 `;
 
 export const currentEpochPoolsStatsQuery = `
-    WITH
+WITH
     current_epoch_beginning_status AS (
         SELECT
             esps.*
@@ -430,8 +434,12 @@ export const currentEpochPoolsStatsQuery = `
     )
     , total_staked AS (
         SELECT
-            SUM(zrx_delegated) AS total_staked
-        FROM current_epoch_beginning_status
+            SUM(CASE
+                WHEN fbp.protocol_fees > 0 THEN zrx_delegated
+                ELSE 0.00
+            END) AS total_staked
+        FROM current_epoch_beginning_status cebs
+		LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
     )
     , total_fees AS (
         SELECT
@@ -493,8 +501,12 @@ export const currentEpochPoolStatsQuery = `
         )
         , total_staked AS (
             SELECT
-                SUM(zrx_delegated) AS total_staked
-            FROM current_epoch_beginning_status
+                SUM(CASE
+                    WHEN fbp.protocol_fees > 0 THEN zrx_delegated
+                    ELSE 0.00
+                END) AS total_staked
+            FROM current_epoch_beginning_status cebs
+            LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
         )
         , total_fees AS (
             SELECT
@@ -567,8 +579,12 @@ export const nextEpochPoolsStatsQuery = `
         )
         , total_staked AS (
             SELECT
-                SUM(zrx_staked) AS total_staked
-            FROM current_stake
+                SUM(CASE
+                    WHEN fbp.protocol_fees > 0 THEN zrx_staked
+                    ELSE 0.00
+                END) AS total_staked
+            FROM current_stake cs
+            LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.pool_id = cs.pool_id
         )
         , total_rewards AS (
             SELECT
@@ -651,8 +667,12 @@ export const nextEpochPoolStatsQuery = `
         )
         , total_staked AS (
             SELECT
-                SUM(zrx_staked) AS total_staked
-            FROM current_stake
+                SUM(CASE
+                    WHEN fbp.protocol_fees > 0 THEN zrx_staked
+                    ELSE 0.00
+                END) AS total_staked
+            FROM current_stake cs
+            LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.pool_id = cs.pool_id
         )
         , total_rewards AS (
             SELECT
@@ -952,4 +972,6 @@ export const delegatorEventsQuery = `
         FROM combined
         ORDER BY event_timestamp DESC;
 `;
+
+export const usdPriceForSymbol = `SELECT * from raw.ohlcv_external WHERE to_symbol = $1 AND from_symbol = $2 AND start_time >= $3 AND end_time <= $4;`;
 // tslint:disable-next-line: max-file-line-count
