@@ -11,7 +11,13 @@ import { parseBridgeFill } from '../../parsers/events/bridge_transfer_events';
 import { Web3Source } from '@0x/pipeline-utils';
 import { RawLogEntry } from 'ethereum-types';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_PULL, START_BLOCK_OFFSET, BRIDGEFILL_EVENT_TOPIC, SCHEMA} from '../../config';
+import {
+    FIRST_SEARCH_BLOCK,
+    MAX_BLOCKS_TO_PULL,
+    START_BLOCK_OFFSET,
+    BRIDGEFILL_EVENT_TOPIC,
+    SCHEMA,
+} from '../../config';
 
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
