@@ -79,7 +79,7 @@ $ yarn start
 
 `BLOCK_FINALITY_THRESHOLD` - How many blocks before the current block to end the search, allowing you to limit your event scrape to blocks that are relatively more settled.
 
-`SECONDS_BETWEEN_RUNS` - How long to wait between scrapes.
+`MINUTES_BETWEEN_RUNS` - How long to wait between scrapes.
 
 `SHOULD_SYNCHRONIZE` - Whether typeorm should synchronize with the database from `POSTGRES_URI`.
 
