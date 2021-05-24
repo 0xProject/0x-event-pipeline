@@ -36,6 +36,23 @@ services:
             ETHEREUM_RPC_URL: 'https://bsc-dataseed.binance.org/'
             CHAIN_ID: '56'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
+    event-pipeline-polygon:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: event-pipeline-evm/Dockerfile
+        restart: always
+        environment:
+            # ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
+            ETHEREUM_RPC_URL: 'https://rpc-mainnet.matic.network/'
+            CHAIN_ID: '137'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events_polygon'
+            EP_DEPLOYMENT_BLOCK: 14391480
+            MAX_BLOCKS_TO_SEARCH: 5000
+            MAX_BLOCKS_TO_PULL: 5000
+            MINUTES_BETWEEN_RUNS: 1
     staking-api:
         depends_on:
             - event-pipeline
