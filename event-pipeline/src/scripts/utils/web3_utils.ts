@@ -7,7 +7,11 @@ import {
     parseTransactionReceipt,
     parseTransactionLogs,
 } from '../../parsers/web3/parse_web3_objects';
-import { parseErc20BridgeTransfer, parseBridgeFill, parseNewBridgeFill } from '../../parsers/events/bridge_transfer_events';
+import {
+    parseErc20BridgeTransfer,
+    parseBridgeFill,
+    parseNewBridgeFill,
+} from '../../parsers/events/bridge_transfer_events';
 import { Web3Source } from '@0x/pipeline-utils';
 import { RawLogEntry } from 'ethereum-types';
 
@@ -19,9 +23,7 @@ import {
     BRIDGEFILL_EVENT_TOPIC,
 } from '../../config';
 
-import {
-    NEWBRIDGEFILL_EVENT_TOPIC
-} from '../../constants'
+import { NEWBRIDGEFILL_EVENT_TOPIC } from '../../constants';
 
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
