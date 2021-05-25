@@ -7,7 +7,7 @@ import {
     parseTransactionReceipt,
     parseTransactionLogs,
 } from '../../parsers/web3/parse_web3_objects';
-import { parseErc20BridgeTransfer, parseBridgeFill, parseNewBridgeFill } from '../../parsers/events/bridge_transfer_events';
+import { parseErc20BridgeTransfer, parseBridgeFill } from '../../parsers/events/bridge_transfer_events';
 import { Web3Source } from '@0x/pipeline-utils';
 import { RawLogEntry } from 'ethereum-types';
 
@@ -18,10 +18,6 @@ import {
     BRIDGE_TRADE_TOPIC,
     BRIDGEFILL_EVENT_TOPIC,
 } from '../../config';
-
-import {
-    NEWBRIDGEFILL_EVENT_TOPIC
-} from '../../constants'
 
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
@@ -93,11 +89,7 @@ export class PullAndSaveWeb3 {
                         if (l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
                             return parseBridgeFill(l);
                         } else {
-                            if (l.topics[0] === NEWBRIDGEFILL_EVENT_TOPIC[0]) {
-                                return parseNewBridgeFill(l);
-                            } else {
-                                return new ERC20BridgeTransferEvent();
-                            }
+                            return new ERC20BridgeTransferEvent();
                         }
                     }
                 }),
