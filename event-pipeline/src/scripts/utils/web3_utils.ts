@@ -166,7 +166,7 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 100)
+                        LIMIT 1000)
 
                         UNION
 
@@ -186,8 +186,7 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        -- LIMIT 100
-                        )
+                        LIMIT 1000)
 
 
                         UNION
@@ -208,7 +207,7 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 100)
+                        LIMIT 1000)
 
                         UNION
 
@@ -228,7 +227,7 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 100)
+                        LIMIT 1000)
                     ORDER BY 2
                     -- LIMIT 100
                 ) a
