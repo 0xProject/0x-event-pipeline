@@ -4,6 +4,7 @@ import {
     ExpiredRfqOrderEvent as ExpiredRfqOrderEventTemplate,
     LastBlockProcessed as LastBlockProcessedTemplate,
     NativeFill as NativeFillTemplate,
+    OneinchSwappedEvent as OneinchSwappedEventTemplate,
     ParamsSetEvent as ParamsSetEventTemplate,
     TransactionLogs as TransactionLogsTemplate,
     TransactionReceipt as TransactionReceiptTemplate,
@@ -30,6 +31,9 @@ export class LastBlockProcessed extends LastBlockProcessedTemplate {}
 
 @Entity({ name: 'native_fills', schema: SCHEMA })
 export class NativeFill extends NativeFillTemplate {}
+
+@Entity({ name: 'oneinch_swapped_events', schema: SCHEMA })
+export class OneinchSwappedEvent extends OneinchSwappedEventTemplate {}
 
 @Entity({ name: 'params_set_events', schema: SCHEMA })
 export class ParamsSetEvent extends ParamsSetEventTemplate {}

@@ -8,6 +8,8 @@ export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 105;
 export const DEFAULT_MAX_TIME_TO_SEARCH = 360;
 export const DEFAULT_SCRAPE_CANCEL_EVENTS_FLAG = false;
 export const DEFAULT_SCRAPE_TRANSACTIONS_FLAG = false;
+export const DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT = true;
+export const DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT = false;
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
 export const LIQUIDITYPROVIDERSWAP_EVENT_TOPIC = ['0x40a6ba9513d09e3488135e0e0d10e2d4382b792720155b144cbea89ac9db6d34'];
 export const RFQORDERFILLED_EVENT_TOPIC = ['0x829fa99d94dc4636925b38632e625736a614c154d55006b7ab6bea979c210c32'];
@@ -19,6 +21,8 @@ export const SWAP_EVENT_TOPIC = [
     '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822',
     '0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff',
 ];
+export const ONEINCH_ROUTER_V3_CONTRACT_ADDRESS = '0x11111112542D85B3EF69AE05771c2dCCff4fAa26';
+export const ONEINCH_SWAPPED_EVENT_TOPIC = ['0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'];
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
@@ -108,5 +112,19 @@ export const BRIDGE_FILL_ABI = {
         },
     ],
     name: 'BridgeFill',
+    type: 'event',
+};
+
+export const ONEINCH_SWAPPED_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'address', name: 'sender', type: 'address' },
+        { indexed: false, internalType: 'contract IERC20', name: 'srcToken', type: 'address' },
+        { indexed: false, internalType: 'contract IERC20', name: 'dstToken', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'dstReceiver', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'spentAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'returnAmount', type: 'uint256' },
+    ],
+    name: 'Swapped',
     type: 'event',
 };
