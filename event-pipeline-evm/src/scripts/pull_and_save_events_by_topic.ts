@@ -21,6 +21,7 @@ import {
     EP_DEPLOYMENT_BLOCK,
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_ONEINCH_SWAPPED_EVENT,
+    FEAT_PANCAKE_VIP_EVENT,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
 } from '../config';
 import {
@@ -103,6 +104,23 @@ export class EventsByTopicScraper {
             );
         }
 
+        if (FEAT_PANCAKE_VIP_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'PancakeVIPEvent',
+                    'erc20_bridge_transfer_events',
+                    SWAP_EVENT_TOPIC,
+                    'nofilter',
+                    EP_DEPLOYMENT_BLOCK,
+                    parsePancakeSwapEvent,
+                    { isDirectTrade: true, directProtocol: 'PancakeSwap' },
+                ),
+            );
+        }
+
         // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
         //     connection,
         //     web3Source,
@@ -165,18 +183,6 @@ export class EventsByTopicScraper {
         // ),
         // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EP_DEPLOYMENT_BLOCK, parseV4CancelEvent, {}),
         // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EP_DEPLOYMENT_BLOCK, parseExpiredRfqOrderEvent, {}),
-        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-        //     connection,
-        //     web3Source,
-        //     latestBlockWithOffset,
-        //     'PancakeVIPEvent',
-        //     'erc20_bridge_transfer_events',
-        //     SWAP_EVENT_TOPIC,
-        //     'nofilter',
-        //     EP_DEPLOYMENT_BLOCK,
-        //     parsePancakeSwapEvent,
-        //     { isDirectTrade: true, directProtocol: 'PancakeSwap' },
-        // ),
 
         await Promise.all(promises);
 
