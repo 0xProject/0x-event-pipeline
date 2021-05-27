@@ -53,6 +53,9 @@ services:
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 5000
             MINUTES_BETWEEN_RUNS: 1
+            FEAT_ONEINCH_SWAPPED_EVENT: "true"
+            ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 14500000
+
     staking-api:
         depends_on:
             - event-pipeline

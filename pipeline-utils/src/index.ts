@@ -14,6 +14,7 @@ export {
     Event,
     LastBlockProcessed,
     NativeFill,
+    OneinchSwappedEvent,
     ParamsSetEvent,
     TransactionLogs,
     TransactionReceipt,

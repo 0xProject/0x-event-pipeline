@@ -7,6 +7,8 @@ import {
     DEFAULT_MINUTES_BETWEEN_RUNS,
     DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
     DEFAULT_MAX_TIME_TO_SEARCH,
+    DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
+    DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -60,5 +62,20 @@ export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH
 export const STAKING_DEPLOYMENT_BLOCK = process.env.STAKING_DEPLOYMENT_BLOCK
     ? parseInt(process.env.STAKING_DEPLOYMENT_BLOCK, 10)
     : null;
-
 export const FIRST_SEARCH_BLOCK = Math.min(EP_DEPLOYMENT_BLOCK, STAKING_DEPLOYMENT_BLOCK || Infinity);
+
+export const FEAT_TRANSFORMED_ERC20_EVENT = process.env.FEAT_TRANSFORMED_ERC20_EVENT
+    ? process.env.FEAT_TRANSFORMED_ERC20_EVENT === 'true'
+    : DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT;
+export const FEAT_ONEINCH_SWAPPED_EVENT = process.env.FEAT_ONEINCH_SWAPPED_EVENT
+    ? process.env.FEAT_ONEINCH_SWAPPED_EVENT === 'true'
+    : DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT;
+
+export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = process.env.ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK
+    ? parseInt(process.env.ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK, 10)
+    : -1;
+if (ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_EVENT) {
+    throwError(
+        `The Oneinch Swapped Event scraper is enabled, but no ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+    );
+}
