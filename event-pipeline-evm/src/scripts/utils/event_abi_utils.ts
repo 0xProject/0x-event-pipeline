@@ -132,7 +132,6 @@ export class PullAndSaveEventsByTopic {
             `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
         );
 
-        logUtils.log(queryResult);
         const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
 
         return Math.min(

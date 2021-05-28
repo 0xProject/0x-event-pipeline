@@ -10,11 +10,23 @@ import {
     V4RfqOrderFilledEvent,
     V4LimitOrderFilledEvent,
     NativeFill,
+    OneinchSwappedEvent,
+    SlingshotTradeEvent,
     V4CancelEvent,
     ExpiredRfqOrderEvent,
 } from '../entities';
 
-import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK, EP_DEPLOYMENT_BLOCK } from '../config';
+import {
+    ETHEREUM_RPC_URL,
+    FIRST_SEARCH_BLOCK,
+    EP_DEPLOYMENT_BLOCK,
+    FEAT_TRANSFORMED_ERC20_EVENT,
+    FEAT_ONEINCH_SWAPPED_EVENT,
+    FEAT_PANCAKE_VIP_EVENT,
+    FEAT_SLINGSHOT_TRADE_EVENT,
+    ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
+    SLINGSHOT_DEPLOYMENT_BLOCK,
+} from '../config';
 import {
     TRANSFORMEDERC20_EVENT_TOPIC,
     EXCHANGE_PROXY_ADDRESS,
@@ -24,9 +36,15 @@ import {
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
     SWAP_EVENT_TOPIC,
+    ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
+    ONEINCH_SWAPPED_EVENT_TOPIC,
+    SLINGSHOT_CONTRACT_ADDRESS,
+    SLINGSHOT_TRADE_EVENT_TOPIC,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
+import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
+import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
     parseV4RfqOrderFilledEvent,
@@ -56,94 +74,139 @@ export class EventsByTopicScraper {
 
         logUtils.log(`latest block with offset: ${latestBlockWithOffset}`);
 
-        await Promise.all([
-            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(
-                connection,
-                web3Source,
-                latestBlockWithOffset,
-                'TransformedERC20Event',
-                'transformed_erc20_events',
-                TRANSFORMEDERC20_EVENT_TOPIC,
-                EXCHANGE_PROXY_ADDRESS,
-                EP_DEPLOYMENT_BLOCK,
-                parseTransformedERC20Event,
-                {},
-            ),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-            //     connection,
-            //     web3Source,
-            //     latestBlockWithOffset,
-            //     'LiquidityProviderSwapEvent',
-            //     'erc20_bridge_transfer_events',
-            //     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
-            //     EXCHANGE_PROXY_ADDRESS,
-            //     EP_DEPLOYMENT_BLOCK,
-            //     parseLiquidityProviderSwapEvent,
-            //     { isDirectTrade: true, directProtocol: 'PLP' },
-            // ),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4RfqOrderFilledEvent>(
-            //     connection,
-            //     web3Source,
-            //     latestBlockWithOffset,
-            //     'V4RfqOrderFilledEvent',
-            //     'v4_rfq_order_filled_events',
-            //     RFQORDERFILLED_EVENT_TOPIC,
-            //     EXCHANGE_PROXY_ADDRESS,
-            //     EP_DEPLOYMENT_BLOCK,
-            //     parseV4RfqOrderFilledEvent,
-            //     {},
-            // ),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
-            //     connection,
-            //     web3Source,
-            //     latestBlockWithOffset,
-            //     'NativeFillFromRFQV4',
-            //     'native_fills',
-            //     RFQORDERFILLED_EVENT_TOPIC,
-            //     EXCHANGE_PROXY_ADDRESS,
-            //     EP_DEPLOYMENT_BLOCK,
-            //     parseNativeFillFromV4RfqOrderFilledEvent,
-            //     { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
-            // ),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4LimitOrderFilledEvent>(
-            //     connection,
-            //     web3Source,
-            //     latestBlockWithOffset,
-            //     'V4LimitOrderFilledEvent',
-            //     'v4_limit_order_filled_events',
-            //     LIMITORDERFILLED_EVENT_TOPIC,
-            //     EXCHANGE_PROXY_ADDRESS,
-            //     EP_DEPLOYMENT_BLOCK,
-            //     parseV4LimitOrderFilledEvent,
-            //     {},
-            // ),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
-            //     connection,
-            //     web3Source,
-            //     latestBlockWithOffset,
-            //     'NativeFillFromLimitV4',
-            //     'native_fills',
-            //     LIMITORDERFILLED_EVENT_TOPIC,
-            //     EXCHANGE_PROXY_ADDRESS,
-            //     EP_DEPLOYMENT_BLOCK,
-            //     parseNativeFillFromV4LimitOrderFilledEvent,
-            //     { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
-            // ),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EP_DEPLOYMENT_BLOCK, parseV4CancelEvent, {}),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EP_DEPLOYMENT_BLOCK, parseExpiredRfqOrderEvent, {}),
-            // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-            //     connection,
-            //     web3Source,
-            //     latestBlockWithOffset,
-            //     'PancakeVIPEvent',
-            //     'erc20_bridge_transfer_events',
-            //     SWAP_EVENT_TOPIC,
-            //     'nofilter',
-            //     EP_DEPLOYMENT_BLOCK,
-            //     parsePancakeSwapEvent,
-            //     { isDirectTrade: true, directProtocol: 'PancakeSwap' },
-            // ),
-        ]);
+        const promises: Promise<void>[] = [];
+
+        if (FEAT_TRANSFORMED_ERC20_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'TransformedERC20Event',
+                    'transformed_erc20_events',
+                    TRANSFORMEDERC20_EVENT_TOPIC,
+                    EXCHANGE_PROXY_ADDRESS,
+                    EP_DEPLOYMENT_BLOCK,
+                    parseTransformedERC20Event,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_ONEINCH_SWAPPED_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'OneinchSwappedEvent',
+                    'oneinch_swapped_events',
+                    ONEINCH_SWAPPED_EVENT_TOPIC,
+                    ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
+                    ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
+                    parseOneinchSwappedEvent,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_PANCAKE_VIP_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'PancakeVIPEvent',
+                    'erc20_bridge_transfer_events',
+                    SWAP_EVENT_TOPIC,
+                    'nofilter',
+                    EP_DEPLOYMENT_BLOCK,
+                    parsePancakeSwapEvent,
+                    { isDirectTrade: true, directProtocol: 'PancakeSwap' },
+                ),
+            );
+        }
+        if (FEAT_SLINGSHOT_TRADE_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<SlingshotTradeEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'SlingshotTradeEvent',
+                    'slingshot_trade_events',
+                    SLINGSHOT_TRADE_EVENT_TOPIC,
+                    SLINGSHOT_CONTRACT_ADDRESS,
+                    SLINGSHOT_DEPLOYMENT_BLOCK,
+                    parseSlingshotTradeEvent,
+                    {},
+                ),
+            );
+        }
+
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
+        //     connection,
+        //     web3Source,
+        //     latestBlockWithOffset,
+        //     'LiquidityProviderSwapEvent',
+        //     'erc20_bridge_transfer_events',
+        //     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
+        //     EXCHANGE_PROXY_ADDRESS,
+        //     EP_DEPLOYMENT_BLOCK,
+        //     parseLiquidityProviderSwapEvent,
+        //     { isDirectTrade: true, directProtocol: 'PLP' },
+        // ),
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4RfqOrderFilledEvent>(
+        //     connection,
+        //     web3Source,
+        //     latestBlockWithOffset,
+        //     'V4RfqOrderFilledEvent',
+        //     'v4_rfq_order_filled_events',
+        //     RFQORDERFILLED_EVENT_TOPIC,
+        //     EXCHANGE_PROXY_ADDRESS,
+        //     EP_DEPLOYMENT_BLOCK,
+        //     parseV4RfqOrderFilledEvent,
+        //     {},
+        // ),
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
+        //     connection,
+        //     web3Source,
+        //     latestBlockWithOffset,
+        //     'NativeFillFromRFQV4',
+        //     'native_fills',
+        //     RFQORDERFILLED_EVENT_TOPIC,
+        //     EXCHANGE_PROXY_ADDRESS,
+        //     EP_DEPLOYMENT_BLOCK,
+        //     parseNativeFillFromV4RfqOrderFilledEvent,
+        //     { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
+        // ),
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4LimitOrderFilledEvent>(
+        //     connection,
+        //     web3Source,
+        //     latestBlockWithOffset,
+        //     'V4LimitOrderFilledEvent',
+        //     'v4_limit_order_filled_events',
+        //     LIMITORDERFILLED_EVENT_TOPIC,
+        //     EXCHANGE_PROXY_ADDRESS,
+        //     EP_DEPLOYMENT_BLOCK,
+        //     parseV4LimitOrderFilledEvent,
+        //     {},
+        // ),
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
+        //     connection,
+        //     web3Source,
+        //     latestBlockWithOffset,
+        //     'NativeFillFromLimitV4',
+        //     'native_fills',
+        //     LIMITORDERFILLED_EVENT_TOPIC,
+        //     EXCHANGE_PROXY_ADDRESS,
+        //     EP_DEPLOYMENT_BLOCK,
+        //     parseNativeFillFromV4LimitOrderFilledEvent,
+        //     { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
+        // ),
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(connection, web3Source, latestBlockWithOffset, 'V4CancelEvent', 'v4_cancel_events', V4_CANCEL_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EP_DEPLOYMENT_BLOCK, parseV4CancelEvent, {}),
+        // pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(connection, web3Source, latestBlockWithOffset, 'ExpiredRfqOrderEvent', 'expired_rfq_order_events', EXPIRED_RFQ_ORDER_EVENT_TOPIC, EXCHANGE_PROXY_ADDRESS, EP_DEPLOYMENT_BLOCK, parseExpiredRfqOrderEvent, {}),
+
+        await Promise.all(promises);
 
         const endTime = new Date().getTime();
         logUtils.log(`finished pulling events by topic`);
