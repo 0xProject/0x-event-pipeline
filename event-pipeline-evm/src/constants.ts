@@ -11,6 +11,7 @@ export const DEFAULT_SCRAPE_TRANSACTIONS_FLAG = false;
 export const DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT = true;
 export const DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT = false;
 export const DEFAULT_FEAT_PANCAKE_VIP_EVENT = false;
+export const DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT = false;
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
 export const LIQUIDITYPROVIDERSWAP_EVENT_TOPIC = ['0x40a6ba9513d09e3488135e0e0d10e2d4382b792720155b144cbea89ac9db6d34'];
 export const RFQORDERFILLED_EVENT_TOPIC = ['0x829fa99d94dc4636925b38632e625736a614c154d55006b7ab6bea979c210c32'];
@@ -24,6 +25,8 @@ export const SWAP_EVENT_TOPIC = [
 ];
 export const ONEINCH_ROUTER_V3_CONTRACT_ADDRESS = '0x11111112542D85B3EF69AE05771c2dCCff4fAa26';
 export const ONEINCH_SWAPPED_EVENT_TOPIC = ['0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'];
+export const SLINGSHOT_CONTRACT_ADDRESS = '0xF2e4209afA4C3c9eaA3Fb8e12eeD25D8f328171C';
+export const SLINGSHOT_TRADE_EVENT_TOPIC = ['0xd0c707b5ea7a686e3488bec166c1433616af06ab4ffa10e059b6da789bff90ac'];
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
@@ -127,5 +130,20 @@ export const ONEINCH_SWAPPED_ABI = {
         { indexed: false, internalType: 'uint256', name: 'returnAmount', type: 'uint256' },
     ],
     name: 'Swapped',
+    type: 'event',
+};
+
+// https://github.com/code-423n4/2021-02-slingshot/blob/main/contracts/Slingshot.sol
+export const SLINGSHOT_TRADE_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'fromToken', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'toToken', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'fromAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'toAmount', type: 'uint256' },
+        { indexed: false, internalType: 'address', name: 'recipient', type: 'address' },
+    ],
+    name: 'Trade',
     type: 'event',
 };

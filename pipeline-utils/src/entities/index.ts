@@ -9,6 +9,7 @@ export { LastBlockProcessed } from './last_block_processed';
 export { TransformedERC20Event } from './transformed_erc20_event';
 export { NativeFill } from './native_fill';
 export { OneinchSwappedEvent } from './one_inch_swapped_event';
+export { SlingshotTradeEvent } from './slingshot_trade_event';
 export { V4RfqOrderFilledEvent } from './v4_rfq_order_filled_event';
 export { V4LimitOrderFilledEvent } from './v4_limit_order_filled_event';
 export { V4CancelEvent } from './v4_cancel_event';
