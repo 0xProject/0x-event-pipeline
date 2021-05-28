@@ -16,6 +16,7 @@ export {
     NativeFill,
     OneinchSwappedEvent,
     ParamsSetEvent,
+    SlingshotTradeEvent,
     TransactionLogs,
     TransactionReceipt,
     Transaction,

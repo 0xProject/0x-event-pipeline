@@ -11,6 +11,7 @@ import {
     V4LimitOrderFilledEvent,
     NativeFill,
     OneinchSwappedEvent,
+    SlingshotTradeEvent,
     V4CancelEvent,
     ExpiredRfqOrderEvent,
 } from '../entities';
@@ -22,7 +23,9 @@ import {
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_ONEINCH_SWAPPED_EVENT,
     FEAT_PANCAKE_VIP_EVENT,
+    FEAT_SLINGSHOT_TRADE_EVENT,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
+    SLINGSHOT_DEPLOYMENT_BLOCK,
 } from '../config';
 import {
     TRANSFORMEDERC20_EVENT_TOPIC,
@@ -35,10 +38,13 @@ import {
     SWAP_EVENT_TOPIC,
     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
     ONEINCH_SWAPPED_EVENT_TOPIC,
+    SLINGSHOT_CONTRACT_ADDRESS,
+    SLINGSHOT_TRADE_EVENT_TOPIC,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
+import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
     parseV4RfqOrderFilledEvent,
@@ -117,6 +123,22 @@ export class EventsByTopicScraper {
                     EP_DEPLOYMENT_BLOCK,
                     parsePancakeSwapEvent,
                     { isDirectTrade: true, directProtocol: 'PancakeSwap' },
+                ),
+            );
+        }
+        if (FEAT_SLINGSHOT_TRADE_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<SlingshotTradeEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'SlingshotTradeEvent',
+                    'slingshot_trade_events',
+                    SLINGSHOT_TRADE_EVENT_TOPIC,
+                    SLINGSHOT_CONTRACT_ADDRESS,
+                    SLINGSHOT_DEPLOYMENT_BLOCK,
+                    parseSlingshotTradeEvent,
+                    {},
                 ),
             );
         }
