@@ -461,8 +461,7 @@ WITH
         , fbp.protocol_fees / tf.total_protocol_fees AS share_of_fees
         , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
         , (cebs.zrx_delegated / ts.total_staked)
-            / (CASE(COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees) WHEN 0 THEN 1
-            ELSE (COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees) END)
+            / NULLIF((COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees),0)
             AS approximate_stake_ratio
     FROM events.staking_pool_created_events pce
     LEFT JOIN current_epoch_beginning_status cebs ON cebs.pool_id = pce.pool_id
@@ -618,8 +617,7 @@ export const nextEpochPoolsStatsQuery = `
             , 0.00 AS total_protocol_fees_generated_in_eth
             , 0 AS number_of_fills
             , (cs.zrx_staked / ts.total_staked)
-                    / (CASE(COALESCE(fbp.protocol_fees,0) / tr.total_protocol_fees) WHEN 0 THEN 1
-                    ELSE (COALESCE(fbp.protocol_fees,0) / tr.total_protocol_fees) END)
+                    / NULLIF((COALESCE(fbp.protocol_fees,0) / tr.total_protocol_fees),0)
                 AS approximate_stake_ratio
         FROM staking.pool_info pi
         LEFT JOIN operator_share os ON os.pool_id = pi.pool_id
