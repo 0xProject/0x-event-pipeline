@@ -34,6 +34,10 @@ export const MULTIPLEX_START_BLOCK = 12047508; // RANDOM BLOCK NUMBER FROM NOW F
 export const NEWBRIDGEFILL_EVENT_TOPIC = ['0xe59e71a14fe90157eedc866c4f8c767d3943d6b6b2e8cd64dddcc92ab4c55af8'];
 export const NEW_BRIDGEFILL_BLOCK = 12231666; // first seen block - 1
 export const FLASHWALLET_ADDRESS = '0x22f9dcf4647084d6c31b2765f6910cd85c178c18';
+export const SWAP_V3_EVENT_TOPIC = [
+    '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67',
+    '0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff',
+];
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
@@ -43,6 +47,56 @@ export {
     TRANSFORMED_ERC20_ABI,
     V4_CANCEL_ABI,
 } from '@0x/pipeline-utils';
+
+export const SWAP_V3_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'sender',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'recipient',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'amount0',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'amount1',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint160',
+            name: 'sqrtPriceX96',
+            type: 'uint160',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'liquidity',
+            type: 'uint128',
+        },
+        {
+            indexed: false,
+            internalType: 'int24',
+            name: 'tick',
+            type: 'int24',
+        },
+    ],
+    name: 'Swap',
+    type: 'event',
+};
 
 export const NEW_BRIDGE_FILL_ABI = {
     anonymous: false,
