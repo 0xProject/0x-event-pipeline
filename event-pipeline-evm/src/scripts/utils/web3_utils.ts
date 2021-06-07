@@ -51,7 +51,10 @@ export class PullAndSaveWeb3 {
             shouldLookForBridgeTrades,
         );
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
-        const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
+        const parsedTx = rawTx.map(rawTx => {
+            console.log(rawTx);
+            return parseTransaction(rawTx);
+        });
 
         logUtils.log(`saving ${parsedTx.length} tx`);
 
