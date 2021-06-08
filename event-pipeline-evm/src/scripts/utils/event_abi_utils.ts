@@ -10,7 +10,7 @@ const Web3Utils = require('web3-utils');
 
 export interface DeleteOptions {
     isDirectTrade?: boolean;
-    directProtocol?: string;
+    directProtocol?: string[];
     protocolVersion?: string;
     nativeOrderType?: string;
 }
@@ -53,7 +53,7 @@ export class PullAndSaveEventsByTopic {
             rawLogsArray.map(async rawLogs => {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
-                if (eventName === 'PancakeVIPEvent' && parsedLogs.length > 0) {
+                if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
                     var contractCallToken0Array = [];
                     var contractCallToken1Array = [];
 
@@ -153,9 +153,9 @@ export class PullAndSaveEventsByTopic {
 
         let deleteQuery: string;
         if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
-            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol = '${
-                deleteOptions.directProtocol
-            }'`;
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
+                "','",
+            )}')`;
         } else {
             if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
                 if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
