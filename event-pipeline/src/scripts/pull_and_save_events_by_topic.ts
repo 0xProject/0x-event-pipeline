@@ -35,7 +35,7 @@ import {
     NEWBRIDGEFILL_EVENT_TOPIC,
     NEW_BRIDGEFILL_BLOCK,
     FLASHWALLET_ADDRESS,
-    SWAP_V3_EVENT_TOPIC
+    SWAP_V3_EVENT_TOPIC,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
@@ -45,9 +45,7 @@ import {
     parseV4RfqOrderFilledEvent,
     parseNativeFillFromV4RfqOrderFilledEvent,
 } from '../parsers/events/v4_rfq_order_filled_events';
-import {
-    parseUniswapV3SwapEvent
-} from '../parsers/events/swap_events';
+import { parseUniswapV3SwapEvent } from '../parsers/events/swap_events';
 import {
     parseV4LimitOrderFilledEvent,
     parseNativeFillFromV4LimitOrderFilledEvent,
@@ -106,7 +104,7 @@ export class EventsByTopicScraper {
                 'erc20_bridge_transfer_events',
                 SWAP_V3_EVENT_TOPIC,
                 'nofilter',
-                12553659, // first seen -1 
+                12553659, // first seen -1
                 parseUniswapV3SwapEvent,
                 { isDirectTrade: true, directProtocol: 'UniswapV3' },
             ),

@@ -54,7 +54,7 @@ export class PullAndSaveEventsByTopic {
         await Promise.all(
             rawLogsArray.map(async rawLogs => {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
-                
+
                 if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
                     var contractCallToken0Array = [];
                     var contractCallToken1Array = [];
