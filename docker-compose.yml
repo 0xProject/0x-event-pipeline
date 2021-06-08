@@ -37,10 +37,11 @@ services:
             POSTGRES_URI: 'postgres://api:api@postgres/events'
             SCHEMA: 'events_bsc'
             EP_DEPLOYMENT_BLOCK: 5375047
-            MAX_BLOCKS_TO_SEARCH: 5000
+            MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 5000
             MINUTES_BETWEEN_RUNS: 1
-            FEAT_PANCAKE_VIP_EVENT: "true"
+            FEAT_VIP_SWAP_EVENT: "true"
+            VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap"
             FEAT_ONEINCH_SWAPPED_EVENT: "true"
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 5300000
 
@@ -57,8 +58,8 @@ services:
             POSTGRES_URI: 'postgres://api:api@postgres/events'
             SCHEMA: 'events_polygon'
             EP_DEPLOYMENT_BLOCK: 14391480
-            MAX_BLOCKS_TO_SEARCH: 5000
-            MAX_BLOCKS_TO_PULL: 5000
+            MAX_BLOCKS_TO_SEARCH: 2000
+            MAX_BLOCKS_TO_PULL: 2000
             MINUTES_BETWEEN_RUNS: 1
             FEAT_ONEINCH_SWAPPED_EVENT: "true"
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 14500000
