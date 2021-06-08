@@ -1,10 +1,12 @@
-import { logger, Web3Source, LogPullInfo } from '@0x/pipeline-utils';
+import { logger, Web3Source, LogPullInfo, ContractCallInfo } from '@0x/pipeline-utils';
+
 import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
 
 import { MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
+const Web3Utils = require('web3-utils');
 
 export interface DeleteOptions {
     isDirectTrade?: boolean;
@@ -52,6 +54,34 @@ export class PullAndSaveEventsByTopic {
         await Promise.all(
             rawLogsArray.map(async rawLogs => {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
+
+                if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
+                    var contractCallToken0Array = [];
+                    var contractCallToken1Array = [];
+
+                    for (var index in parsedLogs) {
+                        const contractCallToken0: ContractCallInfo = {
+                            to: (parsedLogs[index] as any).contractAddress,
+                            data: '0x0dfe1681',
+                        };
+                        contractCallToken0Array.push(contractCallToken0);
+
+                        const contractCallToken1: ContractCallInfo = {
+                            to: (parsedLogs[index] as any).contractAddress,
+                            data: '0xd21220a7',
+                        };
+                        contractCallToken1Array.push(contractCallToken1);
+                    }
+                    const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
+                    const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
+
+                    for (var i = 0; i < parsedLogs.length; i++) {
+                        const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
+                        const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
+                        parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
+                        parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
+                    }
+                }
 
                 logger
                     .child({ numLogs: parsedLogs.length, eventName })
