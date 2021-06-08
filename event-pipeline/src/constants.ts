@@ -65,15 +65,15 @@ export const SWAP_V3_ABI = {
         },
         {
             indexed: false,
-            internalType: 'uint256',
+            internalType: 'int256',
             name: 'amount0',
-            type: 'uint256',
+            type: 'int256',
         },
         {
             indexed: false,
-            internalType: 'uint256',
+            internalType: 'int256',
             name: 'amount1',
-            type: 'uint256',
+            type: 'int256',
         },
         {
             indexed: false,
