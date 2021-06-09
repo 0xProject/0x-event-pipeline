@@ -9,7 +9,7 @@ import {
     DEFAULT_MAX_TIME_TO_SEARCH,
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
     DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
-    DEFAULT_FEAT_PANCAKE_VIP_EVENT,
+    DEFAULT_FEAT_VIP_SWAP_EVENT,
     DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
 } from './constants';
 
@@ -72,9 +72,9 @@ export const FEAT_TRANSFORMED_ERC20_EVENT = process.env.hasOwnProperty('FEAT_TRA
 export const FEAT_ONEINCH_SWAPPED_EVENT = process.env.hasOwnProperty('FEAT_ONEINCH_SWAPPED_EVENT')
     ? process.env.FEAT_ONEINCH_SWAPPED_EVENT === 'true'
     : DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT;
-export const FEAT_PANCAKE_VIP_EVENT = process.env.hasOwnProperty('FEAT_PANCAKE_VIP_EVENT')
-    ? process.env.FEAT_PANCAKE_VIP_EVENT === 'true'
-    : DEFAULT_FEAT_PANCAKE_VIP_EVENT;
+export const FEAT_VIP_SWAP_EVENT = process.env.hasOwnProperty('FEAT_VIP_SWAP_EVENT')
+    ? process.env.FEAT_VIP_SWAP_EVENT === 'true'
+    : DEFAULT_FEAT_VIP_SWAP_EVENT;
 export const FEAT_SLINGSHOT_TRADE_EVENT = process.env.hasOwnProperty('FEAT_SLINGSHOT_TRADE_EVENT')
     ? process.env.FEAT_SLINGSHOT_TRADE_EVENT === 'true'
     : DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT;
@@ -93,5 +93,12 @@ export const SLINGSHOT_DEPLOYMENT_BLOCK = process.env.SLINGSHOT_DEPLOYMENT_BLOCK
 if (SLINGSHOT_DEPLOYMENT_BLOCK === -1 && FEAT_SLINGSHOT_TRADE_EVENT) {
     throwError(
         `The Slingshot Trade Event scraper is enabled, but no SLINGSHOT_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+    );
+}
+
+export const VIP_SWAP_SOURCES = process.env.VIP_SWAP_SOURCES ? process.env.VIP_SWAP_SOURCES.split(',') : undefined;
+if (VIP_SWAP_SOURCES === undefined && FEAT_VIP_SWAP_EVENT) {
+    throwError(
+        `The VIP Swap Event scraper is enabled, but no VIP_SWAP_SOURCES was provided. Please include a comma separated list of the enabled VIP sources in this chain or disable the feature`,
     );
 }
