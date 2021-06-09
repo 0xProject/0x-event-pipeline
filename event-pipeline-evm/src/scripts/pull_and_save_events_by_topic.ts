@@ -22,10 +22,11 @@ import {
     EP_DEPLOYMENT_BLOCK,
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_ONEINCH_SWAPPED_EVENT,
-    FEAT_PANCAKE_VIP_EVENT,
+    FEAT_VIP_SWAP_EVENT,
     FEAT_SLINGSHOT_TRADE_EVENT,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
+    VIP_SWAP_SOURCES,
 } from '../config';
 import {
     TRANSFORMEDERC20_EVENT_TOPIC,
@@ -110,19 +111,19 @@ export class EventsByTopicScraper {
             );
         }
 
-        if (FEAT_PANCAKE_VIP_EVENT) {
+        if (FEAT_VIP_SWAP_EVENT) {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
                     connection,
                     web3Source,
                     latestBlockWithOffset,
-                    'PancakeVIPEvent',
+                    'VIPSwapEvent',
                     'erc20_bridge_transfer_events',
                     SWAP_EVENT_TOPIC,
                     'nofilter',
                     EP_DEPLOYMENT_BLOCK,
                     parsePancakeSwapEvent,
-                    { isDirectTrade: true, directProtocol: 'PancakeSwap' },
+                    { isDirectTrade: true, directProtocol: VIP_SWAP_SOURCES },
                 ),
             );
         }
