@@ -6,6 +6,7 @@ import {
     NativeFill as NativeFillTemplate,
     OneinchSwappedEvent as OneinchSwappedEventTemplate,
     ParamsSetEvent as ParamsSetEventTemplate,
+    ParaswapSwappedEvent as ParaswapSwappedEventTemplate,
     SlingshotTradeEvent as SlingshotTradeEventTemplate,
     TransactionLogs as TransactionLogsTemplate,
     TransactionReceipt as TransactionReceiptTemplate,
@@ -38,6 +39,9 @@ export class OneinchSwappedEvent extends OneinchSwappedEventTemplate {}
 
 @Entity({ name: 'params_set_events', schema: SCHEMA })
 export class ParamsSetEvent extends ParamsSetEventTemplate {}
+
+@Entity({ name: 'paraswap_swapped_events', schema: SCHEMA })
+export class ParaswapSwappedEvent extends ParaswapSwappedEventTemplate {}
 
 @Entity({ name: 'slingshot_trade_events', schema: SCHEMA })
 export class SlingshotTradeEvent extends SlingshotTradeEventTemplate {}
