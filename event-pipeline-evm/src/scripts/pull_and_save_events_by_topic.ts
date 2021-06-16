@@ -11,6 +11,7 @@ import {
     V4LimitOrderFilledEvent,
     NativeFill,
     OneinchSwappedEvent,
+    ParaswapSwappedEvent,
     SlingshotTradeEvent,
     V4CancelEvent,
     ExpiredRfqOrderEvent,
@@ -24,9 +25,12 @@ import {
     FEAT_ONEINCH_SWAPPED_EVENT,
     FEAT_VIP_SWAP_EVENT,
     FEAT_SLINGSHOT_TRADE_EVENT,
+    FEAT_PARASWAP_SWAPPED_EVENT,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
     VIP_SWAP_SOURCES,
+    PARASWAP_CONTRACT_ADDRESS,
+    PARASWAP_DEPLOYMENT_BLOCK,
 } from '../config';
 import {
     TRANSFORMEDERC20_EVENT_TOPIC,
@@ -41,10 +45,12 @@ import {
     ONEINCH_SWAPPED_EVENT_TOPIC,
     SLINGSHOT_CONTRACT_ADDRESS,
     SLINGSHOT_TRADE_EVENT_TOPIC,
+    PARASWAP_SWAPPED_EVENT_TOPIC,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
+import { parseParaswapSwappedEvent } from '../parsers/events/paraswap_swapped_event';
 import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
@@ -139,6 +145,23 @@ export class EventsByTopicScraper {
                     SLINGSHOT_CONTRACT_ADDRESS,
                     SLINGSHOT_DEPLOYMENT_BLOCK,
                     parseSlingshotTradeEvent,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_PARASWAP_SWAPPED_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ParaswapSwappedEvent',
+                    'paraswap_swapped_events',
+                    PARASWAP_SWAPPED_EVENT_TOPIC,
+                    PARASWAP_CONTRACT_ADDRESS,
+                    PARASWAP_DEPLOYMENT_BLOCK,
+                    parseParaswapSwappedEvent,
                     {},
                 ),
             );
