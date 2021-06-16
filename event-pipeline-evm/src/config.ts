@@ -11,6 +11,7 @@ import {
     DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
     DEFAULT_FEAT_VIP_SWAP_EVENT,
     DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
+    DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -78,6 +79,9 @@ export const FEAT_VIP_SWAP_EVENT = process.env.hasOwnProperty('FEAT_VIP_SWAP_EVE
 export const FEAT_SLINGSHOT_TRADE_EVENT = process.env.hasOwnProperty('FEAT_SLINGSHOT_TRADE_EVENT')
     ? process.env.FEAT_SLINGSHOT_TRADE_EVENT === 'true'
     : DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT;
+export const FEAT_PARASWAP_SWAPPED_EVENT = process.env.hasOwnProperty('FEAT_PARASWAP_SWAPPED_EVENT')
+    ? process.env.FEAT_PARASWAP_SWAPPED_EVENT === 'true'
+    : DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT;
 
 export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = process.env.ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK
     ? parseInt(process.env.ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK, 10)
@@ -100,5 +104,22 @@ export const VIP_SWAP_SOURCES = process.env.VIP_SWAP_SOURCES ? process.env.VIP_S
 if (VIP_SWAP_SOURCES === undefined && FEAT_VIP_SWAP_EVENT) {
     throwError(
         `The VIP Swap Event scraper is enabled, but no VIP_SWAP_SOURCES was provided. Please include a comma separated list of the enabled VIP sources in this chain or disable the feature`,
+    );
+}
+
+export const PARASWAP_DEPLOYMENT_BLOCK = process.env.PARASWAP_DEPLOYMENT_BLOCK
+    ? parseInt(process.env.PARASWAP_DEPLOYMENT_BLOCK, 10)
+    : -1;
+if (PARASWAP_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_EVENT) {
+    throwError(
+        `The Paraswap Swapped Event scraper is enabled, but no PARASWAP_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+    );
+}
+export const PARASWAP_CONTRACT_ADDRESS = process.env.PARASWAP_CONTRACT_ADDRESS
+    ? process.env.PARASWAP_CONTRACT_ADDRESS
+    : '';
+if (PARASWAP_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_EVENT) {
+    throwError(
+        `The Paraswap Swapped Event scraper is enabled, but no PARASWAP_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
     );
 }

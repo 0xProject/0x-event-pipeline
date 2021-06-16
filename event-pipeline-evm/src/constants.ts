@@ -12,6 +12,7 @@ export const DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT = true;
 export const DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT = false;
 export const DEFAULT_FEAT_VIP_SWAP_EVENT = false;
 export const DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT = false;
+export const DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT = false;
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
 export const LIQUIDITYPROVIDERSWAP_EVENT_TOPIC = ['0x40a6ba9513d09e3488135e0e0d10e2d4382b792720155b144cbea89ac9db6d34'];
 export const RFQORDERFILLED_EVENT_TOPIC = ['0x829fa99d94dc4636925b38632e625736a614c154d55006b7ab6bea979c210c32'];
@@ -27,6 +28,7 @@ export const ONEINCH_ROUTER_V3_CONTRACT_ADDRESS = '0x11111112542D85B3EF69AE05771
 export const ONEINCH_SWAPPED_EVENT_TOPIC = ['0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'];
 export const SLINGSHOT_CONTRACT_ADDRESS = '0xF2e4209afA4C3c9eaA3Fb8e12eeD25D8f328171C';
 export const SLINGSHOT_TRADE_EVENT_TOPIC = ['0xd0c707b5ea7a686e3488bec166c1433616af06ab4ffa10e059b6da789bff90ac'];
+export const PARASWAP_SWAPPED_EVENT_TOPIC = ['0x9cc2048b8af5eadff75759a3169b369efc538fb79c760fd396a4b355410b41b7'];
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
@@ -145,5 +147,21 @@ export const SLINGSHOT_TRADE_ABI = {
         { indexed: false, internalType: 'address', name: 'recipient', type: 'address' },
     ],
     name: 'Trade',
+    type: 'event',
+};
+
+export const PARASWAP_SWAPPED_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'address', name: 'initiator', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'beneficiary', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'srcToken', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'destToken', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'srcAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'receivedAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'expectedAmount', type: 'uint256' },
+        { indexed: false, internalType: 'string', name: 'referrer', type: 'string' },
+    ],
+    name: 'Swapped',
     type: 'event',
 };
