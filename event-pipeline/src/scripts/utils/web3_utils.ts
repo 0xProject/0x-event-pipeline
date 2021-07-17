@@ -21,6 +21,7 @@ import {
     START_BLOCK_OFFSET,
     BRIDGE_TRADE_TOPIC,
     BRIDGEFILL_EVENT_TOPIC,
+    BLOCKS_REORG_CHECK_RECEIPTS,
 } from '../../config';
 
 import { NEWBRIDGEFILL_EVENT_TOPIC } from '../../constants';
@@ -141,23 +142,43 @@ export class PullAndSaveWeb3 {
         shouldLookForBridgeTrades: boolean,
     ): Promise<string[]> {
         let queryResult: any;
+        const afterBlock = beforeBlock - BLOCKS_REORG_CHECK_RECEIPTS;
+        logger.info(
+            `Looking for tx that changed blocks between blocks ${afterBlock} and ${beforeBlock}. Including bridge trades: ${shouldLookForBridgeTrades}`,
+        );
         if (shouldLookForBridgeTrades) {
             queryResult = await connection.query(`
-                SELECT DISTINCT
+            WITH rececnt_transaction_receipts AS (
+  SELECT
+    transaction_hash,
+    block_hash
+  FROM events.${txTable}
+  WHERE
+    block_number BETWEEN ${afterBlock} AND ${beforeBlock}
+
+)
+SELECT DISTINCT
                     transaction_hash
                 FROM (
                     SELECT DISTINCT
                         transaction_hash
                         , block_number
                     FROM (
-                        (SELECT DISTINCT
+                        (SELECT
                             fe.transaction_hash
                             , fe.block_number
-                        FROM events.native_fills fe
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = fe.transaction_hash
+                        FROM (
+                          SELECT
+                            transaction_hash,
+                            block_number,
+                            block_hash
+                        FROM events.native_fills
                         WHERE
-                            fe.block_number < ${beforeBlock}
-                            AND (
+                          block_number BETWEEN ${afterBlock} AND ${beforeBlock}
+                    )fe
+                        LEFT JOIN rececnt_transaction_receipts tx ON tx.transaction_hash = fe.transaction_hash
+                        WHERE
+                            (
                                 -- tx info hasn't been pulled
                                 tx.transaction_hash IS NULL
                                 -- or tx where the block info has changed
@@ -165,19 +186,25 @@ export class PullAndSaveWeb3 {
                                     tx.block_hash <> fe.block_hash
                                 )
                             )
-                        ORDER BY 2
-                        LIMIT 100)
+                        )
 
                         UNION
 
-                        (SELECT DISTINCT
+                        (SELECT
                             terc20.transaction_hash
                             , terc20.block_number
-                        FROM events.transformed_erc20_events terc20
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = terc20.transaction_hash
+                        FROM (
+                          SELECT
+                            transaction_hash,
+                            block_number,
+                            block_hash
+                        FROM events.transformed_erc20_events
                         WHERE
-                            terc20.block_number < ${beforeBlock}
-                            AND (
+                          block_number BETWEEN ${afterBlock} AND ${beforeBlock}
+                    ) terc20
+                        LEFT JOIN rececnt_transaction_receipts tx ON tx.transaction_hash = terc20.transaction_hash
+                        WHERE
+                            (
                                 -- tx info hasn't been pulled
                                 tx.transaction_hash IS NULL
                                 -- or tx where the block info has changed
@@ -185,19 +212,25 @@ export class PullAndSaveWeb3 {
                                     tx.block_hash <> terc20.block_hash
                                 )
                             )
-                        ORDER BY 2
-                        LIMIT 100)
+                        )
 
                         UNION
 
-                        (SELECT DISTINCT
+                        (SELECT
                             ce.transaction_hash
                             , ce.block_number
-                        FROM events.cancel_events ce
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
+                        FROM (
+                          SELECT
+                            transaction_hash,
+                            block_number,
+                            block_hash
+                        FROM events.cancel_events
                         WHERE
-                            ce.block_number < ${beforeBlock}
-                            AND (
+                          block_number BETWEEN ${afterBlock} AND ${beforeBlock}
+                    ) ce
+                        LEFT JOIN rececnt_transaction_receipts tx ON tx.transaction_hash = ce.transaction_hash
+                        WHERE
+                            (
                                 -- tx info hasn't been pulled
                                 tx.transaction_hash IS NULL
                                 -- or tx where the block info has changed
@@ -205,19 +238,25 @@ export class PullAndSaveWeb3 {
                                     tx.block_hash <> ce.block_hash
                                 )
                             )
-                        ORDER BY 2
-                        LIMIT 100)
+                        )
 
                         UNION
 
-                        (SELECT DISTINCT
+                        (SELECT
                             ce.transaction_hash
                             , ce.block_number
-                        FROM events.cancel_up_to_events ce
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = ce.transaction_hash
+                        FROM (
+                          SELECT
+                            transaction_hash,
+                            block_number,
+                            block_hash
+                        FROM events.cancel_up_to_events
                         WHERE
-                            ce.block_number < ${beforeBlock}
-                            AND (
+                          block_number BETWEEN ${afterBlock} AND ${beforeBlock}
+                    ) ce
+                        LEFT JOIN rececnt_transaction_receipts tx ON tx.transaction_hash = ce.transaction_hash
+                        WHERE
+                            (
                                 -- tx info hasn't been pulled
                                 tx.transaction_hash IS NULL
                                 -- or tx where the block info has changed
@@ -225,8 +264,7 @@ export class PullAndSaveWeb3 {
                                     tx.block_hash <> ce.block_hash
                                 )
                             )
-                        ORDER BY 2
-                        LIMIT 100)
+                        )
                     ORDER BY 2
                     LIMIT 100
                 ) a
@@ -234,35 +272,45 @@ export class PullAndSaveWeb3 {
             `);
         } else {
             queryResult = await connection.query(`
-                SELECT DISTINCT
-                    transaction_hash
-                FROM (
-                    SELECT DISTINCT
-                        transaction_hash
-                        , block_number
-                    FROM (
-                        (SELECT DISTINCT
-                            bte.transaction_hash
-                            , bte.block_number
-                        FROM events.erc20_bridge_transfer_events bte
-                        LEFT JOIN events.${txTable} tx ON tx.transaction_hash = bte.transaction_hash
-                        WHERE
-                            bte.block_number < ${beforeBlock}
-                            AND (
-                                -- tx info hasn't been pulled
-                                tx.transaction_hash IS NULL
-                                -- commenting out below, since we don't have block hashes from the graph
-                                -- or tx where the block info has changed
-                                -- OR (
-                                -- tx.block_hash <> bte.block_hash
-                                -- )
-                            )
-                            AND direct_flag
-                        ORDER BY 2
-                        LIMIT 100)
-                ) a
-            ) b;
-            `);
+              WITH rececnt_transaction_receipts AS (
+        SELECT
+                transaction_hash,
+                block_hash
+        FROM events.${txTable}
+        WHERE
+                block_number BETWEEN ${afterBlock} AND ${beforeBlock}
+)
+
+SELECT DISTINCT
+    transaction_hash
+FROM (
+    SELECT
+        bte.transaction_hash
+        , bte.block_number
+    FROM (
+      SELECT
+              transaction_hash,
+              block_number,
+              block_hash
+          FROM events.erc20_bridge_transfer_events
+          WHERE
+              block_number BETWEEN ${afterBlock} AND ${beforeBlock} AND
+              direct_flag
+    ) bte
+    LEFT JOIN rececnt_transaction_receipts tx ON tx.transaction_hash = bte.transaction_hash
+    WHERE
+      (
+            -- tx info hasn't been pulled
+            tx.transaction_hash IS NULL
+            -- commenting out below, since we don't have block hashes from the graph
+            -- or tx where the block info has changed
+            -- OR (
+            -- tx.block_hash <> bte.block_hash
+            -- )
+        )
+) a
+
+                                                 `);
         }
 
         const txList = queryResult.map((e: { transaction_hash: string }) => e.transaction_hash);
@@ -340,15 +388,37 @@ export class PullAndSaveWeb3 {
         const txHashes = txReceipts.map(e => e.transactionHash);
         const txHashList = txHashes.map(e => `'${e}'`).toString();
 
+        const txReceiptsHashes = txReceipts.map(e => e.transactionHash);
+        const txReceiptsHashList = txReceiptsHashes.map(e => `'${e}'`).toString();
+
+        const txLogsHashes = txLogs.map(e => e.transactionHash);
+        const txLogsHashList = txLogsHashes.map(e => `'${e}'`).toString();
+
+        const bridgeTradesHashes = bridgeTrades.map(e => e.transactionHash);
+        const bridgeTradesHashList = bridgeTradesHashes.map(e => `'${e}'`).toString();
+
+        logger.info('Receipts:');
+        logger.info(txReceiptsHashes);
+        logger.info('Logs:');
+        logger.info(txLogsHashes);
+        logger.info('Bridge:');
+        logger.info(bridgeTradesHashes);
+
+        logger.info('Connecting to Query Runner');
         await queryRunner.connect();
+
+        logger.info('Starting Transaction');
 
         await queryRunner.startTransaction();
         try {
+            logger.info('Starting to delete old info');
             await queryRunner.manager.query(`
                 DELETE FROM events.transaction_receipts WHERE transaction_hash IN (${txHashList});
                 DELETE FROM events.transaction_logs WHERE transaction_hash IN (${txHashList});
                 DELETE FROM events.erc20_bridge_transfer_events WHERE transaction_hash IN (${txHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
             `);
+
+            logger.info('Starting to save new info');
 
             await Promise.all([
                 queryRunner.manager.save(txReceipts),
@@ -356,9 +426,12 @@ export class PullAndSaveWeb3 {
                 queryRunner.manager.save(bridgeTrades),
             ]);
 
+            logger.info('Everything OK, commiting transaction');
             // commit transaction now:
             await queryRunner.commitTransaction();
+            logger.info('Transaction commited');
         } catch (err) {
+            logger.error('There was an error deteting or saving');
             logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();

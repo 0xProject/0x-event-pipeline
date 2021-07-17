@@ -38,6 +38,7 @@ export const SWAP_V3_EVENT_TOPIC = [
     '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67',
     '0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff',
 ];
+export const DEFAULT_BLOCKS_REORG_CHECK_RECEIPTS = 50400; // 1 week / 12 blocks per second;
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
