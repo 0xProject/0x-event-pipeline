@@ -1,6 +1,6 @@
 import { web3Factory } from '@0x/dev-utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
-import { logUtils } from '@0x/utils';
+import { logger } from '@0x/pipeline-utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import 'reflect-metadata';
 import { Connection } from 'typeorm';
@@ -21,10 +21,10 @@ async function dummyAsync(): Promise<void> {}
 export class EventScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
-        logUtils.log(`pulling events`);
+        logger.info(`pulling events`);
         const latestBlockWithOffset = await calculateEndBlockAsync(provider);
 
-        logUtils.log(`latest block with offset: ${latestBlockWithOffset}`);
+        logger.info(`latest block with offset: ${latestBlockWithOffset}`);
 
         await Promise.all([
             pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset),
@@ -35,8 +35,8 @@ export class EventScraper {
         ]);
 
         const endTime = new Date().getTime();
-        logUtils.log(`finished pulling events and blocks`);
-        logUtils.log(`It took ${(endTime - startTime) / 1000} seconds to complete`);
+        logger.info(`finished pulling events and blocks`);
+        logger.info(`It took ${(endTime - startTime) / 1000} seconds to complete`);
     }
 }
 
