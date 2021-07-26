@@ -1,5 +1,5 @@
 import { Web3Source, LogPullInfo, ContractCallInfo } from '@0x/pipeline-utils';
-import { logUtils } from '@0x/utils';
+import { logger } from '@0x/pipeline-utils';
 import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
@@ -36,7 +36,7 @@ export class PullAndSaveEventsByTopic {
         );
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
-        logUtils.log(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+        logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
         // assert(topics.length === 1);
 
@@ -99,7 +99,7 @@ export class PullAndSaveEventsByTopic {
                     }
                 }
 
-                logUtils.log(`Saving ${parsedLogs.length} ${eventName} events`);
+                logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
                 await this._deleteOverlapAndSaveAsync<EVENT>(
                     connection,
@@ -184,7 +184,7 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {

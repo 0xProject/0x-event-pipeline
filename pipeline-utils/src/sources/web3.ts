@@ -1,5 +1,5 @@
 import { Web3ProviderEngine } from '@0x/subproviders';
-import { logUtils } from '@0x/utils';
+import { logger } from '../logger';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import { BlockWithoutTransactionData, Transaction, BlockWithTransactionData, RawLog } from 'ethereum-types';
 const Web3Utils = require('web3-utils');
@@ -147,7 +147,7 @@ export class Web3Source {
 
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
         try {
-            logUtils.log(`Fetching block ${blockNumber}`);
+            logger.info(`Fetching block ${blockNumber}`);
 
             const block = await this._web3Wrapper.getBlockIfExistsAsync(blockNumber);
 

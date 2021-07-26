@@ -1,4 +1,4 @@
-import { logUtils } from '@0x/utils';
+import { logger } from '@0x/pipeline-utils';
 import { Connection } from 'typeorm';
 import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -29,11 +29,11 @@ export class PullAndSaveWeb3 {
         const tableName = 'blocks';
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
-        logUtils.log(`Grabbing blocks between ${startBlock} and ${endBlock}`);
+        logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
-        logUtils.log(`saving ${parsedBlocks.length} blocks`);
+        logger.info(`saving ${parsedBlocks.length} blocks`);
 
         await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
@@ -43,7 +43,7 @@ export class PullAndSaveWeb3 {
         latestBlockWithOffset: number,
         shouldLookForBridgeTrades: boolean,
     ): Promise<void> {
-        logUtils.log(`Grabbing transaction data`);
+        logger.info(`Grabbing transaction data`);
         const hashes = await this._getTxListToPullAsync(
             connection,
             latestBlockWithOffset,
@@ -51,9 +51,11 @@ export class PullAndSaveWeb3 {
             shouldLookForBridgeTrades,
         );
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
+        logger.debug(`rawTxs:`);
+        rawTx.map(rawTx => logger.debug(rawTx));
         const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
 
-        logUtils.log(`saving ${parsedTx.length} tx`);
+        logger.info(`saving ${parsedTx.length} tx`);
 
         if (parsedTx.length > 0) {
             await this._saveTransactionInfo(connection, parsedTx);
@@ -65,13 +67,16 @@ export class PullAndSaveWeb3 {
         latestBlockWithOffset: number,
         shouldLookForBridgeTrades: boolean,
     ): Promise<void> {
-        logUtils.log(`Grabbing transaction receipt data`);
+        logger.info(`Grabbing transaction receipt data`);
         const hashes = await this._getTxListToPullAsync(
             connection,
             latestBlockWithOffset,
             'transaction_receipts',
             shouldLookForBridgeTrades,
         );
+
+        logger.debug('Hashes to scan:');
+        logger.debug(hashes);
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
         const parsedReceipts = rawTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
         const parsedTxLogs = rawTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
@@ -100,8 +105,8 @@ export class PullAndSaveWeb3 {
             parsedBridgeTrades = [];
         }
 
-        logUtils.log(`saving ${parsedReceipts.length} tx receipts`);
-        logUtils.log(`saving ${parsedBridgeTrades.length} bridge trades`);
+        logger.info(`saving ${parsedReceipts.length} tx receipts`);
+        logger.info(`saving ${parsedBridgeTrades.length} bridge trades`);
 
         if (parsedReceipts.length > 0) {
             await this._saveTransactionReceiptInfo(connection, parsedReceipts, parsedTxLogs, parsedBridgeTrades);
@@ -236,7 +241,7 @@ export class PullAndSaveWeb3 {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -264,7 +269,7 @@ export class PullAndSaveWeb3 {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -281,29 +286,39 @@ export class PullAndSaveWeb3 {
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
-        const txHashes = txReceipts.map(e => e.transactionHash);
-        const txHashList = txHashes.map(e => `'${e}'`).toString();
+        const txReceiptsHashes = txReceipts.map(e => e.transactionHash);
+        const txReceiptsHashList = txReceiptsHashes.map(e => `'${e}'`).toString();
+
+        const txLogsHashes = txLogs.map(e => e.transactionHash);
+        const txLogsHashList = txLogsHashes.map(e => `'${e}'`).toString();
+
+        const bridgeTradesHashes = bridgeTrades.map(e => e.transactionHash);
+        const bridgeTradesHashList = bridgeTradesHashes.map(e => `'${e}'`).toString();
+
+        logger.debug('Receipts:');
+        logger.debug(txReceiptsHashes);
+        logger.debug('Logs:');
+        logger.debug(txLogsHashes);
+        logger.debug('Bridge:');
+        logger.debug(bridgeTradesHashes);
 
         await queryRunner.connect();
 
         await queryRunner.startTransaction();
         try {
             await queryRunner.manager.query(`
-                DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});
-                DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});
-                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${txHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
+                DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txReceiptsHashList});
+                DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txLogsHashList});
+                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${bridgeTradesHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
             `);
 
-            await Promise.all([
-                queryRunner.manager.save(txReceipts),
-                queryRunner.manager.save(txLogs),
-                queryRunner.manager.save(bridgeTrades),
-            ]);
+            await Promise.all([queryRunner.manager.save(txReceipts), queryRunner.manager.save(bridgeTrades)]);
 
+            logger.debug('DELETES probably went well');
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logUtils.log(err);
+            logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
