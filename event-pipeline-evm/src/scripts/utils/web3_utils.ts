@@ -95,7 +95,7 @@ export class PullAndSaveWeb3 {
         let parsedBridgeTrades: ERC20BridgeTransferEvent[];
 
         if (shouldLookForBridgeTrades) {
-            const parsedBridgeTradesNested = rawTxReceipts.map(rawTxReceipt =>
+            const parsedBridgeTradesNested = foundTxReceipts.map(rawTxReceipt =>
                 rawTxReceipt.logs.map((l: RawLogEntry) => {
                     if (l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
                         return parseBridgeFill(l);
