@@ -31,6 +31,8 @@ export class PullAndSaveWeb3 {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
         logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
+        logger.debug('rawBlocks:');
+        rawBlocks.map(rawBlock => logger.debug(rawBlock));
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
         logger.info(`saving ${parsedBlocks.length} blocks`);
@@ -318,11 +320,21 @@ export class PullAndSaveWeb3 {
 
         await queryRunner.startTransaction();
         try {
-            await queryRunner.manager.query(`
-                DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txReceiptsHashList});
-                DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txLogsHashList});
-                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${bridgeTradesHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
-            `);
+            let query = '';
+            if (txReceiptsHashList.length > 0) {
+                query =
+                    query +
+                    `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txReceiptsHashList});`;
+            }
+            if (txLogsHashList.length > 0) {
+                query = query + `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txLogsHashList});`;
+            }
+            if (bridgeTradesHashList.length > 0) {
+                query =
+                    query +
+                    `                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${bridgeTradesHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE); `;
+            }
+            await queryRunner.manager.query(query);
 
             await Promise.all([queryRunner.manager.save(txReceipts), queryRunner.manager.save(bridgeTrades)]);
 
