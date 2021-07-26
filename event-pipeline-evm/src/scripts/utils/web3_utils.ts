@@ -78,8 +78,20 @@ export class PullAndSaveWeb3 {
         logger.debug('Hashes to scan:');
         logger.debug(hashes);
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
-        const parsedReceipts = rawTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
+        const parsedReceipts = rawTxReceipts
+            .filter(rawTxReceipt => rawTxReceipt)
+            .map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
         const parsedTxLogs = rawTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
+
+        const foundHashes = rawTxReceipts
+            .filter(rawTxReceipt => rawTxReceipt)
+            .map(rawTxReceipt => rawTxReceipt.transactionHash);
+
+        const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
+
+        if (missingHashes.length > 0) {
+            logger.child({ missingHAshesCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
+        }
 
         let parsedBridgeTrades: ERC20BridgeTransferEvent[];
 
