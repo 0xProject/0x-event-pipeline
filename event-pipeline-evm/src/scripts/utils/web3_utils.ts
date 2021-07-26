@@ -80,15 +80,12 @@ export class PullAndSaveWeb3 {
         logger.debug('Hashes to scan:');
         logger.debug(hashes);
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
-        const parsedReceipts = rawTxReceipts
-            .filter(rawTxReceipt => rawTxReceipt)
-            .map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
-        const parsedTxLogs = rawTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
+        const foundTxReceipts = rawTxReceipts.filter(rawTxReceipt => rawTxReceipt);
 
-        const foundHashes = rawTxReceipts
-            .filter(rawTxReceipt => rawTxReceipt)
-            .map(rawTxReceipt => rawTxReceipt.transactionHash);
+        const parsedReceipts = foundTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
+        const parsedTxLogs = foundTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
 
+        const foundHashes = foundTxReceipts.map(rawTxReceipt => rawTxReceipt.transactionHash);
         const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
 
         if (missingHashes.length > 0) {
