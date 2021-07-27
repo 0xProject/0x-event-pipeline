@@ -31,6 +31,8 @@ export class PullAndSaveWeb3 {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
         logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
+        logger.debug('rawBlocks:');
+        rawBlocks.map(rawBlock => logger.debug(rawBlock));
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
         logger.info(`saving ${parsedBlocks.length} blocks`);
@@ -51,9 +53,15 @@ export class PullAndSaveWeb3 {
             shouldLookForBridgeTrades,
         );
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
-        logger.debug(`rawTxs:`);
-        rawTx.map(rawTx => logger.debug(rawTx));
-        const parsedTx = rawTx.map(rawTx => parseTransaction(rawTx));
+        const foundTxs = rawTx.filter(rawTxn => rawTxn);
+        const parsedTx = foundTxs.map(rawTxn => parseTransaction(rawTxn));
+
+        const foundHashes = foundTxs.map(rawTxn => rawTxn.hash);
+        const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
+
+        if (missingHashes.length > 0) {
+            logger.child({ missingHashesTxCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
+        }
 
         logger.info(`saving ${parsedTx.length} tx`);
 
@@ -78,13 +86,22 @@ export class PullAndSaveWeb3 {
         logger.debug('Hashes to scan:');
         logger.debug(hashes);
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
-        const parsedReceipts = rawTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
-        const parsedTxLogs = rawTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
+        const foundTxReceipts = rawTxReceipts.filter(rawTxReceipt => rawTxReceipt);
+
+        const parsedReceipts = foundTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
+        const parsedTxLogs = foundTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
+
+        const foundHashes = foundTxReceipts.map(rawTxReceipt => rawTxReceipt.transactionHash);
+        const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
+
+        if (missingHashes.length > 0) {
+            logger.child({ missingHashesReceiptCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
+        }
 
         let parsedBridgeTrades: ERC20BridgeTransferEvent[];
 
         if (shouldLookForBridgeTrades) {
-            const parsedBridgeTradesNested = rawTxReceipts.map(rawTxReceipt =>
+            const parsedBridgeTradesNested = foundTxReceipts.map(rawTxReceipt =>
                 rawTxReceipt.logs.map((l: RawLogEntry) => {
                     if (l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
                         return parseBridgeFill(l);
@@ -306,11 +323,21 @@ export class PullAndSaveWeb3 {
 
         await queryRunner.startTransaction();
         try {
-            await queryRunner.manager.query(`
-                DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txReceiptsHashList});
-                DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txLogsHashList});
-                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${bridgeTradesHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE);
-            `);
+            let query = '';
+            if (txReceiptsHashList.length > 0) {
+                query =
+                    query +
+                    `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txReceiptsHashList});`;
+            }
+            if (txLogsHashList.length > 0) {
+                query = query + `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txLogsHashList});`;
+            }
+            if (bridgeTradesHashList.length > 0) {
+                query =
+                    query +
+                    `                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${bridgeTradesHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE); `;
+            }
+            await queryRunner.manager.query(query);
 
             await Promise.all([queryRunner.manager.save(txReceipts), queryRunner.manager.save(bridgeTrades)]);
 
