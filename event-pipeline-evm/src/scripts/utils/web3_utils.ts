@@ -53,10 +53,10 @@ export class PullAndSaveWeb3 {
             shouldLookForBridgeTrades,
         );
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
-        const foundTxs = rawTx.filter(rawTxn => rawTx);
-        const parsedTx = foundTxs.map(rawTx => parseTransaction(rawTx));
+        const foundTxs = rawTx.filter(rawTxn => rawTxn);
+        const parsedTx = foundTxs.map(rawTxn => parseTransaction(rawTxn));
 
-        const foundHashes = foundTxs.map(rawTxn => rawTxn.transactionHash);
+        const foundHashes = foundTxs.map(rawTxn => rawTxn.hash);
         const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
 
         if (missingHashes.length > 0) {
