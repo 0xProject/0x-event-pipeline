@@ -455,12 +455,12 @@ WITH
         , ts.total_staked
         , cebs.operator_zrx_delegated AS operator_zrx_staked
         , cebs.member_zrx_delegated AS member_zrx_staked
-        , cebs.zrx_delegated / ts.total_staked AS share_of_stake
+        , cebs.zrx_delegated /  NULLIF(ts.total_staked,0) AS share_of_stake
         , fbp.protocol_fees AS total_protocol_fees_generated_in_eth
         , fbp.num_fills AS number_of_fills
         , fbp.protocol_fees / tf.total_protocol_fees AS share_of_fees
         , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
-        , (cebs.zrx_delegated / ts.total_staked)
+        , (cebs.zrx_delegated /  NULLIF(ts.total_staked,0))
             / NULLIF((COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees),0)
             AS approximate_stake_ratio
     FROM events.staking_pool_created_events pce
@@ -522,12 +522,12 @@ export const currentEpochPoolStatsQuery = `
             , cebs.operator_zrx_delegated AS operator_zrx_staked
             , cebs.member_zrx_delegated AS member_zrx_staked
             , ts.total_staked
-            , cebs.zrx_delegated / ts.total_staked AS share_of_stake
+            , cebs.zrx_delegated / NULLIF(ts.total_staked,0) AS share_of_stake
             , fbp.protocol_fees AS total_protocol_fees_generated_in_eth
             , fbp.num_fills AS number_of_fills
             , fbp.protocol_fees / tf.total_protocol_fees AS share_of_fees
             , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
-            , (cebs.zrx_delegated / ts.total_staked)
+            , (cebs.zrx_delegated / NULLIF(ts.total_staked,0))
                 / (fbp.protocol_fees / tf.total_protocol_fees)
                 AS approximate_stake_ratio
         FROM events.staking_pool_created_events pce
@@ -613,10 +613,10 @@ export const nextEpochPoolsStatsQuery = `
             , cs.operator_zrx_staked
             , cs.member_zrx_staked
             , ts.total_staked
-            , cs.zrx_staked / ts.total_staked AS share_of_stake
+            , cs.zrx_staked / NULLIF(ts.total_staked,0) AS share_of_stake
             , 0.00 AS total_protocol_fees_generated_in_eth
             , 0 AS number_of_fills
-            , (cs.zrx_staked / ts.total_staked)
+            , (cs.zrx_staked / NULLIF(ts.total_staked,0))
                     / NULLIF((COALESCE(fbp.protocol_fees,0) / tr.total_protocol_fees),0)
                 AS approximate_stake_ratio
         FROM staking.pool_info pi
@@ -701,10 +701,10 @@ export const nextEpochPoolStatsQuery = `
             , cs.operator_zrx_staked
             , cs.member_zrx_staked
             , ts.total_staked
-            , cs.zrx_staked / ts.total_staked AS share_of_stake
+            , cs.zrx_staked /  NULLIF(ts.total_staked,0)) AS share_of_stake
             , 0.00 AS total_protocol_fees_generated_in_eth
             , 0 AS number_of_fills
-            , (cs.zrx_staked / ts.total_staked)
+            , (cs.zrx_staked /  NULLIF(ts.total_staked,0)))
                     / (fbp.protocol_fees / tr.total_protocol_fees)
                 AS approximate_stake_ratio
         FROM staking.pool_info pi
