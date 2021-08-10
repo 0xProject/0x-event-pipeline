@@ -701,10 +701,10 @@ export const nextEpochPoolStatsQuery = `
             , cs.operator_zrx_staked
             , cs.member_zrx_staked
             , ts.total_staked
-            , cs.zrx_staked /  NULLIF(ts.total_staked,0)) AS share_of_stake
+            , cs.zrx_staked /  NULLIF(ts.total_staked,0) AS share_of_stake
             , 0.00 AS total_protocol_fees_generated_in_eth
             , 0 AS number_of_fills
-            , (cs.zrx_staked /  NULLIF(ts.total_staked,0)))
+            , (cs.zrx_staked /  NULLIF(ts.total_staked,0))
                     / (fbp.protocol_fees / tr.total_protocol_fees)
                 AS approximate_stake_ratio
         FROM staking.pool_info pi
