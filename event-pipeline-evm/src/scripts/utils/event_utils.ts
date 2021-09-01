@@ -1,7 +1,7 @@
-import { logger } from '@0x/pipeline-utils';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET, SCHEMA } from '../../config';
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 import { LogWithDecodedArgs } from '@0x/dev-utils';
 

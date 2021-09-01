@@ -1,6 +1,6 @@
 import { BigNumber } from '@0x/utils';
 import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
-import { BlockWithoutTransactionData, Transaction as RawTx, TransactionReceipt as RawReceipt } from 'ethereum-types';
+import { BlockWithoutTransactionData, TransactionReceipt as RawReceipt, Transaction as RawTx } from 'ethereum-types';
 
 /**
  * Converts a raw tx into a Transaction entity
@@ -18,7 +18,7 @@ export function parseTransaction(rawTx: RawTx): Transaction {
     transaction.senderAddress = rawTx.from;
     transaction.toAddress = rawTx.to;
     transaction.value = new BigNumber(rawTx.value);
-    transaction.gasPrice = new BigNumber(rawTx.gasPrice);
+    transaction.gasPrice = rawTx.gasPrice || new BigNumber(0);
     transaction.gas = new BigNumber(rawTx.gas);
     transaction.input = rawTx.input;
 

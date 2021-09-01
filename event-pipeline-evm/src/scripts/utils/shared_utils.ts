@@ -1,4 +1,4 @@
-import { Web3Source } from '@0x/pipeline-utils';
+import { Web3Source } from '../../data_sources/events/web3';
 import { BLOCK_FINALITY_THRESHOLD } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 

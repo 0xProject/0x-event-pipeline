@@ -6,9 +6,11 @@ config({ path: resolve(__dirname, '../../.env') });
 
 import { ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
-import { MINUTES_BETWEEN_RUNS, CHAIN_ID } from './config';
+import { CHAIN_ID, FEAT_STAKING, MINUTES_BETWEEN_RUNS } from './config';
 
 import { EventScraper } from './scripts/pull_and_save_events';
+import { DeploymentScraper } from './scripts/pull_and_save_deployment';
+import { MetadataScraper } from './scripts/pull_and_save_pool_metadata';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { ChainIdChecker } from './scripts/check_chain_id';
 
@@ -16,17 +18,27 @@ console.log('App is running...');
 
 const chainIdChecker = new ChainIdChecker();
 const eventScraper = new EventScraper();
+const deploymentScraper = new DeploymentScraper();
+const metadataScraper = new MetadataScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
+
+chainIdChecker.checkChainId(CHAIN_ID);
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async connection => {
-        await chainIdChecker.checkChainIdAsync(CHAIN_ID);
         cron.schedule(`*/${MINUTES_BETWEEN_RUNS} * * * *`, () => {
             Promise.all([
                 eventScraper.getParseSaveEventsAsync(connection),
                 eventsByTopicScraper.getParseSaveEventsAsync(connection),
             ]);
         });
+
+        if (FEAT_STAKING) {
+            await deploymentScraper.getParseSaveStakingProxyContractDeployment(connection);
+            cron.schedule(`0 * * * * *`, () => {
+                metadataScraper.getParseSaveMetadataAsync(connection);
+            });
+        }
     })
     .catch(error => console.log(error));

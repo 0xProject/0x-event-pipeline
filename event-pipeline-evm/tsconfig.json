@@ -1,5 +1,21 @@
 {
-    "extends": "../tsconfig",
-    "compilerOptions": { "outDir": "lib", "rootDir": ".", "resolveJsonModule": true, "emitDecoratorMetadata": true },
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "lib": ["es2017", "dom", "esnext.asynciterable", "es2018.promise"],
+        "experimentalDecorators": true,
+        "downlevelIteration": true,
+        "noImplicitReturns": true,
+        "pretty": true,
+        "skipLibCheck": true,
+        "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"],
+        "strict": true,
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "outDir": "lib",
+        "rootDir": ".",
+        "resolveJsonModule": true,
+        "emitDecoratorMetadata": true
+    },
     "include": ["./src/**/*", "./test/**/*", "./migrations/**/*"]
 }

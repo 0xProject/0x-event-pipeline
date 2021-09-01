@@ -37,12 +37,12 @@ const dropIndexes = `
 `;
 
 export class PolygonCreateParaswapSwappedEventTable1623777079129 implements MigrationInterface {
-    public async up(queryRunner: QueryRunner): Promise<any> {
+    public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(createTable);
         await queryRunner.query(createIndexes);
     }
 
-    public async down(queryRunner: QueryRunner): Promise<any> {
+    public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(dropIndexes);
         await queryRunner.query(dropTable);
     }

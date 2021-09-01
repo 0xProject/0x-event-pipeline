@@ -1,17 +1,33 @@
+import { logger } from './utils/logger';
+
 import {
+    DEFAULT_BASE_GITHUB_LOGO_URL,
+    DEFAULT_BLOCK_FINALITY_THRESHOLD,
+    DEFAULT_EP_ADDRESS,
+    DEFAULT_FEAT_CANCEL_EVENTS,
+    DEFAULT_FEAT_FILL_EVENT,
+    DEFAULT_FEAT_LIMIT_ORDERS,
+    DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
+    DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT,
+    DEFAULT_FEAT_PLP_SWAP_EVENT,
+    DEFAULT_FEAT_RFQ_EVENT,
+    DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
+    DEFAULT_FEAT_STAKING,
+    DEFAULT_FEAT_TRANSACTIONS,
+    DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
+    DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    DEFAULT_FEAT_V3_FILL_EVENT,
+    DEFAULT_FEAT_V3_NATIVE_FILL,
+    DEFAULT_FEAT_VIP_SWAP_EVENT,
     DEFAULT_LOCAL_POSTGRES_URI,
-    DEFAULT_START_BLOCK_OFFSET,
     DEFAULT_MAX_BLOCKS_TO_PULL,
     DEFAULT_MAX_BLOCKS_TO_SEARCH,
-    DEFAULT_BLOCK_FINALITY_THRESHOLD,
-    DEFAULT_MINUTES_BETWEEN_RUNS,
-    DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
     DEFAULT_MAX_TIME_TO_SEARCH,
-    DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
-    DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
-    DEFAULT_FEAT_VIP_SWAP_EVENT,
-    DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
-    DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT,
+    DEFAULT_MINUTES_BETWEEN_RUNS,
+    DEFAULT_STAKING_POOLS_JSON_URL,
+    DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
+    DEFAULT_START_BLOCK_OFFSET,
+    DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -19,81 +35,157 @@ const throwError = (err: string) => {
 };
 
 const supportedChains = [
+    1, // Mainnet
     56, // BSC
     137, // Polygon
 ];
 
+interface BridgeContract {
+    contract: string;
+    startingBlock: number;
+}
+
+const bridgeContracts = [
+    { contract: '0x1c29670f7a77f1052d30813a0a4f632c78a02610', startingBlock: 9613431 },
+    { contract: '0x991c745401d5b5e469b8c3e2cb02c748f08754f1', startingBlock: 9613441 },
+    { contract: '0x6dc7950423ada9f56fb2c93a23edb787f1e29088', startingBlock: 9613455 },
+    { contract: '0x36691c4f426eb8f42f150ebde43069a31cb080ad', startingBlock: 9613448 },
+    { contract: '0x2818363fb1686c2720b05c4e789165909cd03fc9', startingBlock: 9684028 },
+    { contract: '0xc16f74b07e2409e869bae5de01b2265fe32d64e6', startingBlock: 9684280 },
+    { contract: '0xd642305ed462cf2ad2a5f0310e30f66bcd1f0f0b', startingBlock: 9684143 },
+    { contract: '0x7df9964cad51486eb16e6d3c9341d6eed73de69d', startingBlock: 9684978 },
+];
+
+// Parses an environment variable for bridge contracts
+// Schema is
+// <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
+function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
+    const contracts = envVar.split('|');
+    const bridgeContracts = contracts.map(element => {
+        const split = element.split('-');
+        return { contract: split[0], startingBlock: Number(split[1]) };
+    });
+    return bridgeContracts;
+}
+
 export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL
     ? process.env.ETHEREUM_RPC_URL
     : throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
+
 export const EP_DEPLOYMENT_BLOCK = process.env.EP_DEPLOYMENT_BLOCK
     ? parseInt(process.env.EP_DEPLOYMENT_BLOCK, 10)
     : throwError(`Must specify valid EP_DEPLOYMENT_BLOCK. Got: ${process.env.EP_DEPLOYMENT_BLOCK}`);
+
+export const RFQ_EXPIRY_START_BLOCK = process.env.RFQ_EXPIRY_START_BLOCK
+    ? parseInt(process.env.RFQ_EXPIRY_START_BLOCK, 10)
+    : EP_DEPLOYMENT_BLOCK;
+
+if (EP_DEPLOYMENT_BLOCK === RFQ_EXPIRY_START_BLOCK && !process.env.RFQ_EXPIRY_START_BLOCK) {
+    logger.warn('Using EP_DEPLOYMENT_BLOCK as RFQ_EXPIRY_START_BLOCK because no RFQ_EXPIRY_START_BLOCK was provided');
+}
+
 export const SCHEMA = process.env.SCHEMA
     ? process.env.SCHEMA
     : throwError(`Must specify valid SCHEMA. Got: ${process.env.SCHEMA}`);
+
 export const POSTGRES_URI = process.env.POSTGRES_URI || DEFAULT_LOCAL_POSTGRES_URI;
+
 export const SHOULD_SYNCHRONIZE = process.env.SHOULD_SYNCHRONIZE === 'true';
-export const START_BLOCK_OFFSET = process.env.START_BLOCK_OFFSET
-    ? parseInt(process.env.START_BLOCK_OFFSET, 10)
-    : DEFAULT_START_BLOCK_OFFSET;
-export const MAX_BLOCKS_TO_PULL = process.env.MAX_BLOCKS_TO_PULL
-    ? parseInt(process.env.MAX_BLOCKS_TO_PULL, 10)
-    : DEFAULT_MAX_BLOCKS_TO_PULL;
-export const MAX_BLOCKS_TO_SEARCH = process.env.MAX_BLOCKS_TO_SEARCH
-    ? parseInt(process.env.MAX_BLOCKS_TO_SEARCH, 10)
-    : DEFAULT_MAX_BLOCKS_TO_SEARCH;
+
+export const START_BLOCK_OFFSET = getIntConfig('START_BLOCK_OFFSET', DEFAULT_START_BLOCK_OFFSET);
+
+export const MAX_BLOCKS_TO_PULL = getIntConfig('MAX_BLOCKS_TO_PULL', DEFAULT_MAX_BLOCKS_TO_PULL);
+
+export const MAX_BLOCKS_TO_SEARCH = getIntConfig('MAX_BLOCKS_TO_SEARCH', DEFAULT_MAX_BLOCKS_TO_SEARCH);
+
 export const CHAIN_ID = process.env.CHAIN_ID
     ? parseInt(process.env.CHAIN_ID, 10)
     : throwError(`Must specify valid CHAIN_ID. Got: ${process.env.CHAIN_ID}`);
 if (!supportedChains.includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
 }
-export const BLOCK_FINALITY_THRESHOLD = process.env.BLOCK_FINALITY_THRESHOLD
-    ? parseInt(process.env.BLOCK_FINALITY_THRESHOLD, 10)
-    : DEFAULT_BLOCK_FINALITY_THRESHOLD;
-export const MINUTES_BETWEEN_RUNS = process.env.MINUTES_BETWEEN_RUNS
-    ? parseInt(process.env.MINUTES_BETWEEN_RUNS, 10)
-    : DEFAULT_MINUTES_BETWEEN_RUNS;
+
+export const EP_ADDRESS = process.env.EP_ADDRESS ? process.env.EP_ADDRESS : DEFAULT_EP_ADDRESS;
+
+export const BLOCK_FINALITY_THRESHOLD = getIntConfig('BLOCK_FINALITY_THRESHOLD', DEFAULT_BLOCK_FINALITY_THRESHOLD);
+
+export const MINUTES_BETWEEN_RUNS = getIntConfig('MINUTES_BETWEEN_RUNS', DEFAULT_MINUTES_BETWEEN_RUNS);
+
+export const STAKING_POOLS_JSON_URL = process.env.STAKING_POOLS_JSON_URL || DEFAULT_STAKING_POOLS_JSON_URL;
+
+export const STAKING_POOLS_METADATA_JSON_URL =
+    process.env.STAKING_POOLS_METADATA_JSON_URL || DEFAULT_STAKING_POOLS_METADATA_JSON_URL;
+
+export const BASE_GITHUB_LOGO_URL = process.env.BASE_GITHUB_LOGO_URL || DEFAULT_BASE_GITHUB_LOGO_URL;
+
+export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS
+    ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS))
+    : bridgeContracts;
+
+// TODO move to constants or make configurable
 export const BRIDGEFILL_EVENT_TOPIC = ['0xe59e71a14fe90157eedc866c4f8c767d3943d6b6b2e8cd64dddcc92ab4c55af8'];
-export const START_BLOCK_TIMESTAMP_OFFSET = process.env.START_BLOCK_TIMESTAMP_OFFSET
-    ? parseInt(process.env.START_BLOCK_TIMESTAMP_OFFSET, 10)
-    : DEFAULT_START_BLOCK_TIMESTAMP_OFFSET;
-export const MAX_TIME_TO_SEARCH = process.env.MAX_TIME_TO_SEARCH
-    ? parseInt(process.env.MAX_TIME_TO_SEARCH, 10)
-    : DEFAULT_MAX_TIME_TO_SEARCH;
-export const STAKING_DEPLOYMENT_BLOCK = process.env.STAKING_DEPLOYMENT_BLOCK
-    ? parseInt(process.env.STAKING_DEPLOYMENT_BLOCK, 10)
+
+export const START_BLOCK_TIMESTAMP_OFFSET = getIntConfig(
+    'START_BLOCK_TIMESTAMP_OFFSET',
+    DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
+);
+
+export const MAX_TIME_TO_SEARCH = getIntConfig('MAX_TIME_TO_SEARCH', DEFAULT_MAX_TIME_TO_SEARCH);
+
+export const FEAT_CANCEL_EVENTS = getBoolConfig('FEAT_CANCEL_EVENTS', DEFAULT_FEAT_CANCEL_EVENTS);
+
+export const FEAT_TRANSACTIONS = getBoolConfig('FEAT_TRANSACTIONS', DEFAULT_FEAT_TRANSACTIONS);
+
+export const FEAT_STAKING = getBoolConfig('FEAT_STAKING', DEFAULT_FEAT_STAKING);
+
+export const STAKING_DEPLOYMENT_BLOCK = getIntConfig('STAKING_DEPLOYMENT_BLOCK', -1);
+if (STAKING_DEPLOYMENT_BLOCK === -1 && FEAT_STAKING) {
+    throwError(
+        `The Staking scraper is enabled, but no STAKING_DEPLOYMENT_BLOCK was provided. Please include STAKING_DEPLOYMENT_BLOCK or disable the feature`,
+    );
+}
+
+export const STAKING_PROXY_DEPLOYMENT_TRANSACTION = process.env.STAKING_PROXY_DEPLOYMENT_TRANSACTION
+    ? process.env.STAKING_PROXY_DEPLOYMENT_TRANSACTION
     : null;
+if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
+    throwError(
+        `The Staking scraper is enabled, but no STAKING_PROXY_DEPLOYMENT_TRANSACTION was provided. Please include STAKING_PROXY_DEPLOYMENT_TRANSACTION or disable the feature`,
+    );
+}
+
 export const FIRST_SEARCH_BLOCK = Math.min(EP_DEPLOYMENT_BLOCK, STAKING_DEPLOYMENT_BLOCK || Infinity);
 
-export const FEAT_TRANSFORMED_ERC20_EVENT = process.env.hasOwnProperty('FEAT_TRANSFORMED_ERC20_EVENT')
-    ? process.env.FEAT_TRANSFORMED_ERC20_EVENT === 'true'
-    : DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT;
-export const FEAT_ONEINCH_SWAPPED_EVENT = process.env.hasOwnProperty('FEAT_ONEINCH_SWAPPED_EVENT')
-    ? process.env.FEAT_ONEINCH_SWAPPED_EVENT === 'true'
-    : DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT;
-export const FEAT_VIP_SWAP_EVENT = process.env.hasOwnProperty('FEAT_VIP_SWAP_EVENT')
-    ? process.env.FEAT_VIP_SWAP_EVENT === 'true'
-    : DEFAULT_FEAT_VIP_SWAP_EVENT;
-export const FEAT_SLINGSHOT_TRADE_EVENT = process.env.hasOwnProperty('FEAT_SLINGSHOT_TRADE_EVENT')
-    ? process.env.FEAT_SLINGSHOT_TRADE_EVENT === 'true'
-    : DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT;
-export const FEAT_PARASWAP_SWAPPED_EVENT = process.env.hasOwnProperty('FEAT_PARASWAP_SWAPPED_EVENT')
-    ? process.env.FEAT_PARASWAP_SWAPPED_EVENT === 'true'
-    : DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT;
+export const FEAT_TRANSFORMED_ERC20_EVENT = getBoolConfig(
+    'FEAT_TRANSFORMED_ERC20_EVENT',
+    DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
+);
 
-export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = process.env.ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK
-    ? parseInt(process.env.ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK, 10)
-    : -1;
+export const FEAT_ONEINCH_SWAPPED_EVENT = getBoolConfig(
+    'FEAT_ONEINCH_SWAPPED_EVENT',
+    DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
+);
+
+export const FEAT_VIP_SWAP_EVENT = getBoolConfig('FEAT_VIP_SWAP_EVENT', DEFAULT_FEAT_VIP_SWAP_EVENT);
+
+export const FEAT_SLINGSHOT_TRADE_EVENT = getBoolConfig(
+    'FEAT_SLINGSHOT_TRADE_EVENT',
+    DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
+);
+
+export const FEAT_PARASWAP_SWAPPED_EVENT = getBoolConfig(
+    'FEAT_PARASWAP_SWAPPED_EVENT',
+    DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT,
+);
+
+export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK', -1);
 if (ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_EVENT) {
     throwError(
         `The Oneinch Swapped Event scraper is enabled, but no ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
     );
 }
-export const SLINGSHOT_DEPLOYMENT_BLOCK = process.env.SLINGSHOT_DEPLOYMENT_BLOCK
-    ? parseInt(process.env.SLINGSHOT_DEPLOYMENT_BLOCK, 10)
-    : -1;
+
+export const SLINGSHOT_DEPLOYMENT_BLOCK = getIntConfig('SLINGSHOT_DEPLOYMENT_BLOCK', -1);
 if (SLINGSHOT_DEPLOYMENT_BLOCK === -1 && FEAT_SLINGSHOT_TRADE_EVENT) {
     throwError(
         `The Slingshot Trade Event scraper is enabled, but no SLINGSHOT_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
@@ -107,19 +199,64 @@ if (VIP_SWAP_SOURCES === undefined && FEAT_VIP_SWAP_EVENT) {
     );
 }
 
-export const PARASWAP_DEPLOYMENT_BLOCK = process.env.PARASWAP_DEPLOYMENT_BLOCK
-    ? parseInt(process.env.PARASWAP_DEPLOYMENT_BLOCK, 10)
-    : -1;
+export const PARASWAP_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_DEPLOYMENT_BLOCK', -1);
 if (PARASWAP_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_EVENT) {
     throwError(
         `The Paraswap Swapped Event scraper is enabled, but no PARASWAP_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
     );
 }
-export const PARASWAP_CONTRACT_ADDRESS = process.env.PARASWAP_CONTRACT_ADDRESS
-    ? process.env.PARASWAP_CONTRACT_ADDRESS
-    : '';
+
+export const PARASWAP_CONTRACT_ADDRESS = process.env.PARASWAP_CONTRACT_ADDRESS || '';
 if (PARASWAP_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_EVENT) {
     throwError(
         `The Paraswap Swapped Event scraper is enabled, but no PARASWAP_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
     );
+}
+
+export const FEAT_RFQ_EVENT = getBoolConfig('FEAT_RFQ_EVENT', DEFAULT_FEAT_RFQ_EVENT);
+
+export const FEAT_LIMIT_ORDERS = getBoolConfig('FEAT_LIMIT_ORDERS', DEFAULT_FEAT_LIMIT_ORDERS);
+
+export const V4_FILL_START_BLOCK = getIntConfig('V4_FILL_START_BLOCK', -1);
+validateStartBlock('V4_FILL_START_BLOCK', V4_FILL_START_BLOCK, 'FEAT_RFQ_EVENT', FEAT_RFQ_EVENT);
+validateStartBlock('V4_FILL_START_BLOCK', V4_FILL_START_BLOCK, 'FEAT_LIMIT_ORDERS', FEAT_LIMIT_ORDERS);
+
+export const FEAT_PLP_SWAP_EVENT = getBoolConfig('FEAT_PLP_SWAP_EVENT', DEFAULT_FEAT_PLP_SWAP_EVENT);
+
+export const PLP_VIP_START_BLOCK = getIntConfig('PLP_VIP_START_BLOCK', -1);
+validateStartBlock('PLP_VIP_START_BLOCK', PLP_VIP_START_BLOCK, 'FEAT_PLP_SWAP_EVENT', FEAT_PLP_SWAP_EVENT);
+
+export const FEAT_V3_NATIVE_FILL = getBoolConfig('FEAT_V3_NATIVE_FILL', DEFAULT_FEAT_V3_NATIVE_FILL);
+
+export const V4_CANCEL_START_BLOCK = getIntConfig('V4_CANCEL_START_BLOCK', -1);
+validateStartBlock('V4_CANCEL_START_BLOCK', V4_CANCEL_START_BLOCK, 'FEAT_RFQ_EVENT', FEAT_RFQ_EVENT);
+validateStartBlock('V4_CANCEL_START_BLOCK', V4_CANCEL_START_BLOCK, 'FEAT_LIMIT_ORDERS', FEAT_LIMIT_ORDERS);
+
+export const FEAT_UNISWAP_V3_VIP_SWAP_EVENT = getBoolConfig(
+    'FEAT_UNISWAP_V3_VIP_SWAP_EVENT',
+    DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+);
+
+export const FEAT_V3_FILL_EVENT = getBoolConfig('FEAT_V3_FILL_EVENT', DEFAULT_FEAT_V3_FILL_EVENT);
+
+function getBoolConfig(env: string, defaultValue: boolean): boolean {
+    if (Object.prototype.hasOwnProperty.call(process.env, env)) {
+        return process.env[env] === 'true';
+    }
+    return defaultValue;
+}
+
+function getIntConfig(env: string, defaultValue: number): number {
+    if (Object.prototype.hasOwnProperty.call(process.env, env)) {
+        return parseInt(process.env[env]!);
+    }
+    return defaultValue;
+}
+
+function validateStartBlock(startBlockVar: string, startBlock: number, featureFlagVar: string, featureFlag: boolean) {
+    if (startBlock === -1 && featureFlag) {
+        throwError(
+            `${featureFlagVar} is enabled but ${startBlockVar} is not set. Please set ${startBlockVar} or disable the feature`,
+        );
+    }
 }
