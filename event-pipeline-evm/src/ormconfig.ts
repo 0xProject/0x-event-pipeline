@@ -1,24 +1,24 @@
 import { ConnectionOptions } from 'typeorm';
 
-import { POSTGRES_URI, SHOULD_SYNCHRONIZE } from './config';
+import { POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE } from './config';
 
 import {
     Block,
+    ERC20BridgeTransferEvent,
+    ExpiredRfqOrderEvent,
+    LastBlockProcessed,
+    NativeFill,
+    OneinchSwappedEvent,
+    ParamsSetEvent,
+    ParaswapSwappedEvent,
+    SlingshotTradeEvent,
     Transaction,
     TransactionLogs,
     TransactionReceipt,
-    ParamsSetEvent,
-    LastBlockProcessed,
     TransformedERC20Event,
-    OneinchSwappedEvent,
-    ParaswapSwappedEvent,
-    SlingshotTradeEvent,
-    NativeFill,
+    V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
-    ExpiredRfqOrderEvent,
-    V4CancelEvent,
-    ERC20BridgeTransferEvent,
 } from './entities';
 
 const entities = [
@@ -43,6 +43,7 @@ const entities = [
 const config: ConnectionOptions = {
     type: 'postgres',
     url: POSTGRES_URI,
+    schema: SCHEMA,
     synchronize: SHOULD_SYNCHRONIZE,
     logging: ['error'],
     entities,

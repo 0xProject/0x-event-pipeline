@@ -1,5 +1,5 @@
 import { LogEntry, RawLogEntry } from 'ethereum-types';
-import { Event } from '@0x/pipeline-utils';
+import { Event } from '../../entities';
 
 export function parseEvent(eventLog: LogEntry | RawLogEntry, eventEntity: Event) {
     eventEntity.observedTimestamp = new Date().getTime();

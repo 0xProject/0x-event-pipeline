@@ -7,6 +7,7 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
     ],
+    "ignorePatterns": ["lib/**"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 12,
@@ -16,5 +17,6 @@
         "@typescript-eslint"
     ],
     "rules": {
+      "sort-imports": ["error", { "ignoreDeclarationSort": true }]
     }
 }

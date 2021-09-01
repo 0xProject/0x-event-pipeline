@@ -1,7 +1,7 @@
 import { Web3ProviderEngine } from '@0x/subproviders';
-import { logger } from '@0x/pipeline-utils';
+import { logger } from '../../utils/logger';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import { BlockWithoutTransactionData, Transaction, BlockWithTransactionData, RawLog } from 'ethereum-types';
+import { BlockWithTransactionData, BlockWithoutTransactionData, RawLog, Transaction } from 'ethereum-types';
 const Web3Utils = require('web3-utils');
 
 const Web3 = require('web3');
@@ -27,11 +27,11 @@ export class Web3Source {
 
     public async getBatchBlockInfoForRangeAsync(startBlock: number, endBlock: number): Promise<any[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
-        var batch = new this._web3.BatchRequest();
+        const batch = new this._web3.BatchRequest();
 
-        let promises = iter.map(i => {
+        const promises = iter.map(i => {
             return new Promise((resolve, reject) => {
-                let req = this._web3.eth.getBlock.request(
+                const req = this._web3.eth.getBlock.request(
                     i + startBlock,
                     (err: any, data: BlockWithTransactionData) => {
                         if (err) reject(err);
@@ -50,11 +50,11 @@ export class Web3Source {
     }
 
     public async getBatchTxInfoAsync(hashes: string[]): Promise<any[]> {
-        var batch = new this._web3.BatchRequest();
+        const batch = new this._web3.BatchRequest();
 
-        let promises = hashes.map(hash => {
+        const promises = hashes.map(hash => {
             return new Promise((resolve, reject) => {
-                let req = this._web3.eth.getTransaction.request(hash, (err: any, data: Transaction) => {
+                const req = this._web3.eth.getTransaction.request(hash, (err: any, data: Transaction) => {
                     if (err) reject(err);
                     else resolve(data);
                 });
@@ -70,11 +70,11 @@ export class Web3Source {
     }
 
     public async getBatchTxReceiptInfoAsync(hashes: string[]): Promise<any[]> {
-        var batch = new this._web3.BatchRequest();
+        const batch = new this._web3.BatchRequest();
 
-        let promises = hashes.map(hash => {
+        const promises = hashes.map(hash => {
             return new Promise((resolve, reject) => {
-                let req = this._web3.eth.getTransactionReceipt.request(hash, (err: any, data: Transaction) => {
+                const req = this._web3.eth.getTransactionReceipt.request(hash, (err: any, data: Transaction) => {
                     if (err) reject(err);
                     else resolve(data);
                 });
@@ -90,9 +90,9 @@ export class Web3Source {
     }
 
     public async getBatchLogInfoForContractsAsync(logPullInfo: LogPullInfo[]): Promise<any[]> {
-        var batch = new this._web3.BatchRequest();
+        const batch = new this._web3.BatchRequest();
 
-        let promises = logPullInfo.map(logPull => {
+        const promises = logPullInfo.map(logPull => {
             return new Promise((resolve, reject) => {
                 const reqParams = {
                     fromBlock: logPull.fromBlock,
@@ -100,7 +100,7 @@ export class Web3Source {
                     address: logPull.address === 'nofilter' ? null : logPull.address,
                     topics: logPull.topics,
                 };
-                let req = this._web3.eth.getPastLogs.request(reqParams, (err: any, data: RawLog) => {
+                const req = this._web3.eth.getPastLogs.request(reqParams, (err: any, data: RawLog) => {
                     if (err) reject(err);
                     else resolve({ logPull, logs: data });
                 });
@@ -116,11 +116,11 @@ export class Web3Source {
     }
 
     public async callContractMethodsAsync(contractCallInfo: ContractCallInfo[]): Promise<any[]> {
-        var batch = new this._web3.BatchRequest();
+        const batch = new this._web3.BatchRequest();
 
-        let promises = contractCallInfo.map(contractCall => {
+        const promises = contractCallInfo.map(contractCall => {
             return new Promise((resolve, reject) => {
-                let req = this._web3.eth.call.request(contractCall, (err: any, data: String) => {
+                const req = this._web3.eth.call.request(contractCall, (err: any, data: string) => {
                     if (err) reject(err);
                     else resolve(data);
                 });

@@ -1,10 +1,10 @@
-import { Web3Source, LogPullInfo, ContractCallInfo } from '@0x/pipeline-utils';
-import { logger } from '@0x/pipeline-utils';
+import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
 
-import { MAX_BLOCKS_TO_SEARCH, START_BLOCK_OFFSET, SCHEMA } from '../../config';
+import { MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 const Web3Utils = require('web3-utils');
 
@@ -54,12 +54,12 @@ export class PullAndSaveEventsByTopic {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
                 if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
-                    var contractCallToken0Array = [];
-                    var contractCallToken1Array = [];
+                    const contractCallToken0Array = [];
+                    const contractCallToken1Array = [];
 
-                    var contractCallProtocolNameArray = [];
+                    const contractCallProtocolNameArray = [];
 
-                    for (var index in parsedLogs) {
+                    for (const index in parsedLogs) {
                         const contractCallToken0: ContractCallInfo = {
                             to: (parsedLogs[index] as any).contractAddress,
                             data: '0x0dfe1681',
@@ -82,7 +82,7 @@ export class PullAndSaveEventsByTopic {
                     const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
                     const protocolName = await web3Source.callContractMethodsAsync(contractCallProtocolNameArray);
 
-                    for (var i = 0; i < parsedLogs.length; i++) {
+                    for (let i = 0; i < parsedLogs.length; i++) {
                         const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
                         const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
                         parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;

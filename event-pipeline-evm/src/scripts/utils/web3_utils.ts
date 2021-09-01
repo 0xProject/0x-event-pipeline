@@ -1,22 +1,22 @@
-import { logger } from '@0x/pipeline-utils';
+import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
     parseBlock,
     parseTransaction,
-    parseTransactionReceipt,
     parseTransactionLogs,
+    parseTransactionReceipt,
 } from '../../parsers/web3/parse_web3_objects';
 import { parseBridgeFill } from '../../parsers/events/bridge_transfer_events';
-import { Web3Source } from '@0x/pipeline-utils';
+import { Web3Source } from '../../data_sources/events/web3';
 import { RawLogEntry } from 'ethereum-types';
 
 import {
+    BRIDGEFILL_EVENT_TOPIC,
     FIRST_SEARCH_BLOCK,
     MAX_BLOCKS_TO_PULL,
-    START_BLOCK_OFFSET,
-    BRIDGEFILL_EVENT_TOPIC,
     SCHEMA,
+    START_BLOCK_OFFSET,
 } from '../../config';
 
 export class PullAndSaveWeb3 {
@@ -114,7 +114,9 @@ export class PullAndSaveWeb3 {
             let parsedBridgeTradesWithEmptyRecords;
             if (parsedBridgeTradesNested.length > 0) {
                 parsedBridgeTradesWithEmptyRecords = parsedBridgeTradesNested.reduce((acc, val) => acc.concat(val));
-                parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter((x: any) => x.observedTimestamp);
+                parsedBridgeTrades = parsedBridgeTradesWithEmptyRecords.filter(
+                    (x: ERC20BridgeTransferEvent) => x.observedTimestamp,
+                );
             } else {
                 parsedBridgeTrades = [];
             }
