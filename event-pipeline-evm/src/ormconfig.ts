@@ -1,6 +1,6 @@
 import { ConnectionOptions } from 'typeorm';
 
-import { POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE } from './config';
+import { POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE, CHAIN_NAME } from './config';
 
 import {
     Block,
@@ -47,8 +47,9 @@ const config: ConnectionOptions = {
     synchronize: SHOULD_SYNCHRONIZE,
     logging: ['error'],
     entities,
-    migrations: ['lib/migrations/*.js'],
+    migrations: [`lib/migrations/${CHAIN_NAME.toLowerCase()}/*.js`],
     migrationsTableName: 'evm_event_pipeline_migrations',
+    applicationName: `event_pipeline_${CHAIN_NAME}`,
 };
 
 module.exports = config;

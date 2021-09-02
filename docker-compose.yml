@@ -1,7 +1,7 @@
 version: '3'
 services:
     postgres:
-        image: postgres:9.6
+        image: postgres:10.14
         environment:
             - POSTGRES_USER=api
             - POSTGRES_PASSWORD=api
@@ -13,6 +13,7 @@ services:
             - ./postgres:/var/lib/postgresql/data
         ports:
             - '5432:5432'
+        command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     event-pipeline:
         depends_on:
             - postgres
@@ -28,8 +29,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: .
-            dockerfile: event-pipeline-evm/Dockerfile
+            context: event-pipeline-evm
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
@@ -49,8 +49,8 @@ services:
         depends_on:
             - postgres
         build:
-            context: .
-            dockerfile: event-pipeline-evm/Dockerfile
+            context: event-pipeline-evm
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_POLYGON}'

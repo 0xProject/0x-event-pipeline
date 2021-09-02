@@ -34,11 +34,15 @@ const throwError = (err: string) => {
     throw new Error(err);
 };
 
-const supportedChains = [
-    1, // Mainnet
-    56, // BSC
-    137, // Polygon
-];
+interface Map {
+    [key: string]: { name: string };
+}
+
+const supportedChains: Map = {
+    1: { name: 'Ethereum' },
+    56: { name: 'BSC' },
+    137: { name: 'Polygon' },
+};
 
 interface BridgeContract {
     contract: string;
@@ -76,14 +80,6 @@ export const EP_DEPLOYMENT_BLOCK = process.env.EP_DEPLOYMENT_BLOCK
     ? parseInt(process.env.EP_DEPLOYMENT_BLOCK, 10)
     : throwError(`Must specify valid EP_DEPLOYMENT_BLOCK. Got: ${process.env.EP_DEPLOYMENT_BLOCK}`);
 
-export const RFQ_EXPIRY_START_BLOCK = process.env.RFQ_EXPIRY_START_BLOCK
-    ? parseInt(process.env.RFQ_EXPIRY_START_BLOCK, 10)
-    : EP_DEPLOYMENT_BLOCK;
-
-if (EP_DEPLOYMENT_BLOCK === RFQ_EXPIRY_START_BLOCK && !process.env.RFQ_EXPIRY_START_BLOCK) {
-    logger.warn('Using EP_DEPLOYMENT_BLOCK as RFQ_EXPIRY_START_BLOCK because no RFQ_EXPIRY_START_BLOCK was provided');
-}
-
 export const SCHEMA = process.env.SCHEMA
     ? process.env.SCHEMA
     : throwError(`Must specify valid SCHEMA. Got: ${process.env.SCHEMA}`);
@@ -101,9 +97,15 @@ export const MAX_BLOCKS_TO_SEARCH = getIntConfig('MAX_BLOCKS_TO_SEARCH', DEFAULT
 export const CHAIN_ID = process.env.CHAIN_ID
     ? parseInt(process.env.CHAIN_ID, 10)
     : throwError(`Must specify valid CHAIN_ID. Got: ${process.env.CHAIN_ID}`);
-if (!supportedChains.includes(CHAIN_ID)) {
+if (
+    !Object.keys(supportedChains)
+        .map(Number)
+        .includes(CHAIN_ID)
+) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
 }
+
+export const CHAIN_NAME = supportedChains[CHAIN_ID].name;
 
 export const EP_ADDRESS = process.env.EP_ADDRESS ? process.env.EP_ADDRESS : DEFAULT_EP_ADDRESS;
 
@@ -236,7 +238,13 @@ export const FEAT_UNISWAP_V3_VIP_SWAP_EVENT = getBoolConfig(
     'FEAT_UNISWAP_V3_VIP_SWAP_EVENT',
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
 );
+export const RFQ_EXPIRY_START_BLOCK = process.env.RFQ_EXPIRY_START_BLOCK
+    ? parseInt(process.env.RFQ_EXPIRY_START_BLOCK, 10)
+    : EP_DEPLOYMENT_BLOCK;
 
+if (EP_DEPLOYMENT_BLOCK === RFQ_EXPIRY_START_BLOCK && !process.env.RFQ_EXPIRY_START_BLOCK && FEAT_RFQ_EVENT) {
+    logger.warn('Using EP_DEPLOYMENT_BLOCK as RFQ_EXPIRY_START_BLOCK because no RFQ_EXPIRY_START_BLOCK was provided');
+}
 export const FEAT_V3_FILL_EVENT = getBoolConfig('FEAT_V3_FILL_EVENT', DEFAULT_FEAT_V3_FILL_EVENT);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
