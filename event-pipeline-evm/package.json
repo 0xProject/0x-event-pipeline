@@ -36,17 +36,20 @@
         "ts-node": "3.3.0"
     },
     "dependencies": {
+        "@0x/api-utils": "^0.0.1",
         "@0x/dev-utils": "^4.2.9",
         "@0x/order-utils": "^10.4.28",
         "@0x/subproviders": "^6.6.0",
+        "@types/express": "^4.17.13",
         "@types/pino": "^6.3.11",
         "dotenv": "^8.2.0",
         "node-cron": "^2.0.3",
         "pg": "^8.5.1",
         "pino": "^6.11.1",
+        "prom-client": "^13.2.0",
         "reflect-metadata": "^0.1.13",
         "typeorm": "^0.2.20",
-        "typescript": "3.1.1",
+        "typescript": "3.9.9",
         "web3": "^1.2.2"
     }
 }

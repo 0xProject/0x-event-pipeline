@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import 'reflect-metadata';
 import { Connection } from 'typeorm';
+import { Gauge } from 'prom-client';
 
 import {
     ExchangeCancelEventArgs,
@@ -60,11 +61,13 @@ import { Web3Source } from '../data_sources/events/web3';
 import {
     BLOCK_FINALITY_THRESHOLD,
     CHAIN_ID,
+    CHAIN_NAME,
     ETHEREUM_RPC_URL,
     FEAT_CANCEL_EVENTS,
     FEAT_STAKING,
-    FEAT_TRANSACTIONS,
 } from '../config';
+
+import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -74,6 +77,12 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const eventsSource = new EventsSource(provider, CHAIN_ID);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 const pullAndSaveEvents = new PullAndSaveEvents();
+
+export const CURRENT_BLOCK = new Gauge({
+    name: 'event_scraper_current_block',
+    help: 'The current head of the chain',
+    labelNames: ['chain'],
+});
 
 export class EventScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
@@ -90,13 +99,6 @@ export class EventScraper {
         promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false));
         promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true));
         promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true));
-
-        if (FEAT_TRANSACTIONS) {
-            promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, false));
-            promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false));
-            promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true));
-            promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true));
-        }
 
         if (FEAT_CANCEL_EVENTS) {
             promises.push(
@@ -264,13 +266,17 @@ export class EventScraper {
         await Promise.all(promises);
 
         const endTime = new Date().getTime();
+        const scriptDurationSeconds = (endTime - startTime) / 1000;
+        SCRIPT_RUN_DURATION.set({ script: 'events' }, scriptDurationSeconds);
+
         logger.info(`finished pulling events and blocks`);
-        logger.info(`It took ${(endTime - startTime) / 1000} seconds to complete`);
+        logger.info(`It took ${scriptDurationSeconds} seconds to complete`);
     }
 }
 
 async function calculateEndBlockAsync(provider: Web3ProviderEngine): Promise<number> {
     const web3Wrapper = new Web3Wrapper(provider);
     const currentBlock = await web3Wrapper.getBlockNumberAsync();
+    CURRENT_BLOCK.labels({ chain: CHAIN_NAME }).set(currentBlock);
     return currentBlock - BLOCK_FINALITY_THRESHOLD;
 }

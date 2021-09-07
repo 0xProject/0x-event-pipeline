@@ -1,5 +1,5 @@
 import { logger } from '../../utils/logger';
-import { Connection } from 'typeorm';
+import { Connection, InsertResult } from 'typeorm';
 import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
     parseBlock,
@@ -19,6 +19,14 @@ import {
     START_BLOCK_OFFSET,
 } from '../../config';
 
+import { Gauge } from 'prom-client';
+import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+
+export const MISSING_TRANSACTIONS = new Gauge({
+    name: 'event_scraper_missing_transactions',
+    help: 'The count of how many partial transactions are in the DB, but have been reorged out of the blockchain',
+    labelNames: ['type', 'event'],
+});
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
     constructor(web3Source: Web3Source) {
@@ -29,15 +37,20 @@ export class PullAndSaveWeb3 {
         const tableName = 'blocks';
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
+
+        SCAN_START_BLOCK.labels({ type: 'blocks' }).set(startBlock);
+        SCAN_END_BLOCK.labels({ type: 'blocks' }).set(endBlock);
+
         logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         logger.debug('rawBlocks:');
         rawBlocks.map(rawBlock => logger.debug(rawBlock));
         const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
+        SCAN_RESULTS.labels({ type: 'blocks' }).set(parsedBlocks.length);
         logger.info(`saving ${parsedBlocks.length} blocks`);
 
-        await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, endBlock, tableName);
+        await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
 
     public async getParseSaveTx(
@@ -59,10 +72,12 @@ export class PullAndSaveWeb3 {
         const foundHashes = foundTxs.map(rawTxn => rawTxn.hash);
         const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
 
+        MISSING_TRANSACTIONS.set(missingHashes.length);
         if (missingHashes.length > 0) {
             logger.child({ missingHashesTxCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
         }
 
+        SCAN_RESULTS.labels({ type: 'transactions' }).set(parsedTx.length);
         logger.info(`saving ${parsedTx.length} tx`);
 
         if (parsedTx.length > 0) {
@@ -124,8 +139,12 @@ export class PullAndSaveWeb3 {
             parsedBridgeTrades = [];
         }
 
+        SCAN_RESULTS.labels({ type: 'receipts' }).set(parsedReceipts.length);
         logger.info(`saving ${parsedReceipts.length} tx receipts`);
+        SCAN_RESULTS.labels({ type: 'bridge-trades' }).set(parsedBridgeTrades.length);
         logger.info(`saving ${parsedBridgeTrades.length} bridge trades`);
+        SCAN_RESULTS.labels({ type: 'tx-logs' }).set(parsedTxLogs.length);
+        logger.info(`saving ${parsedTxLogs.length} tx logs`);
 
         if (parsedReceipts.length > 0) {
             await this._saveTransactionReceiptInfo(connection, parsedReceipts, parsedTxLogs, parsedBridgeTrades);
@@ -238,9 +257,9 @@ export class PullAndSaveWeb3 {
         return txList;
     }
 
-    private async _deleteOverlapAndSaveBlocksAsync<T>(
+    private async _deleteOverlapAndSaveBlocksAsync(
         connection: Connection,
-        toSave: T[],
+        toSave: Block[],
         startBlock: number,
         endBlock: number,
         tableName: string,
@@ -255,7 +274,7 @@ export class PullAndSaveWeb3 {
             await queryRunner.manager.query(
                 `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`,
             );
-            await queryRunner.manager.save(toSave);
+            await queryRunner.manager.insert(Block, toSave);
 
             // commit transaction now:
             await queryRunner.commitTransaction();
@@ -283,7 +302,7 @@ export class PullAndSaveWeb3 {
                 `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`,
             );
 
-            await queryRunner.manager.save(transactions);
+            await queryRunner.manager.insert(Transaction, transactions);
 
             // commit transaction now:
             await queryRunner.commitTransaction();
@@ -297,7 +316,7 @@ export class PullAndSaveWeb3 {
         }
     }
 
-    private async _saveTransactionReceiptInfo<T>(
+    private async _saveTransactionReceiptInfo(
         connection: Connection,
         txReceipts: TransactionReceipt[],
         txLogs: TransactionLogs[],
@@ -340,10 +359,21 @@ export class PullAndSaveWeb3 {
                     `                DELETE FROM ${SCHEMA}.erc20_bridge_transfer_events WHERE transaction_hash IN (${bridgeTradesHashList}) AND (direct_flag IS NULL OR direct_flag = FALSE); `;
             }
             await queryRunner.manager.query(query);
-
-            await Promise.all([queryRunner.manager.save(txReceipts), queryRunner.manager.save(bridgeTrades)]);
-
             logger.debug('DELETES probably went well');
+
+            const promises: Promise<InsertResult>[] = [];
+
+            if (txReceiptsHashList.length > 0) {
+                promises.push(queryRunner.manager.insert(TransactionReceipt, txReceipts));
+            }
+            if (txLogsHashList.length > 0) {
+                promises.push(queryRunner.manager.insert(TransactionLogs, txLogs));
+            }
+            if (bridgeTradesHashList.length > 0) {
+                promises.push(queryRunner.manager.insert(ERC20BridgeTransferEvent, bridgeTrades));
+            }
+
+            await Promise.all([promises]);
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
