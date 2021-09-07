@@ -7,6 +7,7 @@ import { Web3Source } from '../data_sources/events/web3';
 import { StakingProxyDeployment } from '../entities';
 
 import { ETHEREUM_RPC_URL, STAKING_PROXY_DEPLOYMENT_TRANSACTION } from '../config';
+import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -15,6 +16,7 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class DeploymentScraper {
     public async getParseSaveStakingProxyContractDeployment(connection: Connection): Promise<void> {
+        const end = SCRIPT_RUN_DURATION.startTimer({ script: 'deployment' });
         logger.info(`pulling deployment info for transaction ${STAKING_PROXY_DEPLOYMENT_TRANSACTION}`);
         const deploymentTxInfo = await web3Source.getTransactionInfoAsync(STAKING_PROXY_DEPLOYMENT_TRANSACTION!);
         const deploymentBlockInfo = await web3Source.getBlockInfoAsync(Number(deploymentTxInfo.blockNumber));
@@ -28,7 +30,9 @@ export class DeploymentScraper {
         stakingProxyDeployment.blockNumber = Number(deploymentBlockInfo.number);
         stakingProxyDeployment.blockTimestamp = Number(deploymentBlockInfo.timestamp);
 
+        const duration = end();
         logger.info(`finished pulling staking proxy deployment info`);
+        logger.info(`It took ${duration} seconds to complete`);
 
         await this._deleteAndSaveDeploymentAsync(connection, stakingProxyDeployment);
     }

@@ -6,7 +6,9 @@ import { RawLogEntry } from 'ethereum-types';
 
 import { MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
-const Web3Utils = require('web3-utils');
+
+import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+import { hexToUtf8 } from 'web3-utils';
 
 export interface DeleteOptions {
     isDirectTrade?: boolean;
@@ -37,6 +39,9 @@ export class PullAndSaveEventsByTopic {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+
+        SCAN_START_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(startBlock);
+        SCAN_END_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(endBlock);
 
         // assert(topics.length === 1);
 
@@ -88,7 +93,7 @@ export class PullAndSaveEventsByTopic {
                         parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
                         parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
 
-                        const protocolName_i = Web3Utils.hexToUtf8('0x' + protocolName[i].slice(98))
+                        const protocolName_i = hexToUtf8('0x' + protocolName[i].slice(98))
                             .split('LP')[0]
                             .split(' ')[0]
                             .slice(1);
@@ -99,6 +104,7 @@ export class PullAndSaveEventsByTopic {
                     }
                 }
 
+                SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
                 logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
                 await this._deleteOverlapAndSaveAsync<EVENT>(
@@ -178,7 +184,7 @@ export class PullAndSaveEventsByTopic {
         try {
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(deleteQuery);
-            await queryRunner.manager.save(toSave);
+            await queryRunner.manager.save(toSave, { chunk: 3000 });
             await queryRunner.manager.save(lastBlockProcessed);
 
             // commit transaction now:

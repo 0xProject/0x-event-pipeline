@@ -57,6 +57,7 @@ services:
             CHAIN_ID: '137'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
             SCHEMA: 'events_polygon'
+            ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 2000

@@ -1,6 +1,6 @@
 import { ConnectionOptions } from 'typeorm';
 
-import { POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE, CHAIN_NAME } from './config';
+import { CHAIN_NAME, POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE } from './config';
 
 import {
     Block,

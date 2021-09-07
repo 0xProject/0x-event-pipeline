@@ -12,7 +12,6 @@ export const DEFAULT_BASE_GITHUB_LOGO_URL = 'https://github.com/0xProject/0x-sta
 export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 105;
 export const DEFAULT_MAX_TIME_TO_SEARCH = 360;
 export const DEFAULT_FEAT_CANCEL_EVENTS = false;
-export const DEFAULT_FEAT_TRANSACTIONS = false;
 export const DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT = true;
 export const DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT = false;
 export const DEFAULT_FEAT_VIP_SWAP_EVENT = false;
@@ -26,6 +25,9 @@ export const DEFAULT_FEAT_V3_NATIVE_FILL = false;
 export const DEFAULT_FEAT_FILL_EVENT = false;
 export const DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT = false;
 export const DEFAULT_FEAT_V3_FILL_EVENT = false;
+export const DEFAULT_METRICS_PATH = '/metrics';
+export const DEFAULT_PROMETHEUS_PORT = 3000;
+export const DEFAULT_ENABLE_PROMETHEUS_METRICS = false;
 
 export const TRANSFORMEDERC20_EVENT_TOPIC = ['0x0f6672f78a59ba8e5e5b5d38df3ebc67f3c792e2c9259b8d97d7f00dd78ba1b3'];
 export const LIQUIDITYPROVIDERSWAP_EVENT_TOPIC = ['0x40a6ba9513d09e3488135e0e0d10e2d4382b792720155b144cbea89ac9db6d34'];
@@ -65,5 +67,5 @@ export {
     PARASWAP_SWAPPED_ABI,
     V3_FILL_ABI,
     V4_CANCEL_ABI,
-SWAP_V3_ABI,
+    SWAP_V3_ABI,
 } from './abis';

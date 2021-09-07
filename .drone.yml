@@ -69,7 +69,7 @@ steps:
   - name: publish-sha
     image: plugins/ecr
     settings:
-      context: .
+      context: event-pipeline-evm
       dockerfile: event-pipeline-evm/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline-evm
@@ -97,7 +97,7 @@ steps:
   - name: publish
     image: plugins/ecr
     settings:
-      context: .
+      context: event-pipeline-evm
       dockerfile: event-pipeline-evm/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline-evm

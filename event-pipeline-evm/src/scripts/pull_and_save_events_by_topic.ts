@@ -1,3 +1,4 @@
+import { Gauge, register } from 'prom-client';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
@@ -81,8 +82,8 @@ import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
 import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
 import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
 import { parsePancakeSwapEvent } from '../parsers/events/swap_events';
-
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
+import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -349,7 +350,10 @@ export class EventsByTopicScraper {
         await Promise.all(promises);
 
         const endTime = new Date().getTime();
+        const scriptDurationSeconds = (endTime - startTime) / 1000;
+        SCRIPT_RUN_DURATION.set({ script: 'events-by-topic' }, scriptDurationSeconds);
+
         logger.info(`finished pulling events by topic`);
-        logger.info(`It took ${(endTime - startTime) / 1000} seconds to complete`);
+        logger.info(`It took ${scriptDurationSeconds} seconds to complete`);
     }
 }
