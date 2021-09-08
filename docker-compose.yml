@@ -70,6 +70,24 @@ services:
             PARASWAP_DEPLOYMENT_BLOCK: 14500000
             PARASWAP_CONTRACT_ADDRESS: "0x90249ed4d69D70E709fFCd8beE2c5A566f65dADE"
 
+    event-pipeline-avalanche:
+        depends_on:
+            - postgres
+        build:
+            context: event-pipeline-evm
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_AVALANCHE}'
+            CHAIN_ID: '43114'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events_avalanche'
+            ENABLE_PROMETHEUS_METRICS: "true"
+            EP_DEPLOYMENT_BLOCK: 3601700
+            MAX_BLOCKS_TO_SEARCH: 5000
+            MAX_BLOCKS_TO_PULL: 2000
+            MINUTES_BETWEEN_RUNS: 1
+
     staking-api:
         depends_on:
             - event-pipeline
