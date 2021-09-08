@@ -44,6 +44,7 @@ const supportedChains: Map = {
     1: { name: 'Ethereum' },
     56: { name: 'BSC' },
     137: { name: 'Polygon' },
+    43114: { name: 'Avalanche' },
 };
 
 interface BridgeContract {
@@ -161,7 +162,10 @@ if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
     );
 }
 
-export const FIRST_SEARCH_BLOCK = Math.min(EP_DEPLOYMENT_BLOCK, STAKING_DEPLOYMENT_BLOCK || Infinity);
+export const FIRST_SEARCH_BLOCK = Math.min(
+    EP_DEPLOYMENT_BLOCK,
+    STAKING_DEPLOYMENT_BLOCK === -1 ? Infinity : STAKING_DEPLOYMENT_BLOCK,
+);
 
 export const FEAT_TRANSFORMED_ERC20_EVENT = getBoolConfig(
     'FEAT_TRANSFORMED_ERC20_EVENT',
