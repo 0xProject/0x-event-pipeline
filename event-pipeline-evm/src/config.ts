@@ -119,7 +119,15 @@ export const EP_ADDRESS = process.env.EP_ADDRESS ? process.env.EP_ADDRESS : DEFA
 
 export const BLOCK_FINALITY_THRESHOLD = getIntConfig('BLOCK_FINALITY_THRESHOLD', DEFAULT_BLOCK_FINALITY_THRESHOLD);
 
-export const MINUTES_BETWEEN_RUNS = getIntConfig('MINUTES_BETWEEN_RUNS', DEFAULT_MINUTES_BETWEEN_RUNS);
+export let MINUTES_BETWEEN_RUNS = getIntConfig('MINUTES_BETWEEN_RUNS', DEFAULT_MINUTES_BETWEEN_RUNS);
+export const SECONDS_BETWEEN_RUNS = getIntConfig('SECONDS_BETWEEN_RUNS', 60);
+if (SECONDS_BETWEEN_RUNS !== 60) {
+    if (Object.prototype.hasOwnProperty.call(process.env, 'MINUTES_BETWEEN_RUNS')) {
+        throwError(`MINUTES_BETWEEN_RUNS and SECONDS_BETWEEN_RUNS are mutually exclusive, use only one`);
+    } else {
+        MINUTES_BETWEEN_RUNS = 1;
+    }
+}
 
 export const STAKING_POOLS_JSON_URL = process.env.STAKING_POOLS_JSON_URL || DEFAULT_STAKING_POOLS_JSON_URL;
 
