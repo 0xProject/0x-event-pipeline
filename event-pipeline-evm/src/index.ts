@@ -6,7 +6,13 @@ config({ path: resolve(__dirname, '../../.env') });
 
 import { ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
-import { CHAIN_ID, ENABLE_PROMETHEUS_METRICS, FEAT_STAKING, MINUTES_BETWEEN_RUNS } from './config';
+import {
+    CHAIN_ID,
+    ENABLE_PROMETHEUS_METRICS,
+    FEAT_STAKING,
+    MINUTES_BETWEEN_RUNS,
+    SECONDS_BETWEEN_RUNS,
+} from './config';
 
 import { EventScraper } from './scripts/pull_and_save_events';
 import { DeploymentScraper } from './scripts/pull_and_save_deployment';
@@ -33,7 +39,7 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async connection => {
-        cron.schedule(`*/${MINUTES_BETWEEN_RUNS} * * * *`, () => {
+        cron.schedule(`*/${SECONDS_BETWEEN_RUNS} */${MINUTES_BETWEEN_RUNS} * * * *`, () => {
             Promise.all([
                 eventScraper.getParseSaveEventsAsync(connection),
                 eventsByTopicScraper.getParseSaveEventsAsync(connection),
