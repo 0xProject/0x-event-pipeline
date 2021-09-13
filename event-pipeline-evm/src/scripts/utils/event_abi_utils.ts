@@ -23,6 +23,7 @@ export class PullAndSaveEventsByTopic {
         web3Source: Web3Source,
         latestBlockWithOffset: number,
         eventName: string,
+        eventType: any,
         tableName: string,
         topics: string[],
         contractAddress: string,
@@ -112,6 +113,7 @@ export class PullAndSaveEventsByTopic {
                     parsedLogs,
                     startBlock,
                     endBlock,
+                    eventType,
                     tableName,
                     await this._lastBlockProcessedAsync(eventName, endBlock),
                     deleteOptions,
@@ -146,11 +148,12 @@ export class PullAndSaveEventsByTopic {
         );
     }
 
-    private async _deleteOverlapAndSaveAsync<T>(
+    private async _deleteOverlapAndSaveAsync<EVENT>(
         connection: Connection,
-        toSave: T[],
+        toSave: EVENT[],
         startBlock: number,
         endBlock: number,
+        eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
         deleteOptions: DeleteOptions,
@@ -184,7 +187,7 @@ export class PullAndSaveEventsByTopic {
         try {
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(deleteQuery);
-            await queryRunner.manager.save(toSave, { chunk: 3000 });
+            await queryRunner.manager.insert(eventType, toSave);
             await queryRunner.manager.save(lastBlockProcessed);
 
             // commit transaction now:
