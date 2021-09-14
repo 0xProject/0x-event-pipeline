@@ -13,19 +13,19 @@ export const SCRIPT_RUN_DURATION = new Gauge({
 export const SCAN_START_BLOCK = new Gauge({
     name: 'event_scraper_scan_start_block',
     help: 'The starting block of a blockchain scan',
-    labelNames: ['type', 'event'],
+    labelNames: ['type', 'event', 'includeBridgeTrades'],
 });
 
 export const SCAN_END_BLOCK = new Gauge({
     name: 'event_scraper_scan_end_block',
     help: 'The last block of a blockchain scan',
-    labelNames: ['type', 'event'],
+    labelNames: ['type', 'event', 'includeBridgeTrades'],
 });
 
 export const SCAN_RESULTS = new Gauge({
     name: 'event_scraper_scan_results',
     help: 'The count of how many entities are going to be saved to DB',
-    labelNames: ['type', 'event'],
+    labelNames: ['type', 'event', 'includeBridgeTrades'],
 });
 
 export const startMetricsServer = (): void => {

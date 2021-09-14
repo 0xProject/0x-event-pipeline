@@ -77,10 +77,24 @@ export class PullAndSaveWeb3 {
             logger.child({ missingHashesTxCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
         }
 
-        SCAN_RESULTS.labels({ type: 'transactions' }).set(parsedTx.length);
+        SCAN_RESULTS.labels({ type: 'transactions', includeBridgeTrades: shouldLookForBridgeTrades.toString() }).set(
+            parsedTx.length,
+        );
         logger.info(`saving ${parsedTx.length} tx`);
 
         if (parsedTx.length > 0) {
+            const blockNumbers = parsedTx.map(tx => tx.blockNumber);
+            const minBlock = Math.min(...blockNumbers);
+            const maxBlock = Math.max(...blockNumbers);
+            SCAN_START_BLOCK.labels({
+                type: 'transactions',
+                includeBridgeTrades: shouldLookForBridgeTrades.toString(),
+            }).set(minBlock);
+            SCAN_END_BLOCK.labels({
+                type: 'transactions',
+                includeBridgeTrades: shouldLookForBridgeTrades.toString(),
+            }).set(maxBlock);
+
             await this._saveTransactionInfo(connection, parsedTx);
         }
     }
@@ -139,14 +153,32 @@ export class PullAndSaveWeb3 {
             parsedBridgeTrades = [];
         }
 
-        SCAN_RESULTS.labels({ type: 'receipts' }).set(parsedReceipts.length);
+        SCAN_RESULTS.labels({ type: 'receipts', includeBridgeTrades: shouldLookForBridgeTrades.toString() }).set(
+            parsedReceipts.length,
+        );
         logger.info(`saving ${parsedReceipts.length} tx receipts`);
-        SCAN_RESULTS.labels({ type: 'bridge-trades' }).set(parsedBridgeTrades.length);
+        SCAN_RESULTS.labels({ type: 'bridge-trades', includeBridgeTrades: shouldLookForBridgeTrades.toString() }).set(
+            parsedBridgeTrades.length,
+        );
         logger.info(`saving ${parsedBridgeTrades.length} bridge trades`);
-        SCAN_RESULTS.labels({ type: 'tx-logs' }).set(parsedTxLogs.length);
+        SCAN_RESULTS.labels({ type: 'tx-logs', includeBridgeTrades: shouldLookForBridgeTrades.toString() }).set(
+            parsedTxLogs.length,
+        );
         logger.info(`saving ${parsedTxLogs.length} tx logs`);
 
         if (parsedReceipts.length > 0) {
+            const blockNumbers = parsedReceipts.map(tx => tx.blockNumber);
+            const minBlock = Math.min(...blockNumbers);
+            const maxBlock = Math.max(...blockNumbers);
+            SCAN_START_BLOCK.labels({
+                type: 'transactions',
+                includeBridgeTrades: shouldLookForBridgeTrades.toString(),
+            }).set(minBlock);
+            SCAN_END_BLOCK.labels({
+                type: 'transactions',
+                includeBridgeTrades: shouldLookForBridgeTrades.toString(),
+            }).set(maxBlock);
+
             await this._saveTransactionReceiptInfo(connection, parsedReceipts, parsedTxLogs, parsedBridgeTrades);
         }
     }
