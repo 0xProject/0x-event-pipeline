@@ -25,7 +25,7 @@ import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metr
 export const MISSING_TRANSACTIONS = new Gauge({
     name: 'event_scraper_missing_transactions',
     help: 'The count of how many partial transactions are in the DB, but have been reorged out of the blockchain',
-    labelNames: ['type', 'event'],
+    labelNames: ['includeBridgeTrades'],
 });
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
@@ -72,7 +72,9 @@ export class PullAndSaveWeb3 {
         const foundHashes = foundTxs.map(rawTxn => rawTxn.hash);
         const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
 
-        MISSING_TRANSACTIONS.set(missingHashes.length);
+        MISSING_TRANSACTIONS.labels({ includeBridgeTrades: shouldLookForBridgeTrades.toString() }).set(
+            missingHashes.length,
+        );
         if (missingHashes.length > 0) {
             logger.child({ missingHashesTxCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
         }
