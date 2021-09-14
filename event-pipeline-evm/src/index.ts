@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 import * as cron from 'node-cron';
 config({ path: resolve(__dirname, '../../.env') });
 
-import { ConnectionOptions, createConnection } from 'typeorm';
+import { ConnectionOptions, createConnection, Connection } from 'typeorm';
 import * as ormConfig from './ormconfig';
 import {
     CHAIN_ID,
@@ -39,12 +39,8 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async connection => {
-        cron.schedule(`*/${SECONDS_BETWEEN_RUNS} */${MINUTES_BETWEEN_RUNS} * * * *`, () => {
-            Promise.all([
-                eventScraper.getParseSaveEventsAsync(connection),
-                eventsByTopicScraper.getParseSaveEventsAsync(connection),
-            ]);
-        });
+        schedule(connection, eventScraper.getParseSaveEventsAsync, 'Pull and Save Events');
+        schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
 
         if (FEAT_STAKING) {
             await deploymentScraper.getParseSaveStakingProxyContractDeployment(connection);
@@ -54,3 +50,21 @@ createConnection(ormConfig as ConnectionOptions)
         }
     })
     .catch(error => console.log(error));
+
+async function schedule(connection: Connection, func: any, funcName: string) {
+    const start = new Date().getTime();
+    await func(connection);
+    const end = new Date().getTime();
+    const duration = end - start;
+    let wait: number;
+    if (duration > SECONDS_BETWEEN_RUNS * 1000) {
+        wait = 0;
+        console.warn(`${funcName} is taking longer than desiered interval`);
+    } else {
+        wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
+    }
+
+    setTimeout(() => {
+        schedule(connection, func, funcName);
+    }, wait);
+}
