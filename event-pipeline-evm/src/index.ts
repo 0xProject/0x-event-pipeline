@@ -19,7 +19,7 @@ import { DeploymentScraper } from './scripts/pull_and_save_deployment';
 import { MetadataScraper } from './scripts/pull_and_save_pool_metadata';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { ChainIdChecker } from './scripts/check_chain_id';
-
+import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { startMetricsServer } from './utils/metrics';
 
 console.log('App is running...');
@@ -29,6 +29,7 @@ const eventScraper = new EventScraper();
 const deploymentScraper = new DeploymentScraper();
 const metadataScraper = new MetadataScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
+const currentBlockMonitor = new CurrentBlockMonitor();
 
 if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
@@ -39,6 +40,7 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async connection => {
+        schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, eventScraper.getParseSaveEventsAsync, 'Pull and Save Events');
         schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
 
@@ -51,7 +53,7 @@ createConnection(ormConfig as ConnectionOptions)
     })
     .catch(error => console.log(error));
 
-async function schedule(connection: Connection, func: any, funcName: string) {
+async function schedule(connection: any, func: any, funcName: string) {
     const start = new Date().getTime();
     await func(connection);
     const end = new Date().getTime();
