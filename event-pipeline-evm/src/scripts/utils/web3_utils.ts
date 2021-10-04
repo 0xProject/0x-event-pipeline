@@ -227,7 +227,7 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 1000)
+                        LIMIT 2000)
 
                         UNION
 
@@ -247,9 +247,9 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 1000)
+                        LIMIT 2000)
                     ORDER BY 2
-                    LIMIT 1000
+                    LIMIT 2000
                 ) a
             ) b;
             `);
@@ -280,7 +280,7 @@ export class PullAndSaveWeb3 {
                             )
                             AND direct_flag
                         ORDER BY 2
-                        LIMIT 1000)
+                        LIMIT 2000)
                 ) a
             ) b;
             `);
