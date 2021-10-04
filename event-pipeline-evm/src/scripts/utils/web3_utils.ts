@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger';
+import { chunk, logger } from '../../utils';
 import { Connection, InsertResult } from 'typeorm';
 import { Block, ERC20BridgeTransferEvent, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -308,7 +308,9 @@ export class PullAndSaveWeb3 {
             await queryRunner.manager.query(
                 `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`,
             );
-            await queryRunner.manager.insert(Block, toSave);
+            for (const chunkItems of chunk(toSave, 300)) {
+                await queryRunner.manager.insert(Block, chunkItems);
+            }
 
             // commit transaction now:
             await queryRunner.commitTransaction();
@@ -336,7 +338,9 @@ export class PullAndSaveWeb3 {
                 `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`,
             );
 
-            await queryRunner.manager.insert(Transaction, transactions);
+            for (const chunkItems of chunk(transactions, 300)) {
+                await queryRunner.manager.insert(Transaction, chunkItems);
+            }
 
             // commit transaction now:
             await queryRunner.commitTransaction();
@@ -398,13 +402,19 @@ export class PullAndSaveWeb3 {
             const promises: Promise<InsertResult>[] = [];
 
             if (txReceiptsHashList.length > 0) {
-                promises.push(queryRunner.manager.insert(TransactionReceipt, txReceipts));
+                for (const chunkItems of chunk(txReceipts, 300)) {
+                    promises.push(queryRunner.manager.insert(TransactionReceipt, chunkItems));
+                }
             }
             if (txLogsHashList.length > 0) {
-                promises.push(queryRunner.manager.insert(TransactionLogs, txLogs));
+                for (const chunkItems of chunk(txLogs, 300)) {
+                    promises.push(queryRunner.manager.insert(TransactionLogs, chunkItems));
+                }
             }
             if (bridgeTradesHashList.length > 0) {
-                promises.push(queryRunner.manager.insert(ERC20BridgeTransferEvent, bridgeTrades));
+                for (const chunkItems of chunk(bridgeTrades, 300)) {
+                    promises.push(queryRunner.manager.insert(ERC20BridgeTransferEvent, chunkItems));
+                }
             }
 
             await Promise.all([promises]);
