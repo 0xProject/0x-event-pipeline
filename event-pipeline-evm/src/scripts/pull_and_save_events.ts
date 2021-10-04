@@ -81,8 +81,8 @@ export class EventScraper {
         const promises: Promise<void>[] = [];
 
         promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
-        promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, false));
-        promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false));
+        // promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, false));
+        // promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, false));
         promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset, true));
         promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset, true));
 
