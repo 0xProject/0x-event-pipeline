@@ -1,5 +1,5 @@
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { logger } from '../../utils/logger';
+import { chunk, logger } from '../../utils';
 import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
@@ -187,7 +187,9 @@ export class PullAndSaveEventsByTopic {
         try {
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(deleteQuery);
-            await queryRunner.manager.insert(eventType, toSave);
+            for (const chunkItems of chunk(toSave, 300)) {
+                await queryRunner.manager.insert(eventType, chunkItems);
+            }
             await queryRunner.manager.save(lastBlockProcessed);
 
             // commit transaction now:
