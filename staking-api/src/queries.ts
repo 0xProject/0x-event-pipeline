@@ -458,11 +458,19 @@ WITH
         , cebs.zrx_delegated /  NULLIF(ts.total_staked,0) AS share_of_stake
         , fbp.protocol_fees AS total_protocol_fees_generated_in_eth
         , fbp.num_fills AS number_of_fills
-        , fbp.protocol_fees / tf.total_protocol_fees AS share_of_fees
+        , CASE
+        	WHEN tf.total_protocol_fees = 0 THEN
+        		NULL
+        	ELSE fbp.protocol_fees / tf.total_protocol_fees
+          END AS share_of_fees
         , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
-        , (cebs.zrx_delegated /  NULLIF(ts.total_staked,0))
-            / NULLIF((COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees),0)
-            AS approximate_stake_ratio
+        , CASE
+        	WHEN tf.total_protocol_fees = 0 THEN
+        		NULL
+        	ELSE 
+        		(cebs.zrx_delegated /  NULLIF(ts.total_staked,0))
+            	/ NULLIF((COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees),0)
+            END AS approximate_stake_ratio
     FROM events.staking_pool_created_events pce
     LEFT JOIN current_epoch_beginning_status cebs ON cebs.pool_id = pce.pool_id
     LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
