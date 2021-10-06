@@ -548,7 +548,8 @@ export const currentEpochPoolStatsQuery = `
 `;
 
 export const nextEpochPoolsStatsQuery = `
-    WITH
+    
+  WITH
         current_stake AS (
             SELECT
                 pi.pool_id
@@ -624,9 +625,13 @@ export const nextEpochPoolsStatsQuery = `
             , cs.zrx_staked / NULLIF(ts.total_staked,0) AS share_of_stake
             , 0.00 AS total_protocol_fees_generated_in_eth
             , 0 AS number_of_fills
-            , (cs.zrx_staked / NULLIF(ts.total_staked,0))
+            , CASE
+                WHEN tr.total_protocol_fees = 0 THEN
+                    NULL
+                ELSE 
+                    (cs.zrx_staked / NULLIF(ts.total_staked,0))
                     / NULLIF((COALESCE(fbp.protocol_fees,0) / tr.total_protocol_fees),0)
-                AS approximate_stake_ratio
+                END AS approximate_stake_ratio
         FROM staking.pool_info pi
         LEFT JOIN operator_share os ON os.pool_id = pi.pool_id
         LEFT JOIN current_stake cs ON cs.pool_id = pi.pool_id
