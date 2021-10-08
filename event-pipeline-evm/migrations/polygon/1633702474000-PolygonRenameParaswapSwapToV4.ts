@@ -4,7 +4,7 @@ const renameTable = `ALTER TABLE events_polygon.paraswap_swapped_events RENAME T
 
 const renameEventInLastProceesed = `
 UPDATE events_polygon.last_block_processed
-  SET event_name='ParaswapSwappediV4Event'
+  SET event_name='ParaswapSwappedV4Event'
   WHERE event_name='ParaswapSwappedEvent';
 `;
 
@@ -46,7 +46,7 @@ const undoRenameTable = `ALTER TABLE events_polygon.paraswap_swapped_v4_events R
 const dropView = `DROP VIEW events_polygon.competitor_swaps;`;
 const undoRenameEventInLastProceesed = `
 UPDATE events_polygon.last_block_processed
-  SET event_name='ParaswapSwappediV4Event'
+  SET event_name='ParaswapSwappedV4Event'
   WHERE event_name='ParaswapSwappedEvent';
 `;
 
