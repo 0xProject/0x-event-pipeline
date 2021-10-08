@@ -4,8 +4,8 @@ import { Column, Entity } from 'typeorm';
 import { Event } from './event';
 import { bigNumberTransformer } from '../transformers';
 
-@Entity({ name: 'paraswap_swapped_events' })
-export class ParaswapSwappedEvent extends Event {
+@Entity({ name: 'paraswap_swapped_v4_events' })
+export class ParaswapSwappedV4Event extends Event {
     // The address of the from token
     @Column({ name: 'from_token', type: 'varchar' })
     public fromToken!: string;

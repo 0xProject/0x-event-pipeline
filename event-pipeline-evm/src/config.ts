@@ -6,10 +6,10 @@ import {
     DEFAULT_ENABLE_PROMETHEUS_METRICS,
     DEFAULT_EP_ADDRESS,
     DEFAULT_FEAT_CANCEL_EVENTS,
-    DEFAULT_FEAT_FILL_EVENT,
     DEFAULT_FEAT_LIMIT_ORDERS,
     DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
-    DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT,
+    DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
+    DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
     DEFAULT_FEAT_PLP_SWAP_EVENT,
     DEFAULT_FEAT_RFQ_EVENT,
     DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
@@ -192,9 +192,14 @@ export const FEAT_SLINGSHOT_TRADE_EVENT = getBoolConfig(
     DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
 );
 
-export const FEAT_PARASWAP_SWAPPED_EVENT = getBoolConfig(
-    'FEAT_PARASWAP_SWAPPED_EVENT',
-    DEFAULT_FEAT_PARASWAP_SWAPPED_EVENT,
+export const FEAT_PARASWAP_SWAPPED_V4_EVENT = getBoolConfig(
+    'FEAT_PARASWAP_SWAPPED_V4_EVENT',
+    DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
+);
+
+export const FEAT_PARASWAP_SWAPPED_V5_EVENT = getBoolConfig(
+    'FEAT_PARASWAP_SWAPPED_V5_EVENT',
+    DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
 );
 
 export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK', -1);
@@ -218,17 +223,31 @@ if (VIP_SWAP_SOURCES === undefined && FEAT_VIP_SWAP_EVENT) {
     );
 }
 
-export const PARASWAP_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_DEPLOYMENT_BLOCK', -1);
-if (PARASWAP_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_EVENT) {
+export const PARASWAP_V4_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V4_DEPLOYMENT_BLOCK', -1);
+if (PARASWAP_V4_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_V4_EVENT) {
     throwError(
-        `The Paraswap Swapped Event scraper is enabled, but no PARASWAP_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+        `The Paraswap Swapped v4 Event scraper is enabled, but no PARASWAP_V4_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
     );
 }
 
-export const PARASWAP_CONTRACT_ADDRESS = process.env.PARASWAP_CONTRACT_ADDRESS || '';
-if (PARASWAP_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_EVENT) {
+export const PARASWAP_V4_CONTRACT_ADDRESS = process.env.PARASWAP_V4_CONTRACT_ADDRESS || '';
+if (PARASWAP_V4_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_V4_EVENT) {
     throwError(
-        `The Paraswap Swapped Event scraper is enabled, but no PARASWAP_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
+        `The Paraswap Swapped v4 Event scraper is enabled, but no PARASWAP_V4_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
+    );
+}
+
+export const PARASWAP_V5_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V5_DEPLOYMENT_BLOCK', -1);
+if (PARASWAP_V5_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_V5_EVENT) {
+    throwError(
+        `The Paraswap Swapped v5 Event scraper is enabled, but no PARASWAP_V5_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+    );
+}
+
+export const PARASWAP_V5_CONTRACT_ADDRESS = process.env.PARASWAP_V5_CONTRACT_ADDRESS || '';
+if (PARASWAP_V5_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_V5_EVENT) {
+    throwError(
+        `The Paraswap Swapped v5 Event scraper is enabled, but no PARASWAP_V5_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
     );
 }
 
