@@ -4,7 +4,7 @@ const renameTable = `ALTER TABLE events_bsc.paraswap_swapped_events RENAME TO pa
 
 const renameEventInLastProceesed = `
 UPDATE events_bsc.last_block_processed
-  SET event_name='ParaswapSwappediV4Event'
+  SET event_name='ParaswapSwappedV4Event'
   WHERE event_name='ParaswapSwappedEvent';
 `;
 
@@ -39,7 +39,7 @@ const undoRenameTable = `ALTER TABLE events_bsc.paraswap_swapped_v4_events RENAM
 const dropView = `DROP VIEW events_bsc.competitor_swaps;`;
 const undoRenameEventInLastProceesed = `
 UPDATE events_bsc.last_block_processed
-  SET event_name='ParaswapSwappediV4Event'
+  SET event_name='ParaswapSwappedV4Event'
   WHERE event_name='ParaswapSwappedEvent';
 `;
 
