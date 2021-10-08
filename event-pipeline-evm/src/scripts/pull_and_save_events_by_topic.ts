@@ -1,4 +1,3 @@
-import { Gauge, register } from 'prom-client';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
@@ -11,7 +10,8 @@ import {
     FillEvent,
     NativeFill,
     OneinchSwappedEvent,
-    ParaswapSwappedEvent,
+    ParaswapSwappedV4Event,
+    ParaswapSwappedV5Event,
     SlingshotTradeEvent,
     TransformedERC20Event,
     V4CancelEvent,
@@ -25,7 +25,8 @@ import {
     ETHEREUM_RPC_URL,
     FEAT_LIMIT_ORDERS,
     FEAT_ONEINCH_SWAPPED_EVENT,
-    FEAT_PARASWAP_SWAPPED_EVENT,
+    FEAT_PARASWAP_SWAPPED_V4_EVENT,
+    FEAT_PARASWAP_SWAPPED_V5_EVENT,
     FEAT_PLP_SWAP_EVENT,
     FEAT_RFQ_EVENT,
     FEAT_SLINGSHOT_TRADE_EVENT,
@@ -36,8 +37,10 @@ import {
     FEAT_VIP_SWAP_EVENT,
     FIRST_SEARCH_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
-    PARASWAP_CONTRACT_ADDRESS,
-    PARASWAP_DEPLOYMENT_BLOCK,
+    PARASWAP_V4_CONTRACT_ADDRESS,
+    PARASWAP_V4_DEPLOYMENT_BLOCK,
+    PARASWAP_V5_CONTRACT_ADDRESS,
+    PARASWAP_V5_DEPLOYMENT_BLOCK,
     PLP_VIP_START_BLOCK,
     RFQ_EXPIRY_START_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
@@ -51,7 +54,8 @@ import {
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
     ONEINCH_SWAPPED_EVENT_TOPIC,
-    PARASWAP_SWAPPED_EVENT_TOPIC,
+    PARASWAP_SWAPPED_V4_EVENT_TOPIC,
+    PARASWAP_SWAPPED_V5_EVENT_TOPIC,
     RFQORDERFILLED_EVENT_TOPIC,
     SLINGSHOT_CONTRACT_ADDRESS,
     SLINGSHOT_TRADE_EVENT_TOPIC,
@@ -65,7 +69,7 @@ import {
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
-import { parseParaswapSwappedEvent } from '../parsers/events/paraswap_swapped_event';
+import { parseParaswapSwappedV4Event, parseParaswapSwappedV5Event } from '../parsers/events/paraswap_swapped_event';
 import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
@@ -172,19 +176,37 @@ export class EventsByTopicScraper {
             );
         }
 
-        if (FEAT_PARASWAP_SWAPPED_EVENT) {
+        if (FEAT_PARASWAP_SWAPPED_V4_EVENT) {
             promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedEvent>(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedV4Event>(
                     connection,
                     web3Source,
                     latestBlockWithOffset,
-                    'ParaswapSwappedEvent',
-                    ParaswapSwappedEvent,
-                    'paraswap_swapped_events',
-                    PARASWAP_SWAPPED_EVENT_TOPIC,
-                    PARASWAP_CONTRACT_ADDRESS,
-                    PARASWAP_DEPLOYMENT_BLOCK,
-                    parseParaswapSwappedEvent,
+                    'ParaswapSwappedV4Event',
+                    ParaswapSwappedV4Event,
+                    'paraswap_swapped_v4_events',
+                    PARASWAP_SWAPPED_V4_EVENT_TOPIC,
+                    PARASWAP_V4_CONTRACT_ADDRESS,
+                    PARASWAP_V4_DEPLOYMENT_BLOCK,
+                    parseParaswapSwappedV4Event,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_PARASWAP_SWAPPED_V5_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedV5Event>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ParaswapSwappedV5Event',
+                    ParaswapSwappedV5Event,
+                    'paraswap_swapped_v5_events',
+                    PARASWAP_SWAPPED_V5_EVENT_TOPIC,
+                    PARASWAP_V5_CONTRACT_ADDRESS,
+                    PARASWAP_V5_DEPLOYMENT_BLOCK,
+                    parseParaswapSwappedV5Event,
                     {},
                 ),
             );

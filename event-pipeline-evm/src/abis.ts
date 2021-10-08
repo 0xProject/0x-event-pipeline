@@ -367,7 +367,7 @@ export const SLINGSHOT_TRADE_ABI = {
     type: 'event',
 };
 
-export const PARASWAP_SWAPPED_ABI = {
+export const PARASWAP_SWAPPED_V4_ABI = {
     anonymous: false,
     inputs: [
         { indexed: false, internalType: 'address', name: 'initiator', type: 'address' },
@@ -378,6 +378,22 @@ export const PARASWAP_SWAPPED_ABI = {
         { indexed: false, internalType: 'uint256', name: 'receivedAmount', type: 'uint256' },
         { indexed: false, internalType: 'uint256', name: 'expectedAmount', type: 'uint256' },
         { indexed: false, internalType: 'string', name: 'referrer', type: 'string' },
+    ],
+    name: 'Swapped',
+    type: 'event',
+};
+
+export const PARASWAP_SWAPPED_V5_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'bytes16', name: 'uuid', type: 'bytes16' },
+        { indexed: false, internalType: 'address', name: 'initiator', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'beneficiary', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'srcToken', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'destToken', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'srcAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'receivedAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'expectedAmount', type: 'uint256' },
     ],
     name: 'Swapped',
     type: 'event',
