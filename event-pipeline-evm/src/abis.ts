@@ -540,3 +540,59 @@ export const SWAP_V3_ABI = {
     name: 'Swap',
     type: 'event',
 };
+
+export const TIMECHAIN_SWAP_V1_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'trader',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC20',
+            name: 'srcToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC20',
+            name: 'dstToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'srcAmount',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'dstAmount',
+            type: 'uint256',
+        },
+    ],
+    name: 'Swap',
+    type: 'event',
+};
+
+export const OPEN_OCEAN_SWAPPED_V1_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'sender', type: 'address' },
+        { indexed: true, internalType: 'contract IERC20', name: 'srcToken', type: 'address' },
+        { indexed: true, internalType: 'contract IERC20', name: 'dstToken', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'dstReceiver', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'spentAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'returnAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'minReturnAmount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'guaranteedAmount', type: 'uint256' },
+        { indexed: false, internalType: 'address', name: 'referrer', type: 'address' },
+    ],
+    name: 'Swapped',
+    type: 'event',
+};
