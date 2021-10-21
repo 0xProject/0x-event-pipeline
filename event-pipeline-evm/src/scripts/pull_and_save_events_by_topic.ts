@@ -10,9 +10,11 @@ import {
     FillEvent,
     NativeFill,
     OneinchSwappedEvent,
+    OpenOceanSwappedV1Event,
     ParaswapSwappedV4Event,
     ParaswapSwappedV5Event,
     SlingshotTradeEvent,
+    TimechainSwapV1Event,
     TransformedERC20Event,
     V4CancelEvent,
     V4LimitOrderFilledEvent,
@@ -25,11 +27,13 @@ import {
     ETHEREUM_RPC_URL,
     FEAT_LIMIT_ORDERS,
     FEAT_ONEINCH_SWAPPED_EVENT,
+    FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     FEAT_PARASWAP_SWAPPED_V4_EVENT,
     FEAT_PARASWAP_SWAPPED_V5_EVENT,
     FEAT_PLP_SWAP_EVENT,
     FEAT_RFQ_EVENT,
     FEAT_SLINGSHOT_TRADE_EVENT,
+    FEAT_TIMECHAIN_SWAP_V1_EVENT,
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     FEAT_V3_FILL_EVENT,
@@ -37,6 +41,7 @@ import {
     FEAT_VIP_SWAP_EVENT,
     FIRST_SEARCH_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
+    OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
     PARASWAP_V4_CONTRACT_ADDRESS,
     PARASWAP_V4_DEPLOYMENT_BLOCK,
     PARASWAP_V5_CONTRACT_ADDRESS,
@@ -44,6 +49,7 @@ import {
     PLP_VIP_START_BLOCK,
     RFQ_EXPIRY_START_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
+    TIMECHAIN_V1_DEPLOYMENT_BLOCK,
     V4_CANCEL_START_BLOCK,
     V4_FILL_START_BLOCK,
     VIP_SWAP_SOURCES,
@@ -54,6 +60,8 @@ import {
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
     ONEINCH_SWAPPED_EVENT_TOPIC,
+    OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
+    OPEN_OCEAN_V1_CONTRACT_ADDRESS,
     PARASWAP_SWAPPED_V4_EVENT_TOPIC,
     PARASWAP_SWAPPED_V5_EVENT_TOPIC,
     RFQORDERFILLED_EVENT_TOPIC,
@@ -61,6 +69,8 @@ import {
     SLINGSHOT_TRADE_EVENT_TOPIC,
     SWAP_EVENT_TOPIC,
     SWAP_V3_EVENT_TOPIC,
+    TIMECHAIN_SWAP_V1_EVENT_TOPIC,
+    TIMECHAIN_V1_CONTRACT_ADDRESS,
     TRANSFORMEDERC20_EVENT_TOPIC,
     V3_EXCHANGE_ADDRESS,
     V3_FILL_EVENT_TOPIC,
@@ -69,6 +79,7 @@ import {
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
+import { parseOpenOceanSwappedV1Event } from '../parsers/events/open_ocean_swapped_event';
 import { parseParaswapSwappedV4Event, parseParaswapSwappedV5Event } from '../parsers/events/paraswap_swapped_event';
 import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
@@ -76,6 +87,7 @@ import {
     parseNativeFillFromV4RfqOrderFilledEvent,
     parseV4RfqOrderFilledEvent,
 } from '../parsers/events/v4_rfq_order_filled_events';
+import { parseTimechainSwapV1Event } from '../parsers/events/timechain_swap_event';
 import { parseUniswapV3SwapEvent } from '../parsers/events/swap_events';
 import {
     parseNativeFillFromV4LimitOrderFilledEvent,
@@ -212,6 +224,41 @@ export class EventsByTopicScraper {
             );
         }
 
+        if (FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OpenOceanSwappedV1Event>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'OpenOceanSwappedV1Event',
+                    OpenOceanSwappedV1Event,
+                    'open_ocean_swapped_v1_events',
+                    OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
+                    OPEN_OCEAN_V1_CONTRACT_ADDRESS,
+                    OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
+                    parseOpenOceanSwappedV1Event,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_TIMECHAIN_SWAP_V1_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TimechainSwapV1Event>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'TimechainSwapV1Event',
+                    TimechainSwapV1Event,
+                    'timechain_swap_v1_events',
+                    TIMECHAIN_SWAP_V1_EVENT_TOPIC,
+                    TIMECHAIN_V1_CONTRACT_ADDRESS,
+                    TIMECHAIN_V1_DEPLOYMENT_BLOCK,
+                    parseTimechainSwapV1Event,
+                    {},
+                ),
+            );
+        }
         if (FEAT_PLP_SWAP_EVENT) {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(

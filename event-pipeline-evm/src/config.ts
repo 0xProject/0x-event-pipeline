@@ -8,12 +8,14 @@ import {
     DEFAULT_FEAT_CANCEL_EVENTS,
     DEFAULT_FEAT_LIMIT_ORDERS,
     DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
+    DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
     DEFAULT_FEAT_PLP_SWAP_EVENT,
     DEFAULT_FEAT_RFQ_EVENT,
     DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
     DEFAULT_FEAT_STAKING,
+    DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     DEFAULT_FEAT_V3_FILL_EVENT,
@@ -44,7 +46,9 @@ const supportedChains: Map = {
     1: { name: 'Ethereum' },
     56: { name: 'BSC' },
     137: { name: 'Polygon' },
+    250: { name: 'Fantom' },
     43114: { name: 'Avalanche' },
+    42220: { name: 'Celo' },
 };
 
 interface BridgeContract {
@@ -153,7 +157,6 @@ export const MAX_TIME_TO_SEARCH = getIntConfig('MAX_TIME_TO_SEARCH', DEFAULT_MAX
 export const FEAT_CANCEL_EVENTS = getBoolConfig('FEAT_CANCEL_EVENTS', DEFAULT_FEAT_CANCEL_EVENTS);
 
 export const FEAT_STAKING = getBoolConfig('FEAT_STAKING', DEFAULT_FEAT_STAKING);
-
 export const STAKING_DEPLOYMENT_BLOCK = getIntConfig('STAKING_DEPLOYMENT_BLOCK', -1);
 if (STAKING_DEPLOYMENT_BLOCK === -1 && FEAT_STAKING) {
     throwError(
@@ -167,6 +170,17 @@ export const STAKING_PROXY_DEPLOYMENT_TRANSACTION = process.env.STAKING_PROXY_DE
 if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
     throwError(
         `The Staking scraper is enabled, but no STAKING_PROXY_DEPLOYMENT_TRANSACTION was provided. Please include STAKING_PROXY_DEPLOYMENT_TRANSACTION or disable the feature`,
+    );
+}
+
+export const FEAT_TIMECHAIN_SWAP_V1_EVENT = getBoolConfig(
+    'FEAT_TIMECHAIN_SWAP_V1_EVENT',
+    DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
+);
+export const TIMECHAIN_V1_DEPLOYMENT_BLOCK = getIntConfig('TIMECHAIN_V1_DEPLOYMENT_BLOCK', -1);
+if (TIMECHAIN_V1_DEPLOYMENT_BLOCK === -1 && FEAT_TIMECHAIN_SWAP_V1_EVENT) {
+    throwError(
+        `The Tinechain Swap v1 scraper is enabled, but no TIMECHAIN_V1_DEPLOYMENT_BLOCK was provided. Please include TIMECHAIN_V1_DEPLOYMENT_BLOCK or disable the feature`,
     );
 }
 
@@ -184,6 +198,17 @@ export const FEAT_ONEINCH_SWAPPED_EVENT = getBoolConfig(
     'FEAT_ONEINCH_SWAPPED_EVENT',
     DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
 );
+
+export const FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT = getBoolConfig(
+    'FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT',
+    DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
+);
+export const OPEN_OCEAN_V1_DEPLOYMENT_BLOCK = getIntConfig('OPEN_OCEAN_V1_DEPLOYMENT_BLOCK', -1);
+if (OPEN_OCEAN_V1_DEPLOYMENT_BLOCK === -1 && FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT) {
+    throwError(
+        `The Open Ocean Swapped v1 scraper is enabled, but no OPEN_OCEAN_V1_DEPLOYMENT_BLOCK was provided. Please include OPEN_OCEAN_V1_DEPLOYMENT_BLOCK or disable the feature`,
+    );
+}
 
 export const FEAT_VIP_SWAP_EVENT = getBoolConfig('FEAT_VIP_SWAP_EVENT', DEFAULT_FEAT_VIP_SWAP_EVENT);
 
