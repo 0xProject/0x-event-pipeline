@@ -416,7 +416,7 @@ WITH
             ce.epoch_id
             , case when fe.protocol_version='v4' then fe.pool
                 else cebs.pool_id end
-             as pool_id
+            as pool_id
             , COUNT(*) AS num_fills
             , SUM(fe.protocol_fee_paid) / 1e18 AS protocol_fees
         FROM events.native_fills fe
@@ -439,7 +439,7 @@ WITH
                 ELSE 0.00
             END) AS total_staked
         FROM current_epoch_beginning_status cebs
-		LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
+        LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
     )
     , total_fees AS (
         SELECT
@@ -452,24 +452,30 @@ WITH
         , cebs.maker_addresses AS maker_addresses
         , cebs.operator_share AS operator_share
         , cebs.zrx_delegated AS zrx_staked
-        , ts.total_staked
         , cebs.operator_zrx_delegated AS operator_zrx_staked
         , cebs.member_zrx_delegated AS member_zrx_staked
-        , cebs.zrx_delegated /  NULLIF(ts.total_staked,0) AS share_of_stake
+        , ts.total_staked
+        , CASE
+            WHEN ts.total_staked = 0 THEN
+                NULL
+            ELSE
+                cebs.zrx_delegated / ts.total_staked
+            END AS share_of_stake
         , fbp.protocol_fees AS total_protocol_fees_generated_in_eth
         , fbp.num_fills AS number_of_fills
         , CASE
-        	WHEN tf.total_protocol_fees = 0 THEN
-        		NULL
-        	ELSE fbp.protocol_fees / tf.total_protocol_fees
-          END AS share_of_fees
+            WHEN tf.total_protocol_fees = 0 THEN
+                NULL
+            ELSE
+                fbp.protocol_fees / tf.total_protocol_fees
+            END AS share_of_fees
         , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
         , CASE
-        	WHEN tf.total_protocol_fees = 0 THEN
-        		NULL
-        	ELSE 
-        		(cebs.zrx_delegated /  NULLIF(ts.total_staked,0))
-            	/ NULLIF((COALESCE(fbp.protocol_fees,0) / tf.total_protocol_fees),0)
+            WHEN tf.total_protocol_fees = 0 THEN
+                NULL
+            ELSE
+                (cebs.zrx_delegated / ts.total_staked)
+                / (fbp.protocol_fees / tf.total_protocol_fees)
             END AS approximate_stake_ratio
     FROM events.staking_pool_created_events pce
     LEFT JOIN current_epoch_beginning_status cebs ON cebs.pool_id = pce.pool_id
@@ -530,14 +536,27 @@ export const currentEpochPoolStatsQuery = `
             , cebs.operator_zrx_delegated AS operator_zrx_staked
             , cebs.member_zrx_delegated AS member_zrx_staked
             , ts.total_staked
-            , cebs.zrx_delegated / NULLIF(ts.total_staked,0) AS share_of_stake
+            , CASE
+                WHEN ts.total_staked = 0 THEN
+                    NULL
+                ELSE
+                    cebs.zrx_delegated / ts.total_staked
+                END AS share_of_stake
             , fbp.protocol_fees AS total_protocol_fees_generated_in_eth
             , fbp.num_fills AS number_of_fills
-            , fbp.protocol_fees / tf.total_protocol_fees AS share_of_fees
-            , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
-            , (cebs.zrx_delegated / NULLIF(ts.total_staked,0))
-                / (fbp.protocol_fees / tf.total_protocol_fees)
-                AS approximate_stake_ratio
+            , CASE
+                WHEN tf.total_protocol_fees = 0 THEN
+                    NULL
+                ELSE
+                    fbp.protocol_fees / tf.total_protocol_fees
+                END AS share_of_fees
+            , CASE
+                WHEN tf.total_protocol_fees = 0 THEN
+                    NULL
+                ELSE
+                    (cebs.zrx_delegated / ts.total_staked)
+                    / (fbp.protocol_fees / tf.total_protocol_fees)
+                END AS approximate_stake_ratio
         FROM events.staking_pool_created_events pce
         LEFT JOIN current_epoch_beginning_status cebs ON cebs.pool_id = pce.pool_id
         LEFT JOIN current_epoch_fills_by_pool fbp ON fbp.epoch_id = cebs.epoch_id AND fbp.pool_id = cebs.pool_id
