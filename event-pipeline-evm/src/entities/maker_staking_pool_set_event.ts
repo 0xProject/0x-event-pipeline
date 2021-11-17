@@ -2,9 +2,8 @@ import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
 
-
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.
-@Entity({ name: 'maker_staking_pool_set_events'})
+@Entity({ name: 'maker_staking_pool_set_events' })
 export class MakerStakingPoolSetEvent extends Event {
     // Adress of maker added to pool.
     @Column({ name: 'maker_address', type: 'varchar' })

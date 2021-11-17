@@ -4,9 +4,8 @@ import { Event } from './event';
 import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers/big_number';
 import { BigNumber } from '@0x/utils';
 
-
 // Event emitted by MixinFinalizer when rewards are paid out to a pool.
-@Entity({ name: 'rewards_paid_events'})
+@Entity({ name: 'rewards_paid_events' })
 export class RewardsPaidEvent extends Event {
     // The epoch when the rewards were earned.
     @Column({ name: 'epoch_id', type: 'bigint', transformer: numberToBigIntTransformer })

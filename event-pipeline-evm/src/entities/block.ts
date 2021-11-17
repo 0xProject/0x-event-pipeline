@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 import { numberToBigIntTransformer } from '../transformers';
 
-@Entity({ name: 'blocks'})
+@Entity({ name: 'blocks' })
 export class Block {
     // When the event was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })

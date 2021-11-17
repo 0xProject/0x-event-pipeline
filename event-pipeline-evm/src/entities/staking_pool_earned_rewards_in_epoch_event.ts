@@ -4,7 +4,7 @@ import { Event } from './event';
 import { numberToBigIntTransformer } from '../transformers/big_number';
 
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.
-@Entity({ name: 'staking_pool_earned_rewards_in_epoch_events'})
+@Entity({ name: 'staking_pool_earned_rewards_in_epoch_events' })
 export class StakingPoolEarnedRewardsInEpochEvent extends Event {
     // The epoch in which the pool earned rewards.
     @Column({ name: 'epoch_id', type: 'bigint', transformer: numberToBigIntTransformer })

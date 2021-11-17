@@ -15,8 +15,6 @@ export class BigNumberTransformer implements ValueTransformer {
 
 export const bigNumberTransformer = new BigNumberTransformer();
 
-
-
 const decimalRadix = 10;
 
 // Can be used to convert a JavaScript number type to a Postgres bigint type and

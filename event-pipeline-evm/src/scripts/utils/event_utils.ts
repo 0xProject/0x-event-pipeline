@@ -23,7 +23,7 @@ export class PullAndSaveEvents {
         if (eventLogs === null) {
             logger.info(`Encountered an error searching for ${eventName} ${SCHEMA}. Waiting until next iteration.`);
         } else {
-            const parsedEventLogs = eventLogs.map(log => parser(log));
+            const parsedEventLogs = eventLogs.map((log) => parser(log));
             const lastBlockProcessed: LastBlockProcessed = await this._lastBlockProcessedAsync(eventName, endBlock);
 
             logger.info(`saving ${parsedEventLogs.length} ${eventName} events`);

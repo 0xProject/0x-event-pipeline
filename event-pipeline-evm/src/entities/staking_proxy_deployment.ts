@@ -4,7 +4,7 @@ import { numberToBigIntTransformer } from '../transformers/big_number';
 
 // Entity for when the staking proxy contract was deployed
 // Marks the beginning of Epoch 1
-@Entity({ name: 'staking_proxy_deployment'})
+@Entity({ name: 'staking_proxy_deployment' })
 export class StakingProxyDeployment {
     // When the deploy was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
