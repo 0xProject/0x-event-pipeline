@@ -4,9 +4,8 @@ import { Event } from './event';
 import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers/big_number';
 import { BigNumber } from '@0x/utils';
 
-
 // Event emitted by MixinFinalizer when an epoch has ended.
-@Entity({ name: 'epoch_ended_events'})
+@Entity({ name: 'epoch_ended_events' })
 export class EpochEndedEvent extends Event {
     // The epoch that ended.
     @Column({ name: 'epoch_id', type: 'bigint', transformer: numberToBigIntTransformer })

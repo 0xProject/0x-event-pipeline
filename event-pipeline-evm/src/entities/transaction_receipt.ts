@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers';
 
 // Transaction Receipt info for TX containing events
-@Entity({ name: 'transaction_receipts' }) 
+@Entity({ name: 'transaction_receipts' })
 export class TransactionReceipt {
     // When the event was scraped
     @Column({ name: 'observed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })

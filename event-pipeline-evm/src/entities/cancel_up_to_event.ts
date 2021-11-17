@@ -4,9 +4,8 @@ import { BigNumber } from '@0x/utils';
 import { Event } from './event';
 import { bigNumberTransformer } from '../transformers/big_number';
 
-
 // These events come directly from the Exchange contract and are fired for meta transactions
-@Entity({ name: 'cancel_up_to_events'})
+@Entity({ name: 'cancel_up_to_events' })
 export class CancelUpToEvent extends Event {
     // maker address of orders to cancel
     @Column({ name: 'maker_address', type: 'varchar' })

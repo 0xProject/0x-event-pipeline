@@ -4,7 +4,7 @@ import { Event } from './event';
 import { numberToBigIntTransformer } from '../transformers/big_number';
 
 // Event emitted by MixinStake when a new pool is created.
-@Entity({ name: 'staking_pool_created_events'})
+@Entity({ name: 'staking_pool_created_events' })
 export class StakingPoolCreatedEvent extends Event {
     // Unique id generated for pool.
     @Column({ name: 'pool_id', type: 'varchar' })

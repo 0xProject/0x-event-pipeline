@@ -28,7 +28,7 @@ jobs:
       env:
         cache-name: cached-node-modules
       with:
-        path: ~/work/0x-event-pipeline/0x-event-pipeline/node_modules
+        path: ~/work/0x-event-pipeline/0x-event-pipeline-evm/node_modules
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('yarn.lock') }}
     - run: yarn install --frozen-lockfile
     - run: yarn prettier:ci

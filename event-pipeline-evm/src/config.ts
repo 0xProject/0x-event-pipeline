@@ -72,7 +72,7 @@ const bridgeContracts = [
 // <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
 function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     const contracts = envVar.split('|');
-    const bridgeContracts = contracts.map(element => {
+    const bridgeContracts = contracts.map((element) => {
         const split = element.split('-');
         return { contract: split[0], startingBlock: Number(split[1]) };
     });
@@ -109,11 +109,7 @@ export const MAX_BLOCKS_TO_SEARCH = getIntConfig('MAX_BLOCKS_TO_SEARCH', DEFAULT
 export const CHAIN_ID = process.env.CHAIN_ID
     ? parseInt(process.env.CHAIN_ID, 10)
     : throwError(`Must specify valid CHAIN_ID. Got: ${process.env.CHAIN_ID}`);
-if (
-    !Object.keys(supportedChains)
-        .map(Number)
-        .includes(CHAIN_ID)
-) {
+if (!Object.keys(supportedChains).map(Number).includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
 }
 

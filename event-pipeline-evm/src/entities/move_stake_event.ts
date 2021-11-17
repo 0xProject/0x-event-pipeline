@@ -4,9 +4,8 @@ import { Column, Entity } from 'typeorm';
 import { Event } from './event';
 import { bigNumberTransformer } from '../transformers/big_number';
 
-
 // Event emitted by MixinStake when the stake changes states.
-@Entity({ name: 'move_stake_events'})
+@Entity({ name: 'move_stake_events' })
 export class MoveStakeEvent extends Event {
     // The address of the staker.
     @Column({ name: 'staker', type: 'varchar' })

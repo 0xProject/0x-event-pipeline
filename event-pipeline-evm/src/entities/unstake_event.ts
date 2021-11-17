@@ -5,7 +5,7 @@ import { Event } from './event';
 import { bigNumberTransformer } from '../transformers/big_number';
 
 // Event emitted by MixinStake when ZRX is unstaked.
-@Entity({ name: 'unstake_events'})
+@Entity({ name: 'unstake_events' })
 export class UnstakeEvent extends Event {
     // The address of the staker.
     @Column({ name: 'staker' })

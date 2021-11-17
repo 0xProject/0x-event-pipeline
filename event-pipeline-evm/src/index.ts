@@ -4,15 +4,9 @@ import { config } from 'dotenv';
 import * as cron from 'node-cron';
 config({ path: resolve(__dirname, '../../.env') });
 
-import { ConnectionOptions, createConnection, Connection } from 'typeorm';
+import { ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
-import {
-    CHAIN_ID,
-    ENABLE_PROMETHEUS_METRICS,
-    FEAT_STAKING,
-    MINUTES_BETWEEN_RUNS,
-    SECONDS_BETWEEN_RUNS,
-} from './config';
+import { CHAIN_ID, ENABLE_PROMETHEUS_METRICS, FEAT_STAKING, SECONDS_BETWEEN_RUNS } from './config';
 
 import { EventScraper } from './scripts/pull_and_save_events';
 import { DeploymentScraper } from './scripts/pull_and_save_deployment';
@@ -39,7 +33,7 @@ chainIdChecker.checkChainId(CHAIN_ID);
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
-    .then(async connection => {
+    .then(async (connection) => {
         schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, eventScraper.getParseSaveEventsAsync, 'Pull and Save Events');
         schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
@@ -51,7 +45,7 @@ createConnection(ormConfig as ConnectionOptions)
             });
         }
     })
-    .catch(error => console.log(error));
+    .catch((error) => console.log(error));
 
 async function schedule(connection: any, func: any, funcName: string) {
     const start = new Date().getTime();
