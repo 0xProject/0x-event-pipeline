@@ -1,6 +1,6 @@
 // Chunk and slice from lodash
 
-export function chunk(array: Array<any>, size = 1): Array<Array<any>> {
+export function chunk<T>(array: Array<T>, size = 1): Array<Array<T>> {
     size = Math.max(size, 0);
     const length = array == null ? 0 : array.length;
     if (!length || size < 1) {
@@ -16,7 +16,7 @@ export function chunk(array: Array<any>, size = 1): Array<Array<any>> {
     return result;
 }
 
-export function slice(array: Array<any>, start: number, end: number): Array<any> {
+export function slice<T>(array: Array<T>, start: number, end: number): Array<T> {
     let length = array == null ? 0 : array.length;
     if (!length) {
         return [];
