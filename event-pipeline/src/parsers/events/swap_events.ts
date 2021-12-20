@@ -18,14 +18,14 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     // amount0 and amount1 are of opposite signs
     // neg value means token left the pool ie. maker
     // pos value means token entered the pool ie. taker
-    eRC20BridgeTransferEvent.fromToken = (decodedLog.amount0 >= 0) ? '0': '1' ; // taker_token
-    eRC20BridgeTransferEvent.toToken = (decodedLog.amount0 < 0) ? '0': '1' ; // maker_token
+    eRC20BridgeTransferEvent.fromToken = decodedLog.amount0 >= 0 ? '0' : '1'; // taker_token
+    eRC20BridgeTransferEvent.toToken = decodedLog.amount0 < 0 ? '0' : '1'; // maker_token
     eRC20BridgeTransferEvent.fromTokenAmount = decodedLog.amount0 >= 0 ? amount0 : amount1; // taker_token_amount
     eRC20BridgeTransferEvent.toTokenAmount = decodedLog.amount0 < 0 ? amount0 : amount1; // maker_token_amount
     eRC20BridgeTransferEvent.from = 'UniswapV3'; // maker
     eRC20BridgeTransferEvent.to = decodedLog.recipient.toLowerCase(); // taker
     eRC20BridgeTransferEvent.directFlag = true;
     eRC20BridgeTransferEvent.directProtocol = 'UniswapV3';
-    
+
     return eRC20BridgeTransferEvent;
 }
