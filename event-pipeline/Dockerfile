@@ -8,7 +8,7 @@ COPY pipeline-utils pipeline-utils
 COPY package.json yarn.lock tsconfig.json lerna.json ./
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache --virtual build-dependencies bash git openssh python make g++ && \
+    apk add --no-cache --virtual build-dependencies bash git openssh python3 make g++ && \
     yarn --frozen-lockfile --no-cache
     
 RUN yarn build
@@ -26,9 +26,9 @@ COPY --from=build /usr/src/app/pipeline-utils/lib pipeline-utils/lib
 
 # Install event-pipeline runtime dependencies
 COPY event-pipeline/package.json event-pipeline/
-RUN apk add git python make g++ && \
+RUN apk add git python3 make g++ && \
     yarn install --frozen-lockfile --no-cache --production && \
-    apk del git python make g++
+    apk del git python3 make g++
 
 # Copy built files
 COPY --from=build /usr/src/app/event-pipeline/lib event-pipeline/lib/
