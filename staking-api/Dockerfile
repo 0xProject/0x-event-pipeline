@@ -6,7 +6,7 @@ COPY staking-api staking-api
 COPY package.json yarn.lock tsconfig.json lerna.json ./
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache --virtual build-dependencies bash git openssh python make g++ && \
+    apk add --no-cache --virtual build-dependencies bash git openssh python3 make g++ && \
     yarn --frozen-lockfile --no-cache
     
 RUN yarn build

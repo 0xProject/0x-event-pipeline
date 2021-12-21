@@ -38,12 +38,14 @@ export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20
         new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)),
     );
 
-    const fromToken = amount0In.gt(amount1In) ? swap.pair.token0 : swap.pair.token1;
-    const toToken = amount0Out.gt(amount1Out) ? swap.pair.token0 : swap.pair.token1;
+    // Check condition if amount out is > amount in. If yes, then it's the to_token
+    // (maker token). Also, use the diff to calculate the amount of from_token,
+    // as sometimes Uniswap returns two tokens.
+    const fromToken = amount0Out.gt(amount0In) ? swap.pair.token1 : swap.pair.token0;
+    const toToken = amount0Out.gt(amount0In) ? swap.pair.token0 : swap.pair.token1;
 
-    // bad line
-    const fromTokenAmount = amount0In.gt(amount1In) ? amount0In : amount1In;
-    const toTokenAmount = amount0Out.gt(amount1Out) ? amount0Out : amount1Out;
+    const fromTokenAmount = amount0Out.gt(amount0In) ? amount1Out.minus(amount1In) : amount0Out.minus(amount0In);
+    const toTokenAmount = amount0Out.gt(amount0In) ? amount0Out : amount1Out;
 
     eRC20BridgeTransferEvent.fromToken = fromToken.id;
     eRC20BridgeTransferEvent.toToken = toToken.id;
