@@ -43,9 +43,9 @@ export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20
     // We start with checking whether there is a token with zero Out amount.
     // If yes, then this is the fromToken aka taker token. If no (both have
     // non-zero Out amounts), we look for one with more Out than In which will
-    // be the toToken. 
+    // be the toToken.
     // This might also not be the case (found all-time 6 uni swaps like this),
-    // then we choose token0 = taker, toker1 = maker, amounts=0.  
+    // then we choose token0 = taker, toker1 = maker, amounts=0.
     const bigZero = new BigNumber(0);
     let fromToken = swap.pair.token0;
     let toToken = swap.pair.token1;
@@ -57,13 +57,13 @@ export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20
         toToken = amount0Out.isEqualTo(bigZero) ? swap.pair.token1 : swap.pair.token0;
         fromTokenAmount = amount0Out.isEqualTo(bigZero) ? amount0In : amount1In;
         toTokenAmount = amount0Out.isEqualTo(bigZero) ? amount1Out : amount0Out;
-    } 
-    if (amount0Out.gt(amount0In) || amount1Out.gt(amount1In)) { 
+    }
+    if (amount0Out.gt(amount0In) || amount1Out.gt(amount1In)) {
         fromToken = amount0Out.gt(amount0In) ? swap.pair.token1 : swap.pair.token0;
         toToken = amount0Out.gt(amount0In) ? swap.pair.token0 : swap.pair.token1;
         amount0Out.gt(amount0In) ? amount1In.minus(amount1Out) : amount0In.minus(amount0Out);
         toTokenAmount = amount0Out.gt(amount0In) ? amount0Out : amount1Out;
-    };
+    }
 
     eRC20BridgeTransferEvent.fromToken = fromToken.id;
     eRC20BridgeTransferEvent.toToken = toToken.id;
