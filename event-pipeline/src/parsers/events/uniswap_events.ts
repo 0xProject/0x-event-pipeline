@@ -38,14 +38,32 @@ export function parseUniswapSushiswapEvents(swap: Swap, protocol: string): ERC20
         new BigNumber(10).pow(new BigNumber(swap.pair.token1.decimals)),
     );
 
-    // Check condition if amount out is > amount in. If yes, then it's the to_token
-    // (maker token). Also, use the diff to calculate the amount of from_token,
-    // as sometimes Uniswap returns two tokens.
-    const fromToken = amount0Out.gt(amount0In) ? swap.pair.token1 : swap.pair.token0;
-    const toToken = amount0Out.gt(amount0In) ? swap.pair.token0 : swap.pair.token1;
+    // There are many possible cases and all kinds of pathological behavior
+    // happening with different frequency.
+    // We start with checking whether there is a token with zero Out amount.
+    // If yes, then this is the fromToken aka taker token. If no (both have
+    // non-zero Out amounts), we look for one with more Out than In which will
+    // be the toToken. 
+    // This might also not be the case (found all-time 6 uni swaps like this),
+    // then we choose token0 = taker, toker1 = maker, amounts=0.  
+    const bigZero = new BigNumber(0);
+    let fromToken = swap.pair.token0;
+    let toToken = swap.pair.token1;
+    let fromTokenAmount = bigZero;
+    let toTokenAmount = bigZero;
 
-    const fromTokenAmount = amount0Out.gt(amount0In) ? amount1Out.minus(amount1In) : amount0Out.minus(amount0In);
-    const toTokenAmount = amount0Out.gt(amount0In) ? amount0Out : amount1Out;
+    if (amount0Out.isEqualTo(bigZero) || amount1Out.isEqualTo(bigZero)) {
+        fromToken = amount0Out.isEqualTo(bigZero) ? swap.pair.token0 : swap.pair.token1;
+        toToken = amount0Out.isEqualTo(bigZero) ? swap.pair.token1 : swap.pair.token0;
+        fromTokenAmount = amount0Out.isEqualTo(bigZero) ? amount0In : amount1In;
+        toTokenAmount = amount0Out.isEqualTo(bigZero) ? amount1Out : amount0Out;
+    } 
+    if (amount0Out.gt(amount0In) || amount1Out.gt(amount1In)) { 
+        fromToken = amount0Out.gt(amount0In) ? swap.pair.token1 : swap.pair.token0;
+        toToken = amount0Out.gt(amount0In) ? swap.pair.token0 : swap.pair.token1;
+        amount0Out.gt(amount0In) ? amount1In.minus(amount1Out) : amount0In.minus(amount0Out);
+        toTokenAmount = amount0Out.gt(amount0In) ? amount0Out : amount1Out;
+    };
 
     eRC20BridgeTransferEvent.fromToken = fromToken.id;
     eRC20BridgeTransferEvent.toToken = toToken.id;
