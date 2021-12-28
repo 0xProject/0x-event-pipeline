@@ -7,7 +7,8 @@ import {
     DEFAULT_EP_ADDRESS,
     DEFAULT_FEAT_CANCEL_EVENTS,
     DEFAULT_FEAT_LIMIT_ORDERS,
-    DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
+    DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
+    DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
@@ -190,9 +191,14 @@ export const FEAT_TRANSFORMED_ERC20_EVENT = getBoolConfig(
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
 );
 
-export const FEAT_ONEINCH_SWAPPED_EVENT = getBoolConfig(
-    'FEAT_ONEINCH_SWAPPED_EVENT',
-    DEFAULT_FEAT_ONEINCH_SWAPPED_EVENT,
+export const FEAT_ONEINCH_SWAPPED_V3_EVENT = getBoolConfig(
+    'FEAT_ONEINCH_SWAPPED_V3_EVENT',
+    DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
+);
+
+export const FEAT_ONEINCH_SWAPPED_V4_EVENT = getBoolConfig(
+    'FEAT_ONEINCH_SWAPPED_V4_EVENT',
+    DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
 );
 
 export const FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT = getBoolConfig(
@@ -224,9 +230,16 @@ export const FEAT_PARASWAP_SWAPPED_V5_EVENT = getBoolConfig(
 );
 
 export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK', -1);
-if (ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_EVENT) {
+if (ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_V3_EVENT) {
     throwError(
-        `The Oneinch Swapped Event scraper is enabled, but no ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+        `The Oneinch Swapped v3 Event scraper is enabled, but no ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+    );
+}
+
+export const ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK', -1);
+if (ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_V4_EVENT) {
+    throwError(
+        `The Oneinch Swapped v4 Event scraper is enabled, but no ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
     );
 }
 
@@ -313,6 +326,7 @@ function getBoolConfig(env: string, defaultValue: boolean): boolean {
 
 function getIntConfig(env: string, defaultValue: number): number {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return parseInt(process.env[env]!);
     }
     return defaultValue;

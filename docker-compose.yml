@@ -42,8 +42,10 @@ services:
             MINUTES_BETWEEN_RUNS: 1
             FEAT_VIP_SWAP_EVENT: "true"
             VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap"
-            FEAT_ONEINCH_SWAPPED_EVENT: "true"
+            FEAT_ONEINCH_SWAPPED_V3_EVENT: "true"
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 5300000
+            FEAT_ONEINCH_SWAPPED_V4_EVENT: "true"
+            ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK: 12386039
 
     event-pipeline-polygon:
         depends_on:
@@ -62,8 +64,10 @@ services:
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 2000
             MINUTES_BETWEEN_RUNS: 1
-            FEAT_ONEINCH_SWAPPED_EVENT: "true"
+            FEAT_ONEINCH_SWAPPED_V3_EVENT: "true"
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 14500000
+            FEAT_ONEINCH_SWAPPED_V4_EVENT: "true"
+            ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK: 21008423
             FEAT_SLINGSHOT_TRADE_EVENT: "true"
             SLINGSHOT_DEPLOYMENT_BLOCK: 14500000
             FEAT_PARASWAP_SWAPPED_EVENT: "true"

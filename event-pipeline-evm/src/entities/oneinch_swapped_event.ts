@@ -4,8 +4,8 @@ import { Column, Entity } from 'typeorm';
 import { Event } from './event';
 import { bigNumberTransformer } from '../transformers';
 
-@Entity({ name: 'oneinch_swapped_events' })
-export class OneinchSwappedEvent extends Event {
+@Entity({ name: 'oneinch_swapped_v3_events' })
+export class OneinchSwappedV3Event extends Event {
     // The address of the from token
     @Column({ name: 'from_token', type: 'varchar' })
     public fromToken!: string;
@@ -23,3 +23,6 @@ export class OneinchSwappedEvent extends Event {
     @Column({ name: 'to', type: 'varchar', nullable: true })
     public to!: string | null;
 }
+
+@Entity({ name: 'oneinch_swapped_v4_events' })
+export class OneinchSwappedV4Event extends OneinchSwappedV3Event {}

@@ -12,7 +12,7 @@ export { LastBlockProcessed } from './last_block_processed';
 export { MakerStakingPoolSetEvent } from './maker_staking_pool_set_event';
 export { MoveStakeEvent } from './move_stake_event';
 export { NativeFill } from './native_fill';
-export { OneinchSwappedEvent } from './oneinch_swapped_event';
+export { OneinchSwappedV3Event, OneinchSwappedV4Event } from './oneinch_swapped_event';
 export { OperatorShareDecreasedEvent } from './operator_share_decreased_event';
 export { OpenOceanSwappedV1Event } from './open_ocean_swapped_v1_event';
 export { ParamsSetEvent } from './params_set_event';

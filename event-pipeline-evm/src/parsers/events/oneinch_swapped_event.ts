@@ -1,12 +1,12 @@
 const abiCoder = require('web3-eth-abi');
 import { RawLogEntry } from 'ethereum-types';
-import { OneinchSwappedEvent } from '../../entities';
+import { OneinchSwappedV3Event } from '../../entities';
 import { parseEvent } from './parse_event';
 import { ONEINCH_SWAPPED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseOneinchSwappedEvent(eventLog: RawLogEntry): OneinchSwappedEvent {
-    const oneinchSwappedEvent = new OneinchSwappedEvent();
+export function parseOneinchSwappedEvent(eventLog: RawLogEntry): OneinchSwappedV3Event {
+    const oneinchSwappedEvent = new OneinchSwappedV3Event();
 
     parseEvent(eventLog, oneinchSwappedEvent);
 
