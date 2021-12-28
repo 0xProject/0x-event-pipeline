@@ -1,0 +1,82 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+const renameTable = `ALTER TABLE events_bsc.oneinch_swapped_events RENAME TO oneinch_swapped_v3_events`;
+
+const renameEventInLastProceesed = `
+UPDATE events_bsc.last_block_processed
+  SET event_name='OneinchSwappedEvent'
+  WHERE event_name='OneinchSwappedV3Event';
+`;
+
+const createView = `
+CREATE OR REPLACE VIEW events_bsc.competitor_swaps AS
+SELECT '1inch'::text AS competitor,
+  oneinch_swapped_v3_events.observed_timestamp,
+  oneinch_swapped_v3_events.contract_address,
+  oneinch_swapped_v3_events.transaction_hash,
+  oneinch_swapped_v3_events.transaction_index,
+  oneinch_swapped_v3_events.log_index,
+  oneinch_swapped_v3_events.block_hash,
+  oneinch_swapped_v3_events.block_number,
+  oneinch_swapped_v3_events.from_token,
+  oneinch_swapped_v3_events.to_token,
+  oneinch_swapped_v3_events.from_token_amount,
+  oneinch_swapped_v3_events.to_token_amount,
+  oneinch_swapped_v3_events."from",
+  oneinch_swapped_v3_events."to"
+FROM events_bsc.oneinch_swapped_v3_events
+UNION ALL
+SELECT 'Paraswap'::text AS competitor,
+  paraswap_swapped_v4_events.observed_timestamp,
+  paraswap_swapped_v4_events.contract_address,
+  paraswap_swapped_v4_events.transaction_hash,
+  paraswap_swapped_v4_events.transaction_index,
+  paraswap_swapped_v4_events.log_index,
+  paraswap_swapped_v4_events.block_hash,
+  paraswap_swapped_v4_events.block_number,
+  paraswap_swapped_v4_events.from_token,
+  paraswap_swapped_v4_events.to_token,
+  paraswap_swapped_v4_events.from_token_amount,
+  paraswap_swapped_v4_events.to_token_amount,
+  paraswap_swapped_v4_events."from",
+  paraswap_swapped_v4_events."to"
+FROM events_bsc.paraswap_swapped_v4_events
+UNION ALL
+SELECT 'Paraswap'::text AS competitor,
+  paraswap_swapped_v5_events.observed_timestamp,
+  paraswap_swapped_v5_events.contract_address,
+  paraswap_swapped_v5_events.transaction_hash,
+  paraswap_swapped_v5_events.transaction_index,
+  paraswap_swapped_v5_events.log_index,
+  paraswap_swapped_v5_events.block_hash,
+  paraswap_swapped_v5_events.block_number,
+  paraswap_swapped_v5_events.from_token,
+  paraswap_swapped_v5_events.to_token,
+  paraswap_swapped_v5_events.from_token_amount,
+  paraswap_swapped_v5_events.to_token_amount,
+  paraswap_swapped_v5_events."from",
+  paraswap_swapped_v5_events."to"
+FROM events_bsc.paraswap_swapped_v5_events;
+`;
+
+const undoRenameTable = `ALTER TABLE events_bsc.oneinch_swapped_v3_events RENAME TO oneinch_swapped_events`;
+const dropView = `DROP VIEW events_bsc.competitor_swaps;`;
+const undoRenameEventInLastProceesed = `
+UPDATE events_bsc.last_block_processed
+  SET event_name='OneinchSwappedV3Event'
+  WHERE event_name='OneinchSwappedEvent';
+`;
+
+export class BSCRenameOneinchSwapToV31640717970000 implements MigrationInterface {
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(renameTable);
+        await queryRunner.query(renameEventInLastProceesed);
+        await queryRunner.query(createView);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(dropView);
+        await queryRunner.query(undoRenameEventInLastProceesed);
+        await queryRunner.query(undoRenameTable);
+    }
+}

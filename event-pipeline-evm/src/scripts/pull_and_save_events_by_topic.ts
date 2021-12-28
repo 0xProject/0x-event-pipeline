@@ -9,7 +9,8 @@ import {
     ExpiredRfqOrderEvent,
     FillEvent,
     NativeFill,
-    OneinchSwappedEvent,
+    OneinchSwappedV3Event,
+    OneinchSwappedV4Event,
     OpenOceanSwappedV1Event,
     ParaswapSwappedV4Event,
     ParaswapSwappedV5Event,
@@ -26,7 +27,8 @@ import {
     EP_DEPLOYMENT_BLOCK,
     ETHEREUM_RPC_URL,
     FEAT_LIMIT_ORDERS,
-    FEAT_ONEINCH_SWAPPED_EVENT,
+    FEAT_ONEINCH_SWAPPED_V3_EVENT,
+    FEAT_ONEINCH_SWAPPED_V4_EVENT,
     FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     FEAT_PARASWAP_SWAPPED_V4_EVENT,
     FEAT_PARASWAP_SWAPPED_V5_EVENT,
@@ -41,6 +43,7 @@ import {
     FEAT_VIP_SWAP_EVENT,
     FIRST_SEARCH_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
+    ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
     OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
     PARASWAP_V4_CONTRACT_ADDRESS,
     PARASWAP_V4_DEPLOYMENT_BLOCK,
@@ -59,6 +62,7 @@ import {
     LIMITORDERFILLED_EVENT_TOPIC,
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
+    ONEINCH_ROUTER_V4_CONTRACT_ADDRESS,
     ONEINCH_SWAPPED_EVENT_TOPIC,
     OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
     OPEN_OCEAN_V1_CONTRACT_ADDRESS,
@@ -135,18 +139,36 @@ export class EventsByTopicScraper {
             );
         }
 
-        if (FEAT_ONEINCH_SWAPPED_EVENT) {
+        if (FEAT_ONEINCH_SWAPPED_V3_EVENT) {
             promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedEvent>(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV3Event>(
                     connection,
                     web3Source,
                     latestBlockWithOffset,
-                    'OneinchSwappedEvent',
-                    OneinchSwappedEvent,
-                    'oneinch_swapped_events',
+                    'OneinchSwappedV3Event',
+                    OneinchSwappedV3Event,
+                    'oneinch_swapped_v3_events',
                     ONEINCH_SWAPPED_EVENT_TOPIC,
                     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
                     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
+                    parseOneinchSwappedEvent,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_ONEINCH_SWAPPED_V4_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV4Event>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'OneinchSwappedV4Event',
+                    OneinchSwappedV4Event,
+                    'oneinch_swapped_v4_events',
+                    ONEINCH_SWAPPED_EVENT_TOPIC,
+                    ONEINCH_ROUTER_V4_CONTRACT_ADDRESS,
+                    ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
                     parseOneinchSwappedEvent,
                     {},
                 ),
