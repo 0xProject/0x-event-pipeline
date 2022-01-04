@@ -12,24 +12,31 @@ export function parsePancakeSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransfe
     // decode the basic info directly into eRC20BridgeTransferEvent
     const decodedLog = abiCoder.decodeLog(SWAP_ABI.inputs, eventLog.data, [eventLog.topics[1], eventLog.topics[2]]);
 
+    const bigZero = new BigNumber(0);
     const amount0In = new BigNumber(decodedLog.amount0In);
     const amount1In = new BigNumber(decodedLog.amount1In);
     const amount0Out = new BigNumber(decodedLog.amount0Out);
     const amount1Out = new BigNumber(decodedLog.amount1Out);
 
-    eRC20BridgeTransferEvent.fromToken = amount0In.gt(amount0Out) ? '0' : '1'; // taker_token
-    eRC20BridgeTransferEvent.toToken = amount0In.gt(amount0Out) ? '1' : '0'; // maker_token
+    if (amount0Out.isEqualTo(bigZero) || amount1Out.isEqualTo(bigZero)) {
+        eRC20BridgeTransferEvent.fromToken = amount0Out.isEqualTo(bigZero) ? '0' : '1';
+        eRC20BridgeTransferEvent.toToken = amount0Out.isEqualTo(bigZero) ? '1' : '0';
+        eRC20BridgeTransferEvent.fromTokenAmount = amount0Out.isEqualTo(bigZero) ? amount0In : amount1In;
+        eRC20BridgeTransferEvent.toTokenAmount = amount0Out.isEqualTo(bigZero) ? amount1Out : amount0Out;
+    } else if (amount0Out.gt(amount0In) || amount1Out.gt(amount1In)) {
+        eRC20BridgeTransferEvent.fromToken = amount0Out.gt(amount0In) ? '1' : '0';
+        eRC20BridgeTransferEvent.toToken = amount0Out.gt(amount0In) ? '0' : '1';
+        eRC20BridgeTransferEvent.fromTokenAmount = amount0Out.gt(amount0In)
+            ? amount1In.minus(amount1Out)
+            : amount0In.minus(amount0Out);
+        eRC20BridgeTransferEvent.toTokenAmount = amount0Out.gt(amount0In) ? amount0Out : amount1Out;
+    } else {
+        eRC20BridgeTransferEvent.fromToken = '0';
+        eRC20BridgeTransferEvent.toToken = '1';
+        eRC20BridgeTransferEvent.fromTokenAmount = bigZero;
+        eRC20BridgeTransferEvent.toTokenAmount = bigZero;
+    }
 
-    eRC20BridgeTransferEvent.fromTokenAmount = new BigNumber(
-        amount0In.gt(amount0Out)
-            ? decodedLog.amount0In - decodedLog.amount0Out
-            : decodedLog.amount1In - decodedLog.amount1Out,
-    ); // taker_token_amount
-    eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(
-        amount0In.gt(amount0Out)
-            ? decodedLog.amount1Out - decodedLog.amount1In
-            : decodedLog.amount0Out - decodedLog.amount0In,
-    ); // maker_token_amount
     eRC20BridgeTransferEvent.from = ''; // maker
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase(); // taker
     eRC20BridgeTransferEvent.directFlag = true;
