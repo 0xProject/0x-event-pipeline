@@ -38,6 +38,8 @@ export const SWAP_V3_EVENT_TOPIC = [
     '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67',
     '0x000000000000000000000000def1c0ded9bec7f1a1670819833240f027b25eff',
 ];
+export const OTC_ORDER_FILLED_EVENT_TOPIC = ['0xac75f773e3a92f1a02b12134d65e1f47f8a14eabe4eaf1e24624918e6a8b269f'];
+export const OTC_ORDERS_FEATURE_START_BLOCK = 13143075;
 
 export {
     EXPIRED_RFQ_ORDER_ABI,
@@ -307,5 +309,55 @@ export const V3_FILL_ABI = {
         },
     ],
     name: 'Fill',
+    type: 'event',
+};
+
+export const OTC_ORDER_FILLED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'makerToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'takerToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'makerTokenFilledAmount',
+            type: 'uint128',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'takerTokenFilledAmount',
+            type: 'uint128',
+        },
+    ],
+    name: 'OtcOrderFilled',
     type: 'event',
 };
