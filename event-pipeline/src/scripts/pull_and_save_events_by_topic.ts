@@ -14,6 +14,7 @@ import {
     FillEvent,
     V4CancelEvent,
     ExpiredRfqOrderEvent,
+    OtcOrderFilledEvent,
 } from '../entities';
 
 import { ETHEREUM_RPC_URL, FIRST_SEARCH_BLOCK } from '../config';
@@ -36,6 +37,8 @@ import {
     NEW_BRIDGEFILL_BLOCK,
     FLASHWALLET_ADDRESS,
     SWAP_V3_EVENT_TOPIC,
+    OTC_ORDER_FILLED_EVENT_TOPIC,
+    OTC_ORDERS_FEATURE_START_BLOCK,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
@@ -54,6 +57,7 @@ import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
 import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
 import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
+import { parseOtcOrderFilledEvent } from '../parsers/events/otc_order_filled_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
@@ -214,6 +218,18 @@ export class EventsByTopicScraper {
                 EXCHANGE_PROXY_ADDRESS,
                 MULTIPLEX_START_BLOCK,
                 parseExpiredRfqOrderEvent,
+                {},
+            ),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OtcOrderFilledEvent>(
+                connection,
+                web3Source,
+                latestBlockWithOffset,
+                'OtcOrderFilledEvent',
+                'otc_order_filled_events',
+                OTC_ORDER_FILLED_EVENT_TOPIC,
+                EXCHANGE_PROXY_ADDRESS,
+                OTC_ORDERS_FEATURE_START_BLOCK,
+                parseOtcOrderFilledEvent,
                 {},
             ),
         ]);

@@ -10,7 +10,7 @@ RUN apk update && \
     apk upgrade && \
     apk add --no-cache --virtual build-dependencies bash git openssh python3 make g++ && \
     yarn --frozen-lockfile --no-cache
-    
+
 RUN yarn build
 
 # Stage 2
