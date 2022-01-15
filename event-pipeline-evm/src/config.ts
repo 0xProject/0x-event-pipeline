@@ -45,6 +45,7 @@ interface Map {
 
 const supportedChains: Map = {
     1: { name: 'Ethereum' },
+    10: { name: 'Optimism' },
     56: { name: 'BSC' },
     137: { name: 'Polygon' },
     250: { name: 'Fantom' },
