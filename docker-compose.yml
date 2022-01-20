@@ -92,6 +92,31 @@ services:
             MAX_BLOCKS_TO_PULL: 2000
             MINUTES_BETWEEN_RUNS: 1
 
+    event-pipeline-optimism:
+        depends_on:
+            - postgres
+        build:
+            context: event-pipeline-evm
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_OPTIMISM}'
+            CHAIN_ID: '10'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events_optimism'
+            EP_DEPLOYMENT_BLOCK: 1691335
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
+            SECONDS_BETWEEN_RUNS: 30
+            EP_ADDRESS: "0xDEF1ABE32c034e558Cdd535791643C58a13aCC10"
+            # FEAT_ONEINCH_SWAPPED_EVENT: "true"
+            # ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 14500000
+            # FEAT_SLINGSHOT_TRADE_EVENT: "true"
+            # SLINGSHOT_DEPLOYMENT_BLOCK: 14500000
+            # FEAT_PARASWAP_SWAPPED_EVENT: "true"
+            # PARASWAP_DEPLOYMENT_BLOCK: 14500000
+            # PARASWAP_CONTRACT_ADDRESS: "0x90249ed4d69D70E709fFCd8beE2c5A566f65dADE"
+
     staking-api:
         depends_on:
             - event-pipeline
