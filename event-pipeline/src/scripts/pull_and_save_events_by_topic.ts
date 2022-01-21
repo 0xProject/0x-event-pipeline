@@ -57,7 +57,10 @@ import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
 import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
 import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
-import { parseOtcOrderFilledEvent } from '../parsers/events/otc_order_filled_events';
+import {
+    parseOtcOrderFilledEvent,
+    parseNativeFillFromV4OtcOrderFilledEvent,
+} from '../parsers/events/otc_order_filled_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
@@ -135,6 +138,18 @@ export class EventsByTopicScraper {
                 V4_FILL_START_BLOCK,
                 parseV4RfqOrderFilledEvent,
                 {},
+            ),
+            pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
+                connection,
+                web3Source,
+                latestBlockWithOffset,
+                'NativeFillFromOTC',
+                'native_fills',
+                OTC_ORDER_FILLED_EVENT_TOPIC,
+                EXCHANGE_PROXY_ADDRESS,
+                OTC_ORDERS_FEATURE_START_BLOCK,
+                parseNativeFillFromV4OtcOrderFilledEvent,
+                { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
             ),
             pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                 connection,
