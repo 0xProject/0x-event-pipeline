@@ -15,12 +15,12 @@ import { createStakingRouter } from './router';
 import { QueryRunner } from './query_runner';
 import { DEFAULT_CACHE_AGE_SECONDS } from './constants';
 
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err: any) => {
     logger.error(err);
     process.exit(1);
 });
 
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err: any) => {
     if (err) {
         logger.error(err);
     }
