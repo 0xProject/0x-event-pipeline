@@ -64,7 +64,7 @@ async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
         logger.child({ retry: i, fromBlock, toBlock }).info(`Retry ${i}: ${fromBlock}-${toBlock}`);
         try {
             eventsInRange = await getEventsAsync(fromBlock, toBlock);
-        } catch (err) {
+        } catch (err: any) {
             if (_isErrorRetryable(err) && i < numRetries) {
                 continue;
             } else {
