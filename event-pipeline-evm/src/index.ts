@@ -33,7 +33,7 @@ chainIdChecker.checkChainId(CHAIN_ID);
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
-    .then(async (connection) => {
+    .then(async connection => {
         schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, eventScraper.getParseSaveEventsAsync, 'Pull and Save Events');
         schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
@@ -45,7 +45,7 @@ createConnection(ormConfig as ConnectionOptions)
             });
         }
     })
-    .catch((error) => console.log(error));
+    .catch(error => console.log(error));
 
 async function schedule(connection: any, func: any, funcName: string) {
     const start = new Date().getTime();

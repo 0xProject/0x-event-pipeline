@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const downQuery = `
 DROP SCHEMA events_optimism CASCADE;
@@ -203,7 +203,6 @@ create index native_fills_maker_index
 `;
 
 export class InitializeOptimism1642110865201 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(upQuery);
     }
@@ -211,5 +210,4 @@ export class InitializeOptimism1642110865201 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(downQuery);
     }
-
 }
