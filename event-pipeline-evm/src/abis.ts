@@ -596,3 +596,53 @@ export const OPEN_OCEAN_SWAPPED_V1_ABI = {
     name: 'Swapped',
     type: 'event',
 };
+
+export const OTC_ORDER_FILLED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'makerToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'takerToken',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'makerTokenFilledAmount',
+            type: 'uint128',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'takerTokenFilledAmount',
+            type: 'uint128',
+        },
+    ],
+    name: 'OtcOrderFilled',
+    type: 'event',
+};

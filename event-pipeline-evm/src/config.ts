@@ -10,6 +10,7 @@ import {
     DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
     DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
+    DEFAULT_FEAT_OTC_ORDERS,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
     DEFAULT_FEAT_PLP_SWAP_EVENT,
@@ -45,6 +46,7 @@ interface Map {
 
 const supportedChains: Map = {
     1: { name: 'Ethereum' },
+    3: { name: 'Ropsten' },
     10: { name: 'Optimism' },
     56: { name: 'BSC' },
     137: { name: 'Polygon' },
@@ -74,7 +76,7 @@ const bridgeContracts = [
 // <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
 function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     const contracts = envVar.split('|');
-    const bridgeContracts = contracts.map(element => {
+    const bridgeContracts = contracts.map((element) => {
         const split = element.split('-');
         return { contract: split[0], startingBlock: Number(split[1]) };
     });
@@ -111,11 +113,7 @@ export const MAX_BLOCKS_TO_SEARCH = getIntConfig('MAX_BLOCKS_TO_SEARCH', DEFAULT
 export const CHAIN_ID = process.env.CHAIN_ID
     ? parseInt(process.env.CHAIN_ID, 10)
     : throwError(`Must specify valid CHAIN_ID. Got: ${process.env.CHAIN_ID}`);
-if (
-    !Object.keys(supportedChains)
-        .map(Number)
-        .includes(CHAIN_ID)
-) {
+if (!Object.keys(supportedChains).map(Number).includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
 }
 
@@ -294,9 +292,9 @@ export const FEAT_RFQ_EVENT = getBoolConfig('FEAT_RFQ_EVENT', DEFAULT_FEAT_RFQ_E
 
 export const FEAT_LIMIT_ORDERS = getBoolConfig('FEAT_LIMIT_ORDERS', DEFAULT_FEAT_LIMIT_ORDERS);
 
-export const V4_FILL_START_BLOCK = getIntConfig('V4_FILL_START_BLOCK', -1);
-validateStartBlock('V4_FILL_START_BLOCK', V4_FILL_START_BLOCK, 'FEAT_RFQ_EVENT', FEAT_RFQ_EVENT);
-validateStartBlock('V4_FILL_START_BLOCK', V4_FILL_START_BLOCK, 'FEAT_LIMIT_ORDERS', FEAT_LIMIT_ORDERS);
+export const V4_NATIVE_FILL_START_BLOCK = getIntConfig('V4_NATIVE_FILL_START_BLOCK', -1);
+validateStartBlock('V4_NATIVE_FILL_START_BLOCK', V4_NATIVE_FILL_START_BLOCK, 'FEAT_RFQ_EVENT', FEAT_RFQ_EVENT);
+validateStartBlock('V4_NATIVE_FILL_START_BLOCK', V4_NATIVE_FILL_START_BLOCK, 'FEAT_LIMIT_ORDERS', FEAT_LIMIT_ORDERS);
 
 export const FEAT_PLP_SWAP_EVENT = getBoolConfig('FEAT_PLP_SWAP_EVENT', DEFAULT_FEAT_PLP_SWAP_EVENT);
 
@@ -304,10 +302,6 @@ export const PLP_VIP_START_BLOCK = getIntConfig('PLP_VIP_START_BLOCK', -1);
 validateStartBlock('PLP_VIP_START_BLOCK', PLP_VIP_START_BLOCK, 'FEAT_PLP_SWAP_EVENT', FEAT_PLP_SWAP_EVENT);
 
 export const FEAT_V3_NATIVE_FILL = getBoolConfig('FEAT_V3_NATIVE_FILL', DEFAULT_FEAT_V3_NATIVE_FILL);
-
-export const V4_CANCEL_START_BLOCK = getIntConfig('V4_CANCEL_START_BLOCK', -1);
-validateStartBlock('V4_CANCEL_START_BLOCK', V4_CANCEL_START_BLOCK, 'FEAT_RFQ_EVENT', FEAT_RFQ_EVENT);
-validateStartBlock('V4_CANCEL_START_BLOCK', V4_CANCEL_START_BLOCK, 'FEAT_LIMIT_ORDERS', FEAT_LIMIT_ORDERS);
 
 export const FEAT_UNISWAP_V3_VIP_SWAP_EVENT = getBoolConfig(
     'FEAT_UNISWAP_V3_VIP_SWAP_EVENT',
@@ -318,9 +312,21 @@ export const RFQ_EXPIRY_START_BLOCK = process.env.RFQ_EXPIRY_START_BLOCK
     : EP_DEPLOYMENT_BLOCK;
 
 if (EP_DEPLOYMENT_BLOCK === RFQ_EXPIRY_START_BLOCK && !process.env.RFQ_EXPIRY_START_BLOCK && FEAT_RFQ_EVENT) {
-    logger.warn('Using EP_DEPLOYMENT_BLOCK as RFQ_EXPIRY_START_BLOCK because no RFQ_EXPIRY_START_BLOCK was provided');
+    logger.warn(
+        'Using V4_NATIVE_FILL_START_BLOCK as RFQ_EXPIRY_START_BLOCK because no RFQ_EXPIRY_START_BLOCK was provided',
+    );
 }
 export const FEAT_V3_FILL_EVENT = getBoolConfig('FEAT_V3_FILL_EVENT', DEFAULT_FEAT_V3_FILL_EVENT);
+
+export const FEAT_OTC_ORDERS = getBoolConfig('FEAT_OTC_ORDERS', DEFAULT_FEAT_OTC_ORDERS);
+
+export const OTC_ORDERS_FEATURE_START_BLOCK = getIntConfig('OTC_ORDERS_FEATURE_START_BLOCK', -1);
+validateStartBlock(
+    'OTC_ORDERS_FEATURE_START_BLOCK',
+    OTC_ORDERS_FEATURE_START_BLOCK,
+    'FEAT_OTC_ORDERS',
+    FEAT_OTC_ORDERS,
+);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {

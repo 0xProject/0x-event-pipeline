@@ -32,6 +32,7 @@ export { EpochFinalizedEvent } from './epoch_finalized_event';
 export { RewardsPaidEvent } from './rewards_paid_event';
 export { StakingProxyDeployment } from './staking_proxy_deployment';
 export { TransactionExecutionEvent } from './transaction_execution_event';
+export { OtcOrderFilledEvent } from './otc_order_filled_event';
 
 @Entity({ name: 'blocks', schema: 'events' })
 export class Block extends BlockTemplate {}
