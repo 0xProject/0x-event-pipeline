@@ -12,6 +12,7 @@ import {
     OneinchSwappedV3Event,
     OneinchSwappedV4Event,
     OpenOceanSwappedV1Event,
+    OtcOrderFilledEvent,
     ParaswapSwappedV4Event,
     ParaswapSwappedV5Event,
     SlingshotTradeEvent,
@@ -30,6 +31,7 @@ import {
     FEAT_ONEINCH_SWAPPED_V3_EVENT,
     FEAT_ONEINCH_SWAPPED_V4_EVENT,
     FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
+    FEAT_OTC_ORDERS,
     FEAT_PARASWAP_SWAPPED_V4_EVENT,
     FEAT_PARASWAP_SWAPPED_V5_EVENT,
     FEAT_PLP_SWAP_EVENT,
@@ -45,6 +47,7 @@ import {
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
     ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
     OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
+    OTC_ORDERS_FEATURE_START_BLOCK,
     PARASWAP_V4_CONTRACT_ADDRESS,
     PARASWAP_V4_DEPLOYMENT_BLOCK,
     PARASWAP_V5_CONTRACT_ADDRESS,
@@ -53,8 +56,7 @@ import {
     RFQ_EXPIRY_START_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
     TIMECHAIN_V1_DEPLOYMENT_BLOCK,
-    V4_CANCEL_START_BLOCK,
-    V4_FILL_START_BLOCK,
+    V4_NATIVE_FILL_START_BLOCK,
     VIP_SWAP_SOURCES,
 } from '../config';
 import {
@@ -66,6 +68,7 @@ import {
     ONEINCH_SWAPPED_EVENT_TOPIC,
     OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
     OPEN_OCEAN_V1_CONTRACT_ADDRESS,
+    OTC_ORDER_FILLED_EVENT_TOPIC,
     PARASWAP_SWAPPED_V4_EVENT_TOPIC,
     PARASWAP_SWAPPED_V5_EVENT_TOPIC,
     RFQORDERFILLED_EVENT_TOPIC,
@@ -101,7 +104,11 @@ import { parseFillEvent } from '../parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
 import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
 import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
-import { parsePancakeSwapEvent } from '../parsers/events/swap_events';
+import {
+    parseNativeFillFromV4OtcOrderFilledEvent,
+    parseOtcOrderFilledEvent,
+} from '../parsers/events/otc_order_filled_events';
+import { parseUniswapV2SwapEvent } from '../parsers/events/swap_events';
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
@@ -109,6 +116,7 @@ const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
 });
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+
 const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 
 export class EventsByTopicScraper {
@@ -187,7 +195,7 @@ export class EventsByTopicScraper {
                     SWAP_EVENT_TOPIC,
                     'nofilter',
                     EP_DEPLOYMENT_BLOCK,
-                    parsePancakeSwapEvent,
+                    parseUniswapV2SwapEvent,
                     { isDirectTrade: true, directProtocol: VIP_SWAP_SOURCES },
                 ),
             );
@@ -329,7 +337,7 @@ export class EventsByTopicScraper {
                     'v4_rfq_order_filled_events',
                     RFQORDERFILLED_EVENT_TOPIC,
                     EP_ADDRESS,
-                    V4_FILL_START_BLOCK,
+                    V4_NATIVE_FILL_START_BLOCK,
                     parseV4RfqOrderFilledEvent,
                     {},
                 ),
@@ -345,7 +353,7 @@ export class EventsByTopicScraper {
                     'native_fills',
                     RFQORDERFILLED_EVENT_TOPIC,
                     EP_ADDRESS,
-                    V4_FILL_START_BLOCK,
+                    V4_NATIVE_FILL_START_BLOCK,
                     parseNativeFillFromV4RfqOrderFilledEvent,
                     { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
                 ),
@@ -378,7 +386,7 @@ export class EventsByTopicScraper {
                     'v4_limit_order_filled_events',
                     LIMITORDERFILLED_EVENT_TOPIC,
                     EP_ADDRESS,
-                    V4_FILL_START_BLOCK,
+                    V4_NATIVE_FILL_START_BLOCK,
                     parseV4LimitOrderFilledEvent,
                     {},
                 ),
@@ -393,7 +401,7 @@ export class EventsByTopicScraper {
                     'native_fills',
                     LIMITORDERFILLED_EVENT_TOPIC,
                     EP_ADDRESS,
-                    V4_FILL_START_BLOCK,
+                    V4_NATIVE_FILL_START_BLOCK,
                     parseNativeFillFromV4LimitOrderFilledEvent,
                     { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
                 ),
@@ -411,9 +419,42 @@ export class EventsByTopicScraper {
                     'v4_cancel_events',
                     V4_CANCEL_EVENT_TOPIC,
                     EP_ADDRESS,
-                    V4_CANCEL_START_BLOCK,
+                    V4_NATIVE_FILL_START_BLOCK,
                     parseV4CancelEvent,
                     {},
+                ),
+            );
+        }
+
+        if (FEAT_OTC_ORDERS) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OtcOrderFilledEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'OtcOrderFilledEvent',
+                    OtcOrderFilledEvent,
+                    'otc_order_filled_events',
+                    OTC_ORDER_FILLED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    OTC_ORDERS_FEATURE_START_BLOCK,
+                    parseOtcOrderFilledEvent,
+                    {},
+                ),
+            );
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'NativeFillFromOTC',
+                    NativeFill,
+                    'native_fills',
+                    OTC_ORDER_FILLED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    OTC_ORDERS_FEATURE_START_BLOCK,
+                    parseNativeFillFromV4OtcOrderFilledEvent,
+                    { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
                 ),
             );
         }

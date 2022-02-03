@@ -15,6 +15,7 @@ export { NativeFill } from './native_fill';
 export { OneinchSwappedV3Event, OneinchSwappedV4Event } from './oneinch_swapped_event';
 export { OperatorShareDecreasedEvent } from './operator_share_decreased_event';
 export { OpenOceanSwappedV1Event } from './open_ocean_swapped_v1_event';
+export { OtcOrderFilledEvent } from './otc_order_filled_event';
 export { ParamsSetEvent } from './params_set_event';
 export { ParaswapSwappedV4Event } from './paraswap_swapped_v4_event';
 export { ParaswapSwappedV5Event } from './paraswap_swapped_v5_event';
