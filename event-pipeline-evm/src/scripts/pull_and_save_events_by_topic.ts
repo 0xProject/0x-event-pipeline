@@ -6,6 +6,12 @@ import { calculateEndBlockAsync } from './utils/shared_utils';
 
 import {
     ERC20BridgeTransferEvent,
+    Erc1155OrderCancelledEvent,
+    Erc1155OrderFilledEvent,
+    Erc1155OrderPresignedEvent,
+    Erc721OrderCancelledEvent,
+    Erc721OrderFilledEvent,
+    Erc721OrderPresignedEvent,
     ExpiredRfqOrderEvent,
     FillEvent,
     NativeFill,
@@ -28,6 +34,7 @@ import {
     EP_DEPLOYMENT_BLOCK,
     ETHEREUM_RPC_URL,
     FEAT_LIMIT_ORDERS,
+    FEAT_NFT,
     FEAT_ONEINCH_SWAPPED_V3_EVENT,
     FEAT_ONEINCH_SWAPPED_V4_EVENT,
     FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
@@ -44,6 +51,7 @@ import {
     FEAT_V3_NATIVE_FILL,
     FEAT_VIP_SWAP_EVENT,
     FIRST_SEARCH_BLOCK,
+    NFT_FEATURE_START_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
     ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
     OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
@@ -60,6 +68,12 @@ import {
     VIP_SWAP_SOURCES,
 } from '../config';
 import {
+    ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
+    ERC1155_ORDER_FILLED_EVENT_TOPIC,
+    ERC1155_ORDER_PRESIGNED_EVENT_TOPIC,
+    ERC721_ORDER_CANCELLED_EVENT_TOPIC,
+    ERC721_ORDER_FILLED_EVENT_TOPIC,
+    ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     LIMITORDERFILLED_EVENT_TOPIC,
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
@@ -109,6 +123,15 @@ import {
     parseOtcOrderFilledEvent,
 } from '../parsers/events/otc_order_filled_events';
 import { parseUniswapV2SwapEvent } from '../parsers/events/swap_events';
+import {
+    parseErc1155OrderCancelledEvent,
+    parseErc1155OrderFilledEvent,
+    parseErc1155OrderPresignedEvent,
+    parseErc721OrderCancelledEvent,
+    parseErc721OrderFilledEvent,
+    parseErc721OrderPresignedEvent,
+} from '../parsers/events/nft_events';
+
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
@@ -491,6 +514,99 @@ export class EventsByTopicScraper {
                     FIRST_SEARCH_BLOCK,
                     parseNativeFillFromFillEvent,
                     { protocolVersion: 'v3' },
+                ),
+            );
+        }
+
+        if (FEAT_NFT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderFilledEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'Erc721OrderFilledEvent',
+                    Erc721OrderFilledEvent,
+                    'erc721_order_filled_events',
+                    ERC721_ORDER_FILLED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    NFT_FEATURE_START_BLOCK,
+                    parseErc721OrderFilledEvent,
+                    {},
+                ),
+            );
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderCancelledEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'Erc721OrderCancelledEvent',
+                    Erc721OrderCancelledEvent,
+                    'erc721_order_cancelled_events',
+                    ERC721_ORDER_CANCELLED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    NFT_FEATURE_START_BLOCK,
+                    parseErc721OrderCancelledEvent,
+                    {},
+                ),
+            );
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderPresignedEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'Erc721OrderPresignedEvent',
+                    Erc721OrderPresignedEvent,
+                    'erc721_order_presigned_events',
+                    ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    NFT_FEATURE_START_BLOCK,
+                    parseErc721OrderPresignedEvent,
+                    {},
+                ),
+            );
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderFilledEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'Erc1155OrderFilledEvent',
+                    Erc1155OrderFilledEvent,
+                    'erc1155_order_filled_events',
+                    ERC1155_ORDER_FILLED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    NFT_FEATURE_START_BLOCK,
+                    parseErc1155OrderFilledEvent,
+                    {},
+                ),
+            );
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderCancelledEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'Erc1155OrderCancelledEvent',
+                    Erc1155OrderCancelledEvent,
+                    'erc1155_order_cancelled_events',
+                    ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    NFT_FEATURE_START_BLOCK,
+                    parseErc1155OrderCancelledEvent,
+                    {},
+                ),
+            );
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderPresignedEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'Erc1155OrderPresignedEvent',
+                    Erc1155OrderPresignedEvent,
+                    'erc1155_order_presigned_events',
+                    ERC1155_ORDER_PRESIGNED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    NFT_FEATURE_START_BLOCK,
+                    parseErc1155OrderPresignedEvent,
+                    {},
                 ),
             );
         }

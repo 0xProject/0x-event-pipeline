@@ -7,6 +7,7 @@ import {
     DEFAULT_EP_ADDRESS,
     DEFAULT_FEAT_CANCEL_EVENTS,
     DEFAULT_FEAT_LIMIT_ORDERS,
+    DEFAULT_FEAT_NFT,
     DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
     DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
@@ -327,6 +328,11 @@ validateStartBlock(
     'FEAT_OTC_ORDERS',
     FEAT_OTC_ORDERS,
 );
+
+export const FEAT_NFT = getBoolConfig('FEAT_NFT', DEFAULT_FEAT_NFT);
+
+export const NFT_FEATURE_START_BLOCK = getIntConfig('NFT_FEATURE_START_BLOCK', -1);
+validateStartBlock('NFT_FEATURE_START_BLOCK', NFT_FEATURE_START_BLOCK, 'FEAT_NFT', FEAT_NFT);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
