@@ -140,6 +140,9 @@ services:
             V4_NATIVE_FILL_START_BLOCK: 10125228
             FEAT_OTC_ORDERS: "true"
             OTC_ORDERS_FEATURE_START_BLOCK: 10857214
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 11849825
+
 
     staking-api:
         depends_on:

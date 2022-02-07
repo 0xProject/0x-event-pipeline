@@ -646,3 +646,385 @@ export const OTC_ORDER_FILLED_ABI = {
     name: 'OtcOrderFilled',
     type: 'event',
 };
+
+export const ERC721_ORDER_FILLED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'enum LibNFTOrder.TradeDirection',
+            name: 'direction',
+            type: 'uint8',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'nonce',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC20TokenV06',
+            name: 'erc20Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc20TokenAmount',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC721Token',
+            name: 'erc721Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc721TokenId',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'matcher',
+            type: 'address',
+        },
+    ],
+    name: 'ERC721OrderFilled',
+    type: 'event',
+};
+
+export const ERC721_ORDER_CANCELLED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'nonce',
+            type: 'uint256',
+        },
+    ],
+    name: 'ERC721OrderCancelled',
+    type: 'event',
+};
+
+export const ERC721_ORDER_PRESIGNED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'enum LibNFTOrder.TradeDirection',
+            name: 'direction',
+            type: 'uint8',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'expiry',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'nonce',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC20TokenV06',
+            name: 'erc20Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc20TokenAmount',
+            type: 'uint256',
+        },
+        {
+            components: [
+                {
+                    internalType: 'address',
+                    name: 'recipient',
+                    type: 'address',
+                },
+                {
+                    internalType: 'uint256',
+                    name: 'amount',
+                    type: 'uint256',
+                },
+                {
+                    internalType: 'bytes',
+                    name: 'feeData',
+                    type: 'bytes',
+                },
+            ],
+            indexed: false,
+            internalType: 'struct LibNFTOrder.Fee[]',
+            name: 'fees',
+            type: 'tuple[]',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC721Token',
+            name: 'erc721Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc721TokenId',
+            type: 'uint256',
+        },
+        {
+            components: [
+                {
+                    internalType: 'contract IPropertyValidator',
+                    name: 'propertyValidator',
+                    type: 'address',
+                },
+                {
+                    internalType: 'bytes',
+                    name: 'propertyData',
+                    type: 'bytes',
+                },
+            ],
+            indexed: false,
+            internalType: 'struct LibNFTOrder.Property[]',
+            name: 'erc721TokenProperties',
+            type: 'tuple[]',
+        },
+    ],
+    name: 'ERC721OrderPreSigned',
+    type: 'event',
+};
+
+export const ERC1155_ORDER_FILLED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'enum LibNFTOrder.TradeDirection',
+            name: 'direction',
+            type: 'uint8',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'nonce',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC20TokenV06',
+            name: 'erc20Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc20FillAmount',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC1155Token',
+            name: 'erc1155Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc1155TokenId',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'erc1155FillAmount',
+            type: 'uint128',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'matcher',
+            type: 'address',
+        },
+    ],
+    name: 'ERC1155OrderFilled',
+    type: 'event',
+};
+
+export const ERC1155_ORDER_CANCELLED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'orderHash',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+    ],
+    name: 'ERC1155OrderCancelled',
+    type: 'event',
+};
+
+export const ERC1155_ORDER_PRESIGNED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'enum LibNFTOrder.TradeDirection',
+            name: 'direction',
+            type: 'uint8',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'maker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'taker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'expiry',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'nonce',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC20TokenV06',
+            name: 'erc20Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc20TokenAmount',
+            type: 'uint256',
+        },
+        {
+            components: [
+                {
+                    internalType: 'address',
+                    name: 'recipient',
+                    type: 'address',
+                },
+                {
+                    internalType: 'uint256',
+                    name: 'amount',
+                    type: 'uint256',
+                },
+                {
+                    internalType: 'bytes',
+                    name: 'feeData',
+                    type: 'bytes',
+                },
+            ],
+            indexed: false,
+            internalType: 'struct LibNFTOrder.Fee[]',
+            name: 'fees',
+            type: 'tuple[]',
+        },
+        {
+            indexed: false,
+            internalType: 'contract IERC1155Token',
+            name: 'erc1155Token',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'erc1155TokenId',
+            type: 'uint256',
+        },
+        {
+            components: [
+                {
+                    internalType: 'contract IPropertyValidator',
+                    name: 'propertyValidator',
+                    type: 'address',
+                },
+                {
+                    internalType: 'bytes',
+                    name: 'propertyData',
+                    type: 'bytes',
+                },
+            ],
+            indexed: false,
+            internalType: 'struct LibNFTOrder.Property[]',
+            name: 'erc1155TokenProperties',
+            type: 'tuple[]',
+        },
+        {
+            indexed: false,
+            internalType: 'uint128',
+            name: 'erc1155TokenAmount',
+            type: 'uint128',
+        },
+    ],
+    name: 'ERC1155OrderPreSigned',
+    type: 'event',
+};
