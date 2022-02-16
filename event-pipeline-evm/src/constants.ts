@@ -2,6 +2,7 @@ export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/
 export const DEFAULT_START_BLOCK_OFFSET = 35;
 export const DEFAULT_MAX_BLOCKS_TO_PULL = 120;
 export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 120;
+export const DEFAULT_MAX_TX_TO_PULL = 2000;
 export const DEFAULT_BLOCK_FINALITY_THRESHOLD = 0;
 export const DEFAULT_MINUTES_BETWEEN_RUNS = 3;
 export const DEFAULT_STAKING_POOLS_JSON_URL =

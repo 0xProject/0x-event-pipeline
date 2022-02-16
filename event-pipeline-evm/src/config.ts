@@ -28,6 +28,7 @@ import {
     DEFAULT_MAX_BLOCKS_TO_PULL,
     DEFAULT_MAX_BLOCKS_TO_SEARCH,
     DEFAULT_MAX_TIME_TO_SEARCH,
+    DEFAULT_MAX_TX_TO_PULL,
     DEFAULT_METRICS_PATH,
     DEFAULT_MINUTES_BETWEEN_RUNS,
     DEFAULT_PROMETHEUS_PORT,
@@ -77,7 +78,7 @@ const bridgeContracts = [
 // <contractAddress>-<deployedBlockNumber>|<contractAddress>-<deployedBlockNumber>...
 function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     const contracts = envVar.split('|');
-    const bridgeContracts = contracts.map(element => {
+    const bridgeContracts = contracts.map((element) => {
         const split = element.split('-');
         return { contract: split[0], startingBlock: Number(split[1]) };
     });
@@ -111,14 +112,12 @@ export const MAX_BLOCKS_TO_PULL = getIntConfig('MAX_BLOCKS_TO_PULL', DEFAULT_MAX
 
 export const MAX_BLOCKS_TO_SEARCH = getIntConfig('MAX_BLOCKS_TO_SEARCH', DEFAULT_MAX_BLOCKS_TO_SEARCH);
 
+export const MAX_TX_TO_PULL = getIntConfig('MAX_TX_TO_PULL', DEFAULT_MAX_TX_TO_PULL);
+
 export const CHAIN_ID = process.env.CHAIN_ID
     ? parseInt(process.env.CHAIN_ID, 10)
     : throwError(`Must specify valid CHAIN_ID. Got: ${process.env.CHAIN_ID}`);
-if (
-    !Object.keys(supportedChains)
-        .map(Number)
-        .includes(CHAIN_ID)
-) {
+if (!Object.keys(supportedChains).map(Number).includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
 }
 
@@ -169,6 +168,9 @@ if (STAKING_DEPLOYMENT_BLOCK === -1 && FEAT_STAKING) {
     );
 }
 
+/*
+ * Staking is paused for now, and this scraper only scans a specific tx, so it it requires manually changing STAKING_PROXY_DEPLOYMENT_TRANSACTION when there is a new deployment
+ *
 export const STAKING_PROXY_DEPLOYMENT_TRANSACTION = process.env.STAKING_PROXY_DEPLOYMENT_TRANSACTION
     ? process.env.STAKING_PROXY_DEPLOYMENT_TRANSACTION
     : null;
@@ -177,6 +179,7 @@ if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
         `The Staking scraper is enabled, but no STAKING_PROXY_DEPLOYMENT_TRANSACTION was provided. Please include STAKING_PROXY_DEPLOYMENT_TRANSACTION or disable the feature`,
     );
 }
+*/
 
 export const FEAT_TIMECHAIN_SWAP_V1_EVENT = getBoolConfig(
     'FEAT_TIMECHAIN_SWAP_V1_EVENT',
@@ -312,15 +315,7 @@ export const FEAT_UNISWAP_V3_VIP_SWAP_EVENT = getBoolConfig(
     'FEAT_UNISWAP_V3_VIP_SWAP_EVENT',
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
 );
-export const RFQ_EXPIRY_START_BLOCK = process.env.RFQ_EXPIRY_START_BLOCK
-    ? parseInt(process.env.RFQ_EXPIRY_START_BLOCK, 10)
-    : EP_DEPLOYMENT_BLOCK;
 
-if (EP_DEPLOYMENT_BLOCK === RFQ_EXPIRY_START_BLOCK && !process.env.RFQ_EXPIRY_START_BLOCK && FEAT_RFQ_EVENT) {
-    logger.warn(
-        'Using V4_NATIVE_FILL_START_BLOCK as RFQ_EXPIRY_START_BLOCK because no RFQ_EXPIRY_START_BLOCK was provided',
-    );
-}
 export const FEAT_V3_FILL_EVENT = getBoolConfig('FEAT_V3_FILL_EVENT', DEFAULT_FEAT_V3_FILL_EVENT);
 
 export const FEAT_OTC_ORDERS = getBoolConfig('FEAT_OTC_ORDERS', DEFAULT_FEAT_OTC_ORDERS);
