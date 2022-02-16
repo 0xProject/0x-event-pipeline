@@ -30,9 +30,9 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
-        //schedule(null, currentBlockMonitor.monitor, 'Current Block');
+        schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, eventScraper.getParseSaveEventsAsync, 'Pull and Save Events');
-        //schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+        schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
     })
     .catch((error) => console.log(error));
 
