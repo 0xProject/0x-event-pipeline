@@ -13,8 +13,10 @@ import { RawLogEntry } from 'ethereum-types';
 
 import {
     BRIDGEFILL_EVENT_TOPIC,
+    FEAT_NFT,
     FIRST_SEARCH_BLOCK,
     MAX_BLOCKS_TO_PULL,
+    MAX_TX_TO_PULL,
     SCHEMA,
     START_BLOCK_OFFSET,
 } from '../../config';
@@ -44,8 +46,8 @@ export class PullAndSaveWeb3 {
         logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         logger.debug('rawBlocks:');
-        rawBlocks.map(rawBlock => logger.debug(rawBlock));
-        const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
+        rawBlocks.map((rawBlock) => logger.debug(rawBlock));
+        const parsedBlocks = rawBlocks.map((rawBlock) => parseBlock(rawBlock));
 
         SCAN_RESULTS.labels({ type: 'blocks' }).set(parsedBlocks.length);
         logger.info(`saving ${parsedBlocks.length} blocks`);
@@ -66,11 +68,11 @@ export class PullAndSaveWeb3 {
             shouldLookForBridgeTrades,
         );
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
-        const foundTxs = rawTx.filter(rawTxn => rawTxn);
-        const parsedTx = foundTxs.map(rawTxn => parseTransaction(rawTxn));
+        const foundTxs = rawTx.filter((rawTxn) => rawTxn);
+        const parsedTx = foundTxs.map((rawTxn) => parseTransaction(rawTxn));
 
-        const foundHashes = foundTxs.map(rawTxn => rawTxn.hash);
-        const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
+        const foundHashes = foundTxs.map((rawTxn) => rawTxn.hash);
+        const missingHashes = hashes.filter((hash) => !foundHashes.includes(hash));
 
         MISSING_TRANSACTIONS.labels({ includeBridgeTrades: shouldLookForBridgeTrades.toString() }).set(
             missingHashes.length,
@@ -85,7 +87,7 @@ export class PullAndSaveWeb3 {
         logger.info(`saving ${parsedTx.length} tx`);
 
         if (parsedTx.length > 0) {
-            const blockNumbers = parsedTx.map(tx => tx.blockNumber);
+            const blockNumbers = parsedTx.map((tx) => tx.blockNumber);
             const minBlock = Math.min(...blockNumbers);
             const maxBlock = Math.max(...blockNumbers);
             SCAN_START_BLOCK.labels({
@@ -117,13 +119,13 @@ export class PullAndSaveWeb3 {
         logger.debug('Hashes to scan:');
         logger.debug(hashes);
         const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
-        const foundTxReceipts = rawTxReceipts.filter(rawTxReceipt => rawTxReceipt);
+        const foundTxReceipts = rawTxReceipts.filter((rawTxReceipt) => rawTxReceipt);
 
-        const parsedReceipts = foundTxReceipts.map(rawTxReceipt => parseTransactionReceipt(rawTxReceipt));
-        const parsedTxLogs = foundTxReceipts.map(rawTxReceipt => parseTransactionLogs(rawTxReceipt));
+        const parsedReceipts = foundTxReceipts.map((rawTxReceipt) => parseTransactionReceipt(rawTxReceipt));
+        const parsedTxLogs = foundTxReceipts.map((rawTxReceipt) => parseTransactionLogs(rawTxReceipt));
 
-        const foundHashes = foundTxReceipts.map(rawTxReceipt => rawTxReceipt.transactionHash);
-        const missingHashes = hashes.filter(hash => !foundHashes.includes(hash));
+        const foundHashes = foundTxReceipts.map((rawTxReceipt) => rawTxReceipt.transactionHash);
+        const missingHashes = hashes.filter((hash) => !foundHashes.includes(hash));
 
         if (missingHashes.length > 0) {
             logger.child({ missingHashesReceiptCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
@@ -132,7 +134,7 @@ export class PullAndSaveWeb3 {
         let parsedBridgeTrades: ERC20BridgeTransferEvent[];
 
         if (shouldLookForBridgeTrades) {
-            const parsedBridgeTradesNested = foundTxReceipts.map(rawTxReceipt =>
+            const parsedBridgeTradesNested = foundTxReceipts.map((rawTxReceipt) =>
                 rawTxReceipt.logs.map((l: RawLogEntry) => {
                     if (l.topics[0] === BRIDGEFILL_EVENT_TOPIC[0]) {
                         return parseBridgeFill(l);
@@ -169,7 +171,7 @@ export class PullAndSaveWeb3 {
         logger.info(`saving ${parsedTxLogs.length} tx logs`);
 
         if (parsedReceipts.length > 0) {
-            const blockNumbers = parsedReceipts.map(tx => tx.blockNumber);
+            const blockNumbers = parsedReceipts.map((tx) => tx.blockNumber);
             const minBlock = Math.min(...blockNumbers);
             const maxBlock = Math.max(...blockNumbers);
             SCAN_START_BLOCK.labels({
@@ -227,7 +229,7 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
 
                         UNION
 
@@ -247,14 +249,15 @@ export class PullAndSaveWeb3 {
                                 )
                             )
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
                     ORDER BY 2
-                    LIMIT 2000
+                    LIMIT ${MAX_TX_TO_PULL}
                 ) a
             ) b;
             `);
         } else {
-            queryResult = await connection.query(`
+            queryResult = await connection.query(
+                `
                 SELECT DISTINCT
                     transaction_hash
                 FROM (
@@ -280,8 +283,10 @@ export class PullAndSaveWeb3 {
                             )
                             AND direct_flag
                         ORDER BY 2
-                        LIMIT 2000)
-
+                        LIMIT ${MAX_TX_TO_PULL})
+                    ` +
+                    (FEAT_NFT
+                        ? `
                         UNION
 
                         (SELECT DISTINCT
@@ -296,7 +301,7 @@ export class PullAndSaveWeb3 {
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
 
                         UNION
 
@@ -312,7 +317,7 @@ export class PullAndSaveWeb3 {
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
 
                         UNION
 
@@ -328,7 +333,7 @@ export class PullAndSaveWeb3 {
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
                         UNION
 
                         (SELECT DISTINCT
@@ -343,7 +348,7 @@ export class PullAndSaveWeb3 {
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
 
                         UNION
 
@@ -359,7 +364,7 @@ export class PullAndSaveWeb3 {
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
                         ORDER BY 2
-                        LIMIT 2000)
+                        LIMIT ${MAX_TX_TO_PULL})
 
                         UNION
 
@@ -375,10 +380,14 @@ export class PullAndSaveWeb3 {
                             -- tx info hasn't been pulled
                             tx.transaction_hash IS NULL
                         ORDER BY 2
-                        LIMIT 2000)
-                ) a
-            ) b;
-            `);
+                        LIMIT ${MAX_TX_TO_PULL})
+                       `
+                        : '') +
+                    `  ) a
+            ) b
+            LIMIT ${MAX_TX_TO_PULL};
+            `,
+            );
         }
 
         const txList = queryResult.map((e: { transaction_hash: string }) => e.transaction_hash);
@@ -422,8 +431,8 @@ export class PullAndSaveWeb3 {
     private async _saveTransactionInfo(connection: Connection, transactions: Transaction[]): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
-        const txHashes = transactions.map(e => e.transactionHash);
-        const txHashList = txHashes.map(e => `'${e}'`).toString();
+        const txHashes = transactions.map((e) => e.transactionHash);
+        const txHashList = txHashes.map((e) => `'${e}'`).toString();
 
         await queryRunner.connect();
 
@@ -457,14 +466,14 @@ export class PullAndSaveWeb3 {
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
-        const txReceiptsHashes = txReceipts.map(e => e.transactionHash);
-        const txReceiptsHashList = txReceiptsHashes.map(e => `'${e}'`).toString();
+        const txReceiptsHashes = txReceipts.map((e) => e.transactionHash);
+        const txReceiptsHashList = txReceiptsHashes.map((e) => `'${e}'`).toString();
 
-        const txLogsHashes = txLogs.map(e => e.transactionHash);
-        const txLogsHashList = txLogsHashes.map(e => `'${e}'`).toString();
+        const txLogsHashes = txLogs.map((e) => e.transactionHash);
+        const txLogsHashList = txLogsHashes.map((e) => `'${e}'`).toString();
 
-        const bridgeTradesHashes = bridgeTrades.map(e => e.transactionHash);
-        const bridgeTradesHashList = bridgeTradesHashes.map(e => `'${e}'`).toString();
+        const bridgeTradesHashes = bridgeTrades.map((e) => e.transactionHash);
+        const bridgeTradesHashList = bridgeTradesHashes.map((e) => `'${e}'`).toString();
 
         logger.debug('Receipts:');
         logger.debug(txReceiptsHashes);

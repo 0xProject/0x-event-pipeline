@@ -14,17 +14,35 @@ services:
         ports:
             - '5432:5432'
         command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
-    event-pipeline:
+    event-pipeline-ethereum:
         depends_on:
             - postgres
         build:
-            context: .
-            dockerfile: event-pipeline/Dockerfile
+            context: event-pipeline-evm
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
-            CHAIN_ID: '${CHAIN_ID}'
+            CHAIN_ID: '1'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events'
+            EP_DEPLOYMENT_BLOCK: 10247094
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
+            MAX_TX_TO_PULL: 1000
+            MINUTES_BETWEEN_RUNS: 1
+            FEAT_VIP_SWAP_EVENT: "true"
+            VIP_SWAP_SOURCES: "Uniswap,UniswapV3,Sushiswap"
+            FEAT_LIMIT_ORDERS: "true"
+            V4_NATIVE_FILL_START_BLOCK: "11591021"
+            FEAT_PLP_SWAP_EVENT: "true"
+            PLP_VIP_START_BLOCK: 11377457
+            FEAT_OTC_ORDERS: "true"
+            OTC_ORDERS_FEATURE_START_BLOCK: 13143075
+            FEAT_CANCEL_EVENTS: "true"
+            FEAT_STAKING: "true"
+            STAKING_DEPLOYMENT_BLOCK: 8952581
+
+
     event-pipeline-bsc:
         depends_on:
             - postgres
@@ -146,7 +164,7 @@ services:
 
     staking-api:
         depends_on:
-            - event-pipeline
+            - event-pipeline-ethereum
         build:
             context: .
             dockerfile: staking-api/Dockerfile
