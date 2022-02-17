@@ -28,6 +28,7 @@ export const DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT = false;
 export const DEFAULT_FEAT_STAKING = false;
 export const DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT = false;
 export const DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT = true;
+export const DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT = false;
 export const DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT = false;
 export const DEFAULT_FEAT_V3_FILL_EVENT = false;
 export const DEFAULT_FEAT_V3_NATIVE_FILL = false;

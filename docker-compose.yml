@@ -30,8 +30,11 @@ services:
             MAX_BLOCKS_TO_PULL: 1000
             MAX_TX_TO_PULL: 1000
             MINUTES_BETWEEN_RUNS: 1
-            FEAT_VIP_SWAP_EVENT: "true"
-            VIP_SWAP_SOURCES: "Uniswap,UniswapV3,Sushiswap"
+            FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
+            UNISWAP_V2_VIP_SWAP_SOURCES: "UniswapV2,Sushiswap"
+            UNISWAP_V2_VIP_SWAP_START_BLOCK: 10917104
+            FEAT_UNISWAP_V3_VIP_SWAP_EVENT: "true"
+            UNISWAP_V3_VIP_START_BLOCK: 12553659
             FEAT_LIMIT_ORDERS: "true"
             V4_NATIVE_FILL_START_BLOCK: "11591021"
             FEAT_PLP_SWAP_EVENT: "true"
@@ -58,8 +61,8 @@ services:
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 5000
             MINUTES_BETWEEN_RUNS: 1
-            FEAT_VIP_SWAP_EVENT: "true"
-            VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap"
+            FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
+            UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap"
             FEAT_ONEINCH_SWAPPED_V3_EVENT: "true"
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 5300000
             FEAT_ONEINCH_SWAPPED_V4_EVENT: "true"

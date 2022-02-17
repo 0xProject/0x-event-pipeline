@@ -46,10 +46,10 @@ import {
     FEAT_SLINGSHOT_TRADE_EVENT,
     FEAT_TIMECHAIN_SWAP_V1_EVENT,
     FEAT_TRANSFORMED_ERC20_EVENT,
+    FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
-    FEAT_VIP_SWAP_EVENT,
     FIRST_SEARCH_BLOCK,
     NFT_FEATURE_START_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
@@ -63,8 +63,9 @@ import {
     PLP_VIP_START_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
     TIMECHAIN_V1_DEPLOYMENT_BLOCK,
+    UNISWAP_V2_VIP_SWAP_SOURCES,
+    UNISWAP_V2_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
-    VIP_SWAP_SOURCES,
 } from '../config';
 import {
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -205,7 +206,7 @@ export class EventsByTopicScraper {
             );
         }
 
-        if (FEAT_VIP_SWAP_EVENT) {
+        if (FEAT_UNISWAP_V2_VIP_SWAP_EVENT) {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
                     connection,
@@ -216,9 +217,9 @@ export class EventsByTopicScraper {
                     'erc20_bridge_transfer_events',
                     SWAP_EVENT_TOPIC,
                     'nofilter',
-                    EP_DEPLOYMENT_BLOCK,
+                    UNISWAP_V2_VIP_SWAP_START_BLOCK,
                     parseUniswapV2SwapEvent,
-                    { isDirectTrade: true, directProtocol: VIP_SWAP_SOURCES },
+                    { isDirectTrade: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
                 ),
             );
         }
