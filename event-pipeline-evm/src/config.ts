@@ -20,10 +20,10 @@ import {
     DEFAULT_FEAT_STAKING,
     DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
+    DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     DEFAULT_FEAT_V3_FILL_EVENT,
     DEFAULT_FEAT_V3_NATIVE_FILL,
-    DEFAULT_FEAT_VIP_SWAP_EVENT,
     DEFAULT_LOCAL_POSTGRES_URI,
     DEFAULT_MAX_BLOCKS_TO_PULL,
     DEFAULT_MAX_BLOCKS_TO_SEARCH,
@@ -223,7 +223,10 @@ if (OPEN_OCEAN_V1_DEPLOYMENT_BLOCK === -1 && FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT) {
     );
 }
 
-export const FEAT_VIP_SWAP_EVENT = getBoolConfig('FEAT_VIP_SWAP_EVENT', DEFAULT_FEAT_VIP_SWAP_EVENT);
+export const FEAT_UNISWAP_V2_VIP_SWAP_EVENT = getBoolConfig(
+    'FEAT_UNISWAP_V2_VIP_SWAP_EVENT',
+    DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
+);
 
 export const FEAT_SLINGSHOT_TRADE_EVENT = getBoolConfig(
     'FEAT_SLINGSHOT_TRADE_EVENT',
@@ -261,12 +264,16 @@ if (SLINGSHOT_DEPLOYMENT_BLOCK === -1 && FEAT_SLINGSHOT_TRADE_EVENT) {
     );
 }
 
-export const VIP_SWAP_SOURCES = process.env.VIP_SWAP_SOURCES ? process.env.VIP_SWAP_SOURCES.split(',') : undefined;
-if (VIP_SWAP_SOURCES === undefined && FEAT_VIP_SWAP_EVENT) {
+export const UNISWAP_V2_VIP_SWAP_SOURCES = process.env.UNISWAP_V2_VIP_SWAP_SOURCES
+    ? process.env.UNISWAP_V2_VIP_SWAP_SOURCES.split(',')
+    : undefined;
+if (UNISWAP_V2_VIP_SWAP_SOURCES === undefined && FEAT_UNISWAP_V2_VIP_SWAP_EVENT) {
     throwError(
-        `The VIP Swap Event scraper is enabled, but no VIP_SWAP_SOURCES was provided. Please include a comma separated list of the enabled VIP sources in this chain or disable the feature`,
+        `The Uniswap VIP Swap Event scraper is enabled, but no UNISWAP_V2_VIP_SWAP_SOURCES was provided. Please include a comma separated list of the enabled VIP sources in this chain or disable the feature`,
     );
 }
+
+export const UNISWAP_V2_VIP_SWAP_START_BLOCK = getIntConfig('UNISWAP_V2_VIP_SWAP_START_BLOCK', EP_DEPLOYMENT_BLOCK);
 
 export const PARASWAP_V4_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V4_DEPLOYMENT_BLOCK', -1);
 if (PARASWAP_V4_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_V4_EVENT) {
