@@ -319,7 +319,6 @@ export class EventsByTopicScraper {
                     web3Source,
                     latestBlockWithOffset,
                     'LiquidityProviderSwapEvent',
-
                     ERC20BridgeTransferEvent,
                     'erc20_bridge_transfer_events',
                     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
