@@ -5,6 +5,8 @@ import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } 
 import { LastBlockProcessed } from '../../entities';
 import { LogWithDecodedArgs } from '@0x/dev-utils';
 
+import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+
 export class PullAndSaveEvents {
     public async getParseSaveContractWrapperEventsAsync<ARGS, EVENT>(
         connection: Connection,
@@ -20,12 +22,16 @@ export class PullAndSaveEvents {
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
         const eventLogs = await getterFunction(startBlock, endBlock);
 
+        SCAN_START_BLOCK.labels({ type: 'event', event: eventName }).set(startBlock);
+        SCAN_END_BLOCK.labels({ type: 'event', event: eventName }).set(endBlock);
+
         if (eventLogs === null) {
             logger.info(`Encountered an error searching for ${eventName} ${SCHEMA}. Waiting until next iteration.`);
         } else {
-            const parsedEventLogs = eventLogs.map(log => parser(log));
+            const parsedEventLogs = eventLogs.map((log) => parser(log));
             const lastBlockProcessed: LastBlockProcessed = await this._lastBlockProcessedAsync(eventName, endBlock);
 
+            SCAN_RESULTS.labels({ type: 'event', event: eventName }).set(parsedEventLogs.length);
             logger.info(`saving ${parsedEventLogs.length} ${eventName} events`);
 
             await this._deleteOverlapAndSaveAsync<EVENT>(

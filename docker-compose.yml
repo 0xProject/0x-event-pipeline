@@ -44,6 +44,8 @@ services:
             FEAT_CANCEL_EVENTS: "true"
             FEAT_STAKING: "true"
             STAKING_DEPLOYMENT_BLOCK: 8952581
+            FEAT_RFQ_EVENT: "true"
+            FEAT_V3_NATIVE_FILL: "true"
 
 
     event-pipeline-bsc:
