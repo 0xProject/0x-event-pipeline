@@ -98,12 +98,19 @@ export class PullAndSaveEventsByTopic {
                             .split('LP')[0]
                             .split(' ')[0]
                             .slice(1);
-                        parsedLogs[i].from = protocolName_i.toLowerCase().includes('swap')
-                            ? protocolName_i
-                            : protocolName_i + 'Swap';
-                        parsedLogs[i].directProtocol = protocolName_i.toLowerCase().includes('swap')
-                            ? protocolName_i
-                            : protocolName_i + 'Swap';
+
+                        // Legacy compatibility
+                        if (protocolName_i === 'Uniswap') {
+                            parsedLogs[i].from = 'UniswapV2';
+                            parsedLogs[i].directProtocol = 'UniswapV2';
+                        } else {
+                            parsedLogs[i].from = protocolName_i.includes('Swap')
+                                ? protocolName_i
+                                : protocolName_i + 'Swap';
+                            parsedLogs[i].directProtocol = protocolName_i.includes('Swap')
+                                ? protocolName_i
+                                : protocolName_i + 'Swap';
+                        }
                     }
                 }
 

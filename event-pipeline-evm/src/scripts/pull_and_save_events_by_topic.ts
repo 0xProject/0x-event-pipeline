@@ -65,6 +65,7 @@ import {
     TIMECHAIN_V1_DEPLOYMENT_BLOCK,
     UNISWAP_V2_VIP_SWAP_SOURCES,
     UNISWAP_V2_VIP_SWAP_START_BLOCK,
+    UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
 } from '../config';
 import {
@@ -341,7 +342,7 @@ export class EventsByTopicScraper {
                     'erc20_bridge_transfer_events',
                     SWAP_V3_EVENT_TOPIC,
                     'nofilter',
-                    12553659, // first seen -1
+                    UNISWAP_V3_VIP_SWAP_START_BLOCK,
                     parseUniswapV3SwapEvent,
                     { isDirectTrade: true, directProtocol: ['UniswapV3'] },
                 ),
