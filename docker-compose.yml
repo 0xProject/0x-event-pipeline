@@ -31,10 +31,10 @@ services:
             MAX_TX_TO_PULL: 1000
             MINUTES_BETWEEN_RUNS: 1
             FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
-            UNISWAP_V2_VIP_SWAP_SOURCES: "UniswapV2,Sushiswap"
+            UNISWAP_V2_VIP_SWAP_SOURCES: "UniswapV2,SushiSwap"
             UNISWAP_V2_VIP_SWAP_START_BLOCK: 10917104
             FEAT_UNISWAP_V3_VIP_SWAP_EVENT: "true"
-            UNISWAP_V3_VIP_START_BLOCK: 12553659
+            UNISWAP_V3_VIP_SWAP_START_BLOCK: 12553659
             FEAT_LIMIT_ORDERS: "true"
             V4_NATIVE_FILL_START_BLOCK: "11591021"
             FEAT_PLP_SWAP_EVENT: "true"
