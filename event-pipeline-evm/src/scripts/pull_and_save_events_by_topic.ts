@@ -617,7 +617,6 @@ export class EventsByTopicScraper {
         const scriptDurationSeconds = (endTime - startTime) / 1000;
         SCRIPT_RUN_DURATION.set({ script: 'events-by-topic' }, scriptDurationSeconds);
 
-        logger.info(`finished pulling events by topic`);
-        logger.info(`It took ${scriptDurationSeconds} seconds to complete`);
+        logger.info(`Finished pulling events by topic in ${scriptDurationSeconds}`);
     }
 }
