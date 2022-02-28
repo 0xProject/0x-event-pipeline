@@ -246,7 +246,7 @@ export class LegacyEventScraper {
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
-        SCRIPT_RUN_DURATION.set({ script: 'events' }, scriptDurationSeconds);
+        SCRIPT_RUN_DURATION.set({ script: 'legacy-events' }, scriptDurationSeconds);
 
         logger.info(`Finished pulling legacy events in ${scriptDurationSeconds}`);
     }
