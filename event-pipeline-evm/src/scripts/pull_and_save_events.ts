@@ -253,8 +253,7 @@ export class EventScraper {
         const scriptDurationSeconds = (endTime - startTime) / 1000;
         SCRIPT_RUN_DURATION.set({ script: 'events' }, scriptDurationSeconds);
 
-        logger.info(`finished pulling events and blocks`);
-        logger.info(`It took ${scriptDurationSeconds} seconds to complete`);
+        logger.info(`Finished pulling events and blocks in ${scriptDurationSeconds}`);
     }
 }
 
