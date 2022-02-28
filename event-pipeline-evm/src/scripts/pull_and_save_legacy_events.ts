@@ -67,22 +67,17 @@ const provider = web3Factory.getRpcProvider({
 
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const eventsSource = new EventsSource(provider, CHAIN_ID);
-const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 const pullAndSaveEvents = new PullAndSaveEvents();
 
-export class EventScraper {
+export class LegacyEventScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
-        logger.info(`pulling events`);
+        logger.info(`pulling legacy events`);
         const latestBlockWithOffset = await calculateEndBlockAsync(provider);
 
         logger.info(`latest block with offset: ${latestBlockWithOffset}`);
 
         const promises: Promise<void>[] = [];
-
-        promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
-        promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset));
-        promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset));
 
         if (FEAT_CANCEL_EVENTS) {
             promises.push(
@@ -253,7 +248,7 @@ export class EventScraper {
         const scriptDurationSeconds = (endTime - startTime) / 1000;
         SCRIPT_RUN_DURATION.set({ script: 'events' }, scriptDurationSeconds);
 
-        logger.info(`Finished pulling events and blocks in ${scriptDurationSeconds}`);
+        logger.info(`Finished pulling legacy events in ${scriptDurationSeconds}`);
     }
 }
 
