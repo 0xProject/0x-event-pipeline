@@ -56,7 +56,7 @@ export class PullAndSaveEventsByTopic {
         const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
         await Promise.all(
-            rawLogsArray.map(async rawLogs => {
+            rawLogsArray.map(async (rawLogs) => {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
                 if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
@@ -98,8 +98,10 @@ export class PullAndSaveEventsByTopic {
                             .split('LP')[0]
                             .split(' ')[0]
                             .slice(1);
-                        parsedLogs[i].from = protocolName_i.includes('Swap') ? protocolName_i : protocolName_i + 'Swap';
-                        parsedLogs[i].directProtocol = protocolName_i.includes('Swap')
+                        parsedLogs[i].from = protocolName_i.toLowerCase().includes('swap')
+                            ? protocolName_i
+                            : protocolName_i + 'Swap';
+                        parsedLogs[i].directProtocol = protocolName_i.toLowerCase().includes('swap')
                             ? protocolName_i
                             : protocolName_i + 'Swap';
                     }
@@ -168,13 +170,9 @@ export class PullAndSaveEventsByTopic {
         } else {
             if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
                 if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
-                    deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${
-                        deleteOptions.protocolVersion
-                    }' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+                    deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
                 } else {
-                    deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${
-                        deleteOptions.protocolVersion
-                    }'`;
+                    deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
                 }
             } else {
                 deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
