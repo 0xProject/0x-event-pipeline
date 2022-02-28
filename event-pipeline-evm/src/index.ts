@@ -31,12 +31,14 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
-        schedule(null, currentBlockMonitor.monitor, 'Current Block');
+        // schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, blocksTxScraper.getParseSaveEventsAsync, 'Pull and Save Blocks and Transactions');
-        schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+        /*
+      schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
         if (CHAIN_ID === 1) {
             schedule(connection, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
         }
+        */
     })
     .catch((error) => console.log(error));
 
