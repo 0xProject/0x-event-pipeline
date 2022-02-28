@@ -28,8 +28,8 @@ export class BlocksTxScraper {
 
         const promises: Promise<void>[] = [];
 
-        promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
-        //promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset));
+        //promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
+        promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset));
         //promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset));
 
         await Promise.all(promises);
