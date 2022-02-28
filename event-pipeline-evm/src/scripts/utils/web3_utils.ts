@@ -54,17 +54,22 @@ export class PullAndSaveWeb3 {
 
     public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number): Promise<void> {
         logger.info(`Grabbing transaction data`);
+        logger.debug('Getting tx hashes to fetch');
         const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transactions');
+        logger.debug('Getting txs');
         const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
+        logger.debug('Removing empty txs');
         const foundTxs = rawTx.filter((rawTxn) => rawTxn);
+        logger.debug('Parsing txs');
         const parsedTx = foundTxs.map((rawTxn) => parseTransaction(rawTxn));
 
+        logger.debug('Counting missing txs');
         const foundHashes = foundTxs.map((rawTxn) => rawTxn.hash);
         const missingHashes = hashes.filter((hash) => !foundHashes.includes(hash));
 
         MISSING_TRANSACTIONS.set(missingHashes.length);
         if (missingHashes.length > 0) {
-            logger.child({ missingHashesTxCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
+            logger.warning(`Missing hashes: ${missingHashes}`);
         }
 
         SCAN_RESULTS.labels({ type: 'transactions' }).set(parsedTx.length);
@@ -83,6 +88,7 @@ export class PullAndSaveWeb3 {
 
             await this._saveTransactionInfo(connection, parsedTx);
         }
+        logger.debug('Saved txs');
     }
 
     public async getParseSaveTxReceiptsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
