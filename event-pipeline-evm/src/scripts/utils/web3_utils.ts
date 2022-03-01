@@ -52,84 +52,6 @@ export class PullAndSaveWeb3 {
         await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
 
-    public async getParseSaveTx(connection: Connection, latestBlockWithOffset: number): Promise<void> {
-        logger.info(`Grabbing transaction data`);
-        logger.debug('Getting tx hashes to fetch');
-        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transactions');
-        logger.debug('Getting txs');
-        const rawTx = await this._web3source.getBatchTxInfoAsync(hashes);
-        logger.debug('Removing empty txs');
-        const foundTxs = rawTx.filter((rawTxn) => rawTxn);
-        logger.debug('Parsing txs');
-        const parsedTx = foundTxs.map((rawTxn) => parseTransaction(rawTxn));
-
-        logger.debug('Counting missing txs');
-        const foundHashes = foundTxs.map((rawTxn) => rawTxn.hash);
-        const missingHashes = hashes.filter((hash) => !foundHashes.includes(hash));
-
-        MISSING_TRANSACTIONS.set(missingHashes.length);
-        if (missingHashes.length > 0) {
-            logger.warning(`Missing hashes: ${missingHashes}`);
-        }
-
-        SCAN_RESULTS.labels({ type: 'transactions' }).set(parsedTx.length);
-        logger.info(`saving ${parsedTx.length} tx`);
-
-        if (parsedTx.length > 0) {
-            const blockNumbers = parsedTx.map((tx) => tx.blockNumber);
-            const minBlock = Math.min(...blockNumbers);
-            const maxBlock = Math.max(...blockNumbers);
-            SCAN_START_BLOCK.labels({
-                type: 'transactions',
-            }).set(minBlock);
-            SCAN_END_BLOCK.labels({
-                type: 'transactions',
-            }).set(maxBlock);
-
-            await this._saveTransactionInfo(connection, parsedTx);
-        }
-        logger.debug('Saved txs');
-    }
-
-    public async getParseSaveTxReceiptsAsync(connection: Connection, latestBlockWithOffset: number): Promise<void> {
-        logger.info(`Grabbing transaction receipt data`);
-        const hashes = await this._getTxListToPullAsync(connection, latestBlockWithOffset, 'transaction_receipts');
-
-        logger.debug('Hashes to scan:');
-        logger.debug(hashes);
-        const rawTxReceipts = await this._web3source.getBatchTxReceiptInfoAsync(hashes);
-        const foundTxReceipts = rawTxReceipts.filter((rawTxReceipt) => rawTxReceipt);
-
-        const parsedReceipts = foundTxReceipts.map((rawTxReceipt) => parseTransactionReceipt(rawTxReceipt));
-        const parsedTxLogs = foundTxReceipts.map((rawTxReceipt) => parseTransactionLogs(rawTxReceipt));
-
-        const foundHashes = foundTxReceipts.map((rawTxReceipt) => rawTxReceipt.transactionHash);
-        const missingHashes = hashes.filter((hash) => !foundHashes.includes(hash));
-
-        if (missingHashes.length > 0) {
-            logger.child({ missingHashesReceiptCount: missingHashes.length }).error(`Missing hashes: ${missingHashes}`);
-        }
-
-        SCAN_RESULTS.labels({ type: 'receipts' }).set(parsedReceipts.length);
-        logger.info(`saving ${parsedReceipts.length} tx receipts`);
-        SCAN_RESULTS.labels({ type: 'tx-logs' }).set(parsedTxLogs.length);
-        logger.info(`saving ${parsedTxLogs.length} tx logs`);
-
-        if (parsedReceipts.length > 0) {
-            const blockNumbers = parsedReceipts.map((tx) => tx.blockNumber);
-            const minBlock = Math.min(...blockNumbers);
-            const maxBlock = Math.max(...blockNumbers);
-            SCAN_START_BLOCK.labels({
-                type: 'transactions',
-            }).set(minBlock);
-            SCAN_END_BLOCK.labels({
-                type: 'transactions',
-            }).set(maxBlock);
-
-            await this._saveTransactionReceiptInfo(connection, parsedReceipts, parsedTxLogs);
-        }
-    }
-
     private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
         const queryResult = await connection.query(
             `SELECT block_number FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
@@ -443,4 +365,40 @@ FROM (
             await queryRunner.release();
         }
     }
+}
+
+export async function getParseTxsAsync(
+    connection: Connection,
+    web3Source: Web3Source,
+    hashes: string[],
+): Promise<{ parsedTxs: Transaction[]; parsedReceipts: TransactionReceipt[]; parsedTxLogs: TransactionLogs[] }> {
+    logger.debug(`Grabbing transaction data`);
+
+    const dedupedHashes = [...new Set(hashes)];
+
+    logger.debug('Hashes to scan:');
+    logger.debug(dedupedHashes);
+
+    const rawTx = await web3Source.getBatchTxInfoAsync(dedupedHashes);
+    const rawTxReceipts = await web3Source.getBatchTxReceiptInfoAsync(dedupedHashes);
+
+    const foundTxs = rawTx.filter((rawTxn) => rawTxn);
+
+    const foundTxReceipts = rawTxReceipts.filter((rawTxReceipt) => rawTxReceipt);
+
+    const parsedTxs = foundTxs.map((rawTxn) => parseTransaction(rawTxn));
+    const parsedReceipts = foundTxReceipts.map((rawTxReceipt) => parseTransactionReceipt(rawTxReceipt));
+    const parsedTxLogs = foundTxReceipts.map((rawTxReceipt) => parseTransactionLogs(rawTxReceipt));
+
+    const foundHashes = foundTxReceipts.map((rawTxReceipt) => rawTxReceipt.transactionHash);
+    const missingHashes = dedupedHashes.filter((hash) => !foundHashes.includes(hash));
+
+    MISSING_TRANSACTIONS.set(missingHashes.length);
+    if (missingHashes.length > 0) {
+        logger.warning(`Missing hashes: ${missingHashes}`);
+    }
+
+    logger.debug(`got ${parsedReceipts.length} txs`);
+
+    return { parsedTxs, parsedReceipts, parsedTxLogs };
 }

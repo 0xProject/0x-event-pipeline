@@ -18,19 +18,17 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
-export class BlocksTxScraper {
+export class BlockScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
-        logger.info(`pulling events`);
+        logger.info(`pulling blocks`);
         const latestBlockWithOffset = await calculateEndBlockAsync(provider);
 
         logger.info(`latest block with offset: ${latestBlockWithOffset}`);
 
         const promises: Promise<void>[] = [];
 
-        //promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
-        promises.push(pullAndSaveWeb3.getParseSaveTx(connection, latestBlockWithOffset));
-        //promises.push(pullAndSaveWeb3.getParseSaveTxReceiptsAsync(connection, latestBlockWithOffset));
+        promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
 
         await Promise.all(promises);
 
@@ -38,7 +36,7 @@ export class BlocksTxScraper {
         const scriptDurationSeconds = (endTime - startTime) / 1000;
         SCRIPT_RUN_DURATION.set({ script: 'blocks-tx' }, scriptDurationSeconds);
 
-        logger.info(`Finished pulling blocks and tx in ${scriptDurationSeconds}`);
+        logger.info(`Finished pulling blocks in ${scriptDurationSeconds}`);
     }
 }
 
