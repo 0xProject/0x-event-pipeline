@@ -1,5 +1,8 @@
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
+import { Event, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { chunk, logger } from '../../utils';
+import { getParseTxsAsync } from './web3_utils';
+
 import { Connection } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
@@ -142,6 +145,11 @@ export class PullAndSaveEventsByTopic {
                 }
 
                 SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
+
+                // Get Tx data for events
+                const txHashesToGet = parsedLogs.map((log: Event) => log.transactionHash);
+                const txData = await getParseTxsAsync(connection, web3Source, txHashesToGet as string[]);
+
                 logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
                 await this._deleteOverlapAndSaveAsync<EVENT>(
@@ -152,6 +160,7 @@ export class PullAndSaveEventsByTopic {
                     eventType,
                     tableName,
                     await this._lastBlockProcessedAsync(eventName, endBlock),
+                    txData,
                     deleteOptions,
                 );
             }),
@@ -192,6 +201,7 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
+        txData: { parsedTxs: Transaction[]; parsedReceipts: TransactionReceipt[]; parsedTxLogs: TransactionLogs[] },
         deleteOptions: DeleteOptions,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
@@ -213,14 +223,36 @@ export class PullAndSaveEventsByTopic {
             }
         }
 
+        const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
+        const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
+        const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
+        const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
+
         await queryRunner.connect();
 
         await queryRunner.startTransaction();
         try {
-            // delete events scraped prior to the most recent block range
-            await queryRunner.manager.query(deleteQuery);
-            for (const chunkItems of chunk(toSave, 300)) {
-                await queryRunner.manager.insert(eventType, chunkItems);
+            if (toSave.length > 0) {
+                // delete events scraped prior to the most recent block range
+                await queryRunner.manager.query(deleteQuery);
+
+                // delete the transactions for the fetched events
+                await queryRunner.manager.query(txDeleteQuery);
+                await queryRunner.manager.query(txReceiptDeleteQuery);
+                await queryRunner.manager.query(txLogsDeleteQuery);
+
+                for (const chunkItems of chunk(toSave, 300)) {
+                    await queryRunner.manager.insert(eventType, chunkItems);
+                }
+                for (const chunkItems of chunk(txData.parsedTxs, 300)) {
+                    await queryRunner.manager.insert(Transaction, chunkItems);
+                }
+                for (const chunkItems of chunk(txData.parsedReceipts, 300)) {
+                    await queryRunner.manager.insert(TransactionReceipt, chunkItems);
+                }
+                for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
+                    await queryRunner.manager.insert(TransactionLogs, chunkItems);
+                }
             }
             await queryRunner.manager.save(lastBlockProcessed);
 
