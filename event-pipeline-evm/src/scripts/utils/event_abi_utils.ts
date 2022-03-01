@@ -157,6 +157,7 @@ export class PullAndSaveEventsByTopic {
                     parsedLogs,
                     startBlock,
                     endBlock,
+                    eventName,
                     eventType,
                     tableName,
                     await this._lastBlockProcessedAsync(eventName, endBlock),
@@ -198,6 +199,7 @@ export class PullAndSaveEventsByTopic {
         toSave: EVENT[],
         startBlock: number,
         endBlock: number,
+        eventName: string,
         eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
@@ -259,6 +261,7 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
+            logger.error(`Failed while saving ${eventName}`);
             logger.error(err);
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();

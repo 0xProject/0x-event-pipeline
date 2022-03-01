@@ -8,6 +8,7 @@ import * as ormConfig from './ormconfig';
 import { CHAIN_ID, ENABLE_PROMETHEUS_METRICS, SECONDS_BETWEEN_RUNS } from './config';
 
 import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
+import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { ChainIdChecker } from './scripts/check_chain_id';
@@ -18,6 +19,7 @@ console.log('App is running...');
 
 const chainIdChecker = new ChainIdChecker();
 const legacyEventScraper = new LegacyEventScraper();
+const backfillTxScraper = new BackfillTxScraper();
 const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
 const currentBlockMonitor = new CurrentBlockMonitor();
@@ -34,6 +36,7 @@ createConnection(ormConfig as ConnectionOptions)
         schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+        schedule(connection, backfillTxScraper.getParseSaveTxAsync, 'Pull and Save Backfill Transactions');
         if (CHAIN_ID === 1) {
             schedule(connection, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
         }
