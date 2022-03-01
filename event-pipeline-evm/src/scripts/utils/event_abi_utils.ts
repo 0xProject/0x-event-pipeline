@@ -3,7 +3,7 @@ import { Event, Transaction, TransactionLogs, TransactionReceipt } from '../../e
 import { chunk, logger } from '../../utils';
 import { getParseTxsAsync } from './web3_utils';
 
-import { Connection } from 'typeorm';
+import { Connection, QueryFailedError } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
 
@@ -232,7 +232,7 @@ export class PullAndSaveEventsByTopic {
 
         await queryRunner.connect();
 
-        await queryRunner.startTransaction();
+        await queryRunner.startTransaction('REPEATABLE READ');
         try {
             if (toSave.length > 0) {
                 // delete events scraped prior to the most recent block range
@@ -261,8 +261,15 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logger.error(`Failed while saving ${eventName}`);
-            logger.error(err);
+            if (
+                err instanceof QueryFailedError &&
+                err.message === 'could not serialize access due to concurrent update'
+            ) {
+                logger.warn('Simultaneous write attempt, will retry on the next run');
+            } else {
+                logger.error(`Failed while saving ${eventName}`);
+                logger.error(err);
+            }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
