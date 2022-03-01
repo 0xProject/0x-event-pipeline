@@ -395,7 +395,7 @@ export async function getParseTxsAsync(
 
     MISSING_TRANSACTIONS.set(missingHashes.length);
     if (missingHashes.length > 0) {
-        logger.warning(`Missing hashes: ${missingHashes}`);
+        logger.warn(`Missing hashes: ${missingHashes}`);
     }
 
     logger.debug(`got ${parsedReceipts.length} txs`);
