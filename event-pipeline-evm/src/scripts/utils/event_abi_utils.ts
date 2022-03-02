@@ -265,10 +265,10 @@ export class PullAndSaveEventsByTopic {
                 err instanceof QueryFailedError &&
                 err.message === 'could not serialize access due to concurrent update'
             ) {
-                logger.warn('Simultaneous write attempt, will retry on the next run');
+                logger.child({ event: eventName }).warn('Simultaneous write attempt, will retry on the next run');
             } else {
                 logger.error(`Failed while saving ${eventName}`);
-                logger.error(err);
+                logger.child({ event: eventName }).error(err);
             }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
