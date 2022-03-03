@@ -24,7 +24,6 @@ import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metr
 export const MISSING_TRANSACTIONS = new Gauge({
     name: 'event_scraper_missing_transactions',
     help: 'The count of how many partial transactions are in the DB, but have been reorged out of the blockchain',
-    labelNames: ['includeBridgeTrades'],
 });
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
@@ -44,14 +43,23 @@ export class PullAndSaveWeb3 {
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
         logger.debug('rawBlocks:');
         rawBlocks.map((rawBlock) => logger.debug(rawBlock));
-        const parsedBlocks = rawBlocks.map((rawBlock) => parseBlock(rawBlock));
 
-        SCAN_RESULTS.labels({ type: 'blocks' }).set(parsedBlocks.length);
-        logger.info(`saving ${parsedBlocks.length} blocks`);
+        const nullBlocks = rawBlocks.filter((block) => !block);
 
-        await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
+        if (nullBlocks.length > 0) {
+            logger.error(
+                `Received ${nullBlocks.length} null blocks. Will drop this batch and retry on the next attempt`,
+            );
+            SCAN_RESULTS.labels({ type: 'blocks' }).set(0);
+        } else {
+            const parsedBlocks = rawBlocks.map((rawBlock) => parseBlock(rawBlock));
+
+            SCAN_RESULTS.labels({ type: 'blocks' }).set(parsedBlocks.length);
+            logger.info(`saving ${parsedBlocks.length} blocks`);
+
+            await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
+        }
     }
-
     private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
         const queryResult = await connection.query(
             `SELECT block_number FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
