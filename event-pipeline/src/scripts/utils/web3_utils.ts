@@ -39,24 +39,11 @@ export class PullAndSaveWeb3 {
             .child({ startBlock, endBlock, lag: latestBlockWithOffset - startBlock, type: 'BLOCK_LAG' })
             .info(`Grabbing blocks`);
         const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
+        const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
 
-        const nullBlocks = rawBlocks.filter(block => !block);
+        logger.child({ count: parsedBlocks.length }).info(`saving blocks`);
 
-        if (nullBlocks.length > 0) {
-            logger.error(`Received ${nullBlocks.length} null blocks. Will drop this batch and retry`);
-        } else {
-            const parsedBlocks = rawBlocks.map(rawBlock => parseBlock(rawBlock));
-
-            logger.child({ count: parsedBlocks.length }).info(`saving blocks`);
-
-            await this._deleteOverlapAndSaveBlocksAsync<Block>(
-                connection,
-                parsedBlocks,
-                startBlock,
-                endBlock,
-                tableName,
-            );
-        }
+        await this._deleteOverlapAndSaveBlocksAsync<Block>(connection, parsedBlocks, startBlock, endBlock, tableName);
     }
 
     public async getParseSaveTx(
