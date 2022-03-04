@@ -6,6 +6,7 @@ import {
     DEFAULT_ENABLE_PROMETHEUS_METRICS,
     DEFAULT_EP_ADDRESS,
     DEFAULT_FEAT_CANCEL_EVENTS,
+    DEFAULT_FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
     DEFAULT_FEAT_LIMIT_ORDERS,
     DEFAULT_FEAT_NFT,
     DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
@@ -147,9 +148,6 @@ export const BASE_GITHUB_LOGO_URL = process.env.BASE_GITHUB_LOGO_URL || DEFAULT_
 export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS
     ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS))
     : bridgeContracts;
-
-// TODO move to constants or make configurable
-export const BRIDGEFILL_EVENT_TOPIC = ['0xe59e71a14fe90157eedc866c4f8c767d3943d6b6b2e8cd64dddcc92ab4c55af8'];
 
 export const START_BLOCK_TIMESTAMP_OFFSET = getIntConfig(
     'START_BLOCK_TIMESTAMP_OFFSET',
@@ -347,6 +345,23 @@ export const FEAT_NFT = getBoolConfig('FEAT_NFT', DEFAULT_FEAT_NFT);
 
 export const NFT_FEATURE_START_BLOCK = getIntConfig('NFT_FEATURE_START_BLOCK', -1);
 validateStartBlock('NFT_FEATURE_START_BLOCK', NFT_FEATURE_START_BLOCK, 'FEAT_NFT', FEAT_NFT);
+
+export const FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET = getBoolConfig(
+    'FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET',
+    DEFAULT_FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
+);
+
+export const FLASHWALLET_ADDRESS = process.env.FLASHWALLET_ADDRESS
+    ? process.env.FLASHWALLET_ADDRESS
+    : throwError(`FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET is enabled, but no FLASHWALLET_ADDRESS was provided`);
+
+export const FLASHWALLET_DEPLOYMENT_BLOCK = getIntConfig('FLASHWALLET_DEPLOYMENT_BLOCK', -1);
+validateStartBlock(
+    'FLASHWALLET_DEPLOYMENT_BLOCK',
+    FLASHWALLET_DEPLOYMENT_BLOCK,
+    'FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET',
+    FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
+);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {

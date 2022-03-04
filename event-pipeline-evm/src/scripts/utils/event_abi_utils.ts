@@ -208,21 +208,23 @@ export class PullAndSaveEventsByTopic {
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
-        let deleteQuery: string;
-        if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
-            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
-                "','",
-            )}')`;
-        } else {
-            if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
-                if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
-                    deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
-                } else {
-                    deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
-                }
-            } else {
-                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+        let deleteQuery = '';
+        if (tableName === 'erc20_bridge_transfer_events') {
+            if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
+                    "','",
+                )}')`;
+            } else if (deleteOptions.isDirectTrade === false) {
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_flag = FALSE`;
             }
+        } else if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
+            if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+            } else {
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+            }
+        } else {
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
         }
 
         const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
