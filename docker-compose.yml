@@ -46,7 +46,9 @@ services:
             STAKING_DEPLOYMENT_BLOCK: 8952581
             FEAT_RFQ_EVENT: "true"
             FEAT_V3_NATIVE_FILL: "true"
-
+            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+            FLASHWALLET_ADDRESS: "0x22f9dcf4647084d6c31b2765f6910cd85c178c18"
+            FLASHWALLET_DEPLOYMENT_BLOCK: 12231666
 
     event-pipeline-bsc:
         depends_on:

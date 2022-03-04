@@ -18,7 +18,7 @@ export function parseBridgeFill(eventLog: RawLogEntry): ERC20BridgeTransferEvent
     eRC20BridgeTransferEvent.toToken = decodedLog.outputToken.toLowerCase();
     eRC20BridgeTransferEvent.fromTokenAmount = new BigNumber(decodedLog.inputTokenAmount);
     eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(decodedLog.outputTokenAmount);
-    eRC20BridgeTransferEvent.from = Web3Utils.hexToUtf8('0x' + decodedLog.source.slice(34)); // 34 = len(0x) + 32
+    eRC20BridgeTransferEvent.from = 'New Bridge:' + Web3Utils.hexToUtf8(decodedLog.source);
     eRC20BridgeTransferEvent.to = null;
     eRC20BridgeTransferEvent.directFlag = false;
 

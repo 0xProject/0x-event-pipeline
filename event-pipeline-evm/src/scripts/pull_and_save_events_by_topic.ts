@@ -33,6 +33,7 @@ import {
     EP_ADDRESS,
     EP_DEPLOYMENT_BLOCK,
     ETHEREUM_RPC_URL,
+    FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
     FEAT_LIMIT_ORDERS,
     FEAT_NFT,
     FEAT_ONEINCH_SWAPPED_V3_EVENT,
@@ -51,6 +52,8 @@ import {
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
+    FLASHWALLET_ADDRESS,
+    FLASHWALLET_DEPLOYMENT_BLOCK,
     NFT_FEATURE_START_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
     ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
@@ -69,6 +72,7 @@ import {
     V4_NATIVE_FILL_START_BLOCK,
 } from '../config';
 import {
+    BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
     ERC1155_ORDER_FILLED_EVENT_TOPIC,
     ERC1155_ORDER_PRESIGNED_EVENT_TOPIC,
@@ -133,6 +137,8 @@ import {
     parseErc721OrderPresignedEvent,
 } from '../parsers/events/nft_events';
 
+import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
+
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
@@ -188,7 +194,23 @@ export class EventsByTopicScraper {
                 ),
             );
         }
-
+        if (FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ERC20BridgeTransferFlashwallet',
+                    ERC20BridgeTransferEvent,
+                    'erc20_bridge_transfer_events',
+                    BRIDGEFILL_EVENT_TOPIC,
+                    FLASHWALLET_ADDRESS,
+                    FLASHWALLET_DEPLOYMENT_BLOCK,
+                    parseBridgeFill,
+                    { isDirectTrade: false },
+                ),
+            );
+        }
         if (FEAT_ONEINCH_SWAPPED_V4_EVENT) {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV4Event>(
