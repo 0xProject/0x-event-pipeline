@@ -21,6 +21,7 @@ import {
     DEFAULT_FEAT_STAKING,
     DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
+    DEFAULT_FEAT_TX_BACKFILL,
     DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     DEFAULT_FEAT_V3_FILL_EVENT,
@@ -362,6 +363,8 @@ validateStartBlock(
     'FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET',
     FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
 );
+
+export const FEAT_TX_BACKFILL = getBoolConfig('FEAT_TX_BACKFILL', DEFAULT_FEAT_TX_BACKFILL);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
