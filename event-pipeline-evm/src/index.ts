@@ -5,7 +5,7 @@ config({ path: resolve(__dirname, '../../.env') });
 
 import { ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
-import { CHAIN_ID, ENABLE_PROMETHEUS_METRICS, SECONDS_BETWEEN_RUNS } from './config';
+import { CHAIN_ID, ENABLE_PROMETHEUS_METRICS, FEAT_TX_BACKFILL, SECONDS_BETWEEN_RUNS } from './config';
 
 import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
@@ -36,7 +36,9 @@ createConnection(ormConfig as ConnectionOptions)
         schedule(null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
-        schedule(connection, backfillTxScraper.getParseSaveTxAsync, 'Pull and Save Backfill Transactions');
+        if (FEAT_TX_BACKFILL) {
+            schedule(connection, backfillTxScraper.getParseSaveTxAsync, 'Pull and Save Backfill Transactions');
+        }
         if (CHAIN_ID === 1) {
             schedule(connection, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
         }
