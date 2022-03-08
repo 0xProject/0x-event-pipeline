@@ -34,7 +34,7 @@ export class BlockScraper {
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
-        SCRIPT_RUN_DURATION.set({ script: 'blocks-tx' }, scriptDurationSeconds);
+        SCRIPT_RUN_DURATION.set({ script: 'blocks' }, scriptDurationSeconds);
 
         logger.info(`Finished pulling blocks in ${scriptDurationSeconds}`);
     }

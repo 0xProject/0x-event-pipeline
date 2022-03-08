@@ -119,6 +119,27 @@ services:
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
             MINUTES_BETWEEN_RUNS: 1
+            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+            FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
+            FLASHWALLET_DEPLOYMENT_BLOCK: 11805869
+
+    event-pipeline-celo:
+        depends_on:
+            - postgres
+        build:
+            context: event-pipeline-evm
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_CELO}'
+            CHAIN_ID: '43114'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events_celo'
+            ENABLE_PROMETHEUS_METRICS: "true"
+            EP_DEPLOYMENT_BLOCK: 9350111
+            MAX_BLOCKS_TO_SEARCH: 5000
+            MAX_BLOCKS_TO_PULL: 2000
+            MINUTES_BETWEEN_RUNS: 1
 
     event-pipeline-optimism:
         depends_on:
