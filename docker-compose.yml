@@ -49,6 +49,8 @@ services:
             FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
             FLASHWALLET_ADDRESS: "0x22f9dcf4647084d6c31b2765f6910cd85c178c18"
             FLASHWALLET_DEPLOYMENT_BLOCK: 12231666
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 14258205
 
     event-pipeline-bsc:
         depends_on:
@@ -71,6 +73,8 @@ services:
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 5300000
             FEAT_ONEINCH_SWAPPED_V4_EVENT: "true"
             ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK: 12386039
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 15860129
 
     event-pipeline-polygon:
         depends_on:
@@ -100,6 +104,8 @@ services:
             PARASWAP_CONTRACT_ADDRESS: "0x90249ed4d69D70E709fFCd8beE2c5A566f65dADE"
             FEAT_LIMIT_ORDERS: "true"
             V4_NATIVE_FILL_START_BLOCK: "22788948"
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 25697854
 
 
     event-pipeline-avalanche:
@@ -122,6 +128,29 @@ services:
             FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
             FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
             FLASHWALLET_DEPLOYMENT_BLOCK: 11805869
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 11816835
+
+    event-pipeline-fantom:
+        depends_on:
+            - postgres
+        build:
+            context: event-pipeline-evm
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_FANTOM}'
+            CHAIN_ID: '250'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events_fantom'
+            EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
+            ENABLE_PROMETHEUS_METRICS: "true"
+            EP_DEPLOYMENT_BLOCK: 18855765
+            MAX_BLOCKS_TO_SEARCH: 2000
+            MAX_BLOCKS_TO_PULL: 1000
+            MINUTES_BETWEEN_RUNS: 1
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 32817445
 
     event-pipeline-celo:
         depends_on:
@@ -140,6 +169,8 @@ services:
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
             MINUTES_BETWEEN_RUNS: 1
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 11820000
 
     event-pipeline-optimism:
         depends_on:
@@ -165,6 +196,8 @@ services:
             # FEAT_PARASWAP_SWAPPED_EVENT: "true"
             # PARASWAP_DEPLOYMENT_BLOCK: 14500000
             # PARASWAP_CONTRACT_ADDRESS: "0x90249ed4d69D70E709fFCd8beE2c5A566f65dADE"
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 4214981
 
     event-pipeline-ropsten:
         depends_on:
