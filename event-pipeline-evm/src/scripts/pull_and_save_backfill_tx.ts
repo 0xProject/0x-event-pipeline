@@ -71,6 +71,7 @@ export class BackfillTxScraper {
                 await queryRunner.release();
             }
         } else {
+            SCAN_RESULTS.labels({ type: 'tx-backfill' }).set(0);
             logger.info('No tx in backlog');
         }
 
