@@ -1,6 +1,8 @@
+import { BigNumber } from '@0x/utils';
+import { hexToUtf8 } from 'web3-utils';
 import { chunk, logger } from '../../utils';
 import { Connection, InsertResult } from 'typeorm';
-import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
+import { Block, TokenMetadata, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
     parseBlock,
     parseTransaction,
@@ -18,8 +20,17 @@ import {
     START_BLOCK_OFFSET,
 } from '../../config';
 
+import { ERC165_ERC1155_INTERFACE, ERC165_ERC721_INTERFACE, ERC165_SUPPORTS_INTERFACE_SELECTOR } from '../../constants';
+
 import { Gauge } from 'prom-client';
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+
+import { TokenMetadataSingleton } from '../../tokenMetadataSingleton';
+
+export type TokenMetadataMap = {
+    tokenA: string;
+    tokenB: string;
+} | null;
 
 export const MISSING_TRANSACTIONS = new Gauge({
     name: 'event_scraper_missing_transactions',
@@ -373,6 +384,145 @@ FROM (
             await queryRunner.release();
         }
     }
+}
+
+export async function getParseTokensAsync(
+    connection: Connection,
+    web3Source: Web3Source,
+    logs: any,
+    tokenMetadataMap: TokenMetadataMap,
+): Promise<void> {
+    if (tokenMetadataMap !== null) {
+        const tokens: string[] = [];
+        try {
+            logs.map((log: any) => {
+                tokens.push(log[tokenMetadataMap.tokenA]);
+                tokens.push(log[tokenMetadataMap.tokenB]);
+            });
+        } catch (err) {
+            logger.error(err);
+            logger.error(logs);
+        }
+        const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
+        const missingTokens = [...new Set(tokenMetadataSingleton.removeExistingTokens(tokens))];
+
+        logger.debug('Tokens to scan:');
+        logger.debug(missingTokens);
+
+        const erc721Tokens = await _keepERC721Async(web3Source, missingTokens);
+        const nonErc721Tokens = missingTokens.filter((token) => !erc721Tokens.includes(token));
+        const erc1155Tokens = await _keepERC1155Async(web3Source, nonErc721Tokens);
+        const erc20Tokens = nonErc721Tokens.filter((token) => !erc1155Tokens.includes(token));
+
+        // ERC1155 does not officialy includes symbol nor name, but some implement it
+        const tokenSymbolCalls = missingTokens.map((token) => {
+            return {
+                to: token,
+                data: '0x95d89b41',
+            };
+        });
+
+        const symbols = await web3Source.callContractMethodsNullRevertAsync(tokenSymbolCalls);
+
+        const erc721Symbols = symbols.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
+        const erc1155Symbols = symbols.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
+        const erc20Symbols = symbols.filter((symbol, index) => erc20Tokens.includes(missingTokens[index]));
+
+        const tokenNameCalls = missingTokens.map((token) => {
+            return {
+                to: token,
+                data: '0x06fdde03',
+            };
+        });
+
+        const names = await web3Source.callContractMethodsNullRevertAsync(tokenNameCalls);
+
+        const erc721Names = names.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
+        const erc1155Names = names.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
+        const erc20Names = names.filter((symbol, index) => erc20Tokens.includes(missingTokens[index]));
+
+        const tokenDecimalsCalls = erc20Tokens.map((token) => {
+            return {
+                to: token,
+                data: '0x313ce567',
+            };
+        });
+
+        const erc20Decimals = await web3Source.callContractMethodsNullRevertAsync(tokenDecimalsCalls);
+
+        const erc721TokenMetadata = erc721Tokens.map((address, index) => {
+            return {
+                address: address,
+                type: 'ERC721',
+                name: parseHexString(erc721Names[index]),
+                symbol: parseHexString(erc721Symbols[index]),
+                observedTimestamp: new Date().getTime(),
+            } as TokenMetadata;
+        });
+        const erc1155TokenMetadata = erc1155Tokens.map((address, index) => {
+            return {
+                address: address,
+                type: 'ERC1155',
+                name: parseHexString(erc1155Names[index]),
+                symbol: parseHexString(erc1155Symbols[index]),
+                observedTimestamp: new Date().getTime(),
+            } as TokenMetadata;
+        });
+        const erc20TokenMetadata = erc20Tokens.map((address, index) => {
+            return {
+                address: address,
+                type: 'ERC20',
+                name: parseHexString(erc20Names[index]),
+                symbol: parseHexString(erc20Symbols[index]),
+                decimals: erc20Decimals[index] === null ? null : new BigNumber(erc20Decimals[index]),
+                observedTimestamp: new Date().getTime(),
+            } as TokenMetadata;
+        });
+        await tokenMetadataSingleton.saveNewTokenMetadata(connection, [
+            ...erc20TokenMetadata,
+            ...erc721TokenMetadata,
+            ...erc1155TokenMetadata,
+        ]);
+    }
+}
+
+function parseHexString(hex: string): string | null {
+    if (hex === null) {
+        return null;
+    }
+    const parsed = hexToUtf8(hex);
+
+    // Only keep ASCII printable chars
+    return parsed.replace(/[^\x20-\x7E]+/g, '').trim();
+}
+
+async function _keepERC721Async(web3Source: Web3Source, tokenAddresses: string[]) {
+    return _erc165Filter(web3Source, tokenAddresses, ERC165_ERC721_INTERFACE);
+}
+
+async function _keepERC1155Async(web3Source: Web3Source, tokenAddresses: string[]) {
+    return _erc165Filter(web3Source, tokenAddresses, ERC165_ERC1155_INTERFACE);
+}
+
+async function _erc165Filter(web3Source: Web3Source, tokenAddresses: string[], erc165_interface: string) {
+    const checks = tokenAddresses.map((token) => {
+        return {
+            to: token,
+            data: `0x${ERC165_SUPPORTS_INTERFACE_SELECTOR}${erc165_interface}`.padEnd(74, '0'),
+        };
+    });
+    const responses = await web3Source.callContractMethodsNullRevertAsync(checks);
+
+    const keptTokens = tokenAddresses
+        .map((token, i) => {
+            if (responses[i] === '0x0000000000000000000000000000000000000000000000000000000000000001') {
+                return token;
+            }
+            return null;
+        })
+        .filter((token) => token);
+
+    return keptTokens;
 }
 
 export async function getParseTxsAsync(

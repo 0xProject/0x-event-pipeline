@@ -29,13 +29,15 @@ export class Web3Source {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
         const batch = new this._web3.BatchRequest();
 
-        const promises = iter.map(i => {
+        const promises = iter.map((i) => {
             return new Promise((resolve, reject) => {
                 const req = this._web3.eth.getBlock.request(
                     i + startBlock,
                     (err: any, data: BlockWithTransactionData) => {
-                        if (err) reject(err);
-                        else resolve(data);
+                        if (err) {
+                            logger.error(`Blocks error: ${err}`);
+                            reject(err);
+                        } else resolve(data);
                     },
                 );
                 batch.add(req);
@@ -52,11 +54,13 @@ export class Web3Source {
     public async getBatchTxInfoAsync(hashes: string[]): Promise<any[]> {
         const batch = new this._web3.BatchRequest();
 
-        const promises = hashes.map(hash => {
+        const promises = hashes.map((hash) => {
             return new Promise((resolve, reject) => {
                 const req = this._web3.eth.getTransaction.request(hash, (err: any, data: Transaction) => {
-                    if (err) reject(err);
-                    else resolve(data);
+                    if (err) {
+                        logger.error(`Transactions error: ${err}`);
+                        reject(err);
+                    } else resolve(data);
                 });
                 batch.add(req);
             });
@@ -72,11 +76,13 @@ export class Web3Source {
     public async getBatchTxReceiptInfoAsync(hashes: string[]): Promise<any[]> {
         const batch = new this._web3.BatchRequest();
 
-        const promises = hashes.map(hash => {
+        const promises = hashes.map((hash) => {
             return new Promise((resolve, reject) => {
                 const req = this._web3.eth.getTransactionReceipt.request(hash, (err: any, data: Transaction) => {
-                    if (err) reject(err);
-                    else resolve(data);
+                    if (err) {
+                        logger.error(`Receipts error: ${err}`);
+                        reject(err);
+                    } else resolve(data);
                 });
                 batch.add(req);
             });
@@ -92,7 +98,7 @@ export class Web3Source {
     public async getBatchLogInfoForContractsAsync(logPullInfo: LogPullInfo[]): Promise<any[]> {
         const batch = new this._web3.BatchRequest();
 
-        const promises = logPullInfo.map(logPull => {
+        const promises = logPullInfo.map((logPull) => {
             return new Promise((resolve, reject) => {
                 const reqParams = {
                     fromBlock: logPull.fromBlock,
@@ -101,8 +107,10 @@ export class Web3Source {
                     topics: logPull.topics,
                 };
                 const req = this._web3.eth.getPastLogs.request(reqParams, (err: any, data: RawLog) => {
-                    if (err) reject(err);
-                    else resolve({ logPull, logs: data });
+                    if (err) {
+                        logger.error(`Logs error: ${err}`);
+                        reject(err);
+                    } else resolve({ logPull, logs: data });
                 });
                 batch.add(req);
             });
@@ -118,11 +126,34 @@ export class Web3Source {
     public async callContractMethodsAsync(contractCallInfo: ContractCallInfo[]): Promise<any[]> {
         const batch = new this._web3.BatchRequest();
 
-        const promises = contractCallInfo.map(contractCall => {
+        const promises = contractCallInfo.map((contractCall) => {
             return new Promise((resolve, reject) => {
                 const req = this._web3.eth.call.request(contractCall, (err: any, data: string) => {
-                    if (err) reject(err);
-                    else resolve(data);
+                    if (err) {
+                        logger.error(`Contract Call error: ${err}`);
+                        reject(err);
+                    } else resolve(data);
+                });
+                batch.add(req);
+            });
+        });
+
+        batch.execute();
+
+        const contractMethodValues = await Promise.all(promises);
+
+        return contractMethodValues;
+    }
+
+    public async callContractMethodsNullRevertAsync(contractCallInfo: ContractCallInfo[]): Promise<any[]> {
+        const batch = new this._web3.BatchRequest();
+
+        const promises = contractCallInfo.map((contractCall) => {
+            return new Promise((resolve, reject) => {
+                const req = this._web3.eth.call.request(contractCall, (err: any, data: string) => {
+                    if (err) {
+                        resolve(null);
+                    } else resolve(data);
                 });
                 batch.add(req);
             });
@@ -140,7 +171,7 @@ export class Web3Source {
         endBlock: number,
     ): Promise<BlockWithoutTransactionData[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
-        const blocks = await Promise.all(iter.map(num => this.getBlockInfoAsync(num + startBlock)));
+        const blocks = await Promise.all(iter.map((num) => this.getBlockInfoAsync(num + startBlock)));
 
         return blocks;
     }

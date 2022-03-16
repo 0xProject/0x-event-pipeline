@@ -19,7 +19,12 @@ export const CURRENT_BLOCK = new Gauge({
 export class CurrentBlockMonitor {
     public async monitor(): Promise<void> {
         const web3Wrapper = new Web3Wrapper(provider);
-        const currentBlock = await web3Wrapper.getBlockNumberAsync();
+        let currentBlock = -1;
+        try {
+            currentBlock = await web3Wrapper.getBlockNumberAsync();
+        } catch (err) {
+            logger.error(err);
+        }
         CURRENT_BLOCK.labels({ chain: CHAIN_NAME }).set(currentBlock);
         logger.info(`Current block: ${currentBlock}`);
     }

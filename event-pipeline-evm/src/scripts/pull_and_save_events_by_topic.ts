@@ -208,6 +208,7 @@ export class EventsByTopicScraper {
                     FLASHWALLET_DEPLOYMENT_BLOCK,
                     parseBridgeFill,
                     { isDirectTrade: false },
+                    { tokenA: 'fromToken', tokenB: 'toToken' },
                 ),
             );
         }
@@ -243,6 +244,7 @@ export class EventsByTopicScraper {
                     UNISWAP_V2_VIP_SWAP_START_BLOCK,
                     parseUniswapV2SwapEvent,
                     { isDirectTrade: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
+                    { tokenA: 'fromToken', tokenB: 'toToken' },
                 ),
             );
         }
@@ -349,6 +351,7 @@ export class EventsByTopicScraper {
                     PLP_VIP_START_BLOCK,
                     parseLiquidityProviderSwapEvent,
                     { isDirectTrade: true, directProtocol: ['PLP'] },
+                    { tokenA: 'fromToken', tokenB: 'toToken' },
                 ),
             );
         }
@@ -367,6 +370,7 @@ export class EventsByTopicScraper {
                     UNISWAP_V3_VIP_SWAP_START_BLOCK,
                     parseUniswapV3SwapEvent,
                     { isDirectTrade: true, directProtocol: ['UniswapV3'] },
+                    { tokenA: 'fromToken', tokenB: 'toToken' },
                 ),
             );
         }
@@ -385,6 +389,7 @@ export class EventsByTopicScraper {
                     V4_NATIVE_FILL_START_BLOCK,
                     parseV4RfqOrderFilledEvent,
                     {},
+                    { tokenA: 'makerToken', tokenB: 'takerToken' },
                 ),
             );
 
@@ -434,6 +439,7 @@ export class EventsByTopicScraper {
                     V4_NATIVE_FILL_START_BLOCK,
                     parseV4LimitOrderFilledEvent,
                     {},
+                    { tokenA: 'makerToken', tokenB: 'takerToken' },
                 ),
             );
             promises.push(
@@ -485,6 +491,7 @@ export class EventsByTopicScraper {
                     OTC_ORDERS_FEATURE_START_BLOCK,
                     parseOtcOrderFilledEvent,
                     {},
+                    { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
                 ),
             );
             promises.push(
@@ -518,6 +525,7 @@ export class EventsByTopicScraper {
                     FIRST_SEARCH_BLOCK,
                     parseFillEvent,
                     {},
+                    { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
                 ),
             );
         }
@@ -554,6 +562,7 @@ export class EventsByTopicScraper {
                     NFT_FEATURE_START_BLOCK,
                     parseErc721OrderFilledEvent,
                     {},
+                    { tokenA: 'erc20Token', tokenB: 'erc721Token' },
                 ),
             );
             promises.push(
@@ -584,6 +593,7 @@ export class EventsByTopicScraper {
                     NFT_FEATURE_START_BLOCK,
                     parseErc721OrderPresignedEvent,
                     {},
+                    { tokenA: 'erc20Token', tokenB: 'erc721Token' },
                 ),
             );
             promises.push(
@@ -599,6 +609,7 @@ export class EventsByTopicScraper {
                     NFT_FEATURE_START_BLOCK,
                     parseErc1155OrderFilledEvent,
                     {},
+                    { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
                 ),
             );
             promises.push(
@@ -629,6 +640,7 @@ export class EventsByTopicScraper {
                     NFT_FEATURE_START_BLOCK,
                     parseErc1155OrderPresignedEvent,
                     {},
+                    { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
                 ),
             );
         }

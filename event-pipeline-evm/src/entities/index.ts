@@ -33,6 +33,7 @@ export { StakingPoolEarnedRewardsInEpochEvent } from './staking_pool_earned_rewa
 export { StakingPoolMetadata } from './staking_pool_metadata';
 export { StakingProxyDeployment } from './staking_proxy_deployment';
 export { TimechainSwapV1Event } from './timechain_swap_v1_event';
+export { TokenMetadata } from './token_metadata';
 export { Transaction } from './transaction';
 export { TransactionExecutionEvent } from './transaction_execution_event';
 export { TransactionLogs } from './transaction_log';
