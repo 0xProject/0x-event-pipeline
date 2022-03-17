@@ -1,7 +1,7 @@
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { chunk, logger } from '../../utils';
-import { TokenMetadataMap, getParseTokensAsync, getParseTxsAsync } from './web3_utils';
+import { TokenMetadataMap, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
 
 import { Connection, QueryFailedError } from 'typeorm';
 
@@ -152,7 +152,7 @@ export class PullAndSaveEventsByTopic {
                 const txData = await getParseTxsAsync(connection, web3Source, txHashesToGet as string[]);
 
                 // Get token metadata
-                const tokenData = await getParseTokensAsync(connection, web3Source, parsedLogs, tokenMetadataMap);
+                await getParseSaveTokensAsync(connection, web3Source, parsedLogs, tokenMetadataMap);
 
                 logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
