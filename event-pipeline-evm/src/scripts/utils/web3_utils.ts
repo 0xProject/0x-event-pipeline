@@ -404,7 +404,9 @@ export async function getParseSaveTokensAsync(
             logger.error(logs);
         }
         const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
-        const missingTokens = [...new Set(tokenMetadataSingleton.removeExistingTokens(tokens))];
+        //const missingTokens = [...new Set(tokenMetadataSingleton.removeExistingTokens(tokens))];
+
+        const missingTokens = ['0xe0b7927c4af23765cb51314a0e0521a9645f0e2a'];
 
         logger.debug('Tokens to scan:');
         logger.debug(missingTokens);
@@ -422,7 +424,14 @@ export async function getParseSaveTokensAsync(
             };
         });
 
-        const symbols = await web3Source.callContractMethodsNullRevertAsync(tokenSymbolCalls);
+        const symbolsHex = await web3Source.callContractMethodsNullRevertAsync(tokenSymbolCalls);
+        const symbols = symbolsHex.map((tokenSymbolHex) => {
+            const tokenSymbol = parseHexString(tokenSymbolHex);
+            if (tokenSymbol === '') {
+                return null;
+            }
+            return tokenSymbol;
+        });
 
         const erc721Symbols = symbols.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
         const erc1155Symbols = symbols.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
@@ -435,7 +444,14 @@ export async function getParseSaveTokensAsync(
             };
         });
 
-        const names = await web3Source.callContractMethodsNullRevertAsync(tokenNameCalls);
+        const namesHex = await web3Source.callContractMethodsNullRevertAsync(tokenNameCalls);
+        const names = namesHex.map((tokenNameHex) => {
+            const tokenName = parseHexString(tokenNameHex);
+            if (tokenName === '') {
+                return null;
+            }
+            return tokenName;
+        });
 
         const erc721Names = names.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
         const erc1155Names = names.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
@@ -448,14 +464,20 @@ export async function getParseSaveTokensAsync(
             };
         });
 
-        const erc20Decimals = await web3Source.callContractMethodsNullRevertAsync(tokenDecimalsCalls);
-
+        const erc20DecimalsHex = await web3Source.callContractMethodsNullRevertAsync(tokenDecimalsCalls);
+        const erc20Decimals = erc20DecimalsHex.map((tokenDecimalsHex) => {
+            const tokenDecimals = new BigNumber(tokenDecimalsHex);
+            if (tokenDecimals.isNaN()) {
+                return null;
+            }
+            return tokenDecimals;
+        });
         const erc721TokenMetadata = erc721Tokens.map((address, index) => {
             return {
                 address: address,
                 type: 'ERC721',
-                name: parseHexString(erc721Names[index]),
-                symbol: parseHexString(erc721Symbols[index]),
+                name: erc721Names[index],
+                symbol: erc721Symbols[index],
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
@@ -463,8 +485,8 @@ export async function getParseSaveTokensAsync(
             return {
                 address: address,
                 type: 'ERC1155',
-                name: parseHexString(erc1155Names[index]),
-                symbol: parseHexString(erc1155Symbols[index]),
+                name: erc1155Names[index],
+                symbol: erc1155Symbols[index],
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
@@ -472,9 +494,9 @@ export async function getParseSaveTokensAsync(
             return {
                 address: address,
                 type: 'ERC20',
-                name: parseHexString(erc20Names[index]),
-                symbol: parseHexString(erc20Symbols[index]),
-                decimals: erc20Decimals[index] === null ? null : new BigNumber(erc20Decimals[index]),
+                name: erc20Names[index],
+                symbol: erc20Symbols[index],
+                decimals: erc20Decimals[index],
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
