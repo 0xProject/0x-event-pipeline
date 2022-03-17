@@ -404,9 +404,7 @@ export async function getParseSaveTokensAsync(
             logger.error(logs);
         }
         const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
-        //const missingTokens = [...new Set(tokenMetadataSingleton.removeExistingTokens(tokens))];
-
-        const missingTokens = ['0xe0b7927c4af23765cb51314a0e0521a9645f0e2a'];
+        const missingTokens = [...new Set(tokenMetadataSingleton.removeExistingTokens(tokens))];
 
         logger.debug('Tokens to scan:');
         logger.debug(missingTokens);
