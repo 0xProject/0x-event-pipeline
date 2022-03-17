@@ -27,7 +27,9 @@ export class TokenMetadataSingleton {
 
     async saveNewTokenMetadata(connection: Connection, newTokenMetadata: TokenMetadata[]): Promise<void> {
         const queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
         await queryRunner.manager.upsert(TokenMetadata, newTokenMetadata, ['address']);
+        await queryRunner.release();
         this.tokens.concat(newTokenMetadata.map((token) => token.address));
     }
 }
