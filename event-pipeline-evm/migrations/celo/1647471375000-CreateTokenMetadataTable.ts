@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const downQuery = `
-DROP TABLE events.token_metadata;
+DROP TABLE events_celo.token_metadata;
 `;
 
 const upQuery = `
-CREATE TABLE events.tokens_metadata (
+CREATE TABLE events_celo.tokens_metadata (
   observed_timestamp int8 NOT NULL,
   address varchar NOT NULL,
   "type" varchar NOT NULL,
@@ -14,9 +14,9 @@ CREATE TABLE events.tokens_metadata (
   decimals int8 NULL,
   CONSTRAINT tokens_metadata_pk PRIMARY KEY (address)
 );
-CREATE INDEX tokens_metadata_type_idx ON events.tokens_metadata USING btree (type);
+CREATE INDEX tokens_metadata_type_idx ON events_celo.tokens_metadata USING btree (type);
 
-INSERT INTO events.tokens_metadata (observed_timestamp,address,"type",symbol,"name","decimals")
+INSERT INTO events_celo.tokens_metadata (observed_timestamp,address,"type",symbol,"name","decimals")
   VALUES (0,'0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee','Native','CELO','Celo',18);
 
 `;
