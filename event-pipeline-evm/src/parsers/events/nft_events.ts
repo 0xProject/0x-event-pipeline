@@ -124,10 +124,11 @@ export function parseErc1155OrderFilledEvent(eventLog: RawLogEntry): Erc1155Orde
     parsedEvent.erc1155Token = decodedLog.erc1155Token.toLowerCase();
     // The ID of the ERC1155 asset.
     parsedEvent.erc1155TokenId = new BigNumber(decodedLog.erc1155TokenId);
+    // The amount of ERC1155 asset filled.
+    parsedEvent.erc1155FillAmount = new BigNumber(decodedLog.erc1155FillAmount);
     // If this order was matched with another using `matchERC1155Orders()`, this will be the address of the caller
     parsedEvent.matcher =
         decodedLog.matcher === '0x0000000000000000000000000000000000000000' ? null : decodedLog.matcher.toLowerCase();
-
     return parsedEvent;
 }
 
