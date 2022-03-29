@@ -103,9 +103,11 @@ services:
             PARASWAP_DEPLOYMENT_BLOCK: 14500000
             PARASWAP_CONTRACT_ADDRESS: "0x90249ed4d69D70E709fFCd8beE2c5A566f65dADE"
             FEAT_LIMIT_ORDERS: "true"
-            V4_NATIVE_FILL_START_BLOCK: "22788948"
+            V4_NATIVE_FILL_START_BLOCK: "17587182"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 25697854
+            FEAT_OTC_ORDERS: "true"
+            OTC_ORDERS_FEATURE_START_BLOCK: 26479109
 
 
     event-pipeline-avalanche:
