@@ -394,7 +394,6 @@ export async function getParseSaveTokensAsync(
 ): Promise<void> {
     if (tokenMetadataMap !== null) {
         const tokens: string[] = [];
-        console.log(logs);
         try {
             logs.map((log: any) => {
                 tokens.push(log[tokenMetadataMap.tokenA]);
@@ -405,7 +404,9 @@ export async function getParseSaveTokensAsync(
             logger.error(logs);
         }
         const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
-        const missingTokens = [...new Set(tokenMetadataSingleton.removeExistingTokens(tokens))];
+        const missingTokens = [
+            ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
+        ];
 
         logger.debug('Tokens to scan:');
         logger.debug(missingTokens);
