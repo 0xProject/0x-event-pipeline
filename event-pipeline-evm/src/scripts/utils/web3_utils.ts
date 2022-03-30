@@ -394,6 +394,7 @@ export async function getParseSaveTokensAsync(
 ): Promise<void> {
     if (tokenMetadataMap !== null) {
         const tokens: string[] = [];
+        console.log(logs);
         try {
             logs.map((log: any) => {
                 tokens.push(log[tokenMetadataMap.tokenA]);
