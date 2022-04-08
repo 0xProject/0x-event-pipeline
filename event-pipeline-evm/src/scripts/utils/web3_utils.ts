@@ -426,7 +426,12 @@ export async function getParseSaveTokensAsync(
 
         const symbolsHex = await web3Source.callContractMethodsNullRevertAsync(tokenSymbolCalls);
         const symbols = symbolsHex.map((tokenSymbolHex) => {
-            const tokenSymbol = parseHexString(tokenSymbolHex);
+            let tokenSymbol = '';
+            try {
+                tokenSymbol = parseHexString(tokenSymbolHex) || '';
+            } catch {
+                logger.error('Failed to parse token symbol');
+            }
             if (tokenSymbol === '') {
                 return null;
             }
@@ -446,7 +451,12 @@ export async function getParseSaveTokensAsync(
 
         const namesHex = await web3Source.callContractMethodsNullRevertAsync(tokenNameCalls);
         const names = namesHex.map((tokenNameHex) => {
-            const tokenName = parseHexString(tokenNameHex);
+            let tokenName = '';
+            try {
+                tokenName = parseHexString(tokenNameHex) || '';
+            } catch {
+                logger.error('Failed to parse token name');
+            }
             if (tokenName === '') {
                 return null;
             }
@@ -467,7 +477,8 @@ export async function getParseSaveTokensAsync(
         const erc20DecimalsHex = await web3Source.callContractMethodsNullRevertAsync(tokenDecimalsCalls);
         const erc20Decimals = erc20DecimalsHex.map((tokenDecimalsHex) => {
             const tokenDecimals = new BigNumber(tokenDecimalsHex);
-            if (tokenDecimals.isNaN()) {
+            // UNISWAP v1 LP tokens respond with a very high number
+            if (tokenDecimals.isNaN() || tokenDecimals.gt(1000)) {
                 return null;
             }
             return tokenDecimals;

@@ -163,7 +163,7 @@ services:
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_CELO}'
-            CHAIN_ID: '43114'
+            CHAIN_ID: '42220'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
             SCHEMA: 'events_celo'
             ENABLE_PROMETHEUS_METRICS: "true"
