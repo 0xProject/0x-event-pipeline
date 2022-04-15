@@ -25,6 +25,7 @@ export { OtcOrderFilledEvent } from './otc_order_filled_event';
 export { ParamsSetEvent } from './params_set_event';
 export { ParaswapSwappedV4Event } from './paraswap_swapped_v4_event';
 export { ParaswapSwappedV5Event } from './paraswap_swapped_v5_event';
+export { ParaswapSwapped2V5Event } from './paraswap_swapped2_v5_event';
 export { RewardsPaidEvent } from './rewards_paid_event';
 export { SlingshotTradeEvent } from './slingshot_trade_event';
 export { StakeEvent } from './stake_event';

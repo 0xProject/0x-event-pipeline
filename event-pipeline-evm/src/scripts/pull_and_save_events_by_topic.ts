@@ -19,6 +19,7 @@ import {
     OneinchSwappedV4Event,
     OpenOceanSwappedV1Event,
     OtcOrderFilledEvent,
+    ParaswapSwapped2V5Event,
     ParaswapSwappedV4Event,
     ParaswapSwappedV5Event,
     SlingshotTradeEvent,
@@ -40,6 +41,7 @@ import {
     FEAT_ONEINCH_SWAPPED_V4_EVENT,
     FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     FEAT_OTC_ORDERS,
+    FEAT_PARASWAP_SWAPPED2_V5_EVENT,
     FEAT_PARASWAP_SWAPPED_V4_EVENT,
     FEAT_PARASWAP_SWAPPED_V5_EVENT,
     FEAT_PLP_SWAP_EVENT,
@@ -61,6 +63,7 @@ import {
     OTC_ORDERS_FEATURE_START_BLOCK,
     PARASWAP_V4_CONTRACT_ADDRESS,
     PARASWAP_V4_DEPLOYMENT_BLOCK,
+    PARASWAP_V5_5_DEPLOYMENT_BLOCK,
     PARASWAP_V5_CONTRACT_ADDRESS,
     PARASWAP_V5_DEPLOYMENT_BLOCK,
     PLP_VIP_START_BLOCK,
@@ -88,6 +91,7 @@ import {
     OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
     OPEN_OCEAN_V1_CONTRACT_ADDRESS,
     OTC_ORDER_FILLED_EVENT_TOPIC,
+    PARASWAP_SWAPPED2_V5_EVENT_TOPIC,
     PARASWAP_SWAPPED_V4_EVENT_TOPIC,
     PARASWAP_SWAPPED_V5_EVENT_TOPIC,
     RFQORDERFILLED_EVENT_TOPIC,
@@ -106,7 +110,11 @@ import {
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
 import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
 import { parseOpenOceanSwappedV1Event } from '../parsers/events/open_ocean_swapped_event';
-import { parseParaswapSwappedV4Event, parseParaswapSwappedV5Event } from '../parsers/events/paraswap_swapped_event';
+import {
+    parseParaswapSwapped2V5Event,
+    parseParaswapSwappedV4Event,
+    parseParaswapSwappedV5Event,
+} from '../parsers/events/paraswap_swapped_event';
 import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
@@ -297,6 +305,24 @@ export class EventsByTopicScraper {
                     PARASWAP_V5_CONTRACT_ADDRESS,
                     PARASWAP_V5_DEPLOYMENT_BLOCK,
                     parseParaswapSwappedV5Event,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_PARASWAP_SWAPPED2_V5_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwapped2V5Event>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ParaswapSwapped2V5Event',
+                    ParaswapSwapped2V5Event,
+                    'paraswap_swapped2_v5_events',
+                    PARASWAP_SWAPPED2_V5_EVENT_TOPIC,
+                    PARASWAP_V5_CONTRACT_ADDRESS,
+                    PARASWAP_V5_5_DEPLOYMENT_BLOCK,
+                    parseParaswapSwapped2V5Event,
                     {},
                 ),
             );

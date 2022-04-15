@@ -13,6 +13,7 @@ import {
     DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     DEFAULT_FEAT_OTC_ORDERS,
+    DEFAULT_FEAT_PARASWAP_SWAPPED2_V5_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
     DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
     DEFAULT_FEAT_PLP_SWAP_EVENT,
@@ -242,6 +243,11 @@ export const FEAT_PARASWAP_SWAPPED_V5_EVENT = getBoolConfig(
     DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
 );
 
+export const FEAT_PARASWAP_SWAPPED2_V5_EVENT = getBoolConfig(
+    'FEAT_PARASWAP_SWAPPED2_V5_EVENT',
+    DEFAULT_FEAT_PARASWAP_SWAPPED2_V5_EVENT,
+);
+
 export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK', -1);
 if (ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_V3_EVENT) {
     throwError(
@@ -301,7 +307,18 @@ if (PARASWAP_V5_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_V5_EVENT) {
         `The Paraswap Swapped v5 Event scraper is enabled, but no PARASWAP_V5_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
     );
 }
+if (PARASWAP_V5_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED2_V5_EVENT) {
+    throwError(
+        `The Paraswap Swapped2 v5 Event scraper is enabled, but no PARASWAP_V5_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
+    );
+}
 
+export const PARASWAP_V5_5_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V5_5_DEPLOYMENT_BLOCK', -1);
+if (PARASWAP_V5_5_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED2_V5_EVENT) {
+    throwError(
+        `The Paraswap Swapped2 v5 Event scraper is enabled, but no PARASWAP_V5_5_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
+    );
+}
 export const FEAT_RFQ_EVENT = getBoolConfig('FEAT_RFQ_EVENT', DEFAULT_FEAT_RFQ_EVENT);
 
 export const FEAT_LIMIT_ORDERS = getBoolConfig('FEAT_LIMIT_ORDERS', DEFAULT_FEAT_LIMIT_ORDERS);
