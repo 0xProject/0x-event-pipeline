@@ -75,6 +75,11 @@ services:
             ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK: 12386039
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 15860129
+            FEAT_PARASWAP_SWAPPED2_V5_EVENT: "true"
+            PARASWAP_V5_CONTRACT_ADDRESS: "0xdef171fe48cf0115b1d80b88dc8eab59176fee57"
+            PARASWAP_V5_5_DEPLOYMENT_BLOCK: 15285647
+            FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
+            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 10930110
 
     event-pipeline-polygon:
         depends_on:
@@ -108,7 +113,11 @@ services:
             NFT_FEATURE_START_BLOCK: 25697854
             FEAT_OTC_ORDERS: "true"
             OTC_ORDERS_FEATURE_START_BLOCK: 26479109
-
+            FEAT_PARASWAP_SWAPPED2_V5_EVENT: "true"
+            PARASWAP_V5_CONTRACT_ADDRESS: "0xdef171fe48cf0115b1d80b88dc8eab59176fee57"
+            PARASWAP_V5_5_DEPLOYMENT_BLOCK: 24981090
+            FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
+            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 19409831
 
     event-pipeline-avalanche:
         depends_on:
@@ -132,6 +141,11 @@ services:
             FLASHWALLET_DEPLOYMENT_BLOCK: 11805869
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11816835
+            FEAT_PARASWAP_SWAPPED2_V5_EVENT: "true"
+            PARASWAP_V5_CONTRACT_ADDRESS: "0xdef171fe48cf0115b1d80b88dc8eab59176fee57"
+            PARASWAP_V5_5_DEPLOYMENT_BLOCK: 10965347
+            FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
+            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 3794686
 
     event-pipeline-fantom:
         depends_on:
@@ -150,9 +164,19 @@ services:
             EP_DEPLOYMENT_BLOCK: 18855765
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 1000
-            MINUTES_BETWEEN_RUNS: 1
+            SECONDS_BETWEEN_RUNS: 60
+            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+            FLASHWALLET_ADDRESS: "0xb4d961671cadfed687e040b076eee29840c142e5"
+            FLASHWALLET_DEPLOYMENT_BLOCK: 18855797
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 32817445
+            FEAT_PARASWAP_SWAPPED2_V5_EVENT: "true"
+            PARASWAP_V5_CONTRACT_ADDRESS: "0xdef171fe48cf0115b1d80b88dc8eab59176fee57"
+            PARASWAP_V5_5_DEPLOYMENT_BLOCK: 31068544
+            FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
+            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 16979047
+            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 16979047
+
 
     event-pipeline-celo:
         depends_on:
