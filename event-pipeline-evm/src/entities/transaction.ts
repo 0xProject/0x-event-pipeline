@@ -51,4 +51,13 @@ export class Transaction {
     // quote ID from affiliate data
     @Column({ name: 'quote_id', type: 'varchar' })
     public quoteId!: string | null;
+    // transaction version
+    @Column({ name: 'type', type: 'numeric' })
+    public type!: number;
+    // the maximum paid eth per gas unit (in wei) includes base fee and priority fee
+    @Column({ name: 'max_fee_per_gas', type: 'numeric', transformer: bigNumberTransformer })
+    public maxFeePerGas!: BigNumber | null;
+    // priority fee in wei
+    @Column({ name: 'max_priority_fee_per_gas', type: 'numeric', transformer: bigNumberTransformer })
+    public maxPriorityFeePerGas!: BigNumber | null;
 }

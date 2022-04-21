@@ -17,6 +17,10 @@ export interface ContractCallInfo {
     data: string;
 }
 
+export interface BlockWithTransactionData1155 extends BlockWithTransactionData {
+    baseFeePerGas: number;
+}
+
 export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
     private readonly _web3: any;
@@ -33,7 +37,7 @@ export class Web3Source {
             return new Promise((resolve, reject) => {
                 const req = this._web3.eth.getBlock.request(
                     i + startBlock,
-                    (err: any, data: BlockWithTransactionData) => {
+                    (err: any, data: BlockWithTransactionData1155) => {
                         if (err) {
                             logger.error(`Blocks error: ${err}`);
                             reject(err);
