@@ -16,4 +16,8 @@ export class Block {
     // collation time of the block
     @Column({ name: 'block_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockTimestamp!: number;
+    @Column({ name: 'base_fee_per_gas', type: 'bigint', transformer: numberToBigIntTransformer })
+    public baseFeePerGas!: number;
+    @Column({ name: 'gas_used', type: 'bigint', transformer: numberToBigIntTransformer })
+    public gasUsed!: number;
 }
