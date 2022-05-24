@@ -640,6 +640,7 @@ export async function getParseSaveTxAsync(
         }
 
         await queryRunner.commitTransaction();
+        queryRunner.release();
     }
     logger.info(`Saved ${txData.parsedTxs.length} Transactions`);
 }
