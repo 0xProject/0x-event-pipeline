@@ -162,7 +162,7 @@ const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 export class EventsByTopicScraper {
     public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
         const startTime = new Date().getTime();
-        logger.info(`pulling events`);
+        logger.info(`Pulling Events by Topic`);
         const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);
 
         logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
@@ -673,11 +673,12 @@ export class EventsByTopicScraper {
             );
         }
 
-        const txHashes = [
-            ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
-        ];
-
-        await getParseSaveTxAsync(connection, web3Source, txHashes);
+        Promise.all(promises).then(async (txHashesArrays) => {
+            console.log('FINISHED ALL PROMISES');
+            const txHashes = txHashesArrays.reduce((accumulator, value) => accumulator.concat(value), []);
+            const txHashesUnique = [...new Set(txHashes)];
+            await getParseSaveTxAsync(connection, web3Source, txHashesUnique);
+        });
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
