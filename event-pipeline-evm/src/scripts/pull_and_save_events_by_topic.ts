@@ -673,12 +673,10 @@ export class EventsByTopicScraper {
             );
         }
 
-        Promise.all(promises).then(async (txHashesArrays) => {
-            console.log('FINISHED ALL PROMISES');
-            const txHashes = txHashesArrays.reduce((accumulator, value) => accumulator.concat(value), []);
-            const txHashesUnique = [...new Set(txHashes)];
-            await getParseSaveTxAsync(connection, web3Source, txHashesUnique);
-        });
+        const txHashes = [
+            ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
+        ];
+        await getParseSaveTxAsync(connection, web3Source, txHashes);
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
