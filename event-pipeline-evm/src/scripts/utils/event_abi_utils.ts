@@ -1,7 +1,7 @@
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { Event, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
+import { Event } from '../../entities';
 import { chunk, logger } from '../../utils';
-import { TokenMetadataMap, TxDetails, TxDetailsType, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
+import { TokenMetadataMap, getParseSaveTokensAsync } from './web3_utils';
 
 import { Connection, QueryFailedError } from 'typeorm';
 
@@ -34,8 +34,7 @@ export class PullAndSaveEventsByTopic {
         parser: (decodedLog: RawLogEntry) => EVENT,
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
-        getTxData = true,
-    ): Promise<void> {
+    ): Promise<string[]> {
         const startBlock = await this._getStartBlockAsync(
             eventName,
             connection,
@@ -60,6 +59,7 @@ export class PullAndSaveEventsByTopic {
 
         const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
+        let txHashes: string[] = [];
         await Promise.all(
             rawLogsArray.map(async (rawLogs) => {
                 const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
@@ -148,12 +148,8 @@ export class PullAndSaveEventsByTopic {
 
                 SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
 
-                // Get Tx data for events
-                let txData: TxDetailsType = new TxDetails();
-                if (getTxData) {
-                    const txHashesToGet = parsedLogs.map((log: Event) => log.transactionHash);
-                    txData = await getParseTxsAsync(connection, web3Source, txHashesToGet as string[]);
-                }
+                // Get list of tx hashes
+                txHashes = parsedLogs.map((log: Event) => log.transactionHash);
 
                 // Get token metadata
                 await getParseSaveTokensAsync(connection, web3Source, parsedLogs, tokenMetadataMap);
@@ -169,11 +165,11 @@ export class PullAndSaveEventsByTopic {
                     eventType,
                     tableName,
                     await this._lastBlockProcessedAsync(eventName, endBlock),
-                    txData,
                     deleteOptions,
                 );
             }),
         );
+        return txHashes;
     }
 
     private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
@@ -211,7 +207,6 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
-        txData: TxDetailsType,
         deleteOptions: DeleteOptions,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
@@ -235,11 +230,6 @@ export class PullAndSaveEventsByTopic {
             deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
         }
 
-        const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
-        const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
-        const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
-        const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
-
         await queryRunner.connect();
 
         await queryRunner.startTransaction('REPEATABLE READ');
@@ -248,22 +238,8 @@ export class PullAndSaveEventsByTopic {
                 // delete events scraped prior to the most recent block range
                 await queryRunner.manager.query(deleteQuery);
 
-                // delete the transactions for the fetched events
-                await queryRunner.manager.query(txDeleteQuery);
-                await queryRunner.manager.query(txReceiptDeleteQuery);
-                await queryRunner.manager.query(txLogsDeleteQuery);
-
                 for (const chunkItems of chunk(toSave, 300)) {
                     await queryRunner.manager.insert(eventType, chunkItems);
-                }
-                for (const chunkItems of chunk(txData.parsedTxs, 300)) {
-                    await queryRunner.manager.insert(Transaction, chunkItems);
-                }
-                for (const chunkItems of chunk(txData.parsedReceipts, 300)) {
-                    await queryRunner.manager.insert(TransactionReceipt, chunkItems);
-                }
-                for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
-                    await queryRunner.manager.insert(TransactionLogs, chunkItems);
                 }
             }
             await queryRunner.manager.save(lastBlockProcessed);

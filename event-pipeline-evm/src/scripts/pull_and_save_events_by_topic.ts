@@ -4,6 +4,8 @@ import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/events/web3';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
+import { getParseSaveTxAsync } from './utils/web3_utils';
+
 import {
     ERC20BridgeTransferEvent,
     Erc1155OrderCancelledEvent,
@@ -165,7 +167,7 @@ export class EventsByTopicScraper {
 
         logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
 
-        const promises: Promise<void>[] = [];
+        const promises: Promise<string[]>[] = [];
 
         if (FEAT_TRANSFORMED_ERC20_EVENT) {
             promises.push(
@@ -181,8 +183,6 @@ export class EventsByTopicScraper {
                     EP_DEPLOYMENT_BLOCK,
                     parseTransformedERC20Event,
                     {},
-                    null,
-                    false,
                 ),
             );
         }
@@ -673,7 +673,11 @@ export class EventsByTopicScraper {
             );
         }
 
-        await Promise.all(promises);
+        const txHashes = [
+            ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
+        ];
+
+        await getParseSaveTxAsync(connection, web3Source, txHashes);
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;

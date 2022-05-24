@@ -605,3 +605,41 @@ export async function getParseTxsAsync(
 
     return { parsedTxs, parsedReceipts, parsedTxLogs };
 }
+
+export async function getParseSaveTxAsync(
+    connection: Connection,
+    web3Source: Web3Source,
+    hashes: string[],
+): Promise<void> {
+    logger.info(`Searching for ${hashes.length} Transactions`);
+
+    const txData = await getParseTxsAsync(connection, web3Source, hashes);
+
+    const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
+    const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
+    const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
+    const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
+    if (txData.parsedTxs.length) {
+        // delete the transactions for the fetched events
+        const queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        await queryRunner.manager.query(txDeleteQuery);
+        await queryRunner.manager.query(txReceiptDeleteQuery);
+        await queryRunner.manager.query(txLogsDeleteQuery);
+
+        for (const chunkItems of chunk(txData.parsedTxs, 300)) {
+            await queryRunner.manager.insert(Transaction, chunkItems);
+        }
+        for (const chunkItems of chunk(txData.parsedReceipts, 300)) {
+            await queryRunner.manager.insert(TransactionReceipt, chunkItems);
+        }
+        for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
+            await queryRunner.manager.insert(TransactionLogs, chunkItems);
+        }
+
+        await queryRunner.commitTransaction();
+    }
+    logger.info(`Saved ${txData.parsedTxs.length} Transactions`);
+}
