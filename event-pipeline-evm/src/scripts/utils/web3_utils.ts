@@ -32,6 +32,18 @@ export type TokenMetadataMap = {
     tokenB: string;
 } | null;
 
+export type TxDetailsType = {
+    parsedTxs: Transaction[];
+    parsedReceipts: TransactionReceipt[];
+    parsedTxLogs: TransactionLogs[];
+};
+
+export class TxDetails implements TxDetailsType {
+    parsedTxs = [];
+    parsedReceipts = [];
+    parsedTxLogs = [];
+}
+
 export const MISSING_TRANSACTIONS = new Gauge({
     name: 'event_scraper_missing_transactions',
     help: 'The count of how many partial transactions are in the DB, but have been reorged out of the blockchain',
@@ -562,7 +574,7 @@ export async function getParseTxsAsync(
     connection: Connection,
     web3Source: Web3Source,
     hashes: string[],
-): Promise<{ parsedTxs: Transaction[]; parsedReceipts: TransactionReceipt[]; parsedTxLogs: TransactionLogs[] }> {
+): Promise<TxDetailsType> {
     logger.debug(`Grabbing transaction data`);
 
     const dedupedHashes = [...new Set(hashes)];
