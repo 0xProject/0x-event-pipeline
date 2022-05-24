@@ -1,7 +1,7 @@
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { chunk, logger } from '../../utils';
-import { TokenMetadataMap, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
+import { TokenMetadataMap, TxDetails, TxDetailsType, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
 
 import { Connection, QueryFailedError } from 'typeorm';
 
@@ -34,6 +34,7 @@ export class PullAndSaveEventsByTopic {
         parser: (decodedLog: RawLogEntry) => EVENT,
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
+        getTxData = true,
     ): Promise<void> {
         const startBlock = await this._getStartBlockAsync(
             eventName,
@@ -148,8 +149,11 @@ export class PullAndSaveEventsByTopic {
                 SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
 
                 // Get Tx data for events
-                const txHashesToGet = parsedLogs.map((log: Event) => log.transactionHash);
-                const txData = await getParseTxsAsync(connection, web3Source, txHashesToGet as string[]);
+                let txData: TxDetailsType = new TxDetails();
+                if (getTxData) {
+                    const txHashesToGet = parsedLogs.map((log: Event) => log.transactionHash);
+                    txData = await getParseTxsAsync(connection, web3Source, txHashesToGet as string[]);
+                }
 
                 // Get token metadata
                 await getParseSaveTokensAsync(connection, web3Source, parsedLogs, tokenMetadataMap);
@@ -207,7 +211,7 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
-        txData: { parsedTxs: Transaction[]; parsedReceipts: TransactionReceipt[]; parsedTxLogs: TransactionLogs[] },
+        txData: TxDetailsType,
         deleteOptions: DeleteOptions,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();

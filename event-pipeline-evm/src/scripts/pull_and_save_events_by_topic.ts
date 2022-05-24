@@ -181,6 +181,8 @@ export class EventsByTopicScraper {
                     EP_DEPLOYMENT_BLOCK,
                     parseTransformedERC20Event,
                     {},
+                    null,
+                    false,
                 ),
             );
         }
