@@ -688,7 +688,7 @@ export class EventsByTopicScraper {
                         connection,
                         web3Source,
                         latestBlockWithOffset,
-                        'LogTransferEvent',
+                        `LogTransferEvent-${payment_recipient}`,
                         LogTransferEvent,
                         'log_transfer_events',
                         [
