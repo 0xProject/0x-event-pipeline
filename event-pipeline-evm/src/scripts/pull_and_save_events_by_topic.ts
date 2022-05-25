@@ -681,7 +681,6 @@ export class EventsByTopicScraper {
         }
 
         if (FEAT_POLYGON_RFQM_PAYMENTS) {
-            console.log('POLYGON_RFQM_PAYMENTS_ADDRESSES', POLYGON_RFQM_PAYMENTS_ADDRESSES);
             for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
                 promises.push(
                     pullAndSaveEventsByTopic.getParseSaveEventsByTopic<LogTransferEvent>(
