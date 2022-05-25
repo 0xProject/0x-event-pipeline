@@ -28,7 +28,7 @@ export class PullAndSaveEventsByTopic {
         eventName: string,
         eventType: any,
         tableName: string,
-        topics: string[],
+        topics: (string | null)[],
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => EVENT,

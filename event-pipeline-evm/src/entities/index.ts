@@ -15,6 +15,7 @@ export { Event } from './event';
 export { ExpiredRfqOrderEvent } from './expired_rfq_order_event';
 export { FillEvent } from './fill_event';
 export { LastBlockProcessed } from './last_block_processed';
+export { LogTransferEvent } from './log_transfer_event';
 export { MakerStakingPoolSetEvent } from './maker_staking_pool_set_event';
 export { MoveStakeEvent } from './move_stake_event';
 export { NativeFill } from './native_fill';

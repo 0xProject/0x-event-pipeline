@@ -16,6 +16,7 @@ import {
     Erc721OrderPresignedEvent,
     ExpiredRfqOrderEvent,
     FillEvent,
+    LogTransferEvent,
     NativeFill,
     OneinchSwappedV3Event,
     OneinchSwappedV4Event,
@@ -47,6 +48,7 @@ import {
     FEAT_PARASWAP_SWAPPED_V4_EVENT,
     FEAT_PARASWAP_SWAPPED_V5_EVENT,
     FEAT_PLP_SWAP_EVENT,
+    FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
     FEAT_SLINGSHOT_TRADE_EVENT,
     FEAT_TIMECHAIN_SWAP_V1_EVENT,
@@ -69,6 +71,8 @@ import {
     PARASWAP_V5_CONTRACT_ADDRESS,
     PARASWAP_V5_DEPLOYMENT_BLOCK,
     PLP_VIP_START_BLOCK,
+    POLYGON_RFQM_PAYMENTS_ADDRESSES,
+    POLYGON_RFQM_PAYMENTS_START_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
     TIMECHAIN_V1_DEPLOYMENT_BLOCK,
     UNISWAP_V2_VIP_SWAP_SOURCES,
@@ -87,6 +91,7 @@ import {
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     LIMITORDERFILLED_EVENT_TOPIC,
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
+    LOG_TRANSFER_EVENT_TOPIC_0,
     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
     ONEINCH_ROUTER_V4_CONTRACT_ADDRESS,
     ONEINCH_SWAPPED_EVENT_TOPIC,
@@ -96,6 +101,7 @@ import {
     PARASWAP_SWAPPED2_V5_EVENT_TOPIC,
     PARASWAP_SWAPPED_V4_EVENT_TOPIC,
     PARASWAP_SWAPPED_V5_EVENT_TOPIC,
+    POLYGON_MATIC_ADDRESS,
     RFQORDERFILLED_EVENT_TOPIC,
     SLINGSHOT_CONTRACT_ADDRESS,
     SLINGSHOT_TRADE_EVENT_TOPIC,
@@ -148,6 +154,7 @@ import {
 } from '../parsers/events/nft_events';
 
 import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
+import { parseLogTransferEvent } from '../parsers/events/log_transfer_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
@@ -673,6 +680,31 @@ export class EventsByTopicScraper {
             );
         }
 
+        if (FEAT_POLYGON_RFQM_PAYMENTS) {
+            console.log('POLYGON_RFQM_PAYMENTS_ADDRESSES', POLYGON_RFQM_PAYMENTS_ADDRESSES);
+            for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
+                promises.push(
+                    pullAndSaveEventsByTopic.getParseSaveEventsByTopic<LogTransferEvent>(
+                        connection,
+                        web3Source,
+                        latestBlockWithOffset,
+                        'LogTransferEvent',
+                        LogTransferEvent,
+                        'log_transfer_events',
+                        [
+                            LOG_TRANSFER_EVENT_TOPIC_0,
+                            addressToTopic(POLYGON_MATIC_ADDRESS),
+                            null,
+                            addressToTopic(payment_recipient),
+                        ],
+                        POLYGON_MATIC_ADDRESS,
+                        POLYGON_RFQM_PAYMENTS_START_BLOCK,
+                        parseLogTransferEvent,
+                        {},
+                    ),
+                );
+            }
+        }
         const txHashes = [
             ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
         ];
@@ -684,4 +716,11 @@ export class EventsByTopicScraper {
 
         logger.info(`Finished pulling events by topic in ${scriptDurationSeconds}`);
     }
+}
+
+function addressToTopic(address: string): string {
+    if (address.length === 42 && address.substring(0, 2) === '0x') {
+        return `0x000000000000000000000000${address.substring(2)}`;
+    }
+    throw new Error(`Error while converting convert ${address} to topic`);
 }

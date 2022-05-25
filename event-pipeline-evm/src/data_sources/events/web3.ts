@@ -10,7 +10,7 @@ export interface LogPullInfo {
     address: string;
     fromBlock: number;
     toBlock: number;
-    topics: string[];
+    topics: (string | null)[];
 }
 export interface ContractCallInfo {
     to: string;
