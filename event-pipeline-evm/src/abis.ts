@@ -1046,3 +1046,19 @@ export const ERC1155_ORDER_PRESIGNED_ABI = {
     name: 'ERC1155OrderPreSigned',
     type: 'event',
 };
+
+export const LOG_TRANSFER_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'token', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'from', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'to', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'input1', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'input2', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'output1', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'output2', type: 'uint256' },
+    ],
+    name: 'LogTransfer',
+    type: 'event',
+};
