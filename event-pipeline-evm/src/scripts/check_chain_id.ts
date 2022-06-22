@@ -11,7 +11,7 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class ChainIdChecker {
     public checkChainId(expected: number): void {
-        web3Source.getChainIdAsync().then(connetedChainId => {
+        web3Source.getChainIdAsync().then((connetedChainId) => {
             if (connetedChainId != expected) {
                 logger.fatal(`Incorrect Chain ID. Expected: ${expected}, connected: ${connetedChainId}`);
                 process.exit(1);
