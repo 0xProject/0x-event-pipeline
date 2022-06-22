@@ -12,7 +12,7 @@ import { parseEvent } from './parse_event';
 export function parseTransactionExecutionEvents(
     eventLogs: LogWithDecodedArgs<ExchangeTransactionExecutionEventArgs>[],
 ): TransactionExecutionEvent[] {
-    return eventLogs.map(event => parseTransactionExecutionEvent(event));
+    return eventLogs.map((event) => parseTransactionExecutionEvent(event));
 }
 
 /**
