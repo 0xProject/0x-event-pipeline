@@ -17,7 +17,7 @@ CREATE TABLE events_polygon.tokens_metadata (
 CREATE INDEX tokens_metadata_type_idx ON events_polygon.tokens_metadata USING btree (type);
 
 INSERT INTO events_polygon.tokens_metadata (observed_timestamp,address,"type",symbol,"name","decimals")
-  VALUES (0,'0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee','Native','MATIC','Matic Token',18);
+  VALUES (0,'0x0000000000000000000000000000000000001010','Native','MATIC','Matic Token',18);
 
 `;
 
