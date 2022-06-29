@@ -10,13 +10,12 @@
         "skipLibCheck": true,
         "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"],
         "strict": true,
-        // These settings are required for TypeScript project references
-        "declaration": true,
-        "declarationMap": true,
-        "sourceMap": true
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "outDir": "lib",
+        "rootDir": ".",
+        "resolveJsonModule": true,
+        "emitDecoratorMetadata": true
     },
-    // The root of the project is just a list of references and does not contain
-    // any top-level TypeScript code.
-    "include": [],
-    "references": [{ "path": "./event-pipeline" }, { "path": "./event-pipeline-bsc" }, { "path": "./staking-api" }]
+    "include": ["./src/**/*", "./test/**/*", "./migrations/**/*"]
 }

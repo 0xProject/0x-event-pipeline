@@ -1,40 +1,61 @@
 {
-    "name": "0x-events-and-staking",
-    "private": true,
+    "name": "0x-event-pipeline-evm",
     "version": "0.0.1",
-    "description": "Combined repo for event pipelines and staking API",
+    "description": "A node.js app for pulling 0x event info to inform things like staking.",
     "license": "Apache-2.0",
-    "engines": {
-        "node": ">=12"
-    },
-    "workspaces": [
-        "*"
-    ],
     "scripts": {
-        "build": "lerna link && wsrun build $PKG -r --stages --fast-exit --exclude-missing",
-        "build:ts": "tsc -b",
-        "clean": "rm -rf wsrun clean $PKG --fast-exit -r --parallel --exclude-missing",
-        "clean:all": "yarn clean:db && yarn clean",
-        "clean:db": "rm -rf postgres",
-        "coverage:report:lcov": "nyc report --reporter=text-lcov > coverage/lcov.info",
-        "lerna": "lerna",
-        "lint": "wsrun lint $PKG --fast-exit --parallel --exclude-missing",
-        "prettier": "prettier --write '**/*.{ts,tsx,json,md}' --config .prettierrc",
-        "prettier:ci": "prettier --list-different '**/*.{ts,tsx,json,md}' --config .prettierrc",
-        "rebuild": "run-s clean build",
-        "remove_node_modules": "lerna clean --yes; rm -rf node_modules",
-        "test": "wsrun test $(echo $(echo ${npm_package_config_contractsPackages} ${npm_package_config_nonContractPackages} | tr ' ' '\n' | sort | uniq) ${npm_package_config_ignoreTestsForPackages} | tr ' ' '\n' | sort | uniq -u | tr '\n' ' ') --fast-exit --serial --exclude-missing",
-        "test:all": "wsrun test $PKG --fast-exit --serial --exclude-missing",
+        "build": "yarn tsc -b",
+        "dev": "nodemon -r dotenv/config src/index.ts | pino-pretty",
+        "start": "node lib/src/index.js",
+        "test": "yarn run_mocha",
+        "migrate_and_start": "yarn migrate:run && yarn start",
+        "rebuild_and_test": "run-s build test:all",
+        "test:db": "yarn run_mocha:db",
+        "test:all": "run-s test test:db",
+        "test:circleci": "yarn test:coverage",
+        "prettier": "prettier --check '**/*.{ts,tsx,json,md}'",
+        "prettier:ci": "prettier --list-different '**/*.{ts,tsx,json,md}'",
+        "run_mocha": "mocha --require source-map-support/register --require make-promises-safe 'lib/test/**/*.test.js' --bail --exit",
+        "run_mocha:db": "mocha --require source-map-support/register --require make-promises-safe lib/test/db_global_hooks.js 'lib/test/**/*.test.js' --bail --exit --timeout 60000",
         "test:coverage": "nyc npm run test:all --all && yarn coverage:report:lcov",
-        "watch:ts": "tsc -b -w",
-        "wsrun": "wsrun"
+        "coverage:report:lcov": "nyc report --reporter=text-lcov > coverage/lcov.info",
+        "clean": "rm -rf lib",
+        "lint": "eslint .",
+        "migrate:run": "yarn typeorm migration:run --config ./lib/src/ormconfig",
+        "migrate:revert": "yarn typeorm migration:revert --config ./lib/src/ormconfig",
+        "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations"
     },
     "devDependencies": {
-        "@0x-lerna-fork/lerna": "3.16.10",
-        "lerna": "^3.0.0-beta.25",
-        "npm-run-all": "^4.1.2",
-        "prettier": "~1.16.3",
-        "source-map-support": "^0.5.6",
-        "wsrun": "^2.2.0"
+        "@types/mocha": "^8.2.2",
+        "@types/node": "^8.0.29",
+        "@types/node-cron": "^2.0.2",
+        "@typescript-eslint/eslint-plugin": "^4.29.0",
+        "@typescript-eslint/parser": "^4.29.0",
+        "eslint": "^7.32.0",
+        "mocha": "^4.1.0",
+        "nodemon": "^2.0.12",
+        "pino-pretty": "^6.0.0",
+        "prettier": "^2.4.1",
+        "ts-node": "3.3.0"
+    },
+    "dependencies": {
+        "@0x/api-utils": "^0.0.1",
+        "@0x/dev-utils": "^4.2.9",
+        "@0x/order-utils": "^10.4.28",
+        "@0x/subproviders": "^6.6.0",
+        "@types/express": "^4.17.13",
+        "@types/pino": "^6.3.11",
+        "dotenv": "^8.2.0",
+        "node-cron": "^2.0.3",
+        "pg": "^8.5.1",
+        "pino": "^6.11.1",
+        "prom-client": "^13.2.0",
+        "reflect-metadata": "^0.1.13",
+        "typeorm": "^0.2.20",
+        "typescript": "3.9.9",
+        "web3": "^1.2.2"
+    },
+    "resolutions": {
+        "@0x/order-utils/@0x/contract-addresses": "^6.11.0"
     }
 }
