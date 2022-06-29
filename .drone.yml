@@ -1,62 +1,3 @@
-name: event-pipeline-sha
-kind: pipeline
-type: kubernetes
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-  - name: publish-sha
-    image: plugins/ecr
-    settings:
-      context: .
-      dockerfile: event-pipeline/Dockerfile
-      repo:
-        from_secret: ecr_repo_event-pipeline
-      registry:
-        from_secret: ecr_registry
-      region: us-east-1
-      tags:
-        - ${DRONE_COMMIT_SHA}
-trigger:
-  event:
-    exclude:
-    - pull_request
-node_selector:
-  drone-builds: true
----
-name: event-pipeline
-kind: pipeline
-type: kubernetes
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-  - name: publish
-    image: plugins/ecr
-    settings:
-      context: .
-      dockerfile: event-pipeline/Dockerfile
-      repo:
-        from_secret: ecr_repo_event-pipeline
-      registry:
-        from_secret: ecr_registry
-      region: us-east-1
-      tags:
-        - latest
-
-trigger:
-  branch:
-  - master
-  event:
-    include:
-      - push
-node_selector:
-  drone-builds: true
----
 name: event-pipeline-evm-sha
 kind: pipeline
 type: kubernetes
@@ -69,8 +10,6 @@ steps:
   - name: publish-sha
     image: plugins/ecr
     settings:
-      context: event-pipeline-evm
-      dockerfile: event-pipeline-evm/Dockerfile
       repo:
         from_secret: ecr_repo_event-pipeline-evm
       registry:
@@ -82,64 +21,5 @@ trigger:
   event:
     exclude:
     - pull_request
-node_selector:
-  drone-builds: true
----
-name: staking-api-sha
-kind: pipeline
-type: kubernetes
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-  - name: publish-sha
-    image: plugins/ecr
-    settings:
-      context: .
-      dockerfile: staking-api/Dockerfile
-      repo:
-        from_secret: ecr_repo_staking-api
-      registry:
-        from_secret: ecr_registry
-      region: us-east-1
-      tags:
-        - ${DRONE_COMMIT_SHA}
-trigger:
-  event:
-    exclude:
-    - pull_request
-node_selector:
-  drone-builds: true
----
-name: staking-api
-kind: pipeline
-type: kubernetes
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-  - name: publish
-    image: plugins/ecr
-    settings:
-      context: .
-      dockerfile: staking-api/Dockerfile
-      repo:
-        from_secret: ecr_repo_staking-api
-      registry:
-        from_secret: ecr_registry
-      region: us-east-1
-      tags:
-        - latest
-
-trigger:
-  branch:
-  - master
-  event:
-    include:
-      - push
 node_selector:
   drone-builds: true

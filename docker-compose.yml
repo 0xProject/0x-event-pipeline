@@ -1,7 +1,7 @@
 version: '3'
 services:
     postgres:
-        image: postgres:10.14
+        image: postgres:13.4
         environment:
             - POSTGRES_USER=api
             - POSTGRES_PASSWORD=api
@@ -14,11 +14,13 @@ services:
         ports:
             - '5432:5432'
         command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+
     event-pipeline-ethereum:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
@@ -56,7 +58,8 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
@@ -85,7 +88,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
             dockerfile: Dockerfile.dev
         restart: always
         environment:
@@ -123,7 +126,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
             dockerfile: Dockerfile.dev
         restart: always
         environment:
@@ -151,7 +154,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
             dockerfile: Dockerfile.dev
         restart: always
         environment:
@@ -182,7 +185,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
             dockerfile: Dockerfile.dev
         restart: always
         environment:
@@ -202,7 +205,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
             dockerfile: Dockerfile.dev
         restart: always
         environment:
@@ -229,7 +232,7 @@ services:
         depends_on:
             - postgres
         build:
-            context: event-pipeline-evm
+            context: .
             dockerfile: Dockerfile.dev
         restart: always
         environment:
@@ -247,16 +250,3 @@ services:
             OTC_ORDERS_FEATURE_START_BLOCK: 10857214
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11849825
-
-
-    staking-api:
-        depends_on:
-            - event-pipeline-ethereum
-        build:
-            context: .
-            dockerfile: staking-api/Dockerfile
-        restart: always
-        environment:
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
-        ports:
-            - '4000:4000'
