@@ -21,14 +21,10 @@ export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     eRC20BridgeTransferEvent.toToken = amount0In.gt(amount0Out) ? '1' : '0'; // maker_token
 
     eRC20BridgeTransferEvent.fromTokenAmount = new BigNumber(
-        amount0In.gt(amount0Out)
-            ? decodedLog.amount0In - decodedLog.amount0Out
-            : decodedLog.amount1In - decodedLog.amount1Out,
+        amount0In.gt(amount0Out) ? amount0In.minus(amount0Out) : amount1In.minus(amount1Out),
     ); // taker_token_amount
     eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(
-        amount0In.gt(amount0Out)
-            ? decodedLog.amount1Out - decodedLog.amount1In
-            : decodedLog.amount0Out - decodedLog.amount0In,
+        amount0In.gt(amount0Out) ? amount1Out.minus(amount1In) : amount0Out.minus(amount0In),
     ); // maker_token_amount
     eRC20BridgeTransferEvent.from = ''; // maker
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase(); // taker
@@ -43,9 +39,8 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent
     const decodedLog = abiCoder.decodeLog(SWAP_V3_ABI.inputs, eventLog.data, [eventLog.topics[1], eventLog.topics[2]]);
-
-    const amount0 = new BigNumber(Math.abs(decodedLog.amount0));
-    const amount1 = new BigNumber(Math.abs(decodedLog.amount1));
+    const amount0 = new BigNumber(decodedLog.amount0).abs();
+    const amount1 = new BigNumber(decodedLog.amount1).abs();
 
     // amount0 and amount1 are of opposite signs
     // neg value means token left the pool ie. maker
