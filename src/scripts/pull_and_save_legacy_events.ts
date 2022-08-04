@@ -2,7 +2,6 @@ import { web3Factory } from '@0x/dev-utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { logger } from '../utils/logger';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import 'reflect-metadata';
 import { Connection } from 'typeorm';
 
 import {

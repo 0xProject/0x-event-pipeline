@@ -477,6 +477,11 @@ validateStartBlock(
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
 );
 
+export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : [];
+if (KAFKA_BROKERS.length === 0) {
+    throwError(`KAFKA_BROKERS is missing`);
+}
+
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
         return process.env[env] === 'true';

@@ -30,6 +30,7 @@ services:
             SCHEMA: 'events'
             # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
             # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            KAFKA_BROKERS: '172.17.0.1:9092'
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000

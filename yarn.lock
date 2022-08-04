@@ -55,7 +55,12 @@
     js-sha3 "^0.7.0"
     uuid "^3.3.2"
 
-"@0x/contract-addresses@^6.6.0", "@0x/contract-addresses@^6.9.0":
+"@0x/contract-addresses@^6.11.0", "@0x/contract-addresses@^6.6.0":
+  version "6.17.0"
+  resolved "https://registry.yarnpkg.com/@0x/contract-addresses/-/contract-addresses-6.17.0.tgz#c2d119e5667b7dbf16998ef427a1af32650561a2"
+  integrity sha512-sIudU6OvlqkRVV1Fzxk0GEkSTAPssgf7UkVolsPJEqOaDw3NLGOc+bzMH2mr651054sTGMPme8G5eVO26OSPug==
+
+"@0x/contract-addresses@^6.9.0":
   version "6.9.0"
   resolved "https://registry.yarnpkg.com/@0x/contract-addresses/-/contract-addresses-6.9.0.tgz#910115ba5a9de8a7d9d03b44390c8b509cfed8a6"
   integrity sha512-puG1PRxs9qQpDCxcLK0x6YJAHS92zEQJZE4Z3wwX5xZ7jZOcMlKS2JRtv2xDTdHRNmkUr4o7ei+yFZD2BNRL4g==
@@ -5027,6 +5032,11 @@ jsprim@^1.2.2:
     extsprintf "1.3.0"
     json-schema "0.2.3"
     verror "1.10.0"
+
+kafkajs@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/kafkajs/-/kafkajs-2.1.0.tgz#32ede4e8080cc75586c5e4406eeb582fa73f7b1e"
+  integrity sha512-6IYiOdGWvFPbSbVB+AV3feT+A7vzw5sXm7Ze4QTfP7FRNdY8pGcpiNPvD2lfgYFD8Dm9KbMgBgTt2mf8KaIkzw==
 
 keccak@3.0.1:
   version "3.0.1"
