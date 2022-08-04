@@ -1,8 +1,8 @@
+import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { logger } from '../utils/logger';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import 'reflect-metadata';
 import { Connection } from 'typeorm';
 
 import { PullAndSaveWeb3 } from './utils/web3_utils';
@@ -19,7 +19,7 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
 export class BlockScraper {
-    public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
+    public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
         logger.info(`pulling blocks`);
         const latestBlockWithOffset = await calculateEndBlockAsync(provider);
@@ -28,7 +28,7 @@ export class BlockScraper {
 
         const promises: Promise<void>[] = [];
 
-        promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, latestBlockWithOffset));
+        promises.push(pullAndSaveWeb3.getParseSaveBlocks(connection, producer, latestBlockWithOffset));
 
         await Promise.all(promises);
 

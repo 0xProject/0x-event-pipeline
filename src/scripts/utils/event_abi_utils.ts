@@ -1,8 +1,8 @@
+import { Producer } from 'kafkajs';
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event } from '../../entities';
-import { chunk, logger } from '../../utils';
+import { chunk, kafkaSendAsync, logger } from '../../utils';
 import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
-
 import { Connection, QueryFailedError } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
@@ -23,6 +23,7 @@ export interface DeleteOptions {
 export class PullAndSaveEventsByTopic {
     public async getParseSaveEventsByTopic<EVENT>(
         connection: Connection,
+        producer: Producer,
         web3Source: Web3Source,
         latestBlockWithOffset: number,
         eventName: string,
@@ -160,6 +161,7 @@ export class PullAndSaveEventsByTopic {
 
                 await this._deleteOverlapAndSaveAsync<EVENT>(
                     connection,
+                    producer,
                     parsedLogs,
                     startBlock,
                     endBlock,
@@ -176,6 +178,7 @@ export class PullAndSaveEventsByTopic {
 
     private async _deleteOverlapAndSaveAsync<EVENT>(
         connection: Connection,
+        producer: Producer,
         toSave: EVENT[],
         startBlock: number,
         endBlock: number,
@@ -222,6 +225,8 @@ export class PullAndSaveEventsByTopic {
 
             // commit transaction now:
             await queryRunner.commitTransaction();
+
+            await kafkaSendAsync(producer, `event-scraper.ethereum.events.${tableName.replace(/_/g, '-')}.v0`, toSave);
         } catch (err) {
             if (
                 err instanceof QueryFailedError &&

@@ -1,6 +1,7 @@
+import { Producer } from 'kafkajs';
 import { BigNumber } from '@0x/utils';
 import { hexToUtf8 } from 'web3-utils';
-import { chunk, logger } from '../../utils';
+import { chunk, kafkaSendAsync, logger } from '../../utils';
 import { Connection, InsertResult } from 'typeorm';
 import { Block, TokenMetadata, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -54,7 +55,11 @@ export class PullAndSaveWeb3 {
         this._web3source = web3Source;
     }
 
-    public async getParseSaveBlocks(connection: Connection, latestBlockWithOffset: number): Promise<void> {
+    public async getParseSaveBlocks(
+        connection: Connection,
+        producer: Producer,
+        latestBlockWithOffset: number,
+    ): Promise<void> {
         const tableName = 'blocks';
         const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
@@ -81,6 +86,7 @@ export class PullAndSaveWeb3 {
             logger.info(`saving ${parsedBlocks.length} blocks`);
 
             await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
+            await kafkaSendAsync(producer, `event-scraper.ethereum.blocks.v0`, parsedBlocks);
         }
     }
     private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
@@ -616,6 +622,7 @@ export async function getParseTxsAsync(
 
 export async function getParseSaveTxAsync(
     connection: Connection,
+    producer: Producer,
     web3Source: Web3Source,
     hashes: string[],
 ): Promise<void> {
@@ -649,6 +656,13 @@ export async function getParseSaveTxAsync(
 
         await queryRunner.commitTransaction();
         queryRunner.release();
+
+        let longestLen = 0;
+        let longest = '';
+
+        await kafkaSendAsync(producer, `event-scraper.ethereum.transactions.transactions.v0`, txData.parsedTxs);
+        await kafkaSendAsync(producer, `event-scraper.ethereum.transactions.receipts.v0`, txData.parsedReceipts);
+        await kafkaSendAsync(producer, `event-scraper.ethereum.transactions.logs.v0`, txData.parsedTxLogs);
     }
     logger.info(`Saved ${txData.parsedTxs.length} Transactions`);
 }
