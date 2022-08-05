@@ -11,17 +11,20 @@ export async function kafkaSendAsync(producer: Producer, topic: string, payload:
         const messageLength = jsonMessage.length;
 
         if (currentSize + messageLength >= MAX_SIZE) {
-            const result = await producer.send({
+            await producer.send({
                 topic,
                 messages: messages.map((msg) => ({ value: msg })),
             });
-            logger.info(result);
             currentSize = 0;
             messages = [];
         }
         currentSize += messageLength;
         messages.push(jsonMessage);
     }
+    await producer.send({
+        topic,
+        messages: messages.map((msg) => ({ value: msg })),
+    });
 
     logger.info(`Emitted ${payload.length} messages to ${topic}`);
 }
