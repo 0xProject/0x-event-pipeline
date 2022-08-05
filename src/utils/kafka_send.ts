@@ -1,4 +1,5 @@
 import { Producer } from 'kafkajs';
+import { logger } from '../utils';
 
 export async function kafkaSendAsync(producer: Producer, topic: string, payload: any[]) {
     const MAX_SIZE = 1000000; // 1MB
@@ -20,4 +21,6 @@ export async function kafkaSendAsync(producer: Producer, topic: string, payload:
         currentSize += messageLength;
         messages.push(jsonMessage);
     }
+
+    logger.info(`Sent ${payload.length} messages to ${topic}`);
 }
