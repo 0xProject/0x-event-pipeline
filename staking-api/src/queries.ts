@@ -469,9 +469,18 @@ WITH
             ELSE
                 fbp.protocol_fees / tf.total_protocol_fees
             END AS share_of_fees
-        , fbp.num_fills::FLOAT / tf.total_fills::FLOAT AS share_of_fills
         , CASE
-            WHEN tf.total_protocol_fees = 0 THEN
+            WHEN tf.total_fills = 0 THEN
+              NULL
+            ELSE
+              fbp.num_fills::FLOAT / tf.total_fills::FLOAT
+          END AS share_of_fills
+        , CASE
+            WHEN
+                tf.total_protocol_fees = 0 OR
+                fbp.protocol_fees = 0 OR
+                ts.total_staked = 0
+            THEN
                 NULL
             ELSE
                 (cebs.zrx_delegated / ts.total_staked)
