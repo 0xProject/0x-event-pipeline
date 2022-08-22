@@ -560,9 +560,11 @@ export const currentEpochPoolStatsQuery = `
                     fbp.protocol_fees / tf.total_protocol_fees
                 END AS share_of_fees
             , CASE
-                WHEN tf.total_protocol_fees = 0 THEN
-                    NULL
-                ELSE
+                WHEN
+                    tf.total_protocol_fees = 0 OR
+                    fbp.protocol_fees = 0 OR
+                    ts.total_staked = 0
+                THEN
                     (cebs.zrx_delegated / ts.total_staked)
                     / (fbp.protocol_fees / tf.total_protocol_fees)
                 END AS approximate_stake_ratio
