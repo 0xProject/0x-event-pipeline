@@ -6,15 +6,18 @@ config({ path: resolve(__dirname, '../../.env') });
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 import { Kafka, Producer } from 'kafkajs';
 import * as ormConfig from './ormconfig';
+import { logger } from './utils/logger';
 import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
     FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS,
     FEAT_TX_BACKFILL,
+    KAFKA_AUTH_PASSWORD,
+    KAFKA_AUTH_USER,
     KAFKA_BROKERS,
+    KAFKA_SSL,
     SECONDS_BETWEEN_RUNS,
 } from './config';
-import { logger } from './utils/logger';
 
 import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
@@ -30,6 +33,14 @@ import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 const kafka = new Kafka({
     clientId: 'event-pipeline',
     brokers: KAFKA_BROKERS,
+    ssl: KAFKA_SSL,
+    sasl: KAFKA_SSL
+        ? {
+              mechanism: 'plain',
+              username: KAFKA_AUTH_USER,
+              password: KAFKA_AUTH_PASSWORD,
+          }
+        : undefined,
 });
 
 const producer = kafka.producer();

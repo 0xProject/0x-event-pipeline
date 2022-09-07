@@ -481,6 +481,9 @@ export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKE
 if (KAFKA_BROKERS.length === 0) {
     throwError(`KAFKA_BROKERS is missing`);
 }
+export const KAFKA_AUTH_USER = process.env.KAFKA_AUTH_USER!;
+export const KAFKA_AUTH_PASSWORD = process.env.KAFKA_AUTH_PASSWORD!;
+export const KAFKA_SSL = getBoolConfig('KAFKA_SSL', false);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
