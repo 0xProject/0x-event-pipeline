@@ -39,6 +39,11 @@ export class PullAndSaveEventsByTopic {
         const startBlock = await getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
+        if (startBlock > endBlock) {
+            logger.debug(`No new blocks to scan for ${eventName}, skipping`);
+            return [];
+        }
+
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
         SCAN_START_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(startBlock);
@@ -155,7 +160,7 @@ export class PullAndSaveEventsByTopic {
 
                 // Get token metadata
                 const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
-                await getParseSaveTokensAsync(connection, web3Source, tokens);
+                await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
                 logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
@@ -176,6 +181,59 @@ export class PullAndSaveEventsByTopic {
         return txHashes;
     }
 
+<<<<<<< HEAD
+||||||| parent of d58f86d (WIP Kafka support - Avro)
+    private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
+        const lastBlockProcessed = new LastBlockProcessed();
+        lastBlockProcessed.eventName = eventName;
+        lastBlockProcessed.lastProcessedBlockNumber = endBlock;
+        lastBlockProcessed.processedTimestamp = new Date().getTime();
+        return lastBlockProcessed;
+    }
+
+    private async _getStartBlockAsync(
+        eventName: string,
+        connection: Connection,
+        latestBlockWithOffset: number,
+        defaultStartBlock: number,
+    ): Promise<number> {
+        const queryResult = await connection.query(
+            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
+        );
+
+        const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
+
+        return Math.min(
+            Number(lastKnownBlock.last_processed_block_number) + 1,
+            latestBlockWithOffset - START_BLOCK_OFFSET,
+        );
+    }
+
+=======
+    private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
+        const lastBlockProcessed = new LastBlockProcessed();
+        lastBlockProcessed.eventName = eventName;
+        lastBlockProcessed.lastProcessedBlockNumber = endBlock;
+        lastBlockProcessed.processedTimestamp = new Date().getTime();
+        return lastBlockProcessed;
+    }
+
+    private async _getStartBlockAsync(
+        eventName: string,
+        connection: Connection,
+        latestBlockWithOffset: number,
+        defaultStartBlock: number,
+    ): Promise<number> {
+        const queryResult = await connection.query(
+            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
+        );
+
+        const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
+
+        return Number(lastKnownBlock.last_processed_block_number) + 1;
+    }
+
+>>>>>>> d58f86d (WIP Kafka support - Avro)
     private async _deleteOverlapAndSaveAsync<EVENT>(
         connection: Connection,
         producer: Producer,
@@ -226,7 +284,12 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
 
-            await kafkaSendAsync(producer, `event-scraper.ethereum.events.${tableName.replace(/_/g, '-')}.v0`, toSave);
+            await kafkaSendAsync(
+                producer,
+                `event-scraper.ethereum.events.${tableName.replace(/_/g, '-')}.v0`,
+                'transactionHash',
+                toSave,
+            );
         } catch (err) {
             if (
                 err instanceof QueryFailedError &&

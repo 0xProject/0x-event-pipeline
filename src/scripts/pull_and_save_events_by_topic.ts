@@ -443,6 +443,7 @@ export class EventsByTopicScraper {
         }
 
         if (FEAT_RFQ_EVENT) {
+            /*
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4RfqOrderFilledEvent>(
                     connection,
@@ -460,7 +461,7 @@ export class EventsByTopicScraper {
                     { tokenA: 'makerToken', tokenB: 'takerToken' },
                 ),
             );
-
+*/
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
@@ -477,6 +478,7 @@ export class EventsByTopicScraper {
                     { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
                 ),
             );
+            /*
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(
                     connection,
@@ -493,9 +495,11 @@ export class EventsByTopicScraper {
                     {},
                 ),
             );
+            */
         }
 
         if (FEAT_LIMIT_ORDERS) {
+            /*
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4LimitOrderFilledEvent>(
                     connection,
@@ -513,6 +517,7 @@ export class EventsByTopicScraper {
                     { tokenA: 'makerToken', tokenB: 'takerToken' },
                 ),
             );
+            */
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
@@ -530,7 +535,7 @@ export class EventsByTopicScraper {
                 ),
             );
         }
-
+        /*
         if (FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS) {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(
@@ -549,8 +554,9 @@ export class EventsByTopicScraper {
                 ),
             );
         }
-
+*/
         if (FEAT_OTC_ORDERS) {
+            /*
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OtcOrderFilledEvent>(
                     connection,
@@ -568,6 +574,7 @@ export class EventsByTopicScraper {
                     { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
                 ),
             );
+            */
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
@@ -814,7 +821,10 @@ export class EventsByTopicScraper {
         const txHashes = [
             ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
         ];
-        await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
+
+        if (txHashes.length) {
+            await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
+        }
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
