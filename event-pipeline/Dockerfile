@@ -1,17 +1,16 @@
 # Stage 1 - Build
-FROM node:12-alpine as build
+#
+FROM node:12-alpine AS build
 WORKDIR /usr/src/app
 
 # Install app dependencies
 COPY event-pipeline event-pipeline
 COPY pipeline-utils pipeline-utils
 COPY package.json yarn.lock tsconfig.json lerna.json ./
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache --virtual build-dependencies bash git openssh python3 make g++ && \
-    yarn --frozen-lockfile --no-cache
 
-RUN yarn build
+RUN apk add --update --no-cache --virtual build-dependencies bash git openssh python3 make g++ && \
+    yarn --frozen-lockfile --no-cache && \
+    yarn build
 
 # Stage 2
 FROM node:12-alpine
@@ -26,9 +25,14 @@ COPY --from=build /usr/src/app/pipeline-utils/lib pipeline-utils/lib
 
 # Install event-pipeline runtime dependencies
 COPY event-pipeline/package.json event-pipeline/
-RUN apk add git python3 make g++ && \
+RUN apk add --update --no-cache --virtual build-dependencies \
+        git \
+        python3 \
+        make \
+        g++ && \
     yarn install --frozen-lockfile --no-cache --production && \
-    apk del git python3 make g++
+    apk del build-dependencies && \
+    yarn cache clean
 
 # Copy built files
 COPY --from=build /usr/src/app/event-pipeline/lib event-pipeline/lib/
