@@ -54,8 +54,5 @@
         "typeorm": "^0.2.20",
         "typescript": "3.9.9",
         "web3": "^1.2.2"
-    },
-    "resolutions": {
-        "@0x/order-utils/@0x/contract-addresses": "^6.11.0"
     }
 }

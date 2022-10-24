@@ -3,7 +3,7 @@
 FROM node:16-alpine as build
 WORKDIR /usr/src/app
 
-RUN apk add --update --no-cache --virtual \
+RUN apk add --update --no-cache \
             git \
             python3 \
             make
