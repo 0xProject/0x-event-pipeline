@@ -256,7 +256,7 @@ export const LIMIT_ORDER_FILLED_ABI = {
     type: 'event',
 };
 
-export const SWAP_ABI = {
+export const UNISWAP_V2_SWAP_ABI = {
     anonymous: false,
     inputs: [
         {
@@ -509,7 +509,7 @@ export const V3_FILL_ABI = {
     type: 'event',
 };
 
-export const SWAP_V3_ABI = {
+export const UNISWAP_V3_SWAP_ABI = {
     anonymous: false,
     inputs: [
         {
@@ -1060,5 +1060,27 @@ export const LOG_TRANSFER_ABI = {
         { indexed: false, internalType: 'uint256', name: 'output2', type: 'uint256' },
     ],
     name: 'LogTransfer',
+    type: 'event',
+};
+
+export const UNISWAP_V2_PAIR_CREATED_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'token0', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'token1', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'pair', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'pairFactoryCounter', type: 'uint256' },
+    ],
+    name: 'PairCreated',
+    type: 'event',
+};
+
+export const UNISWAP_V2_SYNC_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'uint112', name: 'reserve0', type: 'uint112' },
+        { indexed: false, internalType: 'uint112', name: 'reserve1', type: 'uint112' },
+    ],
+    name: 'Sync',
     type: 'event',
 };
