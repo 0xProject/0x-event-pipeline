@@ -33,12 +33,8 @@ jobs:
     strategy:
       matrix:
         build:
-          - dockerfile: event-pipeline-evm/Dockerfile
-            name: event-pipeline-evm
-          - dockerfile: event-pipeline/Dockerfile
+          - dockerfile: Dockerfile
             name: event-pipeline
-          - dockerfile: staking-api/Dockerfile
-            name: staking-api
     steps:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
