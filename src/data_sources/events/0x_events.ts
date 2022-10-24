@@ -1,7 +1,6 @@
 import { GetEventsFunc, getEventsWithPaginationAsync } from './get_events';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { LogWithDecodedArgs } from 'ethereum-types';
-import { getContractAddressesForChainOrThrow } from '@0x/contract-addresses';
 
 import {
     ExchangeCancelEventArgs,
@@ -27,13 +26,14 @@ import {
     StakingUnstakeEventArgs,
 } from '@0x/contract-wrappers';
 
+import { DEFAULT_EP_ADDRESS, DEFAULT_STAKING_PROXY_ADDRESS } from '../../constants';
+
 export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract;
     private readonly _stakingWrapper: StakingContract;
     constructor(provider: Web3ProviderEngine, networkId: number) {
-        const contractAddresses = getContractAddressesForChainOrThrow(networkId);
-        this._exchangeWrapper = new ExchangeContract(contractAddresses.exchange, provider);
-        this._stakingWrapper = new StakingContract(contractAddresses.stakingProxy, provider);
+        this._exchangeWrapper = new ExchangeContract(DEFAULT_EP_ADDRESS, provider);
+        this._stakingWrapper = new StakingContract(DEFAULT_STAKING_PROXY_ADDRESS, provider);
     }
 
     public async getFillEventsAsync(
