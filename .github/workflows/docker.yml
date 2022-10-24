@@ -47,6 +47,6 @@ jobs:
         with:
           push: true
           context: .
-          file: ${{ matrix.build.dockerfile }}
+          file: Dockerfile
           platforms: linux/amd64
-          tags: ${{ secrets.REGISTRY }}/0x/${{ matrix.build.name }}:${{ github.sha }}
+          tags: ${{ secrets.REGISTRY }}/0x/event-pipeline:${{ github.sha }}
