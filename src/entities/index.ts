@@ -41,6 +41,8 @@ export { TransactionExecutionEvent } from './transaction_execution_event';
 export { TransactionLogs } from './transaction_log';
 export { TransactionReceipt } from './transaction_receipt';
 export { TransformedERC20Event } from './transformed_erc20_event';
+export { UniswapV2PairCreatedEvent } from './uniswap_v2_pair_created_event';
+export { UniswapV2SyncEvent } from './uniswap_v2_sync_event';
 export { UnstakeEvent } from './unstake_event';
 export { V4CancelEvent } from './v4_cancel_event';
 export { V4LimitOrderFilledEvent } from './v4_limit_order_filled_event';
