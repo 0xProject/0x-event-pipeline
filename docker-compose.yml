@@ -254,3 +254,23 @@ services:
             OTC_ORDERS_FEATURE_START_BLOCK: 10857214
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11849825
+
+    event-pipeline-arbitrum:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_ARBITRUM}'
+            CHAIN_ID: '42161'
+            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            SCHEMA: 'events_arbitrum'
+            EP_DEPLOYMENT_BLOCK: 4050733
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
+            SECONDS_BETWEEN_RUNS: 30
+            EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 4050733
