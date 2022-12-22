@@ -29,11 +29,15 @@ import {
 import { DEFAULT_EP_ADDRESS, DEFAULT_STAKING_PROXY_ADDRESS } from '../../constants';
 
 export class EventsSource {
-    private readonly _exchangeWrapper: ExchangeContract;
-    private readonly _stakingWrapper: StakingContract;
+    private readonly _exchangeWrapper: ExchangeContract | undefined;
+    private readonly _stakingWrapper: StakingContract | undefined;
+    private readonly _networkId: Number;
     constructor(provider: Web3ProviderEngine, networkId: number) {
-        this._exchangeWrapper = new ExchangeContract(DEFAULT_EP_ADDRESS, provider);
-        this._stakingWrapper = new StakingContract(DEFAULT_STAKING_PROXY_ADDRESS, provider);
+        this._networkId = networkId;
+        if (networkId === 1) {
+            this._exchangeWrapper = new ExchangeContract('0x61935cbdd02287b511119ddb11aeb42f1593b7ef', provider);
+            this._stakingWrapper = new StakingContract('0xa26e80e7dea86279c6d778d702cc413e6cffa777', provider);
+        }
     }
 
     public async getFillEventsAsync(
@@ -184,8 +188,11 @@ export class EventsSource {
     private _makeGetterFuncForStakingEventType<ArgsType extends StakingEventArgs>(
         eventType: StakingEvents,
     ): GetEventsFunc<ArgsType> {
+        if (this._networkId !== 1) {
+            throw Error('Legacy features only availabe on Mainnet');
+        }
         return async (fromBlock: number, toBlock: number) =>
-            this._stakingWrapper.getLogsAsync<ArgsType>(eventType, { fromBlock, toBlock }, {});
+            this._stakingWrapper!.getLogsAsync<ArgsType>(eventType, { fromBlock, toBlock }, {});
     }
 
     // Returns a getter function which gets all Exchange events of a specific type for a
@@ -194,7 +201,10 @@ export class EventsSource {
     private _makeGetterFuncForExchangeEventType<ArgsType extends ExchangeEventArgs>(
         eventType: ExchangeEvents,
     ): GetEventsFunc<ArgsType> {
+        if (this._networkId !== 1) {
+            throw Error('Legacy features only availabe on Mainnet');
+        }
         return async (fromBlock: number, toBlock: number) =>
-            this._exchangeWrapper.getLogsAsync<ArgsType>(eventType, { fromBlock, toBlock }, {});
+            this._exchangeWrapper!.getLogsAsync<ArgsType>(eventType, { fromBlock, toBlock }, {});
     }
 }
