@@ -2,6 +2,7 @@ import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/events/web3';
+import { RawLogEntry } from 'ethereum-types';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 
 import { getParseSaveTxAsync } from './utils/web3_utils';
@@ -28,6 +29,8 @@ import {
     SlingshotTradeEvent,
     TimechainSwapV1Event,
     TransformedERC20Event,
+    UniswapV2PairCreatedEvent,
+    UniswapV2SyncEvent,
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
@@ -52,6 +55,8 @@ import {
     FEAT_RFQ_EVENT,
     FEAT_SLINGSHOT_TRADE_EVENT,
     FEAT_TIMECHAIN_SWAP_V1_EVENT,
+    FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
+    FEAT_UNISWAP_V2_SYNC_EVENT,
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -75,6 +80,8 @@ import {
     POLYGON_RFQM_PAYMENTS_START_BLOCK,
     SLINGSHOT_DEPLOYMENT_BLOCK,
     TIMECHAIN_V1_DEPLOYMENT_BLOCK,
+    UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS,
+    UNISWAP_V2_SYNC_START_BLOCK,
     UNISWAP_V2_VIP_SWAP_SOURCES,
     UNISWAP_V2_VIP_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
@@ -110,6 +117,8 @@ import {
     TIMECHAIN_SWAP_V1_EVENT_TOPIC,
     TIMECHAIN_V1_CONTRACT_ADDRESS,
     TRANSFORMEDERC20_EVENT_TOPIC,
+    UNISWAP_V2_PAIR_CREATED_TOPIC,
+    UNISWAP_V2_SYNC_TOPIC,
     V3_EXCHANGE_ADDRESS,
     V3_FILL_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
@@ -130,7 +139,7 @@ import {
     parseV4RfqOrderFilledEvent,
 } from '../parsers/events/v4_rfq_order_filled_events';
 import { parseTimechainSwapV1Event } from '../parsers/events/timechain_swap_event';
-import { parseUniswapV3SwapEvent } from '../parsers/events/swap_events';
+import { parseUniswapV3SwapEvent } from '../parsers/events/uniswap_v3_events';
 import {
     parseNativeFillFromV4LimitOrderFilledEvent,
     parseV4LimitOrderFilledEvent,
@@ -143,7 +152,11 @@ import {
     parseNativeFillFromV4OtcOrderFilledEvent,
     parseOtcOrderFilledEvent,
 } from '../parsers/events/otc_order_filled_events';
-import { parseUniswapV2SwapEvent } from '../parsers/events/swap_events';
+import {
+    parseUniswapV2SwapEvent,
+    parseUniswapV2SyncEvent,
+    parseUniswapV2PairCreatedEvent,
+} from '../parsers/events/uniswap_v2_events';
 import {
     parseErc1155OrderCancelledEvent,
     parseErc1155OrderFilledEvent,
@@ -703,6 +716,45 @@ export class EventsByTopicScraper {
                     ),
                 );
             }
+        }
+
+        if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
+            for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS) {
+                promises.push(
+                    pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV2PairCreatedEvent>(
+                        connection,
+                        web3Source,
+                        latestBlockWithOffset,
+                        `UniswapV2PairCreatedEvent-${protocol.name}`,
+                        UniswapV2PairCreatedEvent,
+                        'uniswap_v2_pair_created_events',
+                        UNISWAP_V2_PAIR_CREATED_TOPIC,
+                        protocol.factoryAddress,
+                        protocol.startBlock,
+                        (decodedLog: RawLogEntry) => parseUniswapV2PairCreatedEvent(decodedLog, protocol.name),
+                        {},
+                        { tokenA: 'token0', tokenB: 'token1' },
+                    ),
+                );
+            }
+        }
+
+        if (FEAT_UNISWAP_V2_SYNC_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV2SyncEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'UniswapV2SyncEvent',
+                    UniswapV2SyncEvent,
+                    'uniswap_v2_sync_events',
+                    UNISWAP_V2_SYNC_TOPIC,
+                    'nofilter',
+                    UNISWAP_V2_SYNC_START_BLOCK,
+                    parseUniswapV2SyncEvent,
+                    {},
+                ),
+            );
         }
 
         const txHashes = [

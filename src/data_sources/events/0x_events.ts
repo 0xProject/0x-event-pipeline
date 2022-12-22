@@ -1,7 +1,6 @@
 import { GetEventsFunc, getEventsWithPaginationAsync } from './get_events';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { LogWithDecodedArgs } from 'ethereum-types';
-import { getContractAddressesForChainOrThrow } from '@0x/contract-addresses';
 
 import {
     ExchangeCancelEventArgs,
@@ -26,6 +25,8 @@ import {
     StakingStakingPoolEarnedRewardsInEpochEventArgs,
     StakingUnstakeEventArgs,
 } from '@0x/contract-wrappers';
+
+import { DEFAULT_EP_ADDRESS, DEFAULT_STAKING_PROXY_ADDRESS } from '../../constants';
 
 export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract | undefined;
