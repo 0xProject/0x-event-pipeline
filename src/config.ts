@@ -24,6 +24,8 @@ import {
     DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
     DEFAULT_FEAT_TX_BACKFILL,
+    DEFAULT_FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
+    DEFAULT_FEAT_UNISWAP_V2_SYNC_EVENT,
     DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     DEFAULT_FEAT_V3_FILL_EVENT,
@@ -405,6 +407,45 @@ export const POLYGON_RFQM_PAYMENTS_ADDRESSES = process.env.POLYGON_RFQM_PAYMENTS
 if (FEAT_POLYGON_RFQM_PAYMENTS && POLYGON_RFQM_PAYMENTS_ADDRESSES.length === 0) {
     throwError(`FEAT_POLYGON_RFQM_PAYMENTS is enabled, but no POLYGON_RFQM_PAYMENTS_ADDRESS was provided`);
 }
+
+export const FEAT_UNISWAP_V2_PAIR_CREATED_EVENT = getBoolConfig(
+    'FEAT_UNISWAP_V2_PAIR_CREATED_EVENT',
+    DEFAULT_FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
+);
+
+export const UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS = process.env
+    .UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS
+    ? process.env.UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS.split(',').map((contract) => {
+          const [name, factoryAddress, startBlock] = contract.split(':');
+          return {
+              name,
+              factoryAddress,
+              startBlock: parseInt(startBlock),
+          };
+      })
+    : [];
+
+if (
+    FEAT_UNISWAP_V2_PAIR_CREATED_EVENT &&
+    UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS.length === 0
+) {
+    throwError(
+        `FEAT_UNISWAP_V2_PAIR_CREATED_EVENT is enabled, but no UNISWAP_V2_PAIR_CREATED_CONTRACT_ADDRESSES_AND_START_BLOCKS was provided`,
+    );
+}
+
+export const FEAT_UNISWAP_V2_SYNC_EVENT = getBoolConfig(
+    'FEAT_UNISWAP_V2_SYNC_EVENT',
+    DEFAULT_FEAT_UNISWAP_V2_SYNC_EVENT,
+);
+
+export const UNISWAP_V2_SYNC_START_BLOCK = getIntConfig('UNISWAP_V2_SYNC_START_BLOCK', -1);
+validateStartBlock(
+    'UNISWAP_V2_SYNC_START_BLOCK',
+    UNISWAP_V2_SYNC_START_BLOCK,
+    'FEAT_UNISWAP_V2_SYNC_EVENT',
+    FEAT_UNISWAP_V2_SYNC_EVENT,
+);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {

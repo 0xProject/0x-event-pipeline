@@ -53,6 +53,10 @@ services:
             FLASHWALLET_DEPLOYMENT_BLOCK: 12231666
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 14258205
+            FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
+            UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "UniswapV2:0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f:10000835,SushiSwap:0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac:10794229"
+            FEAT_UNISWAP_V2_SYNC_EVENT: "true"
+            UNISWAP_V2_SYNC_START_BLOCK: 10000835
 
     event-pipeline-bsc:
         depends_on:
