@@ -3,14 +3,15 @@ services:
     postgres:
         image: postgres:13.4
         environment:
-            - POSTGRES_USER=api
-            - POSTGRES_PASSWORD=api
-            - POSTGRES_DB=events
-            - POSTGRES_PORT=5432
+          POSTGRES_USER: '${POSTGRES_USER}'
+          POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+          POSTGRES_DB: '${POSTGRES_DB}'
+          POSTGRES_PORT: ${POSTGRES_PORT}
         # persist the postgres data to disk so we don't lose it
         # on rebuilds.
         volumes:
-            - ./postgres:/var/lib/postgresql/data
+            - ./mounts/postgres:/var/lib/postgresql/data
+            - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
         ports:
             - '5432:5432'
         command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
@@ -23,9 +24,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL}'
+            ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events'
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -66,9 +67,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_BSC}'
+            ETHEREUM_RPC_URL: '${RPC_URL_BSC}'
             CHAIN_ID: '56'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
             EP_DEPLOYMENT_BLOCK: 5375047
             MAX_BLOCKS_TO_SEARCH: 2000
@@ -96,9 +97,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_POLYGON}'
+            ETHEREUM_RPC_URL: '${RPC_URL_POLYGON}'
             CHAIN_ID: '137'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
@@ -134,9 +135,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_AVALANCHE}'
+            ETHEREUM_RPC_URL: '${RPC_URL_AVALANCHE}'
             CHAIN_ID: '43114'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_avalanche'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 3601700
@@ -162,9 +163,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_FANTOM}'
+            ETHEREUM_RPC_URL: '${RPC_URL_FANTOM}'
             CHAIN_ID: '250'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_fantom'
             EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
             ENABLE_PROMETHEUS_METRICS: "true"
@@ -193,9 +194,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_CELO}'
+            ETHEREUM_RPC_URL: '${RPC_URL_CELO}'
             CHAIN_ID: '42220'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_celo'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 9350111
@@ -213,9 +214,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_OPTIMISM}'
+            ETHEREUM_RPC_URL: '${RPC_URL_OPTIMISM}'
             CHAIN_ID: '10'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_optimism'
             EP_DEPLOYMENT_BLOCK: 1691335
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -232,29 +233,6 @@ services:
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 4214981
 
-    event-pipeline-ropsten:
-        depends_on:
-            - postgres
-        build:
-            context: .
-            dockerfile: Dockerfile.dev
-        restart: always
-        environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_ROPSTEN}'
-            CHAIN_ID: '3'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
-            SCHEMA: 'events_ropsten'
-            EP_DEPLOYMENT_BLOCK: 8075130
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
-            FEAT_RFQ_EVENT: "true"
-            FEAT_LIMIT_ORDERS: "true"
-            V4_NATIVE_FILL_START_BLOCK: 10125228
-            FEAT_OTC_ORDERS: "true"
-            OTC_ORDERS_FEATURE_START_BLOCK: 10857214
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 11849825
-
     event-pipeline-arbitrum:
         depends_on:
             - postgres
@@ -263,9 +241,9 @@ services:
             dockerfile: Dockerfile.dev
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${ETHEREUM_RPC_URL_ARBITRUM}'
+            ETHEREUM_RPC_URL: '${RPC_URL_ARBITRUM}'
             CHAIN_ID: '42161'
-            POSTGRES_URI: 'postgres://api:api@postgres/events'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_arbitrum'
             EP_DEPLOYMENT_BLOCK: 4050733
             MAX_BLOCKS_TO_SEARCH: 1000
