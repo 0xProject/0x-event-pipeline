@@ -250,19 +250,6 @@ const eventsLastBlockProcessedTable = new Table({
     ],
 });
 
-const stakingStakingPoolMetadataTable = new Table({
-    name: 'staking.staking_pool_metadata',
-    columns: [
-        { name: 'pool_id', type: 'varchar' },
-        { name: 'name', type: 'varchar' },
-        { name: 'website', type: 'varchar' },
-        { name: 'bio', type: 'varchar' },
-        { name: 'location', type: 'varchar' },
-        { name: 'logo_url', type: 'varchar' },
-        { name: 'verified', type: 'boolean' },
-    ],
-});
-
 export class Initialize1568846827416 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(eventsStakeEventsTable);
@@ -280,7 +267,6 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.createTable(eventsTransactionsTable);
         await queryRunner.createTable(eventsBlocksTable);
         await queryRunner.createTable(eventsLastBlockProcessedTable);
-        await queryRunner.createTable(stakingStakingPoolMetadataTable);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
@@ -299,6 +285,5 @@ export class Initialize1568846827416 implements MigrationInterface {
         await queryRunner.dropTable(eventsTransactionsTable);
         await queryRunner.dropTable(eventsBlocksTable);
         await queryRunner.dropTable(eventsLastBlockProcessedTable);
-        await queryRunner.dropTable(stakingStakingPoolMetadataTable);
     }
 }
