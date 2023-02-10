@@ -27,8 +27,8 @@ services:
             CHAIN_ID: '1'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
             SCHEMA: 'events'
-            #FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
-            #TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+            # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
