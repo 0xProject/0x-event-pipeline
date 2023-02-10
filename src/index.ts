@@ -12,6 +12,7 @@ import {
     FEAT_TX_BACKFILL,
     SECONDS_BETWEEN_RUNS,
 } from './config';
+import { logger } from './utils/logger';
 
 import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
@@ -23,7 +24,7 @@ import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { startMetricsServer } from './utils/metrics';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 
-console.log('App is running...');
+logger.info('App is running...');
 
 const chainIdChecker = new ChainIdChecker();
 const legacyEventScraper = new LegacyEventScraper();
@@ -65,7 +66,7 @@ createConnection(ormConfig as ConnectionOptions)
             }
         }
     })
-    .catch((error) => console.log(error));
+    .catch((error) => logger.error(error));
 
 async function schedule(connection: Connection | null, func: any, funcName: string) {
     const start = new Date().getTime();
@@ -75,7 +76,7 @@ async function schedule(connection: Connection | null, func: any, funcName: stri
     let wait: number;
     if (duration > SECONDS_BETWEEN_RUNS * 1000) {
         wait = 0;
-        console.warn(`${funcName} is taking longer than desiered interval`);
+        logger.warn(`${funcName} is taking longer than desiered interval`);
     } else {
         wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
     }
