@@ -44,4 +44,4 @@ jobs:
           context: .
           file: Dockerfile
           platforms: linux/amd64
-          tags: ${{ secrets.REGISTRY }}/0x/event-pipeline:${{ github.sha }}
+          tags: ${{ secrets.REGISTRY }}/0x/event-pipeline:${{ github.event.workflow_run.head_sha }}
