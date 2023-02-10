@@ -5,12 +5,19 @@ config({ path: resolve(__dirname, '../../.env') });
 
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 import * as ormConfig from './ormconfig';
-import { CHAIN_ID, ENABLE_PROMETHEUS_METRICS, FEAT_TX_BACKFILL, SECONDS_BETWEEN_RUNS } from './config';
+import {
+    CHAIN_ID,
+    ENABLE_PROMETHEUS_METRICS,
+    FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS,
+    FEAT_TX_BACKFILL,
+    SECONDS_BETWEEN_RUNS,
+} from './config';
 
 import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
+import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
 import { ChainIdChecker } from './scripts/check_chain_id';
 import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { startMetricsServer } from './utils/metrics';
@@ -24,6 +31,7 @@ const backfillTxScraper = new BackfillTxScraper();
 const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
 const currentBlockMonitor = new CurrentBlockMonitor();
+const tokensFromTransfersScraper = new TokensFromTransfersScraper();
 
 if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
@@ -36,13 +44,25 @@ createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
         await TokenMetadataSingleton.getInstance(connection);
         schedule(null, currentBlockMonitor.monitor, 'Current Block');
-        schedule(connection, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
-        schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
-        if (FEAT_TX_BACKFILL) {
-            schedule(connection, backfillTxScraper.getParseSaveTxBackfillAsync, 'Pull and Save Backfill Transactions');
-        }
-        if (CHAIN_ID === 1) {
-            schedule(connection, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
+        if (FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS) {
+            schedule(
+                connection,
+                tokensFromTransfersScraper.getParseSaveTokensFromTransactionsAsync,
+                'Pull and Save Tokens',
+            );
+        } else {
+            schedule(connection, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
+            schedule(connection, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+            if (FEAT_TX_BACKFILL) {
+                schedule(
+                    connection,
+                    backfillTxScraper.getParseSaveTxBackfillAsync,
+                    'Pull and Save Backfill Transactions',
+                );
+            }
+            if (CHAIN_ID === 1) {
+                schedule(connection, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
+            }
         }
     })
     .catch((error) => console.log(error));
