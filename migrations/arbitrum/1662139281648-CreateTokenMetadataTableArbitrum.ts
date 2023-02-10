@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const downQuery = `
 DROP TABLE events_arbitrum.token_metadata;
@@ -21,7 +21,6 @@ INSERT INTO events_arbitrum.tokens_metadata (observed_timestamp,address,"type",s
 `;
 
 export class CreateTokenMetadataTableArbitrum1662139281648 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(upQuery);
     }
@@ -29,5 +28,4 @@ export class CreateTokenMetadataTableArbitrum1662139281648 implements MigrationI
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(downQuery);
     }
-
 }
