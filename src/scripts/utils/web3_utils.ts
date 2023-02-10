@@ -398,12 +398,7 @@ FROM (
     }
 }
 
-export async function getParseSaveTokensAsync(
-    connection: Connection,
-    web3Source: Web3Source,
-    logs: any,
-    tokenMetadataMap: TokenMetadataMap,
-): Promise<void> {
+export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadataMap) {
     if (tokenMetadataMap !== null) {
         const tokens: string[] = [];
         try {
@@ -415,121 +410,130 @@ export async function getParseSaveTokensAsync(
             logger.error(err);
             logger.error(logs);
         }
-        const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
-        const missingTokens = [
-            ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
-        ];
+        return tokens;
+    }
+    return [];
+}
 
-        if (missingTokens.length > 0) {
-            logger.debug('Tokens to scan:');
-            logger.debug(missingTokens);
+export async function getParseSaveTokensAsync(
+    connection: Connection,
+    web3Source: Web3Source,
+    tokens: string[],
+): Promise<void> {
+    const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
+    const missingTokens = [
+        ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
+    ];
 
-            const erc721Tokens = await _keepERC721Async(web3Source, missingTokens);
-            const nonErc721Tokens = missingTokens.filter((token) => !erc721Tokens.includes(token));
-            const erc1155Tokens = await _keepERC1155Async(web3Source, nonErc721Tokens);
-            const erc20Tokens = nonErc721Tokens.filter((token) => !erc1155Tokens.includes(token));
+    if (missingTokens.length > 0) {
+        logger.debug('Tokens to scan:');
+        logger.debug(missingTokens);
 
-            // ERC1155 does not officialy includes symbol nor name, but some implement it
-            const tokenSymbolCalls = missingTokens.map((token) => {
-                return {
-                    to: token,
-                    data: '0x95d89b41',
-                };
-            });
+        const erc721Tokens = await _keepERC721Async(web3Source, missingTokens);
+        const nonErc721Tokens = missingTokens.filter((token) => !erc721Tokens.includes(token));
+        const erc1155Tokens = await _keepERC1155Async(web3Source, nonErc721Tokens);
+        const erc20Tokens = nonErc721Tokens.filter((token) => !erc1155Tokens.includes(token));
 
-            const symbolsHex = await web3Source.callContractMethodsNullRevertAsync(tokenSymbolCalls);
-            const symbols = symbolsHex.map((tokenSymbolHex) => {
-                let tokenSymbol = '';
-                try {
-                    tokenSymbol = parseHexString(tokenSymbolHex) || '';
-                } catch {
-                    logger.error('Failed to parse token symbol');
-                }
-                if (tokenSymbol === '') {
-                    return null;
-                }
-                return tokenSymbol;
-            });
+        // ERC1155 does not officialy includes symbol nor name, but some implement it
+        const tokenSymbolCalls = missingTokens.map((token) => {
+            return {
+                to: token,
+                data: '0x95d89b41',
+            };
+        });
 
-            const erc721Symbols = symbols.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
-            const erc1155Symbols = symbols.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
-            const erc20Symbols = symbols.filter((symbol, index) => erc20Tokens.includes(missingTokens[index]));
+        const symbolsHex = await web3Source.callContractMethodsNullRevertAsync(tokenSymbolCalls);
+        const symbols = symbolsHex.map((tokenSymbolHex) => {
+            let tokenSymbol = '';
+            try {
+                tokenSymbol = parseHexString(tokenSymbolHex) || '';
+            } catch {
+                logger.error('Failed to parse token symbol');
+            }
+            if (tokenSymbol === '') {
+                return null;
+            }
+            return tokenSymbol;
+        });
 
-            const tokenNameCalls = missingTokens.map((token) => {
-                return {
-                    to: token,
-                    data: '0x06fdde03',
-                };
-            });
+        const erc721Symbols = symbols.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
+        const erc1155Symbols = symbols.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
+        const erc20Symbols = symbols.filter((symbol, index) => erc20Tokens.includes(missingTokens[index]));
 
-            const namesHex = await web3Source.callContractMethodsNullRevertAsync(tokenNameCalls);
-            const names = namesHex.map((tokenNameHex) => {
-                let tokenName = '';
-                try {
-                    tokenName = parseHexString(tokenNameHex) || '';
-                } catch {
-                    logger.error('Failed to parse token name');
-                }
-                if (tokenName === '') {
-                    return null;
-                }
-                return tokenName;
-            });
+        const tokenNameCalls = missingTokens.map((token) => {
+            return {
+                to: token,
+                data: '0x06fdde03',
+            };
+        });
 
-            const erc721Names = names.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
-            const erc1155Names = names.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
-            const erc20Names = names.filter((symbol, index) => erc20Tokens.includes(missingTokens[index]));
+        const namesHex = await web3Source.callContractMethodsNullRevertAsync(tokenNameCalls);
+        const names = namesHex.map((tokenNameHex) => {
+            let tokenName = '';
+            try {
+                tokenName = parseHexString(tokenNameHex) || '';
+            } catch {
+                logger.error('Failed to parse token name');
+            }
+            if (tokenName === '') {
+                return null;
+            }
+            return tokenName;
+        });
 
-            const tokenDecimalsCalls = erc20Tokens.map((token) => {
-                return {
-                    to: token,
-                    data: '0x313ce567',
-                };
-            });
+        const erc721Names = names.filter((symbol, index) => erc721Tokens.includes(missingTokens[index]));
+        const erc1155Names = names.filter((symbol, index) => erc1155Tokens.includes(missingTokens[index]));
+        const erc20Names = names.filter((symbol, index) => erc20Tokens.includes(missingTokens[index]));
 
-            const erc20DecimalsHex = await web3Source.callContractMethodsNullRevertAsync(tokenDecimalsCalls);
-            const erc20Decimals = erc20DecimalsHex.map((tokenDecimalsHex) => {
-                const tokenDecimals = new BigNumber(tokenDecimalsHex);
-                // UNISWAP v1 LP tokens respond with a very high number
-                if (tokenDecimals.isNaN() || tokenDecimals.gt(1000)) {
-                    return null;
-                }
-                return tokenDecimals;
-            });
-            const erc721TokenMetadata = erc721Tokens.map((address, index) => {
-                return {
-                    address: address,
-                    type: 'ERC721',
-                    name: erc721Names[index],
-                    symbol: erc721Symbols[index],
-                    observedTimestamp: new Date().getTime(),
-                } as TokenMetadata;
-            });
-            const erc1155TokenMetadata = erc1155Tokens.map((address, index) => {
-                return {
-                    address: address,
-                    type: 'ERC1155',
-                    name: erc1155Names[index],
-                    symbol: erc1155Symbols[index],
-                    observedTimestamp: new Date().getTime(),
-                } as TokenMetadata;
-            });
-            const erc20TokenMetadata = erc20Tokens.map((address, index) => {
-                return {
-                    address: address,
-                    type: 'ERC20',
-                    name: erc20Names[index],
-                    symbol: erc20Symbols[index],
-                    decimals: erc20Decimals[index],
-                    observedTimestamp: new Date().getTime(),
-                } as TokenMetadata;
-            });
-            await tokenMetadataSingleton.saveNewTokenMetadata(connection, [
-                ...erc20TokenMetadata,
-                ...erc721TokenMetadata,
-                ...erc1155TokenMetadata,
-            ]);
-        }
+        const tokenDecimalsCalls = erc20Tokens.map((token) => {
+            return {
+                to: token,
+                data: '0x313ce567',
+            };
+        });
+
+        const erc20DecimalsHex = await web3Source.callContractMethodsNullRevertAsync(tokenDecimalsCalls);
+        const erc20Decimals = erc20DecimalsHex.map((tokenDecimalsHex) => {
+            const tokenDecimals = new BigNumber(tokenDecimalsHex);
+            // UNISWAP v1 LP tokens respond with a very high number
+            if (tokenDecimals.isNaN() || tokenDecimals.gt(1000)) {
+                return null;
+            }
+            return tokenDecimals;
+        });
+        const erc721TokenMetadata = erc721Tokens.map((address, index) => {
+            return {
+                address: address,
+                type: 'ERC721',
+                name: erc721Names[index],
+                symbol: erc721Symbols[index],
+                observedTimestamp: new Date().getTime(),
+            } as TokenMetadata;
+        });
+        const erc1155TokenMetadata = erc1155Tokens.map((address, index) => {
+            return {
+                address: address,
+                type: 'ERC1155',
+                name: erc1155Names[index],
+                symbol: erc1155Symbols[index],
+                observedTimestamp: new Date().getTime(),
+            } as TokenMetadata;
+        });
+        const erc20TokenMetadata = erc20Tokens.map((address, index) => {
+            return {
+                address: address,
+                type: 'ERC20',
+                name: erc20Names[index],
+                symbol: erc20Symbols[index],
+                decimals: erc20Decimals[index],
+                observedTimestamp: new Date().getTime(),
+            } as TokenMetadata;
+        });
+        await tokenMetadataSingleton.saveNewTokenMetadata(connection, [
+            ...erc20TokenMetadata,
+            ...erc721TokenMetadata,
+            ...erc1155TokenMetadata,
+        ]);
     }
 }
 
