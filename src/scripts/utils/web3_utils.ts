@@ -419,7 +419,7 @@ export async function getParseSaveTokensAsync(
     connection: Connection,
     web3Source: Web3Source,
     tokens: string[],
-): Promise<void> {
+): Promise<number> {
     const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
     const missingTokens = [
         ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
@@ -529,12 +529,12 @@ export async function getParseSaveTokensAsync(
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
-        await tokenMetadataSingleton.saveNewTokenMetadata(connection, [
-            ...erc20TokenMetadata,
-            ...erc721TokenMetadata,
-            ...erc1155TokenMetadata,
-        ]);
+
+        const allTokens = [...erc20TokenMetadata, ...erc721TokenMetadata, ...erc1155TokenMetadata];
+        await tokenMetadataSingleton.saveNewTokenMetadata(connection, allTokens);
+        return allTokens.length;
     }
+    return 0;
 }
 
 function parseHexString(hex: string): string | null {

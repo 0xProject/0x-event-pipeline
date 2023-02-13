@@ -40,7 +40,6 @@ export class TokensFromTransfersScraper {
             TOKENS_FROM_TRANSACTIONS_START_BLOCK,
         );
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
-
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
         SCAN_START_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(startBlock);
@@ -55,18 +54,25 @@ export class TokensFromTransfersScraper {
 
         const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
+        logger.debug(`Got ${rawLogsArray.length} transfers`);
+
         const tokens = [
             ...new Set(rawLogsArray.map((logPull) => logPull.logs.map((log: RawLog) => log.address)).flat()),
         ];
 
-        await getParseSaveTokensAsync(connection, web3Source, tokens);
-        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock);
+        logger.debug(`Got ${tokens.length} tokens`);
 
+        const savedTokenCount = await getParseSaveTokensAsync(connection, web3Source, tokens);
+
+        logger.info(`Saved metadata for ${savedTokenCount} tokens`);
+
+        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock);
         const queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction('REPEATABLE READ');
         await queryRunner.manager.save(lastBlockProcessed);
         await queryRunner.commitTransaction();
+        await queryRunner.release();
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
