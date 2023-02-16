@@ -15,6 +15,9 @@ services:
             - '5432:5432'
         command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
 
+    redis:
+      image: redis:7-alpine
+
     event-pipeline-ethereum:
         depends_on:
             - postgres
@@ -27,10 +30,10 @@ services:
             CHAIN_ID: '1'
             POSTGRES_URI: 'postgres://api:api@postgres/events'
             SCHEMA: 'events'
-            # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
-            # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+            TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
             EP_DEPLOYMENT_BLOCK: 10247094
-            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_SEARCH: 100
             MAX_BLOCKS_TO_PULL: 1000
             MAX_TX_TO_PULL: 1000
             MINUTES_BETWEEN_RUNS: 1

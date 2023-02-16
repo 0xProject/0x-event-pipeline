@@ -23,7 +23,11 @@ export class CurrentBlockMonitor {
         try {
             currentBlock = await web3Wrapper.getBlockNumberAsync();
         } catch (err) {
-            logger.error(err);
+            if (err instanceof Error) {
+                logger.error(err);
+            } else {
+                logger.error('Unexpected Error');
+            }
         }
         CURRENT_BLOCK.labels({ chain: CHAIN_NAME }).set(currentBlock);
         logger.info(`Current block: ${currentBlock}`);

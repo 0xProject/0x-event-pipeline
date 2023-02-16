@@ -3,12 +3,12 @@ import { Connection } from 'typeorm';
 
 import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
-import { LogWithDecodedArgs } from '@0x/dev-utils';
+import { DecodedLogArgs, LogWithDecodedArgs } from '@0x/dev-utils';
 
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
 
 export class PullAndSaveEvents {
-    public async getParseSaveContractWrapperEventsAsync<ARGS, EVENT>(
+    public async getParseSaveContractWrapperEventsAsync<ARGS extends DecodedLogArgs, EVENT>(
         connection: Connection,
         latestBlockWithOffset: number,
         eventName: string,
@@ -95,7 +95,11 @@ export class PullAndSaveEvents {
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logger.error(err);
+            if (err instanceof Error) {
+                logger.error(err);
+            } else {
+                logger.error('Unexpected Error');
+            }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {

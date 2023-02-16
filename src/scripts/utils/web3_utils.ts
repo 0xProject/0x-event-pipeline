@@ -298,7 +298,11 @@ FROM (
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logger.error(err);
+            if (err instanceof Error) {
+                logger.error(err);
+            } else {
+                logger.error('Unexpected Error');
+            }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -328,7 +332,11 @@ FROM (
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logger.error(err);
+            if (err instanceof Error) {
+                logger.error(err);
+            } else {
+                logger.error('Unexpected Error');
+            }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -388,7 +396,11 @@ FROM (
             // commit transaction now:
             await queryRunner.commitTransaction();
         } catch (err) {
-            logger.error(err);
+            if (err instanceof Error) {
+                logger.error(err);
+            } else {
+                logger.error('Unexpected Error');
+            }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();
         } finally {
@@ -407,7 +419,11 @@ export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadata
                 tokens.push(log[tokenMetadataMap.tokenB]);
             });
         } catch (err) {
-            logger.error(err);
+            if (err instanceof Error) {
+                logger.error(err);
+            } else {
+                logger.error('Unexpected Error');
+            }
             logger.error(logs);
         }
         return tokens;

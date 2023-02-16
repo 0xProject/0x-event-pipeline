@@ -63,7 +63,11 @@ export class BackfillTxScraper {
                 await queryRunner.commitTransaction();
             } catch (err) {
                 logger.error(`Failed while saving tx backfill`);
-                logger.error(err);
+                if (err instanceof Error) {
+                    logger.error(err);
+                } else {
+                    logger.error('Unexpected Error');
+                }
                 // since we have errors lets rollback changes we made
                 await queryRunner.rollbackTransaction();
             } finally {

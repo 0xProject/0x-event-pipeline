@@ -21,7 +21,7 @@ export interface DeleteOptions {
 }
 
 export class PullAndSaveEventsByTopic {
-    public async getParseSaveEventsByTopic<EVENT>(
+    public async getParseSaveEventsByTopic<EVENT extends Event>(
         connection: Connection,
         web3Source: Web3Source,
         latestBlockWithOffset: number,
@@ -169,7 +169,7 @@ export class PullAndSaveEventsByTopic {
         return txHashes;
     }
 
-    private async _deleteOverlapAndSaveAsync<EVENT>(
+    private async _deleteOverlapAndSaveAsync<EVENT extends Event>(
         connection: Connection,
         toSave: EVENT[],
         startBlock: number,
@@ -225,7 +225,11 @@ export class PullAndSaveEventsByTopic {
                 logger.child({ event: eventName }).warn('Simultaneous write attempt, will retry on the next run');
             } else {
                 logger.error(`Failed while saving ${eventName}`);
-                logger.child({ event: eventName }).error(err);
+                if (err instanceof Error) {
+                    logger.child({ event: eventName }).error(err);
+                } else {
+                    logger.error('Unexpected Error');
+                }
             }
             // since we have errors lets rollback changes we made
             await queryRunner.rollbackTransaction();

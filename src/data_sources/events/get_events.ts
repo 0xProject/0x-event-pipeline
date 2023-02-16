@@ -65,11 +65,15 @@ async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
         try {
             eventsInRange = await getEventsAsync(fromBlock, toBlock);
         } catch (err) {
-            if (_isErrorRetryable(err) && i < numRetries) {
-                continue;
+            if (err instanceof Error) {
+                if (_isErrorRetryable(err) && i < numRetries) {
+                    continue;
+                } else {
+                    logger.error(err);
+                    return null;
+                }
             } else {
-                logger.error(err);
-                return null;
+                logger.error('Unexpected error');
             }
         }
         break;

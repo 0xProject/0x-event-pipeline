@@ -1,25 +1,44 @@
 import { Connection } from 'typeorm';
+import { RedisClientType } from 'redis';
 import { TokenMetadata } from './entities';
+import { chunk, logger } from './utils';
+import { CHAIN_NAME } from './config';
 
 export class TokenMetadataSingleton {
     private static instance: TokenMetadataSingleton;
-    private tokens: string[];
+    private redis: RedisClientType;
 
-    private constructor() {
-        this.tokens = [];
+    private constructor(redis: RedisClientType) {
+        this.redis = redis;
     }
 
-    static async getInstance(connection: Connection): Promise<TokenMetadataSingleton> {
+    static async getInstance(connection: Connection): Promise<TokenMetadataSingleton | null> {
         if (!TokenMetadataSingleton.instance) {
-            TokenMetadataSingleton.instance = new TokenMetadataSingleton();
-            const tmp = await connection
+            throw Error('Token Metadata Singleton was not initiated');
+            return null;
+        }
+
+        const count = await connection.getRepository(TokenMetadata).count();
+        console.log(count);
+        const MAX_TOKENS_CHUNK = 10000;
+        for (let i = 0; i < count; i = i + MAX_TOKENS_CHUNK) {
+            const chunkedTokens = await connection
                 .getRepository(TokenMetadata)
                 .createQueryBuilder('token_metadata')
                 .select('token_metadata.address')
+                .offset(i)
+                .limit(MAX_TOKENS_CHUNK)
                 .getMany();
-            TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
+            await Promise.all(
+                chunkedTokens.map((token) => this.instance.redis.set(`token:${CHAIN_NAME}:${token.address}`, 1)),
+            );
         }
+
         return TokenMetadataSingleton.instance;
+    }
+
+    tokenExists(address: string) {
+        this.instance;
     }
     removeExistingTokens(inputTokens: string[]): string[] {
         return inputTokens.filter((token) => !this.tokens.includes(token));
@@ -30,6 +49,7 @@ export class TokenMetadataSingleton {
         await queryRunner.connect();
         await queryRunner.manager.upsert(TokenMetadata, newTokenMetadata, ['address']);
         await queryRunner.release();
-        this.tokens.concat(newTokenMetadata.map((token) => token.address));
+
+        await Promise.all(newTokenMetadata.map((token) => this.redis.set(`token:${CHAIN_NAME}:${token.address}`, 1)));
     }
 }

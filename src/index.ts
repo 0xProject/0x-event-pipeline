@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 config({ path: resolve(__dirname, '../../.env') });
 
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
+import { createClient } from 'redis';
 import * as ormConfig from './ormconfig';
 import {
     CHAIN_ID,
@@ -43,6 +44,13 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
+        const redis = createClient({
+            url: 'redis://redis',
+        });
+
+        redis.on('error', (err) => console.log('Redis Client Error', err));
+        await redis.connect();
+
         await TokenMetadataSingleton.getInstance(connection);
         schedule(null, currentBlockMonitor.monitor, 'Current Block');
         if (FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS) {
