@@ -44,8 +44,6 @@
         "@0x/dev-utils": "^4.2.9",
         "@0x/order-utils": "^10.4.28",
         "@0x/subproviders": "^6.6.0",
-        "@kafkajs/confluent-schema-registry": "^3.2.1",
-        "@ovotech/avro-decimal": "^0.1.5",
         "@types/express": "^4.17.13",
         "@types/pino": "^6.3.11",
         "dotenv": "^8.2.0",
