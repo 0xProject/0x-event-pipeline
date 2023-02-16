@@ -49,6 +49,7 @@ export const MISSING_TRANSACTIONS = new Gauge({
     name: 'event_scraper_missing_transactions',
     help: 'The count of how many partial transactions are in the DB, but have been reorged out of the blockchain',
 });
+
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
     constructor(web3Source: Web3Source) {
@@ -86,7 +87,7 @@ export class PullAndSaveWeb3 {
             logger.info(`saving ${parsedBlocks.length} blocks`);
 
             await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
-            await kafkaSendAsync(producer, `event-scraper.ethereum.blocks.v0`, 'blockNumber', parsedBlocks);
+            await kafkaSendAsync(producer, `event-scraper.ethereum.blocks.v0`, ['blockNumber'], parsedBlocks);
         }
     }
     private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
@@ -96,7 +97,7 @@ export class PullAndSaveWeb3 {
 
         const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK };
 
-        return Number(lastKnownBlock.block_number) + 1;
+        return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
     }
 
     private async _getTxListToPullAsync(
@@ -664,19 +665,19 @@ export async function getParseSaveTxAsync(
         await kafkaSendAsync(
             producer,
             `event-scraper.ethereum.transactions.transactions.v0`,
-            'transactionHash',
+            ['transactionHash'],
             txData.parsedTxs,
         );
         await kafkaSendAsync(
             producer,
             `event-scraper.ethereum.transactions.receipts.v0`,
-            'transactionHash',
+            ['transactionHash'],
             txData.parsedReceipts,
         );
         await kafkaSendAsync(
             producer,
             `event-scraper.ethereum.transactions.logs.v0`,
-            'transactionHash',
+            ['transactionHash'],
             txData.parsedTxLogs,
         );
     }

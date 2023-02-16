@@ -44,6 +44,6 @@ export class TokenMetadataSingleton {
 
         this.tokens = this.tokens.concat(newTokenMetadata.map((token) => token.address));
 
-        kafkaSendAsync(producer, `event-scraper.ethereum.tokens-metadata.v0`, 'address', newTokenMetadata);
+        kafkaSendAsync(producer, `event-scraper.ethereum.tokens-metadata.v0`, ['address'], newTokenMetadata);
     }
 }

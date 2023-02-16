@@ -230,7 +230,10 @@ export class PullAndSaveEventsByTopic {
 
         const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
 
-        return Number(lastKnownBlock.last_processed_block_number) + 1;
+        return Math.min(
+            Number(lastKnownBlock.last_processed_block_number) + 1,
+            latestBlockWithOffset - START_BLOCK_OFFSET,
+        );
     }
 
 >>>>>>> d58f86d (WIP Kafka support - Avro)
@@ -287,7 +290,7 @@ export class PullAndSaveEventsByTopic {
             await kafkaSendAsync(
                 producer,
                 `event-scraper.ethereum.events.${tableName.replace(/_/g, '-')}.v0`,
-                'transactionHash',
+                ['transactionHash', 'logIndex'],
                 toSave,
             );
         } catch (err) {
