@@ -503,7 +503,7 @@ export async function getParseSaveTokensAsync(
         });
         const erc721TokenMetadata = erc721Tokens.map((address, index) => {
             return {
-                address: address,
+                address: address!.toLowerCase(),
                 type: 'ERC721',
                 name: erc721Names[index],
                 symbol: erc721Symbols[index],
@@ -512,7 +512,7 @@ export async function getParseSaveTokensAsync(
         });
         const erc1155TokenMetadata = erc1155Tokens.map((address, index) => {
             return {
-                address: address,
+                address: address!.toLowerCase(),
                 type: 'ERC1155',
                 name: erc1155Names[index],
                 symbol: erc1155Symbols[index],
@@ -521,7 +521,7 @@ export async function getParseSaveTokensAsync(
         });
         const erc20TokenMetadata = erc20Tokens.map((address, index) => {
             return {
-                address: address,
+                address: address!.toLowerCase(),
                 type: 'ERC20',
                 name: erc20Names[index],
                 symbol: erc20Symbols[index],
