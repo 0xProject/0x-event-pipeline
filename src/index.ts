@@ -19,6 +19,7 @@ import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
+import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
 import { ChainIdChecker } from './scripts/check_chain_id';
 import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { startMetricsServer } from './utils/metrics';
@@ -33,6 +34,7 @@ const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
 const currentBlockMonitor = new CurrentBlockMonitor();
 const tokensFromTransfersScraper = new TokensFromTransfersScraper();
+const tokensFromBackfill = new TokensFromBackfill();
 
 if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
@@ -50,6 +52,11 @@ createConnection(ormConfig as ConnectionOptions)
                 connection,
                 tokensFromTransfersScraper.getParseSaveTokensFromTransactionsAsync,
                 'Pull and Save Tokens',
+            );
+            schedule(
+                connection,
+                tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
+                'Pull and Save Backfill Tokens',
             );
         } else {
             schedule(connection, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
