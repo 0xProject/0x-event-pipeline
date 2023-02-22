@@ -9,16 +9,19 @@ Run locally:
 1. Copy the `.env.exmaple` file to `.env`. Add the `RPC_URL` for the chain(s) you are going to run
 
 2. Start Postgres
+
 ```sh
 docker-compose up -d # get postgres up
 ```
 
 3. Build the Scraper images
+
 ```sh
 docker-compose build
 ```
 
 4. Start the scraper(s)
+
 ```sh
 docker-compose up event-pipeline-ethereum # change the chain name
 ```
