@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const createTable = `
 CREATE TABLE events_arbitrum.erc1155_order_cancelled_events
@@ -28,7 +28,6 @@ DROP INDEX events_arbitrum.erc1155_order_cancelled_events_maker_idx;
 `;
 
 export class CreateErc1155OrderCancelledEventTableArbitrum1662138316100 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(createTable);
         await queryRunner.query(createIndexes);
@@ -38,5 +37,4 @@ export class CreateErc1155OrderCancelledEventTableArbitrum1662138316100 implemen
         await queryRunner.query(dropIndexes);
         await queryRunner.query(dropTable);
     }
-
 }

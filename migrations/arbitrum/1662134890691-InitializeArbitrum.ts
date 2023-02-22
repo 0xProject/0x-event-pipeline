@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const downQuery = `
 DROP SCHEMA events_arbitrum CASCADE;
@@ -209,7 +209,6 @@ CREATE INDEX native_fills_maker_index
 `;
 
 export class InitializeArbitrum1662134890691 implements MigrationInterface {
-
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(upQuery);
     }
@@ -217,5 +216,4 @@ export class InitializeArbitrum1662134890691 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(downQuery);
     }
-
 }

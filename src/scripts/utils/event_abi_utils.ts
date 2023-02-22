@@ -1,7 +1,7 @@
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event } from '../../entities';
 import { chunk, logger } from '../../utils';
-import { TokenMetadataMap, getParseSaveTokensAsync } from './web3_utils';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
 
 import { Connection, QueryFailedError } from 'typeorm';
 
@@ -35,12 +35,7 @@ export class PullAndSaveEventsByTopic {
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
     ): Promise<string[]> {
-        const startBlock = await this._getStartBlockAsync(
-            eventName,
-            connection,
-            latestBlockWithOffset,
-            startSearchBlock,
-        );
+        const startBlock = await getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
@@ -153,7 +148,8 @@ export class PullAndSaveEventsByTopic {
                 txHashes = parsedLogs.map((log: Event) => log.transactionHash);
 
                 // Get token metadata
-                await getParseSaveTokensAsync(connection, web3Source, parsedLogs, tokenMetadataMap);
+                const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
+                await getParseSaveTokensAsync(connection, web3Source, tokens);
 
                 logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
@@ -165,38 +161,12 @@ export class PullAndSaveEventsByTopic {
                     eventName,
                     eventType,
                     tableName,
-                    await this._lastBlockProcessedAsync(eventName, endBlock),
+                    getLastBlockProcessedEntity(eventName, endBlock),
                     deleteOptions,
                 );
             }),
         );
         return txHashes;
-    }
-
-    private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
-        const lastBlockProcessed = new LastBlockProcessed();
-        lastBlockProcessed.eventName = eventName;
-        lastBlockProcessed.lastProcessedBlockNumber = endBlock;
-        lastBlockProcessed.processedTimestamp = new Date().getTime();
-        return lastBlockProcessed;
-    }
-
-    private async _getStartBlockAsync(
-        eventName: string,
-        connection: Connection,
-        latestBlockWithOffset: number,
-        defaultStartBlock: number,
-    ): Promise<number> {
-        const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
-        );
-
-        const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
-
-        return Math.min(
-            Number(lastKnownBlock.last_processed_block_number) + 1,
-            latestBlockWithOffset - START_BLOCK_OFFSET,
-        );
     }
 
     private async _deleteOverlapAndSaveAsync<EVENT>(
@@ -265,3 +235,26 @@ export class PullAndSaveEventsByTopic {
         }
     }
 }
+
+export const getStartBlockAsync = async (
+    eventName: string,
+    connection: Connection,
+    latestBlockWithOffset: number,
+    defaultStartBlock: number,
+): Promise<number> => {
+    const queryResult = await connection.query(
+        `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
+    );
+
+    const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
+
+    return Math.min(Number(lastKnownBlock.last_processed_block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
+};
+
+export const getLastBlockProcessedEntity = (eventName: string, endBlock: number): LastBlockProcessed => {
+    const lastBlockProcessed = new LastBlockProcessed();
+    lastBlockProcessed.eventName = eventName;
+    lastBlockProcessed.lastProcessedBlockNumber = endBlock;
+    lastBlockProcessed.processedTimestamp = new Date().getTime();
+    return lastBlockProcessed;
+};

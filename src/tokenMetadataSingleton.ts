@@ -22,7 +22,7 @@ export class TokenMetadataSingleton {
         return TokenMetadataSingleton.instance;
     }
     removeExistingTokens(inputTokens: string[]): string[] {
-        return inputTokens.filter((token) => !this.tokens.includes(token));
+        return inputTokens.filter((token) => !this.tokens.includes(token.toLowerCase()));
     }
 
     async saveNewTokenMetadata(connection: Connection, newTokenMetadata: TokenMetadata[]): Promise<void> {
@@ -30,6 +30,6 @@ export class TokenMetadataSingleton {
         await queryRunner.connect();
         await queryRunner.manager.upsert(TokenMetadata, newTokenMetadata, ['address']);
         await queryRunner.release();
-        this.tokens.concat(newTokenMetadata.map((token) => token.address));
+        this.tokens = this.tokens.concat(newTokenMetadata.map((token) => token.address));
     }
 }
