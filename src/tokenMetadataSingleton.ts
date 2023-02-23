@@ -22,7 +22,7 @@ export class TokenMetadataSingleton {
         return TokenMetadataSingleton.instance;
     }
     removeExistingTokens(inputTokens: string[]): string[] {
-        return inputTokens.filter((token) => !this.tokens.includes(token.toLowerCase()));
+        return inputTokens.filter((token) => token !== null && !this.tokens.includes(token.toLowerCase()));
     }
 
     async saveNewTokenMetadata(connection: Connection, newTokenMetadata: TokenMetadata[]): Promise<void> {
