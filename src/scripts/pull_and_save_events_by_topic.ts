@@ -18,6 +18,7 @@ import {
     ExpiredRfqOrderEvent,
     FillEvent,
     LogTransferEvent,
+    MetaTransactionExecutedEvent,
     NativeFill,
     OneinchSwappedV3Event,
     OneinchSwappedV4Event,
@@ -42,6 +43,7 @@ import {
     ETHEREUM_RPC_URL,
     FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
     FEAT_LIMIT_ORDERS,
+    FEAT_META_TRANSACTION_EXECUTED_EVENT,
     FEAT_NFT,
     FEAT_ONEINCH_SWAPPED_V3_EVENT,
     FEAT_ONEINCH_SWAPPED_V4_EVENT,
@@ -65,6 +67,7 @@ import {
     FIRST_SEARCH_BLOCK,
     FLASHWALLET_ADDRESS,
     FLASHWALLET_DEPLOYMENT_BLOCK,
+    META_TRANSACTION_EXECUTED_START_BLOCK,
     NFT_FEATURE_START_BLOCK,
     ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
     ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
@@ -99,6 +102,7 @@ import {
     LIMITORDERFILLED_EVENT_TOPIC,
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
+    META_TRANSACTION_EXECUTED_EVENT_TOPIC,
     ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
     ONEINCH_ROUTER_V4_CONTRACT_ADDRESS,
     ONEINCH_SWAPPED_EVENT_TOPIC,
@@ -168,6 +172,7 @@ import {
 
 import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
 import { parseLogTransferEvent } from '../parsers/events/log_transfer_events';
+import { parseMetaTransactionExecutedEvent } from '../parsers/events/meta_transaction_executed_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
@@ -752,6 +757,24 @@ export class EventsByTopicScraper {
                     'nofilter',
                     UNISWAP_V2_SYNC_START_BLOCK,
                     parseUniswapV2SyncEvent,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_META_TRANSACTION_EXECUTED_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<MetaTransactionExecutedEvent>(
+                    connection,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'MetaTransactionExecutedEvent',
+                    MetaTransactionExecutedEvent,
+                    'meta_transaction_executed_events',
+                    META_TRANSACTION_EXECUTED_EVENT_TOPIC,
+                    EP_ADDRESS,
+                    META_TRANSACTION_EXECUTED_START_BLOCK,
+                    parseMetaTransactionExecutedEvent,
                     {},
                 ),
             );
