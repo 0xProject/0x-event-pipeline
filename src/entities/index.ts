@@ -17,6 +17,7 @@ export { FillEvent } from './fill_event';
 export { LastBlockProcessed } from './last_block_processed';
 export { LogTransferEvent } from './log_transfer_event';
 export { MakerStakingPoolSetEvent } from './maker_staking_pool_set_event';
+export { MetaTransactionExecutedEvent } from './meta_transaction_executed_event';
 export { MoveStakeEvent } from './move_stake_event';
 export { NativeFill } from './native_fill';
 export { OneinchSwappedV3Event, OneinchSwappedV4Event } from './oneinch_swapped_event';

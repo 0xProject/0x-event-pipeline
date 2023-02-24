@@ -1084,3 +1084,15 @@ export const UNISWAP_V2_SYNC_ABI = {
     name: 'Sync',
     type: 'event',
 };
+
+export const META_TRANSACTION_EXECUTED_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'bytes32', name: 'hash', type: 'bytes32' },
+        { indexed: true, internalType: 'bytes4', name: 'selector', type: 'bytes4' },
+        { indexed: false, internalType: 'address', name: 'signer', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'sender', type: 'address' },
+    ],
+    name: 'MetaTransactionExecuted',
+    type: 'event',
+};
