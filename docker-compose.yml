@@ -105,8 +105,8 @@ services:
             SCHEMA: 'events_polygon'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
-            MAX_BLOCKS_TO_SEARCH: 2000
-            MAX_BLOCKS_TO_PULL: 2000
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
             MINUTES_BETWEEN_RUNS: 1
             FEAT_ONEINCH_SWAPPED_V3_EVENT: "true"
             ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK: 14500000
@@ -128,6 +128,8 @@ services:
             PARASWAP_V5_5_DEPLOYMENT_BLOCK: 24981090
             FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
             OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 19409831
+            FEAT_META_TRANSACTION_EXECUTED_EVENT: "true"
+            META_TRANSACTION_EXECUTED_START_BLOCK: 39406300
 
     event-pipeline-avalanche:
         depends_on:
