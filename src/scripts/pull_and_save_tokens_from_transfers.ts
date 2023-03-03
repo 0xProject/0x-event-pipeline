@@ -1,3 +1,4 @@
+import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
@@ -25,7 +26,7 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class TokensFromTransfersScraper {
-    public async getParseSaveTokensFromTransactionsAsync(connection: Connection): Promise<void> {
+    public async getParseSaveTokensFromTransactionsAsync(connection: Connection, producer: Producer): Promise<void> {
         const eventName = 'TSStandard';
         const startTime = new Date().getTime();
         logger.info(`Pulling Tokens from Transfers`);
@@ -62,7 +63,7 @@ export class TokensFromTransfersScraper {
 
         logger.debug(`Got ${tokens.length} tokens`);
 
-        const savedTokenCount = await getParseSaveTokensAsync(connection, web3Source, tokens);
+        const savedTokenCount = await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
         logger.info(`Saved metadata for ${savedTokenCount} tokens`);
 

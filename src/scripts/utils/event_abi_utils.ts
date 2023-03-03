@@ -181,8 +181,6 @@ export class PullAndSaveEventsByTopic {
         return txHashes;
     }
 
-<<<<<<< HEAD
-||||||| parent of d58f86d (WIP Kafka support - Avro)
     private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
         const lastBlockProcessed = new LastBlockProcessed();
         lastBlockProcessed.eventName = eventName;
@@ -209,34 +207,6 @@ export class PullAndSaveEventsByTopic {
         );
     }
 
-=======
-    private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
-        const lastBlockProcessed = new LastBlockProcessed();
-        lastBlockProcessed.eventName = eventName;
-        lastBlockProcessed.lastProcessedBlockNumber = endBlock;
-        lastBlockProcessed.processedTimestamp = new Date().getTime();
-        return lastBlockProcessed;
-    }
-
-    private async _getStartBlockAsync(
-        eventName: string,
-        connection: Connection,
-        latestBlockWithOffset: number,
-        defaultStartBlock: number,
-    ): Promise<number> {
-        const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
-        );
-
-        const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
-
-        return Math.min(
-            Number(lastKnownBlock.last_processed_block_number) + 1,
-            latestBlockWithOffset - START_BLOCK_OFFSET,
-        );
-    }
-
->>>>>>> d58f86d (WIP Kafka support - Avro)
     private async _deleteOverlapAndSaveAsync<EVENT>(
         connection: Connection,
         producer: Producer,
