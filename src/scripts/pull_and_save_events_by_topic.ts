@@ -802,6 +802,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<MetaTransactionExecutedEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'MetaTransactionExecutedEvent',
