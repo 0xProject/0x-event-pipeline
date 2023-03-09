@@ -20,7 +20,7 @@ export class TokenMetadataSingleton {
                 .select('token_metadata.address')
                 .where('token_registry.chainId = :chainId', { chainId: CHAIN_ID.toString() })
                 .orderBy('token_registry.tokenListsRank', 'DESC')
-                .limit(100000) // Do not get all tokens, they don't fit in memory
+                .limit(10000) // Do not get all tokens, they don't fit in memory
                 .getMany();
             TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
         }
