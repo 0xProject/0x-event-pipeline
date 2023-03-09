@@ -37,6 +37,7 @@ export { StakingPoolMetadata } from './staking_pool_metadata';
 export { StakingProxyDeployment } from './staking_proxy_deployment';
 export { TimechainSwapV1Event } from './timechain_swap_v1_event';
 export { TokenMetadata } from './token_metadata';
+export { TokenRegistry } from './token_registry';
 export { Transaction } from './transaction';
 export { TransactionExecutionEvent } from './transaction_execution_event';
 export { TransactionLogs } from './transaction_log';

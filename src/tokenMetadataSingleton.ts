@@ -1,5 +1,6 @@
 import { Connection } from 'typeorm';
-import { TokenMetadata } from './entities';
+import { TokenMetadata, TokenRegistry } from './entities';
+import { CHAIN_ID } from './config';
 
 export class TokenMetadataSingleton {
     private static instance: TokenMetadataSingleton;
@@ -15,7 +16,11 @@ export class TokenMetadataSingleton {
             const tmp = await connection
                 .getRepository(TokenMetadata)
                 .createQueryBuilder('token_metadata')
+                .leftJoinAndSelect(TokenRegistry, 'token_registry', 'token_metadata.address = token_registry.address')
                 .select('token_metadata.address')
+                .where('token_registry.chainId = :chainId', { chainId: CHAIN_ID.toString() })
+                .orderBy('token_registry.tokenListsRank', 'DESC')
+                .limit(100000) // Do not get all tokens, they don't fit in memory
                 .getMany();
             TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
         }
