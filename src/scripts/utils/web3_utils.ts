@@ -421,6 +421,7 @@ export async function getParseSaveTokensAsync(
     tokens: string[],
 ): Promise<number> {
     const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
+
     const missingTokens = [
         ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
     ];
@@ -541,10 +542,11 @@ function parseHexString(hex: string): string | null {
     if (hex === null) {
         return null;
     }
+
     const parsed = hexToUtf8(hex);
 
-    // Only keep ASCII printable chars
-    return parsed.replace(/[^\x20-\x7E]+/g, '').trim();
+    // remove unicode control characters
+    return parsed.replace(/[\u0000-\u001F\u007F-\u009F]|\n/g, "").trim();
 }
 
 async function _keepERC721Async(web3Source: Web3Source, tokenAddresses: string[]) {
