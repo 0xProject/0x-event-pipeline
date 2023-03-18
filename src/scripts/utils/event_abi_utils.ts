@@ -65,21 +65,24 @@ export class PullAndSaveEventsByTopic {
 
                     const contractCallProtocolNameArray = [];
 
+                    console.log(parsedLogs)
                     for (const index in parsedLogs) {
+                        const contract_address: string = (parsedLogs[index] as any).contractAddress
+
                         const contractCallToken0: ContractCallInfo = {
-                            to: (parsedLogs[index] as any).contractAddress,
+                            to: contract_address,
                             data: '0x0dfe1681',
                         };
                         contractCallToken0Array.push(contractCallToken0);
 
                         const contractCallToken1: ContractCallInfo = {
-                            to: (parsedLogs[index] as any).contractAddress,
+                            to: contract_address,
                             data: '0xd21220a7',
                         };
                         contractCallToken1Array.push(contractCallToken1);
 
                         const contractCallProtocolName: ContractCallInfo = {
-                            to: (parsedLogs[index] as any).contractAddress,
+                            to: contract_address,
                             data: '0x06fdde03',
                         };
                         contractCallProtocolNameArray.push(contractCallProtocolName);
@@ -119,14 +122,16 @@ export class PullAndSaveEventsByTopic {
                     const contractCallToken1Array = [];
 
                     for (const index in parsedLogs) {
+                        const contract_address: string = (parsedLogs[index] as any).contractAddress
+
                         const contractCallToken0: ContractCallInfo = {
-                            to: (parsedLogs[index] as any).contractAddress,
+                            to: contract_address,
                             data: '0x0dfe1681',
                         };
                         contractCallToken0Array.push(contractCallToken0);
 
                         const contractCallToken1: ContractCallInfo = {
-                            to: (parsedLogs[index] as any).contractAddress,
+                            to: contract_address,
                             data: '0xd21220a7',
                         };
                         contractCallToken1Array.push(contractCallToken1);

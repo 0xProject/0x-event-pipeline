@@ -1,0 +1,5 @@
+services:
+    event-pipeline-ethereum:
+        environment:
+            # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+            TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
