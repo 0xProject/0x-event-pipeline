@@ -65,9 +65,9 @@ export class PullAndSaveEventsByTopic {
 
                     const contractCallProtocolNameArray = [];
 
-                    console.log(parsedLogs)
+                    console.log(parsedLogs);
                     for (const index in parsedLogs) {
-                        const contract_address: string = (parsedLogs[index] as any).contractAddress
+                        const contract_address: string = (parsedLogs[index] as any).contractAddress;
 
                         const contractCallToken0: ContractCallInfo = {
                             to: contract_address,
@@ -122,7 +122,7 @@ export class PullAndSaveEventsByTopic {
                     const contractCallToken1Array = [];
 
                     for (const index in parsedLogs) {
-                        const contract_address: string = (parsedLogs[index] as any).contractAddress
+                        const contract_address: string = (parsedLogs[index] as any).contractAddress;
 
                         const contractCallToken0: ContractCallInfo = {
                             to: contract_address,
