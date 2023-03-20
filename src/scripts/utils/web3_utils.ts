@@ -546,7 +546,7 @@ function parseHexString(hex: string): string | null {
     const parsed = hexToUtf8(hex);
 
     // remove unicode control characters
-    return parsed.replace(/[\u0000-\u001F\u007F-\u009F]|\n/g, "").trim();
+    return parsed.replace(/[\u0000-\u001F\u007F-\u009F]|\n/g, '').trim();
 }
 
 async function _keepERC721Async(web3Source: Web3Source, tokenAddresses: string[]) {
