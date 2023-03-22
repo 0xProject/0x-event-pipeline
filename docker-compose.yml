@@ -187,8 +187,6 @@ services:
             PARASWAP_V5_5_DEPLOYMENT_BLOCK: 31068544
             FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
             OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 16979047
-            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 16979047
-
 
     event-pipeline-celo:
         depends_on:
@@ -256,3 +254,48 @@ services:
             EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 4050733
+
+    token-scraper-ethereum:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
+            CHAIN_ID: '1'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            SCHEMA: 'events'
+            FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+            TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            EP_DEPLOYMENT_BLOCK: 10247094
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
+            MAX_TX_TO_PULL: 1000
+            MINUTES_BETWEEN_RUNS: 1
+            FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
+            UNISWAP_V2_VIP_SWAP_SOURCES: "UniswapV2,SushiSwap"
+            UNISWAP_V2_VIP_SWAP_START_BLOCK: 10917104
+            FEAT_UNISWAP_V3_VIP_SWAP_EVENT: "true"
+            UNISWAP_V3_VIP_SWAP_START_BLOCK: 12553659
+            FEAT_LIMIT_ORDERS: "true"
+            V4_NATIVE_FILL_START_BLOCK: "11591021"
+            FEAT_PLP_SWAP_EVENT: "true"
+            PLP_VIP_START_BLOCK: 11377457
+            FEAT_OTC_ORDERS: "true"
+            OTC_ORDERS_FEATURE_START_BLOCK: 13143075
+            FEAT_CANCEL_EVENTS: "true"
+            FEAT_STAKING: "true"
+            STAKING_DEPLOYMENT_BLOCK: 8952581
+            FEAT_RFQ_EVENT: "true"
+            FEAT_V3_NATIVE_FILL: "true"
+            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+            FLASHWALLET_ADDRESS: "0x22f9dcf4647084d6c31b2765f6910cd85c178c18"
+            FLASHWALLET_DEPLOYMENT_BLOCK: 12231666
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 14258205
+            FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
+            UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "UniswapV2:0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f:10000835,SushiSwap:0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac:10794229"
+            FEAT_UNISWAP_V2_SYNC_EVENT: "true"
+            UNISWAP_V2_SYNC_START_BLOCK: 10000835
