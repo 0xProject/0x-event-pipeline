@@ -187,8 +187,6 @@ services:
             PARASWAP_V5_5_DEPLOYMENT_BLOCK: 31068544
             FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT: "true"
             OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 16979047
-            OPEN_OCEAN_V1_DEPLOYMENT_BLOCK: 16979047
-
 
     event-pipeline-celo:
         depends_on:
@@ -256,3 +254,24 @@ services:
             EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 4050733
+
+    token-scraper-ethereum:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
+            CHAIN_ID: '1'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            SCHEMA: 'events'
+            LOG_LEVEL: "info"
+            FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+            TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            EP_DEPLOYMENT_BLOCK: 10247094
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
+            MAX_TX_TO_PULL: 1000
+            SECONDS_BETWEEN_RUNS: 5
