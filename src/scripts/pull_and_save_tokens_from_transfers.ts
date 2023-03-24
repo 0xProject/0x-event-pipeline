@@ -34,12 +34,18 @@ export class TokensFromTransfersScraper {
 
         logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
 
-        const startBlock = await getStartBlockAsync(
+        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
             eventName,
             connection,
             latestBlockWithOffset,
             TOKENS_FROM_TRANSACTIONS_START_BLOCK,
         );
+
+        if (!hasLatestBlockChanged) {
+            logger.debug(`No new blocks to scan for ${eventName}, skipping`);
+            return;
+        }
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 

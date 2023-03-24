@@ -12,19 +12,27 @@ export class TokenMetadataSingleton {
         this.tokens = [];
     }
 
-    static async getInstance(connection: Connection): Promise<TokenMetadataSingleton> {
+    static async getInstance(connection: Connection, producer: Producer): Promise<TokenMetadataSingleton> {
         if (!TokenMetadataSingleton.instance) {
             TokenMetadataSingleton.instance = new TokenMetadataSingleton();
             const tmp = await connection
                 .getRepository(TokenMetadata)
                 .createQueryBuilder('token_metadata')
                 .leftJoinAndSelect(TokenRegistry, 'token_registry', 'token_metadata.address = token_registry.address')
-                .select('token_metadata.address')
+                .select([
+                    'token_metadata.address',
+                    'token_metadata.type',
+                    'token_metadata.symbol',
+                    'token_metadata.name',
+                    'token_metadata.decimals',
+                ])
                 .where('token_registry.chainId = :chainId', { chainId: CHAIN_ID.toString() })
                 .orderBy('token_registry.tokenListsRank', 'DESC')
                 .limit(10000) // Do not get all tokens, they don't fit in memory
                 .getMany();
             TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
+            console.log(tmp.length);
+            kafkaSendAsync(producer, `event-scraper.ethereum.tokens-metadata.v0`, ['address'], tmp);
         }
         return TokenMetadataSingleton.instance;
     }

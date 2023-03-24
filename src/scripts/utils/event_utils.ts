@@ -4,6 +4,7 @@ import { Connection } from 'typeorm';
 import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 import { LogWithDecodedArgs } from '@0x/dev-utils';
+import { getStartBlockAsync } from '../utils/event_abi_utils';
 
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
 
@@ -16,7 +17,18 @@ export class PullAndSaveEvents {
         getterFunction: (startBlock: number, endBlock: number) => Promise<LogWithDecodedArgs<ARGS>[] | null>,
         parser: (decodedLog: LogWithDecodedArgs<ARGS>) => EVENT,
     ): Promise<void> {
-        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
+            eventName,
+            connection,
+            latestBlockWithOffset,
+            FIRST_SEARCH_BLOCK,
+        );
+
+        if (!hasLatestBlockChanged) {
+            logger.debug(`No new blocks to scan for ${eventName}, skipping`);
+            return;
+        }
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
@@ -51,24 +63,6 @@ export class PullAndSaveEvents {
         lastBlockProcessed.lastProcessedBlockNumber = endBlock;
         lastBlockProcessed.processedTimestamp = new Date().getTime();
         return lastBlockProcessed;
-    }
-
-    private async _getStartBlockAsync(
-        eventName: string,
-        connection: Connection,
-        latestBlockWithOffset: number,
-    ): Promise<number> {
-        const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
-        );
-
-        logger.info(queryResult);
-        const lastKnownBlock = queryResult[0] || { last_processed_block_number: FIRST_SEARCH_BLOCK };
-
-        return Math.min(
-            Number(lastKnownBlock.last_processed_block_number) + 1,
-            latestBlockWithOffset - START_BLOCK_OFFSET,
-        );
     }
 
     private async _deleteOverlapAndSaveAsync<T>(

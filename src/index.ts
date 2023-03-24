@@ -65,8 +65,8 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
-        await TokenMetadataSingleton.getInstance(connection);
         await producer.connect();
+        await TokenMetadataSingleton.getInstance(connection, producer);
         schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
         if (FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS) {
             schedule(
