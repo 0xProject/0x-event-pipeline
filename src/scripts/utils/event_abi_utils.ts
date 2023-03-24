@@ -77,7 +77,6 @@ export class PullAndSaveEventsByTopic {
 
                     const contractCallProtocolNameArray = [];
 
-                    console.log(parsedLogs);
                     for (const index in parsedLogs) {
                         const contract_address: string = (parsedLogs[index] as any).contractAddress;
 
