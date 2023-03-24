@@ -10,7 +10,6 @@ export interface SchemaOptions {
 }
 
 export async function kafkaSendAsync(producer: Producer, topic: string, keyFields: string[], payload: any[]) {
-    // if (topic === 'event-scraper.ethereum.blocks.v0') {
     const MAX_SIZE = 500000; // 1MB
 
     let currentSize = 0;
@@ -39,5 +38,4 @@ export async function kafkaSendAsync(producer: Producer, topic: string, keyField
     });
 
     logger.info(`Emitted ${payload.length} messages to ${topic}`);
-    // }
 }

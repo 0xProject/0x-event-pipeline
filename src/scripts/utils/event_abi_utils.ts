@@ -36,13 +36,19 @@ export class PullAndSaveEventsByTopic {
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
     ): Promise<string[]> {
-        const startBlock = await getStartBlockAsync(eventName, connection, latestBlockWithOffset, startSearchBlock);
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
+        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
+            eventName,
+            connection,
+            latestBlockWithOffset,
+            startSearchBlock,
+        );
 
-        if (startBlock > endBlock) {
+        if (!hasLatestBlockChanged) {
             logger.debug(`No new blocks to scan for ${eventName}, skipping`);
             return [];
         }
+
+        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
@@ -189,24 +195,6 @@ export class PullAndSaveEventsByTopic {
         return lastBlockProcessed;
     }
 
-    private async _getStartBlockAsync(
-        eventName: string,
-        connection: Connection,
-        latestBlockWithOffset: number,
-        defaultStartBlock: number,
-    ): Promise<number> {
-        const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
-        );
-
-        const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
-
-        return Math.min(
-            Number(lastKnownBlock.last_processed_block_number) + 1,
-            latestBlockWithOffset - START_BLOCK_OFFSET,
-        );
-    }
-
     private async _deleteOverlapAndSaveAsync<EVENT>(
         connection: Connection,
         producer: Producer,
@@ -287,14 +275,19 @@ export const getStartBlockAsync = async (
     connection: Connection,
     latestBlockWithOffset: number,
     defaultStartBlock: number,
-): Promise<number> => {
+): Promise<{ startBlock: number; hasLatestBlockChanged: boolean }> => {
     const queryResult = await connection.query(
         `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
     );
 
     const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
 
-    return Math.min(Number(lastKnownBlock.last_processed_block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
+    const lastKnownBlockNumber = Number(lastKnownBlock.last_processed_block_number);
+
+    return {
+        startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - START_BLOCK_OFFSET),
+        hasLatestBlockChanged: lastKnownBlockNumber !== latestBlockWithOffset,
+    };
 };
 
 export const getLastBlockProcessedEntity = (eventName: string, endBlock: number): LastBlockProcessed => {

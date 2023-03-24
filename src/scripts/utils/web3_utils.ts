@@ -62,7 +62,12 @@ export class PullAndSaveWeb3 {
         latestBlockWithOffset: number,
     ): Promise<void> {
         const tableName = 'blocks';
-        const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
+        const { startBlock, hasLatestBlockChanged } = await this._getStartBlockAsync(connection, latestBlockWithOffset);
+        if (!hasLatestBlockChanged) {
+            logger.debug(`No new blocks to scan, skipping`);
+            return;
+        }
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
 
         SCAN_START_BLOCK.labels({ type: 'blocks' }).set(startBlock);
@@ -90,14 +95,22 @@ export class PullAndSaveWeb3 {
             await kafkaSendAsync(producer, `event-scraper.ethereum.blocks.v0`, ['blockNumber'], parsedBlocks);
         }
     }
-    private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
+    private async _getStartBlockAsync(
+        connection: Connection,
+        latestBlockWithOffset: number,
+    ): Promise<{ startBlock: number; hasLatestBlockChanged: boolean }> {
         const queryResult = await connection.query(
             `SELECT block_number FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
         );
 
         const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK };
 
-        return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
+        const lastKnownBlockNumber = Number(lastKnownBlock.block_number);
+
+        return {
+            startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - START_BLOCK_OFFSET),
+            hasLatestBlockChanged: lastKnownBlockNumber !== latestBlockWithOffset,
+        };
     }
 
     private async _getTxListToPullAsync(
@@ -428,8 +441,7 @@ export async function getParseSaveTokensAsync(
     web3Source: Web3Source,
     tokens: string[],
 ): Promise<number> {
-    const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
-
+    const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection, producer);
     const missingTokens = [
         ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
     ];
