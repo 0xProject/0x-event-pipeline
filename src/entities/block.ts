@@ -20,4 +20,6 @@ export class Block {
     public baseFeePerGas!: number;
     @Column({ name: 'gas_used', type: 'bigint', transformer: numberToBigIntTransformer })
     public gasUsed!: number;
+    @Column({ name: 'parent_hash', type: 'varchar' })
+    public parentHash!: string;
 }

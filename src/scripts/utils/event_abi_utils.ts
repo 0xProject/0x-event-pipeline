@@ -39,6 +39,7 @@ export class PullAndSaveEventsByTopic {
         const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
             eventName,
             connection,
+            web3Source,
             latestBlockWithOffset,
             startSearchBlock,
         );
@@ -52,146 +53,145 @@ export class PullAndSaveEventsByTopic {
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
 
-        SCAN_START_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(startBlock);
-        SCAN_END_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(endBlock);
+        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
 
-        // assert(topics.length === 1);
+        if (endBlockHash === null) {
+            logger.error(`Unstable last block for ${eventName}, trying next time`);
+            return [];
+        } else {
+            SCAN_START_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(startBlock);
+            SCAN_END_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(endBlock);
 
-        const logPullInfo: LogPullInfo = {
-            address: contractAddress,
-            fromBlock: startBlock,
-            toBlock: endBlock,
-            topics,
-        };
+            // assert(topics.length === 1);
 
-        const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
+            const logPullInfo: LogPullInfo = {
+                address: contractAddress,
+                fromBlock: startBlock,
+                toBlock: endBlock,
+                topics,
+            };
 
-        let txHashes: string[] = [];
-        await Promise.all(
-            rawLogsArray.map(async (rawLogs) => {
-                const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
+            const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
-                if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
-                    const contractCallToken0Array = [];
-                    const contractCallToken1Array = [];
+            let txHashes: string[] = [];
+            await Promise.all(
+                rawLogsArray.map(async (rawLogs) => {
+                    const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
-                    const contractCallProtocolNameArray = [];
+                    if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
+                        const contractCallToken0Array = [];
+                        const contractCallToken1Array = [];
 
-                    for (const index in parsedLogs) {
-                        const contract_address: string = (parsedLogs[index] as any).contractAddress;
+                        const contractCallProtocolNameArray = [];
 
-                        const contractCallToken0: ContractCallInfo = {
-                            to: contract_address,
-                            data: '0x0dfe1681',
-                        };
-                        contractCallToken0Array.push(contractCallToken0);
+                        for (const index in parsedLogs) {
+                            const contract_address: string = (parsedLogs[index] as any).contractAddress;
 
-                        const contractCallToken1: ContractCallInfo = {
-                            to: contract_address,
-                            data: '0xd21220a7',
-                        };
-                        contractCallToken1Array.push(contractCallToken1);
+                            const contractCallToken0: ContractCallInfo = {
+                                to: contract_address,
+                                data: '0x0dfe1681',
+                            };
+                            contractCallToken0Array.push(contractCallToken0);
 
-                        const contractCallProtocolName: ContractCallInfo = {
-                            to: contract_address,
-                            data: '0x06fdde03',
-                        };
-                        contractCallProtocolNameArray.push(contractCallProtocolName);
-                    }
+                            const contractCallToken1: ContractCallInfo = {
+                                to: contract_address,
+                                data: '0xd21220a7',
+                            };
+                            contractCallToken1Array.push(contractCallToken1);
 
-                    const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
-                    const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
-                    const protocolName = await web3Source.callContractMethodsAsync(contractCallProtocolNameArray);
+                            const contractCallProtocolName: ContractCallInfo = {
+                                to: contract_address,
+                                data: '0x06fdde03',
+                            };
+                            contractCallProtocolNameArray.push(contractCallProtocolName);
+                        }
 
-                    for (let i = 0; i < parsedLogs.length; i++) {
-                        const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
-                        const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
-                        parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
-                        parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
+                        const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
+                        const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
+                        const protocolName = await web3Source.callContractMethodsAsync(contractCallProtocolNameArray);
 
-                        const protocolName_i = hexToUtf8('0x' + protocolName[i].slice(98))
-                            .split('LP')[0]
-                            .split(' ')[0]
-                            .slice(1);
+                        for (let i = 0; i < parsedLogs.length; i++) {
+                            const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
+                            const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
+                            parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
+                            parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
 
-                        // Legacy compatibility
-                        if (protocolName_i === 'Uniswap') {
-                            parsedLogs[i].from = 'UniswapV2';
-                            parsedLogs[i].directProtocol = 'UniswapV2';
-                        } else {
-                            parsedLogs[i].from = protocolName_i.includes('Swap')
-                                ? protocolName_i
-                                : protocolName_i + 'Swap';
-                            parsedLogs[i].directProtocol = protocolName_i.includes('Swap')
-                                ? protocolName_i
-                                : protocolName_i + 'Swap';
+                            const protocolName_i = hexToUtf8('0x' + protocolName[i].slice(98))
+                                .split('LP')[0]
+                                .split(' ')[0]
+                                .slice(1);
+
+                            // Legacy compatibility
+                            if (protocolName_i === 'Uniswap') {
+                                parsedLogs[i].from = 'UniswapV2';
+                                parsedLogs[i].directProtocol = 'UniswapV2';
+                            } else {
+                                parsedLogs[i].from = protocolName_i.includes('Swap')
+                                    ? protocolName_i
+                                    : protocolName_i + 'Swap';
+                                parsedLogs[i].directProtocol = protocolName_i.includes('Swap')
+                                    ? protocolName_i
+                                    : protocolName_i + 'Swap';
+                            }
                         }
                     }
-                }
-                if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
-                    const contractCallToken0Array = [];
-                    const contractCallToken1Array = [];
+                    if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
+                        const contractCallToken0Array = [];
+                        const contractCallToken1Array = [];
 
-                    for (const index in parsedLogs) {
-                        const contract_address: string = (parsedLogs[index] as any).contractAddress;
+                        for (const index in parsedLogs) {
+                            const contract_address: string = (parsedLogs[index] as any).contractAddress;
 
-                        const contractCallToken0: ContractCallInfo = {
-                            to: contract_address,
-                            data: '0x0dfe1681',
-                        };
-                        contractCallToken0Array.push(contractCallToken0);
+                            const contractCallToken0: ContractCallInfo = {
+                                to: contract_address,
+                                data: '0x0dfe1681',
+                            };
+                            contractCallToken0Array.push(contractCallToken0);
 
-                        const contractCallToken1: ContractCallInfo = {
-                            to: contract_address,
-                            data: '0xd21220a7',
-                        };
-                        contractCallToken1Array.push(contractCallToken1);
+                            const contractCallToken1: ContractCallInfo = {
+                                to: contract_address,
+                                data: '0xd21220a7',
+                            };
+                            contractCallToken1Array.push(contractCallToken1);
+                        }
+                        const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
+                        const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
+
+                        for (let i = 0; i < parsedLogs.length; i++) {
+                            const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
+                            const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
+                            parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
+                            parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
+                        }
                     }
-                    const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
-                    const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
 
-                    for (let i = 0; i < parsedLogs.length; i++) {
-                        const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
-                        const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
-                        parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
-                        parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
-                    }
-                }
+                    SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
 
-                SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
+                    // Get list of tx hashes
+                    txHashes = parsedLogs.map((log: Event) => log.transactionHash);
 
-                // Get list of tx hashes
-                txHashes = parsedLogs.map((log: Event) => log.transactionHash);
+                    // Get token metadata
+                    const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
+                    await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
-                // Get token metadata
-                const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
-                await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
+                    logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
-                logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
-
-                await this._deleteOverlapAndSaveAsync<EVENT>(
-                    connection,
-                    producer,
-                    parsedLogs,
-                    startBlock,
-                    endBlock,
-                    eventName,
-                    eventType,
-                    tableName,
-                    getLastBlockProcessedEntity(eventName, endBlock),
-                    deleteOptions,
-                );
-            }),
-        );
-        return txHashes;
-    }
-
-    private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
-        const lastBlockProcessed = new LastBlockProcessed();
-        lastBlockProcessed.eventName = eventName;
-        lastBlockProcessed.lastProcessedBlockNumber = endBlock;
-        lastBlockProcessed.processedTimestamp = new Date().getTime();
-        return lastBlockProcessed;
+                    await this._deleteOverlapAndSaveAsync<EVENT>(
+                        connection,
+                        producer,
+                        parsedLogs,
+                        startBlock,
+                        endBlock,
+                        eventName,
+                        eventType,
+                        tableName,
+                        getLastBlockProcessedEntity(eventName, endBlock, endBlockHash),
+                        deleteOptions,
+                    );
+                }),
+            );
+            return txHashes;
+        }
     }
 
     private async _deleteOverlapAndSaveAsync<EVENT>(
@@ -272,27 +272,45 @@ export class PullAndSaveEventsByTopic {
 export const getStartBlockAsync = async (
     eventName: string,
     connection: Connection,
+    web3Source: Web3Source,
     latestBlockWithOffset: number,
     defaultStartBlock: number,
 ): Promise<{ startBlock: number; hasLatestBlockChanged: boolean }> => {
     const queryResult = await connection.query(
-        `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
+        `SELECT last_processed_block_number, block_hash FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
     );
 
-    const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock };
+    const lastKnownBlock = queryResult[0] || { last_processed_block_number: defaultStartBlock, block_hash: null };
 
     const lastKnownBlockNumber = Number(lastKnownBlock.last_processed_block_number);
 
+    const hasLatestBlockChanged = lastKnownBlockNumber !== latestBlockWithOffset;
+
+    if (hasLatestBlockChanged) {
+        const lastKnownBlockFresh = await web3Source.getBlockInfoAsync(lastKnownBlockNumber);
+
+        if (lastKnownBlock.block_hash !== lastKnownBlockFresh.hash) {
+            return {
+                startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - START_BLOCK_OFFSET),
+                hasLatestBlockChanged: true,
+            };
+        }
+    }
     return {
-        startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - START_BLOCK_OFFSET),
-        hasLatestBlockChanged: lastKnownBlockNumber !== latestBlockWithOffset,
+        startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset),
+        hasLatestBlockChanged,
     };
 };
 
-export const getLastBlockProcessedEntity = (eventName: string, endBlock: number): LastBlockProcessed => {
+export const getLastBlockProcessedEntity = (
+    eventName: string,
+    endBlock: number,
+    endBlockHash: string,
+): LastBlockProcessed => {
     const lastBlockProcessed = new LastBlockProcessed();
     lastBlockProcessed.eventName = eventName;
     lastBlockProcessed.lastProcessedBlockNumber = endBlock;
     lastBlockProcessed.processedTimestamp = new Date().getTime();
+    lastBlockProcessed.blockHash = endBlockHash;
     return lastBlockProcessed;
 };
