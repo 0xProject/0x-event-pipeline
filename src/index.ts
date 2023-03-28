@@ -116,7 +116,6 @@ async function schedule(connection: Connection | null, producer: Producer | null
     } else {
         wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
     }
-
     setTimeout(() => {
         schedule(connection, producer, func, funcName);
     }, wait);
