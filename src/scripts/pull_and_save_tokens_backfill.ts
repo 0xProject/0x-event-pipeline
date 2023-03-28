@@ -17,7 +17,6 @@ import {
 } from '../config';
 import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
 
-import { getStartBlockAsync } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION, SCAN_START_BLOCK, SCAN_END_BLOCK } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({

@@ -83,6 +83,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelEventArgs, CancelEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'CancelEvent',
                     'cancel_events',
@@ -93,6 +94,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelUpToEventArgs, CancelUpToEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'CancelUpToEvent',
                     'cancel_up_to_events',
@@ -109,6 +111,7 @@ export class LegacyEventScraper {
                     TransactionExecutionEvent
                 >(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'TransactionExecutionEvent',
                     'transaction_execution_events',
@@ -119,6 +122,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingStakeEventArgs, StakeEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'StakeEvent',
                     'stake_events',
@@ -129,6 +133,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingUnstakeEventArgs, UnstakeEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'UnstakeEvent',
                     'unstake_events',
@@ -139,6 +144,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingMoveStakeEventArgs, MoveStakeEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'MoveStake',
                     'move_stake_events',
@@ -152,6 +158,7 @@ export class LegacyEventScraper {
                     StakingPoolCreatedEvent
                 >(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'StakingPoolCreated',
                     'staking_pool_created_events',
@@ -165,6 +172,7 @@ export class LegacyEventScraper {
                     StakingPoolEarnedRewardsInEpochEvent
                 >(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'StakingPoolEarnedRewardsInEpoch',
                     'staking_pool_earned_rewards_in_epoch_events',
@@ -178,6 +186,7 @@ export class LegacyEventScraper {
                     MakerStakingPoolSetEvent
                 >(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'MakerStakingPoolSet',
                     'maker_staking_pool_set_events',
@@ -188,6 +197,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingParamsSetEventArgs, ParamsSetEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'ParamsSet',
                     'params_set_events',
@@ -201,6 +211,7 @@ export class LegacyEventScraper {
                     OperatorShareDecreasedEvent
                 >(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'OperatorShareDecreased',
                     'operator_share_decreased_events',
@@ -211,6 +222,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingEpochEndedEventArgs, EpochEndedEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'EpochEnded',
                     'epoch_ended_events',
@@ -224,6 +236,7 @@ export class LegacyEventScraper {
                     EpochFinalizedEvent
                 >(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'EpochFinalized',
                     'epoch_finalized_events',
@@ -234,6 +247,7 @@ export class LegacyEventScraper {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<StakingRewardsPaidEventArgs, RewardsPaidEvent>(
                     connection,
+                    web3Source,
                     latestBlockWithOffset,
                     'RewardsPaid',
                     'rewards_paid_events',

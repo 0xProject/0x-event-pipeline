@@ -37,6 +37,7 @@ export class TokensFromTransfersScraper {
         const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
             eventName,
             connection,
+            web3Source,
             latestBlockWithOffset,
             TOKENS_FROM_TRANSACTIONS_START_BLOCK,
         );
@@ -48,6 +49,13 @@ export class TokensFromTransfersScraper {
 
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+
+        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
+
+        if (endBlockHash === null) {
+            logger.error(`Unstable last block for ${eventName}, trying next time`);
+            return;
+        }
 
         SCAN_START_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(startBlock);
         SCAN_END_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(endBlock);
@@ -73,7 +81,7 @@ export class TokensFromTransfersScraper {
 
         logger.info(`Saved metadata for ${savedTokenCount} tokens`);
 
-        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock);
+        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock, endBlockHash);
         const queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction('REPEATABLE READ');

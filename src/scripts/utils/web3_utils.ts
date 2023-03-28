@@ -100,10 +100,10 @@ export class PullAndSaveWeb3 {
         latestBlockWithOffset: number,
     ): Promise<{ startBlock: number; hasLatestBlockChanged: boolean }> {
         const queryResult = await connection.query(
-            `SELECT block_number FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
+            `SELECT block_number, block_hash FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
         );
 
-        const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK };
+        const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK, block_hash: '0x' };
 
         const lastKnownBlockNumber = Number(lastKnownBlock.block_number);
 

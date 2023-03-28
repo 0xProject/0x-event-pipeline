@@ -27,4 +27,7 @@ export class LastBlockProcessed {
     // timestamp this entry was updated
     @Column({ name: 'processed_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public processedTimestamp!: number;
+
+    @Column({ name: 'block_hash', type: 'varchar' })
+    public blockHash!: string | null;
 }
