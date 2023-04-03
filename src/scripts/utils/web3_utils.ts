@@ -13,6 +13,7 @@ import {
 import { Web3Source } from '../../data_sources/events/web3';
 
 import {
+    CHAIN_NAME_LOWER,
     FEAT_NFT,
     FIRST_SEARCH_BLOCK,
     MAX_BLOCKS_TO_PULL,
@@ -92,7 +93,12 @@ export class PullAndSaveWeb3 {
             logger.info(`saving ${parsedBlocks.length} blocks`);
 
             await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
-            await kafkaSendAsync(producer, `event-scraper.ethereum.blocks.v0`, ['blockNumber'], parsedBlocks);
+            await kafkaSendAsync(
+                producer,
+                `event-scraper.${CHAIN_NAME_LOWER}.blocks.v0`,
+                ['blockNumber'],
+                parsedBlocks,
+            );
         }
     }
     private async _getStartBlockAsync(
@@ -676,19 +682,19 @@ export async function getParseSaveTxAsync(
 
         await kafkaSendAsync(
             producer,
-            `event-scraper.ethereum.transactions.transactions.v0`,
+            `event-scraper.${CHAIN_NAME_LOWER}.transactions.transactions.v0`,
             ['transactionHash'],
             txData.parsedTxs,
         );
         await kafkaSendAsync(
             producer,
-            `event-scraper.ethereum.transactions.receipts.v0`,
+            `event-scraper.${CHAIN_NAME_LOWER}.transactions.receipts.v0`,
             ['transactionHash'],
             txData.parsedReceipts,
         );
         await kafkaSendAsync(
             producer,
-            `event-scraper.ethereum.transactions.logs.v0`,
+            `event-scraper.${CHAIN_NAME_LOWER}.transactions.logs.v0`,
             ['transactionHash'],
             txData.parsedTxLogs,
         );

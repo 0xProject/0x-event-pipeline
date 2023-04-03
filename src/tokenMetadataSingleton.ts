@@ -1,7 +1,7 @@
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
 import { TokenMetadata, TokenRegistry } from './entities';
-import { CHAIN_ID } from './config';
+import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
 import { kafkaSendAsync } from './utils';
 
 export class TokenMetadataSingleton {
@@ -31,7 +31,7 @@ export class TokenMetadataSingleton {
                 .limit(10000) // Do not get all tokens, they don't fit in memory
                 .getMany();
             TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
-            kafkaSendAsync(producer, `event-scraper.ethereum.tokens-metadata.v0`, ['address'], tmp);
+            kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v0`, ['address'], tmp);
         }
         return TokenMetadataSingleton.instance;
     }
@@ -51,6 +51,6 @@ export class TokenMetadataSingleton {
 
         this.tokens = this.tokens.concat(newTokenMetadata.map((token) => token.address));
 
-        kafkaSendAsync(producer, `event-scraper.ethereum.tokens-metadata.v0`, ['address'], newTokenMetadata);
+        kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v0`, ['address'], newTokenMetadata);
     }
 }

@@ -131,6 +131,7 @@ if (!Object.keys(supportedChains).map(Number).includes(CHAIN_ID)) {
 }
 
 export const CHAIN_NAME = supportedChains[CHAIN_ID].name;
+export const CHAIN_NAME_LOWER = supportedChains[CHAIN_ID].name.toLowerCase();
 
 export const EP_ADDRESS = process.env.EP_ADDRESS ? process.env.EP_ADDRESS : DEFAULT_EP_ADDRESS;
 

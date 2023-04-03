@@ -7,7 +7,7 @@ import { Connection, QueryFailedError } from 'typeorm';
 
 import { RawLogEntry } from 'ethereum-types';
 
-import { MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
+import { CHAIN_NAME_LOWER, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
@@ -246,7 +246,7 @@ export class PullAndSaveEventsByTopic {
 
             await kafkaSendAsync(
                 producer,
-                `event-scraper.ethereum.events.${tableName.replace(/_/g, '-')}.v0`,
+                `event-scraper.${CHAIN_NAME_LOWER}.events.${tableName.replace(/_/g, '-')}.v0`,
                 ['transactionHash', 'logIndex'],
                 toSave,
             );
