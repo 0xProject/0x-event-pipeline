@@ -86,7 +86,7 @@ createConnection(ormConfig as ConnectionOptions)
             schedule(
                 connection,
                 null,
-                tokensFromTransfersScraper.getParseSaveTokensFromTransactionsAsync,
+                tokensFromTransfersScraper.getParseSaveTokensFromTransfersAsync,
                 'Pull and Save Tokens',
             );
             schedule(
