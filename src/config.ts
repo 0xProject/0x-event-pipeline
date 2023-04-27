@@ -131,6 +131,7 @@ if (!Object.keys(supportedChains).map(Number).includes(CHAIN_ID)) {
 }
 
 export const CHAIN_NAME = supportedChains[CHAIN_ID].name;
+export const CHAIN_NAME_LOWER = supportedChains[CHAIN_ID].name.toLowerCase();
 
 export const EP_ADDRESS = process.env.EP_ADDRESS ? process.env.EP_ADDRESS : DEFAULT_EP_ADDRESS;
 
@@ -476,6 +477,14 @@ validateStartBlock(
     'FEAT_META_TRANSACTION_EXECUTED_EVENT',
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
 );
+
+export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : [];
+if (KAFKA_BROKERS.length === 0) {
+    throwError(`KAFKA_BROKERS is missing`);
+}
+export const KAFKA_AUTH_USER = process.env.KAFKA_AUTH_USER!;
+export const KAFKA_AUTH_PASSWORD = process.env.KAFKA_AUTH_PASSWORD!;
+export const KAFKA_SSL = getBoolConfig('KAFKA_SSL', false);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {

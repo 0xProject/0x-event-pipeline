@@ -1,3 +1,4 @@
+import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
@@ -25,7 +26,7 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class TokensFromTransfersScraper {
-    public async getParseSaveTokensFromTransactionsAsync(connection: Connection): Promise<void> {
+    public async getParseSaveTokensFromTransactionsAsync(connection: Connection, producer: Producer): Promise<void> {
         const eventName = 'TSStandard';
         const startTime = new Date().getTime();
         logger.info(`Pulling Tokens from Transfers`);
@@ -33,14 +34,28 @@ export class TokensFromTransfersScraper {
 
         logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
 
-        const startBlock = await getStartBlockAsync(
+        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
             eventName,
             connection,
+            web3Source,
             latestBlockWithOffset,
             TOKENS_FROM_TRANSACTIONS_START_BLOCK,
         );
+
+        if (!hasLatestBlockChanged) {
+            logger.debug(`No new blocks to scan for ${eventName}, skipping`);
+            return;
+        }
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+
+        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
+
+        if (endBlockHash === null) {
+            logger.error(`Unstable last block for ${eventName}, trying next time`);
+            return;
+        }
 
         SCAN_START_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(startBlock);
         SCAN_END_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(endBlock);
@@ -62,11 +77,11 @@ export class TokensFromTransfersScraper {
 
         logger.debug(`Got ${tokens.length} tokens`);
 
-        const savedTokenCount = await getParseSaveTokensAsync(connection, web3Source, tokens);
+        const savedTokenCount = await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
         logger.info(`Saved metadata for ${savedTokenCount} tokens`);
 
-        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock);
+        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock, endBlockHash);
         const queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction('REPEATABLE READ');

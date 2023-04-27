@@ -1,3 +1,4 @@
+import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
@@ -185,7 +186,7 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 
 export class EventsByTopicScraper {
-    public async getParseSaveEventsAsync(connection: Connection): Promise<void> {
+    public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
         logger.info(`Pulling Events by Topic`);
         const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);
@@ -198,6 +199,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'TransformedERC20Event',
@@ -216,6 +218,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV3Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'OneinchSwappedV3Event',
@@ -233,6 +236,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'ERC20BridgeTransferFlashwallet',
@@ -251,6 +255,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV4Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'OneinchSwappedV4Event',
@@ -269,6 +274,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'VIPSwapEvent',
@@ -288,6 +294,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<SlingshotTradeEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'SlingshotTradeEvent',
@@ -306,6 +313,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedV4Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'ParaswapSwappedV4Event',
@@ -323,6 +331,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedV5Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'ParaswapSwappedV5Event',
@@ -341,6 +350,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwapped2V5Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'ParaswapSwapped2V5Event',
@@ -359,6 +369,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OpenOceanSwappedV1Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'OpenOceanSwappedV1Event',
@@ -377,6 +388,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TimechainSwapV1Event>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'TimechainSwapV1Event',
@@ -394,6 +406,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'LiquidityProviderSwapEvent',
@@ -413,6 +426,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'UniswapV3VIPEvent',
@@ -432,6 +446,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4RfqOrderFilledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'V4RfqOrderFilledEvent',
@@ -449,6 +464,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'NativeFillFromRFQV4',
@@ -461,9 +477,11 @@ export class EventsByTopicScraper {
                     { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
                 ),
             );
+
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'ExpiredRfqOrderEvent',
@@ -482,6 +500,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4LimitOrderFilledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'V4LimitOrderFilledEvent',
@@ -495,9 +514,11 @@ export class EventsByTopicScraper {
                     { tokenA: 'makerToken', tokenB: 'takerToken' },
                 ),
             );
+
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'NativeFillFromLimitV4',
@@ -516,6 +537,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'V4CancelEvent',
@@ -534,6 +556,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OtcOrderFilledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'OtcOrderFilledEvent',
@@ -547,9 +570,11 @@ export class EventsByTopicScraper {
                     { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
                 ),
             );
+
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'NativeFillFromOTC',
@@ -568,6 +593,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'FillEvent',
@@ -587,6 +613,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'NativeFillFromV3',
@@ -605,6 +632,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderFilledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'Erc721OrderFilledEvent',
@@ -621,6 +649,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderCancelledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'Erc721OrderCancelledEvent',
@@ -636,6 +665,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderPresignedEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'Erc721OrderPresignedEvent',
@@ -652,6 +682,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderFilledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'Erc1155OrderFilledEvent',
@@ -668,6 +699,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderCancelledEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'Erc1155OrderCancelledEvent',
@@ -683,6 +715,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderPresignedEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'Erc1155OrderPresignedEvent',
@@ -703,6 +736,7 @@ export class EventsByTopicScraper {
                 promises.push(
                     pullAndSaveEventsByTopic.getParseSaveEventsByTopic<LogTransferEvent>(
                         connection,
+                        producer,
                         web3Source,
                         latestBlockWithOffset,
                         `LogTransferEvent-${payment_recipient}`,
@@ -728,6 +762,7 @@ export class EventsByTopicScraper {
                 promises.push(
                     pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV2PairCreatedEvent>(
                         connection,
+                        producer,
                         web3Source,
                         latestBlockWithOffset,
                         `UniswapV2PairCreatedEvent-${protocol.name}`,
@@ -748,6 +783,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV2SyncEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'UniswapV2SyncEvent',
@@ -766,6 +802,7 @@ export class EventsByTopicScraper {
             promises.push(
                 pullAndSaveEventsByTopic.getParseSaveEventsByTopic<MetaTransactionExecutedEvent>(
                     connection,
+                    producer,
                     web3Source,
                     latestBlockWithOffset,
                     'MetaTransactionExecutedEvent',
@@ -783,7 +820,10 @@ export class EventsByTopicScraper {
         const txHashes = [
             ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
         ];
-        await getParseSaveTxAsync(connection, web3Source, txHashes);
+
+        if (txHashes.length) {
+            await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
+        }
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;

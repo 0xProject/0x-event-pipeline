@@ -21,6 +21,7 @@ export function parseBridgeFill(eventLog: RawLogEntry): ERC20BridgeTransferEvent
     eRC20BridgeTransferEvent.from = Web3Utils.hexToUtf8('0x' + decodedLog.source.slice(34)); // 34 = len(0x) + 32
     eRC20BridgeTransferEvent.to = null;
     eRC20BridgeTransferEvent.directFlag = false;
+    eRC20BridgeTransferEvent.directProtocol = null;
 
     return eRC20BridgeTransferEvent;
 }

@@ -4,22 +4,45 @@ import { Connection } from 'typeorm';
 import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 import { LogWithDecodedArgs } from '@0x/dev-utils';
+import { getStartBlockAsync, getLastBlockProcessedEntity } from '../utils/event_abi_utils';
+import { Web3Source } from '../../data_sources/events/web3';
 
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
 
 export class PullAndSaveEvents {
     public async getParseSaveContractWrapperEventsAsync<ARGS, EVENT>(
         connection: Connection,
+        web3Source: Web3Source,
         latestBlockWithOffset: number,
         eventName: string,
         tableName: string,
         getterFunction: (startBlock: number, endBlock: number) => Promise<LogWithDecodedArgs<ARGS>[] | null>,
         parser: (decodedLog: LogWithDecodedArgs<ARGS>) => EVENT,
     ): Promise<void> {
-        const startBlock = await this._getStartBlockAsync(eventName, connection, latestBlockWithOffset);
+        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
+            eventName,
+            connection,
+            web3Source,
+            latestBlockWithOffset,
+            FIRST_SEARCH_BLOCK,
+        );
+
+        if (!hasLatestBlockChanged) {
+            logger.debug(`No new blocks to scan for ${eventName}, skipping`);
+            return;
+        }
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+
+        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
+
+        if (endBlockHash === null) {
+            logger.error(`Unstable last block for ${eventName}, trying next time`);
+            return;
+        }
+
         const eventLogs = await getterFunction(startBlock, endBlock);
 
         SCAN_START_BLOCK.labels({ type: 'event', event: eventName }).set(startBlock);
@@ -29,7 +52,11 @@ export class PullAndSaveEvents {
             logger.info(`Encountered an error searching for ${eventName} ${SCHEMA}. Waiting until next iteration.`);
         } else {
             const parsedEventLogs = eventLogs.map((log) => parser(log));
-            const lastBlockProcessed: LastBlockProcessed = await this._lastBlockProcessedAsync(eventName, endBlock);
+            const lastBlockProcessed: LastBlockProcessed = getLastBlockProcessedEntity(
+                eventName,
+                endBlock,
+                endBlockHash,
+            );
 
             SCAN_RESULTS.labels({ type: 'event', event: eventName }).set(parsedEventLogs.length);
             logger.info(`saving ${parsedEventLogs.length} ${eventName} events`);
@@ -43,32 +70,6 @@ export class PullAndSaveEvents {
                 lastBlockProcessed,
             );
         }
-    }
-
-    private async _lastBlockProcessedAsync(eventName: string, endBlock: number): Promise<LastBlockProcessed> {
-        const lastBlockProcessed = new LastBlockProcessed();
-        lastBlockProcessed.eventName = eventName;
-        lastBlockProcessed.lastProcessedBlockNumber = endBlock;
-        lastBlockProcessed.processedTimestamp = new Date().getTime();
-        return lastBlockProcessed;
-    }
-
-    private async _getStartBlockAsync(
-        eventName: string,
-        connection: Connection,
-        latestBlockWithOffset: number,
-    ): Promise<number> {
-        const queryResult = await connection.query(
-            `SELECT last_processed_block_number FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
-        );
-
-        logger.info(queryResult);
-        const lastKnownBlock = queryResult[0] || { last_processed_block_number: FIRST_SEARCH_BLOCK };
-
-        return Math.min(
-            Number(lastKnownBlock.last_processed_block_number) + 1,
-            latestBlockWithOffset - START_BLOCK_OFFSET,
-        );
     }
 
     private async _deleteOverlapAndSaveAsync<T>(

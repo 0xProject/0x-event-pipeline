@@ -94,6 +94,7 @@ export function parseBlock(rawBlock: BlockWithoutTransactionData1559): Block {
     parsedBlock.blockTimestamp = rawBlock.timestamp;
     parsedBlock.baseFeePerGas = rawBlock.baseFeePerGas;
     parsedBlock.gasUsed = rawBlock.gasUsed;
+    parsedBlock.parentHash = rawBlock.parentHash;
 
     return parsedBlock;
 }

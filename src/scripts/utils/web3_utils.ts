@@ -1,6 +1,7 @@
+import { Producer } from 'kafkajs';
 import { BigNumber } from '@0x/utils';
 import { hexToUtf8 } from 'web3-utils';
-import { chunk, logger } from '../../utils';
+import { chunk, kafkaSendAsync, logger } from '../../utils';
 import { Connection, InsertResult } from 'typeorm';
 import { Block, TokenMetadata, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -12,6 +13,7 @@ import {
 import { Web3Source } from '../../data_sources/events/web3';
 
 import {
+    CHAIN_NAME_LOWER,
     FEAT_NFT,
     FIRST_SEARCH_BLOCK,
     MAX_BLOCKS_TO_PULL,
@@ -48,15 +50,25 @@ export const MISSING_TRANSACTIONS = new Gauge({
     name: 'event_scraper_missing_transactions',
     help: 'The count of how many partial transactions are in the DB, but have been reorged out of the blockchain',
 });
+
 export class PullAndSaveWeb3 {
     private readonly _web3source: Web3Source;
     constructor(web3Source: Web3Source) {
         this._web3source = web3Source;
     }
 
-    public async getParseSaveBlocks(connection: Connection, latestBlockWithOffset: number): Promise<void> {
+    public async getParseSaveBlocks(
+        connection: Connection,
+        producer: Producer,
+        latestBlockWithOffset: number,
+    ): Promise<void> {
         const tableName = 'blocks';
-        const startBlock = await this._getStartBlockAsync(connection, latestBlockWithOffset);
+        const { startBlock, hasLatestBlockChanged } = await this._getStartBlockAsync(connection, latestBlockWithOffset);
+        if (!hasLatestBlockChanged) {
+            logger.debug(`No new blocks to scan, skipping`);
+            return;
+        }
+
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_PULL - 1));
 
         SCAN_START_BLOCK.labels({ type: 'blocks' }).set(startBlock);
@@ -81,16 +93,30 @@ export class PullAndSaveWeb3 {
             logger.info(`saving ${parsedBlocks.length} blocks`);
 
             await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
+            await kafkaSendAsync(
+                producer,
+                `event-scraper.${CHAIN_NAME_LOWER}.blocks.v0`,
+                ['blockNumber'],
+                parsedBlocks,
+            );
         }
     }
-    private async _getStartBlockAsync(connection: Connection, latestBlockWithOffset: number): Promise<number> {
+    private async _getStartBlockAsync(
+        connection: Connection,
+        latestBlockWithOffset: number,
+    ): Promise<{ startBlock: number; hasLatestBlockChanged: boolean }> {
         const queryResult = await connection.query(
-            `SELECT block_number FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
+            `SELECT block_number, block_hash FROM ${SCHEMA}.blocks ORDER BY block_number DESC LIMIT 1`,
         );
 
-        const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK };
+        const lastKnownBlock = queryResult[0] || { block_number: FIRST_SEARCH_BLOCK, block_hash: '0x' };
 
-        return Math.min(Number(lastKnownBlock.block_number) + 1, latestBlockWithOffset - START_BLOCK_OFFSET);
+        const lastKnownBlockNumber = Number(lastKnownBlock.block_number);
+
+        return {
+            startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - START_BLOCK_OFFSET),
+            hasLatestBlockChanged: lastKnownBlockNumber !== latestBlockWithOffset,
+        };
     }
 
     private async _getTxListToPullAsync(
@@ -417,11 +443,11 @@ export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadata
 
 export async function getParseSaveTokensAsync(
     connection: Connection,
+    producer: Producer,
     web3Source: Web3Source,
     tokens: string[],
 ): Promise<number> {
-    const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection);
-
+    const tokenMetadataSingleton = await TokenMetadataSingleton.getInstance(connection, producer);
     const missingTokens = [
         ...new Set(tokenMetadataSingleton.removeExistingTokens(tokens).filter((token) => token !== null)),
     ];
@@ -532,7 +558,7 @@ export async function getParseSaveTokensAsync(
         });
 
         const allTokens = [...erc20TokenMetadata, ...erc721TokenMetadata, ...erc1155TokenMetadata];
-        await tokenMetadataSingleton.saveNewTokenMetadata(connection, allTokens);
+        await tokenMetadataSingleton.saveNewTokenMetadata(connection, producer, allTokens);
         return allTokens.length;
     }
     return 0;
@@ -616,6 +642,7 @@ export async function getParseTxsAsync(
 
 export async function getParseSaveTxAsync(
     connection: Connection,
+    producer: Producer,
     web3Source: Web3Source,
     hashes: string[],
 ): Promise<void> {
@@ -649,6 +676,28 @@ export async function getParseSaveTxAsync(
 
         await queryRunner.commitTransaction();
         queryRunner.release();
+
+        let longestLen = 0;
+        let longest = '';
+
+        await kafkaSendAsync(
+            producer,
+            `event-scraper.${CHAIN_NAME_LOWER}.transactions.transactions.v0`,
+            ['transactionHash'],
+            txData.parsedTxs,
+        );
+        await kafkaSendAsync(
+            producer,
+            `event-scraper.${CHAIN_NAME_LOWER}.transactions.receipts.v0`,
+            ['transactionHash'],
+            txData.parsedReceipts,
+        );
+        await kafkaSendAsync(
+            producer,
+            `event-scraper.${CHAIN_NAME_LOWER}.transactions.logs.v0`,
+            ['transactionHash'],
+            txData.parsedTxLogs,
+        );
     }
     logger.info(`Saved ${txData.parsedTxs.length} Transactions`);
 }

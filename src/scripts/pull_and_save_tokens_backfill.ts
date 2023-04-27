@@ -1,3 +1,4 @@
+import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
@@ -16,7 +17,6 @@ import {
 } from '../config';
 import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
 
-import { getStartBlockAsync } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION, SCAN_START_BLOCK, SCAN_END_BLOCK } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
@@ -25,7 +25,7 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class TokensFromBackfill {
-    public async getParseSaveTokensFromBackfillAsync(connection: Connection): Promise<void> {
+    public async getParseSaveTokensFromBackfillAsync(connection: Connection, producer: Producer): Promise<void> {
         const eventName = 'TSStandard';
         const startTime = new Date().getTime();
         logger.info(`Pulling Tokens from Backfill`);
@@ -39,7 +39,7 @@ export class TokensFromBackfill {
         if (tokens.length > 0) {
             logger.debug(`Got ${tokens.length} backfill tokens`);
 
-            const savedTokenCount = await getParseSaveTokensAsync(connection, web3Source, tokens);
+            const savedTokenCount = await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
             const tokenList = tokens.map((token: string) => `'${token}'`).toString();
             const tokenBackfillQuery = `DELETE FROM ${SCHEMA}.tokens_backfill WHERE address IN (${tokenList});`;

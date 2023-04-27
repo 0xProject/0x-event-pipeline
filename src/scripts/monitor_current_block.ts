@@ -1,7 +1,6 @@
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
-import 'reflect-metadata';
 import { Gauge } from 'prom-client';
 
 import { CHAIN_NAME, ETHEREUM_RPC_URL } from '../config';
