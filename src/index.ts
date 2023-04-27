@@ -10,7 +10,7 @@ import { logger } from './utils/logger';
 import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
-    FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS,
+    FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_TX_BACKFILL,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
@@ -68,7 +68,21 @@ createConnection(ormConfig as ConnectionOptions)
         await producer.connect();
         await TokenMetadataSingleton.getInstance(connection, producer);
         schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
-        if (FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS) {
+
+        schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
+        schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+        if (FEAT_TX_BACKFILL) {
+            schedule(
+                connection,
+                producer,
+                backfillTxScraper.getParseSaveTxBackfillAsync,
+                'Pull and Save Backfill Transactions',
+            );
+        }
+        if (CHAIN_ID === 1) {
+            schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
+        }
+        if (FEAT_TOKENS_FROM_TRANSFERS) {
             schedule(
                 connection,
                 null,
@@ -81,25 +95,6 @@ createConnection(ormConfig as ConnectionOptions)
                 tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
                 'Pull and Save Backfill Tokens',
             );
-        } else {
-            schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
-            schedule(
-                connection,
-                producer,
-                eventsByTopicScraper.getParseSaveEventsAsync,
-                'Pull and Save Events by Topic',
-            );
-            if (FEAT_TX_BACKFILL) {
-                schedule(
-                    connection,
-                    producer,
-                    backfillTxScraper.getParseSaveTxBackfillAsync,
-                    'Pull and Save Backfill Transactions',
-                );
-            }
-            if (CHAIN_ID === 1) {
-                schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
-            }
         }
     })
     .catch((error) => logger.error(error));
