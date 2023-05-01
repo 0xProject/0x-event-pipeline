@@ -1,11 +1,12 @@
-import { Web3ProviderEngine } from '@0x/subproviders';
-import { chunk, logger } from '../../utils';
-import { Web3Wrapper } from '@0x/web3-wrapper';
-import { MAX_TX_TO_PULL } from '../../config';
 import { BlockWithTransactionData, BlockWithoutTransactionData, RawLog, Transaction } from 'ethereum-types';
 const Web3Utils = require('web3-utils');
 
 const Web3 = require('web3');
+
+import { Web3ProviderEngine } from '@0x/subproviders';
+import { chunk, logger } from '../../utils';
+import { Web3Wrapper } from '@0x/web3-wrapper';
+import { MAX_TX_TO_PULL } from '../../config';
 
 export interface LogPullInfo {
     address: string;

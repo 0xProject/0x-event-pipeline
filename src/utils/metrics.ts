@@ -28,6 +28,12 @@ export const SCAN_RESULTS = new Gauge({
     labelNames: ['type', 'event', 'includeBridgeTrades'],
 });
 
+export const RPC_LOGS_ERROR = new Gauge({
+    name: 'event_scraper_rpc_error',
+    help: 'Counter for RPC errors',
+    labelNames: ['type', 'event'],
+});
+
 export const startMetricsServer = (): void => {
     const defaultLabels = { chain: CHAIN_NAME };
     register.setDefaultLabels(defaultLabels);

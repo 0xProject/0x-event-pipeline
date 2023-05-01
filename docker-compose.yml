@@ -78,10 +78,14 @@ services:
             CHAIN_ID: '56'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
+            KAFKA_BROKERS: '${KAFKA_BROKERS}'
+            KAFKA_SSL: '${KAFKA_SSL}'
+            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_DEPLOYMENT_BLOCK: 5375047
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 5000
-            MINUTES_BETWEEN_RUNS: 1
+            SECONDS_BETWEEN_RUNS: 1
             FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
             UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap"
             FEAT_ONEINCH_SWAPPED_V3_EVENT: "true"

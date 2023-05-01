@@ -13,7 +13,7 @@ import {
     MAX_BLOCKS_TO_SEARCH,
     SCHEMA,
     START_BLOCK_OFFSET,
-    TOKENS_FROM_TRANSACTIONS_START_BLOCK,
+    TOKENS_FROM_TRANSFERS_START_BLOCK,
 } from '../config';
 import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
 
@@ -26,7 +26,7 @@ const provider = web3Factory.getRpcProvider({
 const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class TokensFromTransfersScraper {
-    public async getParseSaveTokensFromTransactionsAsync(connection: Connection, producer: Producer): Promise<void> {
+    public async getParseSaveTokensFromTransfersAsync(connection: Connection, producer: Producer): Promise<void> {
         const eventName = 'TSStandard';
         const startTime = new Date().getTime();
         logger.info(`Pulling Tokens from Transfers`);
@@ -39,7 +39,7 @@ export class TokensFromTransfersScraper {
             connection,
             web3Source,
             latestBlockWithOffset,
-            TOKENS_FROM_TRANSACTIONS_START_BLOCK,
+            TOKENS_FROM_TRANSFERS_START_BLOCK,
         );
 
         if (!hasLatestBlockChanged) {
