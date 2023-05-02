@@ -14,4 +14,10 @@ export class TransactionLogs {
     // Logs from the transaction receipt
     @Column({ name: 'logs', type: 'varchar' })
     public logs!: string;
+    // Hash of the block containing the TX
+    @Column({ name: 'block_hash', type: 'varchar' })
+    public blockHash!: string;
+    // depth of the block
+    @Column({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
+    public blockNumber!: number;
 }

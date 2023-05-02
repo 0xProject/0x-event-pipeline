@@ -77,6 +77,8 @@ export function parseTransactionLogs(rawReceipt: RawReceipt): TransactionLogs {
     transactionLogs.observedTimestamp = new Date().getTime();
     transactionLogs.transactionHash = rawReceipt.transactionHash === null ? '' : rawReceipt.transactionHash;
     transactionLogs.logs = JSON.stringify(rawReceipt.logs);
+    transactionLogs.blockHash = rawReceipt.blockHash === null ? '' : rawReceipt.blockHash;
+    transactionLogs.blockNumber = rawReceipt.blockNumber === null ? 0 : rawReceipt.blockNumber;
 
     return transactionLogs;
 }
