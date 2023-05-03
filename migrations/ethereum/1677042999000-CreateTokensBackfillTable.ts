@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, getConnection } from 'typeorm';
 
-export class CreateTokensBackfillTabl1677042999000 implements MigrationInterface {
+export class CreateTokensBackfillTable1677042999000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         const connection = getConnection();
         const { schema } = connection.options as any;
