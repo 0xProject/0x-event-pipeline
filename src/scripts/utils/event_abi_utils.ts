@@ -18,10 +18,12 @@ export interface DeleteOptions {
     directProtocol?: string[];
     protocolVersion?: string;
     nativeOrderType?: string;
+    protocol?: string;
+    recipient?: string;
 }
 
 export class PullAndSaveEventsByTopic {
-    public async getParseSaveEventsByTopic<EVENT>(
+    public async getParseSaveEventsByTopic(
         connection: Connection,
         producer: Producer,
         web3Source: Web3Source,
@@ -32,7 +34,7 @@ export class PullAndSaveEventsByTopic {
         topics: (string | null)[],
         contractAddress: string,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => EVENT,
+        parser: (decodedLog: RawLogEntry) => Event,
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
     ): Promise<string[]> {
@@ -179,7 +181,7 @@ export class PullAndSaveEventsByTopic {
 
                         logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
 
-                        await this._deleteOverlapAndSaveAsync<EVENT>(
+                        await this._deleteOverlapAndSaveAsync(
                             connection,
                             producer,
                             parsedLogs,
@@ -202,10 +204,10 @@ export class PullAndSaveEventsByTopic {
         }
     }
 
-    private async _deleteOverlapAndSaveAsync<EVENT>(
+    private async _deleteOverlapAndSaveAsync(
         connection: Connection,
         producer: Producer,
-        toSave: EVENT[],
+        toSave: Event[],
         startBlock: number,
         endBlock: number,
         eventName: string,
@@ -231,6 +233,10 @@ export class PullAndSaveEventsByTopic {
             } else {
                 deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
             }
+        } else if (tableName === 'uniswap_v2_pair_created_events') {
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol = '${deleteOptions.protocol}'`;
+        } else if (tableName === 'log_transfer_events') {
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND to = '${deleteOptions.recipient}'`;
         } else {
             deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
         }

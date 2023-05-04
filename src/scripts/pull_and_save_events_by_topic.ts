@@ -21,15 +21,7 @@ import {
     LogTransferEvent,
     MetaTransactionExecutedEvent,
     NativeFill,
-    OneinchSwappedV3Event,
-    OneinchSwappedV4Event,
-    OpenOceanSwappedV1Event,
     OtcOrderFilledEvent,
-    ParaswapSwapped2V5Event,
-    ParaswapSwappedV4Event,
-    ParaswapSwappedV5Event,
-    SlingshotTradeEvent,
-    TimechainSwapV1Event,
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
     UniswapV2SyncEvent,
@@ -46,18 +38,10 @@ import {
     FEAT_LIMIT_ORDERS,
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
     FEAT_NFT,
-    FEAT_ONEINCH_SWAPPED_V3_EVENT,
-    FEAT_ONEINCH_SWAPPED_V4_EVENT,
-    FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     FEAT_OTC_ORDERS,
-    FEAT_PARASWAP_SWAPPED2_V5_EVENT,
-    FEAT_PARASWAP_SWAPPED_V4_EVENT,
-    FEAT_PARASWAP_SWAPPED_V5_EVENT,
     FEAT_PLP_SWAP_EVENT,
     FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
-    FEAT_SLINGSHOT_TRADE_EVENT,
-    FEAT_TIMECHAIN_SWAP_V1_EVENT,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V2_SYNC_EVENT,
     FEAT_TRANSFORMED_ERC20_EVENT,
@@ -70,20 +54,10 @@ import {
     FLASHWALLET_DEPLOYMENT_BLOCK,
     META_TRANSACTION_EXECUTED_START_BLOCK,
     NFT_FEATURE_START_BLOCK,
-    ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
-    ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
-    OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
     OTC_ORDERS_FEATURE_START_BLOCK,
-    PARASWAP_V4_CONTRACT_ADDRESS,
-    PARASWAP_V4_DEPLOYMENT_BLOCK,
-    PARASWAP_V5_5_DEPLOYMENT_BLOCK,
-    PARASWAP_V5_CONTRACT_ADDRESS,
-    PARASWAP_V5_DEPLOYMENT_BLOCK,
     PLP_VIP_START_BLOCK,
     POLYGON_RFQM_PAYMENTS_ADDRESSES,
     POLYGON_RFQM_PAYMENTS_START_BLOCK,
-    SLINGSHOT_DEPLOYMENT_BLOCK,
-    TIMECHAIN_V1_DEPLOYMENT_BLOCK,
     UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS,
     UNISWAP_V2_SYNC_START_BLOCK,
     UNISWAP_V2_VIP_SWAP_SOURCES,
@@ -104,23 +78,11 @@ import {
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
     META_TRANSACTION_EXECUTED_EVENT_TOPIC,
-    ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
-    ONEINCH_ROUTER_V4_CONTRACT_ADDRESS,
-    ONEINCH_SWAPPED_EVENT_TOPIC,
-    OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
-    OPEN_OCEAN_V1_CONTRACT_ADDRESS,
     OTC_ORDER_FILLED_EVENT_TOPIC,
-    PARASWAP_SWAPPED2_V5_EVENT_TOPIC,
-    PARASWAP_SWAPPED_V4_EVENT_TOPIC,
-    PARASWAP_SWAPPED_V5_EVENT_TOPIC,
     POLYGON_MATIC_ADDRESS,
-    RFQORDERFILLED_EVENT_TOPIC,
-    SLINGSHOT_CONTRACT_ADDRESS,
-    SLINGSHOT_TRADE_EVENT_TOPIC,
+    RFQ_ORDER_FILLED_EVENT_TOPIC,
     SWAP_EVENT_TOPIC,
     SWAP_V3_EVENT_TOPIC,
-    TIMECHAIN_SWAP_V1_EVENT_TOPIC,
-    TIMECHAIN_V1_CONTRACT_ADDRESS,
     TRANSFORMEDERC20_EVENT_TOPIC,
     UNISWAP_V2_PAIR_CREATED_TOPIC,
     UNISWAP_V2_SYNC_TOPIC,
@@ -130,20 +92,11 @@ import {
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
-import { parseOneinchSwappedEvent } from '../parsers/events/oneinch_swapped_event';
-import { parseOpenOceanSwappedV1Event } from '../parsers/events/open_ocean_swapped_event';
-import {
-    parseParaswapSwapped2V5Event,
-    parseParaswapSwappedV4Event,
-    parseParaswapSwappedV5Event,
-} from '../parsers/events/paraswap_swapped_event';
-import { parseSlingshotTradeEvent } from '../parsers/events/slingshot_trade_event';
 import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
     parseNativeFillFromV4RfqOrderFilledEvent,
     parseV4RfqOrderFilledEvent,
 } from '../parsers/events/v4_rfq_order_filled_events';
-import { parseTimechainSwapV1Event } from '../parsers/events/timechain_swap_event';
 import { parseUniswapV3SwapEvent } from '../parsers/events/uniswap_v3_events';
 import {
     parseNativeFillFromV4LimitOrderFilledEvent,
@@ -175,8 +128,9 @@ import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
 import { parseLogTransferEvent } from '../parsers/events/log_transfer_events';
 import { parseMetaTransactionExecutedEvent } from '../parsers/events/meta_transaction_executed_events';
 
-import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
+import { PullAndSaveEventsByTopic, DeleteOptions } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './utils/web3_utils';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -195,627 +149,370 @@ export class EventsByTopicScraper {
 
         const promises: Promise<string[]>[] = [];
 
-        if (FEAT_TRANSFORMED_ERC20_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TransformedERC20Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'TransformedERC20Event',
-                    TransformedERC20Event,
-                    'transformed_erc20_events',
-                    TRANSFORMEDERC20_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    EP_DEPLOYMENT_BLOCK,
-                    parseTransformedERC20Event,
-                    {},
-                ),
+        type CommonParams = {
+            connection: Connection;
+            producer: Producer;
+            web3Source: Web3Source;
+        };
+        const commonParams: CommonParams = {
+            connection,
+            producer,
+            web3Source,
+        };
+        type EventScraperProps = {
+            enabled: boolean;
+            name: string;
+            tType: any;
+            table: string;
+            topics: (string | null)[];
+            contractAddress: string;
+            startBlock: number;
+            parser: (decodedLog: RawLogEntry) => any;
+            deleteOptions: DeleteOptions;
+            tokenMetadataMap: TokenMetadataMap;
+        };
+
+        const eventScrperProps: EventScraperProps[] = [
+            {
+                enabled: FEAT_TRANSFORMED_ERC20_EVENT,
+                name: 'TransformedERC20Event',
+                tType: TransformedERC20Event,
+                table: 'transformed_erc20_events',
+                topics: TRANSFORMEDERC20_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: EP_DEPLOYMENT_BLOCK,
+                parser: parseTransformedERC20Event,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+                name: 'UniswapV3VIPEvent',
+                tType: ERC20BridgeTransferEvent,
+                table: 'erc20_bridge_transfer_events',
+                topics: SWAP_V3_EVENT_TOPIC,
+                contractAddress: 'nofilter',
+                startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
+                parser: parseUniswapV3SwapEvent,
+                deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
+                tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+            },
+            {
+                enabled: FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
+                name: 'ERC20BridgeTransferFlashwallet',
+                tType: ERC20BridgeTransferEvent,
+                table: 'erc20_bridge_transfer_events',
+                topics: BRIDGEFILL_EVENT_TOPIC,
+                contractAddress: FLASHWALLET_ADDRESS,
+                startBlock: FLASHWALLET_DEPLOYMENT_BLOCK,
+                parser: parseBridgeFill,
+                deleteOptions: { isDirectTrade: false },
+                tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+            },
+            {
+                enabled: FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
+                name: 'VIPSwapEvent',
+                tType: ERC20BridgeTransferEvent,
+                table: 'erc20_bridge_transfer_events',
+                topics: SWAP_EVENT_TOPIC,
+                contractAddress: 'nofilter',
+                startBlock: UNISWAP_V2_VIP_SWAP_START_BLOCK,
+                parser: parseUniswapV2SwapEvent,
+                deleteOptions: { isDirectTrade: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
+                tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+            },
+            {
+                enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+                name: 'UniswapV3VIPEvent',
+                tType: ERC20BridgeTransferEvent,
+                table: 'erc20_bridge_transfer_events',
+                topics: SWAP_V3_EVENT_TOPIC,
+                contractAddress: 'nofilter',
+                startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
+                parser: parseUniswapV3SwapEvent,
+                deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
+                tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+            },
+            {
+                enabled: FEAT_RFQ_EVENT,
+                name: 'V4RfqOrderFilledEvent',
+                tType: V4RfqOrderFilledEvent,
+                table: 'v4_rfq_order_filled_events',
+                topics: RFQ_ORDER_FILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: V4_NATIVE_FILL_START_BLOCK,
+                parser: parseV4RfqOrderFilledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
+            },
+            {
+                enabled: FEAT_RFQ_EVENT,
+                name: 'NativeFillFromRFQV4',
+                tType: NativeFill,
+                table: 'native_fills',
+                topics: RFQ_ORDER_FILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: V4_NATIVE_FILL_START_BLOCK,
+                parser: parseNativeFillFromV4RfqOrderFilledEvent,
+                deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_RFQ_EVENT,
+                name: 'ExpiredRfqOrderEvent',
+                tType: ExpiredRfqOrderEvent,
+                table: 'expired_rfq_order_events',
+                topics: EXPIRED_RFQ_ORDER_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: V4_NATIVE_FILL_START_BLOCK,
+                parser: parseExpiredRfqOrderEvent,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_LIMIT_ORDERS,
+                name: 'V4LimitOrderFilledEvent',
+                tType: V4LimitOrderFilledEvent,
+                table: 'v4_limit_order_filled_events',
+                topics: LIMITORDERFILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: V4_NATIVE_FILL_START_BLOCK,
+                parser: parseV4LimitOrderFilledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
+            },
+            {
+                enabled: FEAT_LIMIT_ORDERS,
+                name: 'NativeFillFromLimitV4',
+                tType: NativeFill,
+                table: 'native_fills',
+                topics: LIMITORDERFILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: V4_NATIVE_FILL_START_BLOCK,
+                parser: parseNativeFillFromV4LimitOrderFilledEvent,
+                deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS,
+                name: 'V4CancelEvent',
+                tType: V4CancelEvent,
+                table: 'v4_cancel_events',
+                topics: V4_CANCEL_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: V4_NATIVE_FILL_START_BLOCK,
+                parser: parseV4CancelEvent,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_OTC_ORDERS,
+                name: 'OtcOrderFilledEvent',
+                tType: OtcOrderFilledEvent,
+                table: 'otc_order_filled_events',
+                topics: OTC_ORDER_FILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: OTC_ORDERS_FEATURE_START_BLOCK,
+                parser: parseOtcOrderFilledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
+            },
+            {
+                enabled: FEAT_OTC_ORDERS,
+                name: 'NativeFillFromOTC',
+                tType: NativeFill,
+                table: 'native_fills',
+                topics: OTC_ORDER_FILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: OTC_ORDERS_FEATURE_START_BLOCK,
+                parser: parseNativeFillFromV4OtcOrderFilledEvent,
+                deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_V3_FILL_EVENT,
+                name: 'FillEvent',
+                tType: FillEvent,
+                table: 'fill_events',
+                topics: V3_FILL_EVENT_TOPIC,
+                contractAddress: V3_EXCHANGE_ADDRESS,
+                startBlock: FIRST_SEARCH_BLOCK,
+                parser: parseFillEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
+            },
+            {
+                enabled: FEAT_V3_NATIVE_FILL,
+                name: 'NativeFillFromV3',
+                tType: NativeFill,
+                table: 'native_fills',
+                topics: V3_FILL_EVENT_TOPIC,
+                contractAddress: V3_EXCHANGE_ADDRESS,
+                startBlock: FIRST_SEARCH_BLOCK,
+                parser: parseNativeFillFromFillEvent,
+                deleteOptions: { protocolVersion: 'v3' },
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_NFT,
+                name: 'Erc721OrderFilledEvent',
+                tType: Erc721OrderFilledEvent,
+                table: 'erc721_order_filled_events',
+                topics: ERC721_ORDER_FILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: NFT_FEATURE_START_BLOCK,
+                parser: parseErc721OrderFilledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
+            },
+            {
+                enabled: FEAT_NFT,
+                name: 'Erc721OrderCancelledEvent',
+                tType: Erc721OrderCancelledEvent,
+                table: 'erc721_order_cancelled_events',
+                topics: ERC721_ORDER_CANCELLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: NFT_FEATURE_START_BLOCK,
+                parser: parseErc721OrderCancelledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_NFT,
+                name: 'Erc721OrderPresignedEvent',
+                tType: Erc721OrderPresignedEvent,
+                table: 'erc721_order_presigned_events',
+                topics: ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: NFT_FEATURE_START_BLOCK,
+                parser: parseErc721OrderPresignedEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
+            },
+            {
+                enabled: FEAT_NFT,
+                name: 'Erc1155OrderFilledEvent',
+                tType: Erc1155OrderFilledEvent,
+                table: 'erc1155_order_filled_events',
+                topics: ERC1155_ORDER_FILLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: NFT_FEATURE_START_BLOCK,
+                parser: parseErc1155OrderFilledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
+            },
+            {
+                enabled: FEAT_NFT,
+                name: 'Erc1155OrderCancelledEvent',
+                tType: Erc1155OrderCancelledEvent,
+                table: 'erc1155_order_cancelled_events',
+                topics: ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: NFT_FEATURE_START_BLOCK,
+                parser: parseErc1155OrderCancelledEvent,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_NFT,
+                name: 'Erc1155OrderPresignedEvent',
+                tType: Erc1155OrderPresignedEvent,
+                table: 'erc1155_order_presigned_events',
+                topics: ERC1155_ORDER_PRESIGNED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: NFT_FEATURE_START_BLOCK,
+                parser: parseErc1155OrderPresignedEvent,
+                deleteOptions: {},
+                tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
+            },
+            {
+                enabled: FEAT_UNISWAP_V2_SYNC_EVENT,
+                name: 'UniswapV2SyncEvent',
+                tType: UniswapV2SyncEvent,
+                table: 'uniswap_v2_sync_events',
+                topics: UNISWAP_V2_SYNC_TOPIC,
+                contractAddress: 'nofilter',
+                startBlock: UNISWAP_V2_SYNC_START_BLOCK,
+                parser: parseUniswapV2SyncEvent,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+            {
+                enabled: FEAT_META_TRANSACTION_EXECUTED_EVENT,
+                name: 'MetaTransactionExecutedEvent',
+                tType: MetaTransactionExecutedEvent,
+                table: 'meta_transaction_executed_events',
+                topics: META_TRANSACTION_EXECUTED_EVENT_TOPIC,
+                contractAddress: EP_ADDRESS,
+                startBlock: META_TRANSACTION_EXECUTED_START_BLOCK,
+                parser: parseMetaTransactionExecutedEvent,
+                deleteOptions: {},
+                tokenMetadataMap: null,
+            },
+        ];
+
+        for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
+            eventScrperProps.push({
+                enabled: FEAT_POLYGON_RFQM_PAYMENTS,
+                name: `LogTransferEvent-${payment_recipient}`,
+                tType: LogTransferEvent,
+                table: 'log_transfer_events',
+                topics: [
+                    LOG_TRANSFER_EVENT_TOPIC_0,
+                    addressToTopic(POLYGON_MATIC_ADDRESS),
+                    null,
+                    addressToTopic(payment_recipient),
+                ],
+                contractAddress: POLYGON_MATIC_ADDRESS,
+                startBlock: POLYGON_RFQM_PAYMENTS_START_BLOCK,
+                parser: parseLogTransferEvent,
+                deleteOptions: { recipient: payment_recipient },
+                tokenMetadataMap: null,
+            });
+        }
+
+        for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS) {
+            eventScrperProps.push({
+                enabled: FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
+                name: `UniswapV2PairCreatedEvent-${protocol.name}`,
+                tType: UniswapV2PairCreatedEvent,
+                table: 'uniswap_v2_pair_created_events',
+                topics: UNISWAP_V2_PAIR_CREATED_TOPIC,
+                contractAddress: protocol.factoryAddress,
+                startBlock: protocol.startBlock,
+                parser: (decodedLog: RawLogEntry) => parseUniswapV2PairCreatedEvent(decodedLog, protocol.name),
+                deleteOptions: { protocol: protocol.name },
+                tokenMetadataMap: { tokenA: 'token0', tokenB: 'token1' },
+            });
+        }
+
+        function callFunction<EVENT>(
+            latestBlockWithOffset: number,
+            commonParams: CommonParams,
+            eventScrperProps: EventScraperProps,
+        ): Promise<string[]> {
+            return pullAndSaveEventsByTopic.getParseSaveEventsByTopic(
+                commonParams.connection,
+                commonParams.producer,
+                commonParams.web3Source,
+                latestBlockWithOffset,
+                eventScrperProps.name,
+                eventScrperProps.tType,
+                eventScrperProps.table,
+                eventScrperProps.topics,
+                eventScrperProps.contractAddress,
+                eventScrperProps.startBlock,
+                eventScrperProps.parser,
+                eventScrperProps.deleteOptions,
+                eventScrperProps.tokenMetadataMap,
             );
         }
 
-        if (FEAT_ONEINCH_SWAPPED_V3_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV3Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'OneinchSwappedV3Event',
-                    OneinchSwappedV3Event,
-                    'oneinch_swapped_v3_events',
-                    ONEINCH_SWAPPED_EVENT_TOPIC,
-                    ONEINCH_ROUTER_V3_CONTRACT_ADDRESS,
-                    ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK,
-                    parseOneinchSwappedEvent,
-                    {},
-                ),
-            );
-        }
-        if (FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'ERC20BridgeTransferFlashwallet',
-                    ERC20BridgeTransferEvent,
-                    'erc20_bridge_transfer_events',
-                    BRIDGEFILL_EVENT_TOPIC,
-                    FLASHWALLET_ADDRESS,
-                    FLASHWALLET_DEPLOYMENT_BLOCK,
-                    parseBridgeFill,
-                    { isDirectTrade: false },
-                    { tokenA: 'fromToken', tokenB: 'toToken' },
-                ),
-            );
-        }
-        if (FEAT_ONEINCH_SWAPPED_V4_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OneinchSwappedV4Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'OneinchSwappedV4Event',
-                    OneinchSwappedV4Event,
-                    'oneinch_swapped_v4_events',
-                    ONEINCH_SWAPPED_EVENT_TOPIC,
-                    ONEINCH_ROUTER_V4_CONTRACT_ADDRESS,
-                    ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK,
-                    parseOneinchSwappedEvent,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_UNISWAP_V2_VIP_SWAP_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'VIPSwapEvent',
-                    ERC20BridgeTransferEvent,
-                    'erc20_bridge_transfer_events',
-                    SWAP_EVENT_TOPIC,
-                    'nofilter',
-                    UNISWAP_V2_VIP_SWAP_START_BLOCK,
-                    parseUniswapV2SwapEvent,
-                    { isDirectTrade: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
-                    { tokenA: 'fromToken', tokenB: 'toToken' },
-                ),
-            );
-        }
-
-        if (FEAT_SLINGSHOT_TRADE_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<SlingshotTradeEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'SlingshotTradeEvent',
-                    SlingshotTradeEvent,
-                    'slingshot_trade_events',
-                    SLINGSHOT_TRADE_EVENT_TOPIC,
-                    SLINGSHOT_CONTRACT_ADDRESS,
-                    SLINGSHOT_DEPLOYMENT_BLOCK,
-                    parseSlingshotTradeEvent,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_PARASWAP_SWAPPED_V4_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedV4Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'ParaswapSwappedV4Event',
-                    ParaswapSwappedV4Event,
-                    'paraswap_swapped_v4_events',
-                    PARASWAP_SWAPPED_V4_EVENT_TOPIC,
-                    PARASWAP_V4_CONTRACT_ADDRESS,
-                    PARASWAP_V4_DEPLOYMENT_BLOCK,
-                    parseParaswapSwappedV4Event,
-                    {},
-                ),
-            );
-        }
-        if (FEAT_PARASWAP_SWAPPED_V5_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwappedV5Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'ParaswapSwappedV5Event',
-                    ParaswapSwappedV5Event,
-                    'paraswap_swapped_v5_events',
-                    PARASWAP_SWAPPED_V5_EVENT_TOPIC,
-                    PARASWAP_V5_CONTRACT_ADDRESS,
-                    PARASWAP_V5_DEPLOYMENT_BLOCK,
-                    parseParaswapSwappedV5Event,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_PARASWAP_SWAPPED2_V5_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ParaswapSwapped2V5Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'ParaswapSwapped2V5Event',
-                    ParaswapSwapped2V5Event,
-                    'paraswap_swapped2_v5_events',
-                    PARASWAP_SWAPPED2_V5_EVENT_TOPIC,
-                    PARASWAP_V5_CONTRACT_ADDRESS,
-                    PARASWAP_V5_5_DEPLOYMENT_BLOCK,
-                    parseParaswapSwapped2V5Event,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OpenOceanSwappedV1Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'OpenOceanSwappedV1Event',
-                    OpenOceanSwappedV1Event,
-                    'open_ocean_swapped_v1_events',
-                    OPEN_OCEAN_SWAPPED_V1_EVENT_TOPIC,
-                    OPEN_OCEAN_V1_CONTRACT_ADDRESS,
-                    OPEN_OCEAN_V1_DEPLOYMENT_BLOCK,
-                    parseOpenOceanSwappedV1Event,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_TIMECHAIN_SWAP_V1_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<TimechainSwapV1Event>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'TimechainSwapV1Event',
-                    TimechainSwapV1Event,
-                    'timechain_swap_v1_events',
-                    TIMECHAIN_SWAP_V1_EVENT_TOPIC,
-                    TIMECHAIN_V1_CONTRACT_ADDRESS,
-                    TIMECHAIN_V1_DEPLOYMENT_BLOCK,
-                    parseTimechainSwapV1Event,
-                    {},
-                ),
-            );
-        }
-        if (FEAT_PLP_SWAP_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'LiquidityProviderSwapEvent',
-                    ERC20BridgeTransferEvent,
-                    'erc20_bridge_transfer_events',
-                    LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    PLP_VIP_START_BLOCK,
-                    parseLiquidityProviderSwapEvent,
-                    { isDirectTrade: true, directProtocol: ['PLP'] },
-                    { tokenA: 'fromToken', tokenB: 'toToken' },
-                ),
-            );
-        }
-
-        if (FEAT_UNISWAP_V3_VIP_SWAP_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ERC20BridgeTransferEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'UniswapV3VIPEvent',
-                    ERC20BridgeTransferEvent,
-                    'erc20_bridge_transfer_events',
-                    SWAP_V3_EVENT_TOPIC,
-                    'nofilter',
-                    UNISWAP_V3_VIP_SWAP_START_BLOCK,
-                    parseUniswapV3SwapEvent,
-                    { isDirectTrade: true, directProtocol: ['UniswapV3'] },
-                    { tokenA: 'fromToken', tokenB: 'toToken' },
-                ),
-            );
-        }
-
-        if (FEAT_RFQ_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4RfqOrderFilledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'V4RfqOrderFilledEvent',
-                    V4RfqOrderFilledEvent,
-                    'v4_rfq_order_filled_events',
-                    RFQORDERFILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    V4_NATIVE_FILL_START_BLOCK,
-                    parseV4RfqOrderFilledEvent,
-                    {},
-                    { tokenA: 'makerToken', tokenB: 'takerToken' },
-                ),
-            );
-
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'NativeFillFromRFQV4',
-                    NativeFill,
-                    'native_fills',
-                    RFQORDERFILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    V4_NATIVE_FILL_START_BLOCK,
-                    parseNativeFillFromV4RfqOrderFilledEvent,
-                    { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
-                ),
-            );
-
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<ExpiredRfqOrderEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'ExpiredRfqOrderEvent',
-                    ExpiredRfqOrderEvent,
-                    'expired_rfq_order_events',
-                    EXPIRED_RFQ_ORDER_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    V4_NATIVE_FILL_START_BLOCK,
-                    parseExpiredRfqOrderEvent,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_LIMIT_ORDERS) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4LimitOrderFilledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'V4LimitOrderFilledEvent',
-                    V4LimitOrderFilledEvent,
-                    'v4_limit_order_filled_events',
-                    LIMITORDERFILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    V4_NATIVE_FILL_START_BLOCK,
-                    parseV4LimitOrderFilledEvent,
-                    {},
-                    { tokenA: 'makerToken', tokenB: 'takerToken' },
-                ),
-            );
-
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'NativeFillFromLimitV4',
-                    NativeFill,
-                    'native_fills',
-                    LIMITORDERFILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    V4_NATIVE_FILL_START_BLOCK,
-                    parseNativeFillFromV4LimitOrderFilledEvent,
-                    { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
-                ),
-            );
-        }
-
-        if (FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<V4CancelEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'V4CancelEvent',
-                    V4CancelEvent,
-                    'v4_cancel_events',
-                    V4_CANCEL_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    V4_NATIVE_FILL_START_BLOCK,
-                    parseV4CancelEvent,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_OTC_ORDERS) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OtcOrderFilledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'OtcOrderFilledEvent',
-                    OtcOrderFilledEvent,
-                    'otc_order_filled_events',
-                    OTC_ORDER_FILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    OTC_ORDERS_FEATURE_START_BLOCK,
-                    parseOtcOrderFilledEvent,
-                    {},
-                    { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
-                ),
-            );
-
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'NativeFillFromOTC',
-                    NativeFill,
-                    'native_fills',
-                    OTC_ORDER_FILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    OTC_ORDERS_FEATURE_START_BLOCK,
-                    parseNativeFillFromV4OtcOrderFilledEvent,
-                    { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
-                ),
-            );
-        }
-
-        if (FEAT_V3_FILL_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<FillEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'FillEvent',
-                    FillEvent,
-                    'fill_events',
-                    V3_FILL_EVENT_TOPIC,
-                    V3_EXCHANGE_ADDRESS,
-                    FIRST_SEARCH_BLOCK,
-                    parseFillEvent,
-                    {},
-                    { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
-                ),
-            );
-        }
-
-        if (FEAT_V3_NATIVE_FILL) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<NativeFill>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'NativeFillFromV3',
-                    NativeFill,
-                    'native_fills',
-                    V3_FILL_EVENT_TOPIC,
-                    V3_EXCHANGE_ADDRESS,
-                    FIRST_SEARCH_BLOCK,
-                    parseNativeFillFromFillEvent,
-                    { protocolVersion: 'v3' },
-                ),
-            );
-        }
-
-        if (FEAT_NFT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderFilledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'Erc721OrderFilledEvent',
-                    Erc721OrderFilledEvent,
-                    'erc721_order_filled_events',
-                    ERC721_ORDER_FILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    NFT_FEATURE_START_BLOCK,
-                    parseErc721OrderFilledEvent,
-                    {},
-                    { tokenA: 'erc20Token', tokenB: 'erc721Token' },
-                ),
-            );
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderCancelledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'Erc721OrderCancelledEvent',
-                    Erc721OrderCancelledEvent,
-                    'erc721_order_cancelled_events',
-                    ERC721_ORDER_CANCELLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    NFT_FEATURE_START_BLOCK,
-                    parseErc721OrderCancelledEvent,
-                    {},
-                ),
-            );
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc721OrderPresignedEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'Erc721OrderPresignedEvent',
-                    Erc721OrderPresignedEvent,
-                    'erc721_order_presigned_events',
-                    ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    NFT_FEATURE_START_BLOCK,
-                    parseErc721OrderPresignedEvent,
-                    {},
-                    { tokenA: 'erc20Token', tokenB: 'erc721Token' },
-                ),
-            );
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderFilledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'Erc1155OrderFilledEvent',
-                    Erc1155OrderFilledEvent,
-                    'erc1155_order_filled_events',
-                    ERC1155_ORDER_FILLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    NFT_FEATURE_START_BLOCK,
-                    parseErc1155OrderFilledEvent,
-                    {},
-                    { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
-                ),
-            );
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderCancelledEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'Erc1155OrderCancelledEvent',
-                    Erc1155OrderCancelledEvent,
-                    'erc1155_order_cancelled_events',
-                    ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    NFT_FEATURE_START_BLOCK,
-                    parseErc1155OrderCancelledEvent,
-                    {},
-                ),
-            );
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<Erc1155OrderPresignedEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'Erc1155OrderPresignedEvent',
-                    Erc1155OrderPresignedEvent,
-                    'erc1155_order_presigned_events',
-                    ERC1155_ORDER_PRESIGNED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    NFT_FEATURE_START_BLOCK,
-                    parseErc1155OrderPresignedEvent,
-                    {},
-                    { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
-                ),
-            );
-        }
-
-        if (FEAT_POLYGON_RFQM_PAYMENTS) {
-            for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
-                promises.push(
-                    pullAndSaveEventsByTopic.getParseSaveEventsByTopic<LogTransferEvent>(
-                        connection,
-                        producer,
-                        web3Source,
-                        latestBlockWithOffset,
-                        `LogTransferEvent-${payment_recipient}`,
-                        LogTransferEvent,
-                        'log_transfer_events',
-                        [
-                            LOG_TRANSFER_EVENT_TOPIC_0,
-                            addressToTopic(POLYGON_MATIC_ADDRESS),
-                            null,
-                            addressToTopic(payment_recipient),
-                        ],
-                        POLYGON_MATIC_ADDRESS,
-                        POLYGON_RFQM_PAYMENTS_START_BLOCK,
-                        parseLogTransferEvent,
-                        {},
-                    ),
-                );
+        eventScrperProps.map((props: EventScraperProps) => {
+            if (props.enabled) {
+                promises.push(callFunction<TransformedERC20Event>(latestBlockWithOffset, commonParams, props));
             }
-        }
-
-        if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
-            for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS) {
-                promises.push(
-                    pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV2PairCreatedEvent>(
-                        connection,
-                        producer,
-                        web3Source,
-                        latestBlockWithOffset,
-                        `UniswapV2PairCreatedEvent-${protocol.name}`,
-                        UniswapV2PairCreatedEvent,
-                        'uniswap_v2_pair_created_events',
-                        UNISWAP_V2_PAIR_CREATED_TOPIC,
-                        protocol.factoryAddress,
-                        protocol.startBlock,
-                        (decodedLog: RawLogEntry) => parseUniswapV2PairCreatedEvent(decodedLog, protocol.name),
-                        {},
-                        { tokenA: 'token0', tokenB: 'token1' },
-                    ),
-                );
-            }
-        }
-
-        if (FEAT_UNISWAP_V2_SYNC_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV2SyncEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'UniswapV2SyncEvent',
-                    UniswapV2SyncEvent,
-                    'uniswap_v2_sync_events',
-                    UNISWAP_V2_SYNC_TOPIC,
-                    'nofilter',
-                    UNISWAP_V2_SYNC_START_BLOCK,
-                    parseUniswapV2SyncEvent,
-                    {},
-                ),
-            );
-        }
-
-        if (FEAT_META_TRANSACTION_EXECUTED_EVENT) {
-            promises.push(
-                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<MetaTransactionExecutedEvent>(
-                    connection,
-                    producer,
-                    web3Source,
-                    latestBlockWithOffset,
-                    'MetaTransactionExecutedEvent',
-                    MetaTransactionExecutedEvent,
-                    'meta_transaction_executed_events',
-                    META_TRANSACTION_EXECUTED_EVENT_TOPIC,
-                    EP_ADDRESS,
-                    META_TRANSACTION_EXECUTED_START_BLOCK,
-                    parseMetaTransactionExecutedEvent,
-                    {},
-                ),
-            );
-        }
+        });
 
         const txHashes = [
             ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
