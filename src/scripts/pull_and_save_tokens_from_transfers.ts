@@ -8,13 +8,7 @@ import { getParseSaveTokensAsync } from './utils/web3_utils';
 import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
 import { RawLog } from 'ethereum-types';
 
-import {
-    ETHEREUM_RPC_URL,
-    MAX_BLOCKS_TO_SEARCH,
-    SCHEMA,
-    START_BLOCK_OFFSET,
-    TOKENS_FROM_TRANSFERS_START_BLOCK,
-} from '../config';
+import { ETHEREUM_RPC_URL, MAX_BLOCKS_TO_SEARCH, TOKENS_FROM_TRANSFERS_START_BLOCK } from '../config';
 import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
 
 import { getStartBlockAsync } from './utils/event_abi_utils';

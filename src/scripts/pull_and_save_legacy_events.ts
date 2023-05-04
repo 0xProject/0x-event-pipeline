@@ -1,7 +1,5 @@
 import { web3Factory } from '@0x/dev-utils';
-import { Web3ProviderEngine } from '@0x/subproviders';
 import { logger } from '../utils/logger';
-import { Web3Wrapper } from '@0x/web3-wrapper';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 import { Connection } from 'typeorm';
 
@@ -55,9 +53,8 @@ import {
 } from '../parsers/events/staking_events';
 
 import { PullAndSaveEvents } from './utils/event_utils';
-import { PullAndSaveWeb3 } from './utils/web3_utils';
 import { Web3Source } from '../data_sources/events/web3';
-import { BLOCK_FINALITY_THRESHOLD, CHAIN_ID, ETHEREUM_RPC_URL, FEAT_CANCEL_EVENTS, FEAT_STAKING } from '../config';
+import { CHAIN_ID, ETHEREUM_RPC_URL, FEAT_CANCEL_EVENTS, FEAT_STAKING } from '../config';
 
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 

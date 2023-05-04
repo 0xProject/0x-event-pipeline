@@ -39,7 +39,6 @@ import {
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
     FEAT_NFT,
     FEAT_OTC_ORDERS,
-    FEAT_PLP_SWAP_EVENT,
     FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
@@ -55,7 +54,6 @@ import {
     META_TRANSACTION_EXECUTED_START_BLOCK,
     NFT_FEATURE_START_BLOCK,
     OTC_ORDERS_FEATURE_START_BLOCK,
-    PLP_VIP_START_BLOCK,
     POLYGON_RFQM_PAYMENTS_ADDRESSES,
     POLYGON_RFQM_PAYMENTS_START_BLOCK,
     UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS,
@@ -75,7 +73,6 @@ import {
     ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     LIMITORDERFILLED_EVENT_TOPIC,
-    LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
     META_TRANSACTION_EXECUTED_EVENT_TOPIC,
     OTC_ORDER_FILLED_EVENT_TOPIC,
@@ -92,7 +89,6 @@ import {
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
-import { parseLiquidityProviderSwapEvent } from '../parsers/events/liquidity_provider_swap_events';
 import {
     parseNativeFillFromV4RfqOrderFilledEvent,
     parseV4RfqOrderFilledEvent,
@@ -130,7 +126,7 @@ import { parseMetaTransactionExecutedEvent } from '../parsers/events/meta_transa
 
 import { PullAndSaveEventsByTopic, DeleteOptions } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './utils/web3_utils';
+import { TokenMetadataMap } from './utils/web3_utils';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -486,7 +482,7 @@ export class EventsByTopicScraper {
             });
         }
 
-        function callFunction<EVENT>(
+        function callFunction(
             latestBlockWithOffset: number,
             commonParams: CommonParams,
             eventScrperProps: EventScraperProps,
@@ -510,13 +506,18 @@ export class EventsByTopicScraper {
 
         eventScrperProps.map((props: EventScraperProps) => {
             if (props.enabled) {
-                promises.push(callFunction<TransformedERC20Event>(latestBlockWithOffset, commonParams, props));
+                promises.push(callFunction(latestBlockWithOffset, commonParams, props));
             }
         });
 
         const txHashes = [
-            ...new Set((await Promise.all(promises)).reduce((accumulator, value) => accumulator.concat(value), [])),
-        ];
+            ...new Set(
+                (await Promise.all(promises)).reduce(
+                    (accumulator: string[], value: string[]) => accumulator.concat(value),
+                    [],
+                ),
+            ),
+        ] as string[];
 
         if (txHashes.length) {
             await getParseSaveTxAsync(connection, producer, web3Source, txHashes);

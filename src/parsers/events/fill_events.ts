@@ -95,15 +95,7 @@ export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill 
     );
 
     const makerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerAssetData);
-    const makerFeeAssetData =
-        decodedLog.makerFeeAssetData === '0x' || Number(decodedLog.makerFeeAssetData) === 0
-            ? null
-            : assetDataUtils.decodeAssetDataOrThrow(decodedLog.makerFeeAssetData);
     const takerAssetData = assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerAssetData);
-    const takerFeeAssetData =
-        decodedLog.takerFeeAssetData === '0x' || Number(decodedLog.takerFeeAssetData) === 0
-            ? null
-            : assetDataUtils.decodeAssetDataOrThrow(decodedLog.takerFeeAssetData);
 
     nativeFill.orderHash = decodedLog.orderHash.toLowerCase();
     nativeFill.maker = decodedLog.makerAddress.toLowerCase();

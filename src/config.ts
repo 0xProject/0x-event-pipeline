@@ -1,5 +1,3 @@
-import { logger } from './utils/logger';
-
 import {
     DEFAULT_BASE_GITHUB_LOGO_URL,
     DEFAULT_BLOCK_FINALITY_THRESHOLD,

@@ -572,6 +572,7 @@ function parseHexString(hex: string): string | null {
     const parsed = hexToUtf8(hex);
 
     // remove unicode control characters
+    // eslint-disable-next-line no-control-regex
     return parsed.replace(/[\u0000-\u001F\u007F-\u009F]|\n/g, '').trim();
 }
 
@@ -676,9 +677,6 @@ export async function getParseSaveTxAsync(
 
         await queryRunner.commitTransaction();
         queryRunner.release();
-
-        let longestLen = 0;
-        let longest = '';
 
         await kafkaSendAsync(
             producer,

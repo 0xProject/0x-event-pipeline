@@ -1,16 +1,16 @@
 import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
-import { LogWithDecodedArgs } from '@0x/dev-utils';
+import { LogWithDecodedArgs, DecodedLogArgs } from '@0x/dev-utils';
 import { getStartBlockAsync, getLastBlockProcessedEntity } from '../utils/event_abi_utils';
 import { Web3Source } from '../../data_sources/events/web3';
 
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
 
 export class PullAndSaveEvents {
-    public async getParseSaveContractWrapperEventsAsync<ARGS, EVENT>(
+    public async getParseSaveContractWrapperEventsAsync<ARGS extends DecodedLogArgs, EVENT>(
         connection: Connection,
         web3Source: Web3Source,
         latestBlockWithOffset: number,
