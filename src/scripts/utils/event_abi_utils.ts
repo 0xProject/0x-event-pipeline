@@ -22,6 +22,12 @@ export interface DeleteOptions {
     recipient?: string;
 }
 
+export interface BackfillEventsResponse {
+    transactionHashes: string[];
+    startBlock: number | null;
+    endBlock: number | null;
+}
+
 export class PullAndSaveEventsByTopic {
     public async getParseSaveEventsByTopic(
         connection: Connection,
@@ -50,7 +56,79 @@ export class PullAndSaveEventsByTopic {
             logger.debug(`No new blocks to scan for ${eventName}, skipping`);
             return [];
         }
+        return (
+            await this._getParseSaveEventsByTopic(
+                connection,
+                producer,
+                web3Source,
+                latestBlockWithOffset,
+                eventName,
+                eventType,
+                tableName,
+                topics,
+                contractAddress,
+                startSearchBlock,
+                parser,
+                deleteOptions,
+                tokenMetadataMap,
+                startBlock,
+                'event-by-topic',
+            )
+        ).transactionHashes;
+    }
 
+    public async getParseSaveEventsByTopicBackfill(
+        connection: Connection,
+        producer: Producer,
+        web3Source: Web3Source,
+        latestBlockWithOffset: number,
+        eventName: string,
+        eventType: any,
+        tableName: string,
+        topics: (string | null)[],
+        contractAddress: string,
+        startSearchBlock: number,
+        parser: (decodedLog: RawLogEntry) => Event,
+        deleteOptions: DeleteOptions,
+        tokenMetadataMap: TokenMetadataMap = null,
+        startBlock: number,
+    ): Promise<BackfillEventsResponse> {
+        return this._getParseSaveEventsByTopic(
+            connection,
+            producer,
+            web3Source,
+            latestBlockWithOffset,
+            eventName,
+            eventType,
+            tableName,
+            topics,
+            contractAddress,
+            startSearchBlock,
+            parser,
+            deleteOptions,
+            tokenMetadataMap,
+            startBlock,
+            'event-by-topic-backfill',
+        );
+    }
+
+    private async _getParseSaveEventsByTopic(
+        connection: Connection,
+        producer: Producer,
+        web3Source: Web3Source,
+        latestBlockWithOffset: number,
+        eventName: string,
+        eventType: any,
+        tableName: string,
+        topics: (string | null)[],
+        contractAddress: string,
+        startSearchBlock: number,
+        parser: (decodedLog: RawLogEntry) => Event,
+        deleteOptions: DeleteOptions,
+        tokenMetadataMap: TokenMetadataMap = null,
+        startBlock: number,
+        scrapingType: string,
+    ): Promise<BackfillEventsResponse> {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
         logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
@@ -59,10 +137,10 @@ export class PullAndSaveEventsByTopic {
 
         if (endBlockHash === null) {
             logger.error(`Unstable last block for ${eventName}, trying next time`);
-            return [];
+            return { transactionHashes: [], startBlock: null, endBlock: null };
         } else {
-            SCAN_START_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(startBlock);
-            SCAN_END_BLOCK.labels({ type: 'event-by-topic', event: eventName }).set(endBlock);
+            SCAN_START_BLOCK.labels({ type: scrapingType, event: eventName }).set(startBlock);
+            SCAN_END_BLOCK.labels({ type: scrapingType, event: eventName }).set(endBlock);
 
             // assert(topics.length === 1);
 
@@ -170,7 +248,7 @@ export class PullAndSaveEventsByTopic {
                             }
                         }
 
-                        SCAN_RESULTS.labels({ type: 'event-by-topic', event: eventName }).set(parsedLogs.length);
+                        SCAN_RESULTS.labels({ type: scrapingType, event: eventName }).set(parsedLogs.length);
 
                         // Get list of tx hashes
                         txHashes = parsedLogs.map((log: Event) => log.transactionHash);
@@ -195,15 +273,14 @@ export class PullAndSaveEventsByTopic {
                         );
                     }),
                 );
-                return txHashes;
+                return { transactionHashes: txHashes, startBlock, endBlock };
             } catch (err) {
                 logger.error(`Failed to get logs for ${eventName}, retrying next time`);
-                RPC_LOGS_ERROR.inc({ type: 'event-by-topic', event: eventName });
-                return [];
+                RPC_LOGS_ERROR.inc({ type: scrapingType, event: eventName });
+                return { transactionHashes: [], startBlock: null, endBlock: null };
             }
         }
     }
-
     private async _deleteOverlapAndSaveAsync(
         connection: Connection,
         producer: Producer,

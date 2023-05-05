@@ -18,7 +18,8 @@
     ],
     "rules": {
         "import/no-cycle": "error",
-        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+        "no-console": ["warn"],
+        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         "@typescript-eslint/no-empty-function": "off",
 
         // The following rules are disable to help with the cleanup, eventually they should be disabled

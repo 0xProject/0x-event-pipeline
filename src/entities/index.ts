@@ -5,6 +5,7 @@ export { CurrentEpochInfo } from './current_epoch_info';
 export { ERC20BridgeTransferEvent } from './erc20_bridge_transfer_event';
 export { EpochEndedEvent } from './epoch_ended_event';
 export { EpochFinalizedEvent } from './epoch_finalized_event';
+export { EventBackfill } from './event_backfill';
 export { Erc1155OrderCancelledEvent } from './erc1155_order_cancelled_event';
 export { Erc1155OrderFilledEvent } from './erc1155_order_filled_event';
 export { Erc1155OrderPresignedEvent } from './erc1155_order_presigned_event';

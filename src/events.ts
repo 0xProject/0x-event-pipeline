@@ -1,6 +1,6 @@
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
-import { Web3Source } from '../data_sources/events/web3';
+import { Web3Source } from './data_sources/events/web3';
 import { RawLogEntry } from 'ethereum-types';
 
 import {
@@ -23,7 +23,7 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
-} from '../entities';
+} from './entities';
 
 import {
     EP_ADDRESS,
@@ -56,7 +56,7 @@ import {
     UNISWAP_V2_VIP_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
-} from '../config';
+} from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -80,32 +80,32 @@ import {
     V3_EXCHANGE_ADDRESS,
     V3_FILL_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
-} from '../constants';
+} from './constants';
 
-import { DeleteOptions } from './utils/event_abi_utils';
-import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
+import { DeleteOptions } from './scripts/utils/event_abi_utils';
+import { parseTransformedERC20Event } from './parsers/events/transformed_erc20_events';
 import {
     parseNativeFillFromV4RfqOrderFilledEvent,
     parseV4RfqOrderFilledEvent,
-} from '../parsers/events/v4_rfq_order_filled_events';
-import { parseUniswapV3SwapEvent } from '../parsers/events/uniswap_v3_events';
+} from './parsers/events/v4_rfq_order_filled_events';
+import { parseUniswapV3SwapEvent } from './parsers/events/uniswap_v3_events';
 import {
     parseNativeFillFromV4LimitOrderFilledEvent,
     parseV4LimitOrderFilledEvent,
-} from '../parsers/events/v4_limit_order_filled_events';
-import { parseFillEvent } from '../parsers/events/fill_events';
-import { parseNativeFillFromFillEvent } from '../parsers/events/fill_events';
-import { parseV4CancelEvent } from '../parsers/events/v4_cancel_events';
-import { parseExpiredRfqOrderEvent } from '../parsers/events/expired_rfq_order_events';
+} from './parsers/events/v4_limit_order_filled_events';
+import { parseFillEvent } from './parsers/events/fill_events';
+import { parseNativeFillFromFillEvent } from './parsers/events/fill_events';
+import { parseV4CancelEvent } from './parsers/events/v4_cancel_events';
+import { parseExpiredRfqOrderEvent } from './parsers/events/expired_rfq_order_events';
 import {
     parseNativeFillFromV4OtcOrderFilledEvent,
     parseOtcOrderFilledEvent,
-} from '../parsers/events/otc_order_filled_events';
+} from './parsers/events/otc_order_filled_events';
 import {
     parseUniswapV2SwapEvent,
     parseUniswapV2SyncEvent,
     parseUniswapV2PairCreatedEvent,
-} from '../parsers/events/uniswap_v2_events';
+} from './parsers/events/uniswap_v2_events';
 import {
     parseErc1155OrderCancelledEvent,
     parseErc1155OrderFilledEvent,
@@ -113,13 +113,13 @@ import {
     parseErc721OrderCancelledEvent,
     parseErc721OrderFilledEvent,
     parseErc721OrderPresignedEvent,
-} from '../parsers/events/nft_events';
+} from './parsers/events/nft_events';
 
-import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
-import { parseLogTransferEvent } from '../parsers/events/log_transfer_events';
-import { parseMetaTransactionExecutedEvent } from '../parsers/events/meta_transaction_executed_events';
+import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
+import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
+import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
 
-import { TokenMetadataMap } from './utils/web3_utils';
+import { TokenMetadataMap } from './scripts/utils/web3_utils';
 
 export type CommonEventParams = {
     connection: Connection;

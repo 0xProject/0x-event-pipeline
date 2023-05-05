@@ -9,7 +9,7 @@ import { getParseSaveTxAsync } from './utils/web3_utils';
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
 import { ETHEREUM_RPC_URL } from '../config';
-import { eventScrperProps, EventScraperProps, CommonEventParams } from './events';
+import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
 
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
