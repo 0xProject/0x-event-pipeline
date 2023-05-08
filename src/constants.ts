@@ -1,5 +1,5 @@
 export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events';
-export const DEFAULT_START_BLOCK_OFFSET = 35;
+export const DEFAULT_MAX_BLOCKS_REORG = 35;
 export const DEFAULT_MAX_BLOCKS_TO_PULL = 120;
 export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 120;
 export const DEFAULT_MAX_TX_TO_PULL = 2000;
@@ -32,7 +32,6 @@ export const DEFAULT_FEAT_V3_FILL_EVENT = false;
 export const DEFAULT_FEAT_V3_NATIVE_FILL = false;
 export const DEFAULT_FEAT_VIP_SWAP_EVENT = false;
 export const DEFAULT_MAX_TIME_TO_SEARCH = 360;
-export const DEFAULT_START_BLOCK_TIMESTAMP_OFFSET = 105;
 export const DEFAULT_METRICS_PATH = '/metrics';
 export const DEFAULT_PROMETHEUS_PORT = 3000;
 export const DEFAULT_ENABLE_PROMETHEUS_METRICS = false;

@@ -78,6 +78,7 @@ services:
             CHAIN_ID: '56'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
+            MAX_BLOCKS_REORG: 50
             KAFKA_BROKERS: '${KAFKA_BROKERS}'
             KAFKA_SSL: '${KAFKA_SSL}'
             KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
