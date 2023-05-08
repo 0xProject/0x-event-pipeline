@@ -318,7 +318,7 @@ export class PullAndSaveEventsByTopic {
         } else if (tableName === 'uniswap_v2_pair_created_events') {
             deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol = '${deleteOptions.protocol}'`;
         } else if (tableName === 'log_transfer_events') {
-            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND to = '${deleteOptions.recipient}'`;
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND "to" = '${deleteOptions.recipient}'`;
         } else {
             deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
         }
