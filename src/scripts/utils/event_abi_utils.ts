@@ -73,6 +73,7 @@ export class PullAndSaveEventsByTopic {
                 tokenMetadataMap,
                 startBlock,
                 'event-by-topic',
+                true,
             )
         ).transactionHashes;
     }
@@ -109,6 +110,7 @@ export class PullAndSaveEventsByTopic {
             tokenMetadataMap,
             startBlock,
             'event-by-topic-backfill',
+            false,
         );
     }
 
@@ -128,6 +130,7 @@ export class PullAndSaveEventsByTopic {
         tokenMetadataMap: TokenMetadataMap = null,
         startBlock: number,
         scrapingType: string,
+        updateLastBlockProcessed: boolean,
     ): Promise<BackfillEventsResponse> {
         const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
 
@@ -270,6 +273,7 @@ export class PullAndSaveEventsByTopic {
                             tableName,
                             getLastBlockProcessedEntity(eventName, endBlock, endBlockHash),
                             deleteOptions,
+                            updateLastBlockProcessed,
                         );
                     }),
                 );
@@ -292,6 +296,7 @@ export class PullAndSaveEventsByTopic {
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
         deleteOptions: DeleteOptions,
+        updateLastBlockProcessed: boolean,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
@@ -330,8 +335,9 @@ export class PullAndSaveEventsByTopic {
                     await queryRunner.manager.insert(eventType, chunkItems);
                 }
             }
-            await queryRunner.manager.save(lastBlockProcessed);
-
+            if (updateLastBlockProcessed) {
+                await queryRunner.manager.save(lastBlockProcessed);
+            }
             // commit transaction now:
             await queryRunner.commitTransaction();
 
