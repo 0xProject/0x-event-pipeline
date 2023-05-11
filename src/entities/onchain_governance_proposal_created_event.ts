@@ -6,7 +6,7 @@ import { bigNumberTransformer } from '../transformers';
 
 @Entity({ name: 'onchain_governance_proposal_created' })
 export class OnchainGovernanceProposalCreatedEvent extends Event {
-    @Column({ name: 'proposal_id',  type: 'bigint', transformer: bigNumberTransformer })
+    @Column({ name: 'proposal_id', type: 'bigint', transformer: bigNumberTransformer })
     public proposal_id!: BigNumber;
     @Column({ name: 'proposer', type: 'varchar' })
     public proposer!: string;
@@ -25,4 +25,3 @@ export class OnchainGovernanceProposalCreatedEvent extends Event {
     @Column({ name: 'contract_name', type: 'varchar' })
     public contract_name!: string;
 }
-

@@ -184,10 +184,10 @@ import {
 import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
 import { parseLogTransferEvent } from '../parsers/events/log_transfer_events';
 import { parseMetaTransactionExecutedEvent } from '../parsers/events/meta_transaction_executed_events';
-import { 
-    parseOnchainGovernanceProposalCreatedEvent, 
+import {
+    parseOnchainGovernanceProposalCreatedEvent,
     parseOnchainGovernanceCallScheduledEvent,
-} from '../parsers/events/onchain_governance_events'
+} from '../parsers/events/onchain_governance_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
@@ -844,7 +844,8 @@ export class EventsByTopicScraper {
                     ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
                     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
                     ONCHAIN_GOVERNANCE_START_BLOCK,
-                    (decodedLog: RawLogEntry) => parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
                     {},
                 ),
             );
@@ -863,7 +864,8 @@ export class EventsByTopicScraper {
                     ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
                     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
                     ONCHAIN_GOVERNANCE_START_BLOCK,
-                    (decodedLog: RawLogEntry) => parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
                     {},
                 ),
             );
@@ -882,7 +884,8 @@ export class EventsByTopicScraper {
                     ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
                     TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
                     ONCHAIN_GOVERNANCE_START_BLOCK,
-                    (decodedLog: RawLogEntry) => parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
                     {},
                 ),
             );
@@ -901,7 +904,8 @@ export class EventsByTopicScraper {
                     ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
                     PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
                     ONCHAIN_GOVERNANCE_START_BLOCK,
-                    (decodedLog: RawLogEntry) => parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
                     {},
                 ),
             );

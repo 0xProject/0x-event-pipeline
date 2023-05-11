@@ -49,5 +49,5 @@ export { UnstakeEvent } from './unstake_event';
 export { V4CancelEvent } from './v4_cancel_event';
 export { V4LimitOrderFilledEvent } from './v4_limit_order_filled_event';
 export { V4RfqOrderFilledEvent } from './v4_rfq_order_filled_event';
-export { OnchainGovernanceProposalCreatedEvent } from './onchain_governance_proposal_created_event'
-export { OnchainGovernanceCallScheduledEvent } from './onchain_governance_call_scheduled_event'
+export { OnchainGovernanceProposalCreatedEvent } from './onchain_governance_proposal_created_event';
+export { OnchainGovernanceCallScheduledEvent } from './onchain_governance_call_scheduled_event';

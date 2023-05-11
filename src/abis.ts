@@ -1100,15 +1100,15 @@ export const META_TRANSACTION_EXECUTED_ABI = {
 export const ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_ABI = {
     anonymous: false,
     inputs: [
-        {indexed: false, internalType: 'uint256', name: 'proposalId',  type: 'uint256'},
-        {indexed: false, internalType: 'address', name: 'proposer', type: 'address'},
-        {indexed: false, internalType: 'address', name: 'targets', type: 'address'},
-        {indexed: false, internalType: 'uint256', name: 'values', type: 'uint256'},
-        {indexed: false, internalType: 'bytes', name: 'signatures', type: 'bytes'},
-        {indexed: false, internalType: 'bytes', name: 'calldatas', type: 'bytes'},
-        {indexed: false, internalType: 'uint256', name: 'startBlock', type: 'uint256'},
-        {indexed: false, internalType: 'uint256', name: 'endBlock', type: 'uint256'},
-        {indexed: false, internalType: 'string', name: 'description', type: 'string'},
+        { indexed: false, internalType: 'uint256', name: 'proposalId', type: 'uint256' },
+        { indexed: false, internalType: 'address', name: 'proposer', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'targets', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'values', type: 'uint256' },
+        { indexed: false, internalType: 'bytes', name: 'signatures', type: 'bytes' },
+        { indexed: false, internalType: 'bytes', name: 'calldatas', type: 'bytes' },
+        { indexed: false, internalType: 'uint256', name: 'startBlock', type: 'uint256' },
+        { indexed: false, internalType: 'uint256', name: 'endBlock', type: 'uint256' },
+        { indexed: false, internalType: 'string', name: 'description', type: 'string' },
     ],
     name: 'ProposalCreated',
     type: 'event',
@@ -1117,17 +1117,14 @@ export const ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_ABI = {
 export const ONCHAIN_GOVERNANCE_CALL_SCHEDULED_ABI = {
     anonymous: false,
     inputs: [
-        { indexed: true, internalType: 'bytes32', name: 'id', type: 'bytes32'},
-        { indexed: true, internalType: 'uint256', name: 'index', type: 'uint256'},
-        { indexed: false, internalType: 'address', name: 'target', type: 'address'},
-        { indexed: false, internalType: 'uint256', name: 'value', type: 'uint256'},
-        { indexed: false, internalType: 'bytes', name: 'data', type: 'bytes'},
-        { indexed: false, internalType: 'bytes32', name: 'predecessor', type: 'bytes32'},
-        { indexed: false, internalType: 'uint256', name: 'delay', type: 'uint256'},
+        { indexed: true, internalType: 'bytes32', name: 'id', type: 'bytes32' },
+        { indexed: true, internalType: 'uint256', name: 'index', type: 'uint256' },
+        { indexed: false, internalType: 'address', name: 'target', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'value', type: 'uint256' },
+        { indexed: false, internalType: 'bytes', name: 'data', type: 'bytes' },
+        { indexed: false, internalType: 'bytes32', name: 'predecessor', type: 'bytes32' },
+        { indexed: false, internalType: 'uint256', name: 'delay', type: 'uint256' },
     ],
     name: 'CallScheduled',
     type: 'event',
 };
-
-
-

@@ -10,7 +10,7 @@ const onchainGovernanceProposalCreated = new Table({
         { name: 'log_index', type: 'bigint', isPrimary: true },
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
-        { name: 'proposal_id',  type: 'numeric' },
+        { name: 'proposal_id', type: 'numeric' },
         { name: 'proposer', type: 'varchar' },
         { name: 'targets', type: 'varchar' },
         { name: 'signatures', type: 'varchar' },
@@ -34,7 +34,6 @@ const dropOnchainGovernanceProposalCreatedIndexQuery = `
     DROP INDEX events.onchain_governance_proposal_created_transaction_hash_index;
     DROP INDEX events.onchain_governance_proposal_created_block_number_index;
 `;
-
 
 const onchainGovernanceCallScheduled = new Table({
     name: 'events.onchain_governance_call_scheduled',
@@ -69,7 +68,6 @@ const dropOnchainGovernanceCallScheduledIndexQuery = `
     DROP INDEX events.onchain_governance_call_scheduled_transaction_hash_index;
     DROP INDEX events.onchain_governance_call_scheduled_block_number_index;
 `;
-
 
 export class CreateOnchainGovernanceEventTable1683558341000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {

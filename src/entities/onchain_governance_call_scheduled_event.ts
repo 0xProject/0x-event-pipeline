@@ -23,6 +23,3 @@ export class OnchainGovernanceCallScheduledEvent extends Event {
     @Column({ name: 'contract_name', type: 'varchar' })
     public contract_name!: string;
 }
-
-
-
