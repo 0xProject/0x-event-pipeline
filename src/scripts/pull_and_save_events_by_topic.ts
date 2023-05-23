@@ -283,10 +283,7 @@ export class EventsByTopicScraper {
                     'VIPSwapEvent',
                     ERC20BridgeTransferEvent,
                     'erc20_bridge_transfer_events',
-                    [
-                        UNISWAP_V2_SWAP_EVENT_TOPIC_0,
-                        addressToTopic(EP_ADDRESS)
-                    ],
+                    [UNISWAP_V2_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
                     'nofilter',
                     UNISWAP_V2_VIP_SWAP_START_BLOCK,
                     parseUniswapV2SwapEvent,
@@ -438,10 +435,7 @@ export class EventsByTopicScraper {
                     'UniswapV3VIPEvent',
                     ERC20BridgeTransferEvent,
                     'erc20_bridge_transfer_events',
-                    [
-                        UNISWAP_V3_SWAP_EVENT_TOPIC_0,
-                        addressToTopic(EP_ADDRESS)
-                    ],
+                    [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
                     'nofilter',
                     UNISWAP_V3_VIP_SWAP_START_BLOCK,
                     parseUniswapV3VIPSwapEvent,
@@ -465,7 +459,7 @@ export class EventsByTopicScraper {
                     'nofilter',
                     UNISWAP_V3_SWAP_START_BLOCK,
                     parseUniswapV3SwapEvent,
-                    {}, 
+                    {},
                 ),
             );
         }

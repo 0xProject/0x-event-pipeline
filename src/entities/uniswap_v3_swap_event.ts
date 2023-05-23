@@ -28,7 +28,6 @@ export class UniswapV3SwapEvent extends Event {
     public tick!: number;
 }
 
-
 // inputs: [
 //     {
 //         indexed: true,

@@ -42,14 +42,13 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): UniswapV3SwapEve
     const amount0 = new BigNumber(decodedLog.amount0).abs();
     const amount1 = new BigNumber(decodedLog.amount1).abs();
 
-    uniswapV3SwapEvent.sender = decodedLog.sender
-    uniswapV3SwapEvent.recipient = decodedLog.recipient
-    uniswapV3SwapEvent.amount0 = amount0 
+    uniswapV3SwapEvent.sender = decodedLog.sender;
+    uniswapV3SwapEvent.recipient = decodedLog.recipient;
+    uniswapV3SwapEvent.amount0 = amount0;
     uniswapV3SwapEvent.amount1 = amount1;
     uniswapV3SwapEvent.sqrtPriceX96 = decodedLog.sqrtPriceX96;
     uniswapV3SwapEvent.liquidity = decodedLog.liquidity;
     uniswapV3SwapEvent.tick = decodedLog.tick;
 
     return uniswapV3SwapEvent;
-
 }
