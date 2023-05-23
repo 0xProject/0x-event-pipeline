@@ -17,7 +17,7 @@ export class CreateUniswapV3SwapEventTable1684808476000 implements MigrationInte
             recipient VARCHAR NOT NULL,
             amount0 NUMERIC NOT NULL,
             amount1 NUMERIC NOT NULL,
-            sqrtPriceX96 NUMERIC NOT NULL,
+            sqrtpricex96 NUMERIC NOT NULL,
             liquidity NUMERIC NOT NULL, 
             tick INTEGER NOT NULL,
             PRIMARY KEY (transaction_hash, log_index)

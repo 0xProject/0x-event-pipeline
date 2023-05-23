@@ -20,8 +20,8 @@ export class UniswapV3SwapEvent extends Event {
     // The amount of the to token that was transfered
     @Column({ name: 'amount1', type: 'numeric', transformer: bigNumberTransformer })
     public amount1!: BigNumber;
-    @Column({ name: 'sqrtPriceX96', type: 'numeric', transformer: bigNumberTransformer })
-    public sqrtPriceX96!: BigNumber;
+    @Column({ name: 'sqrtpricex96', type: 'numeric', transformer: bigNumberTransformer })
+    public sqrtpricex96!: BigNumber;
     @Column({ name: 'liquidity', type: 'numeric', transformer: bigNumberTransformer })
     public liquidity!: BigNumber;
     @Column({ name: 'tick', type: 'integer' })
