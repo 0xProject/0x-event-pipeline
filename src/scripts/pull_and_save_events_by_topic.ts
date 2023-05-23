@@ -36,6 +36,7 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    UniswapV3SwapEvent,
 } from '../entities';
 
 import {
@@ -63,6 +64,7 @@ import {
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
@@ -89,6 +91,7 @@ import {
     UNISWAP_V2_VIP_SWAP_SOURCES,
     UNISWAP_V2_VIP_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
+    UNISWAP_V3_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
 } from '../config';
 import {
@@ -117,8 +120,8 @@ import {
     RFQORDERFILLED_EVENT_TOPIC,
     SLINGSHOT_CONTRACT_ADDRESS,
     SLINGSHOT_TRADE_EVENT_TOPIC,
-    SWAP_EVENT_TOPIC,
-    SWAP_V3_EVENT_TOPIC,
+    UNISWAP_V2_SWAP_EVENT_TOPIC_0,
+    UNISWAP_V3_SWAP_EVENT_TOPIC_0,
     TIMECHAIN_SWAP_V1_EVENT_TOPIC,
     TIMECHAIN_V1_CONTRACT_ADDRESS,
     TRANSFORMEDERC20_EVENT_TOPIC,
@@ -144,7 +147,7 @@ import {
     parseV4RfqOrderFilledEvent,
 } from '../parsers/events/v4_rfq_order_filled_events';
 import { parseTimechainSwapV1Event } from '../parsers/events/timechain_swap_event';
-import { parseUniswapV3SwapEvent } from '../parsers/events/uniswap_v3_events';
+import { parseUniswapV3VIPSwapEvent, parseUniswapV3SwapEvent } from '../parsers/events/uniswap_v3_events';
 import {
     parseNativeFillFromV4LimitOrderFilledEvent,
     parseV4LimitOrderFilledEvent,
@@ -280,7 +283,10 @@ export class EventsByTopicScraper {
                     'VIPSwapEvent',
                     ERC20BridgeTransferEvent,
                     'erc20_bridge_transfer_events',
-                    SWAP_EVENT_TOPIC,
+                    [
+                        UNISWAP_V2_SWAP_EVENT_TOPIC_0,
+                        addressToTopic(EP_ADDRESS)
+                    ],
                     'nofilter',
                     UNISWAP_V2_VIP_SWAP_START_BLOCK,
                     parseUniswapV2SwapEvent,
@@ -432,12 +438,34 @@ export class EventsByTopicScraper {
                     'UniswapV3VIPEvent',
                     ERC20BridgeTransferEvent,
                     'erc20_bridge_transfer_events',
-                    SWAP_V3_EVENT_TOPIC,
+                    [
+                        UNISWAP_V3_SWAP_EVENT_TOPIC_0,
+                        addressToTopic(EP_ADDRESS)
+                    ],
                     'nofilter',
                     UNISWAP_V3_VIP_SWAP_START_BLOCK,
-                    parseUniswapV3SwapEvent,
+                    parseUniswapV3VIPSwapEvent,
                     { isDirectTrade: true, directProtocol: ['UniswapV3'] },
                     { tokenA: 'fromToken', tokenB: 'toToken' },
+                ),
+            );
+        }
+
+        if (FEAT_UNISWAP_V3_SWAP_EVENT) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<UniswapV3SwapEvent>(
+                    connection,
+                    producer,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'UniswapV3SwapEvent',
+                    UniswapV3SwapEvent,
+                    'uniswap_v3_swap_events',
+                    [UNISWAP_V3_SWAP_EVENT_TOPIC_0],
+                    'nofilter',
+                    UNISWAP_V3_SWAP_START_BLOCK,
+                    parseUniswapV3SwapEvent,
+                    {}, 
                 ),
             );
         }
