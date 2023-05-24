@@ -4,9 +4,9 @@ FROM node:16-alpine as build
 WORKDIR /usr/src/app
 
 RUN apk add --update --no-cache \
-            git \
-            python3 \
-            make
+    git \
+    python3 \
+    make 
 
 COPY package.json tsconfig.json yarn.lock ./
 RUN yarn install --frozen-lockfile --no-cache
