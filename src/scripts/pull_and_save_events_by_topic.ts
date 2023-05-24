@@ -37,6 +37,8 @@ import {
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     UniswapV3SwapEvent,
+    OnchainGovernanceProposalCreatedEvent,
+    OnchainGovernanceCallScheduledEvent,
 } from '../entities';
 
 import {
@@ -67,6 +69,7 @@ import {
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
+    FEAT_ONCHAIN_GOVERNANCE,
     FIRST_SEARCH_BLOCK,
     FLASHWALLET_ADDRESS,
     FLASHWALLET_DEPLOYMENT_BLOCK,
@@ -93,6 +96,7 @@ import {
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     UNISWAP_V3_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
+    ONCHAIN_GOVERNANCE_START_BLOCK,
 } from '../config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -130,6 +134,12 @@ import {
     V3_EXCHANGE_ADDRESS,
     V3_FILL_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
+    ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+    ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
+    TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
+    PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
+    ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
+    ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
 } from '../constants';
 
 import { parseTransformedERC20Event } from '../parsers/events/transformed_erc20_events';
@@ -177,6 +187,10 @@ import {
 import { parseBridgeFill } from '../parsers/events/bridge_transfer_events';
 import { parseLogTransferEvent } from '../parsers/events/log_transfer_events';
 import { parseMetaTransactionExecutedEvent } from '../parsers/events/meta_transaction_executed_events';
+import {
+    parseOnchainGovernanceProposalCreatedEvent,
+    parseOnchainGovernanceCallScheduledEvent,
+} from '../parsers/events/onchain_governance_events';
 
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
@@ -834,6 +848,86 @@ export class EventsByTopicScraper {
                     EP_ADDRESS,
                     META_TRANSACTION_EXECUTED_START_BLOCK,
                     parseMetaTransactionExecutedEvent,
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_ONCHAIN_GOVERNANCE) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OnchainGovernanceProposalCreatedEvent>(
+                    connection,
+                    producer,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ZeroexTreasuryGovernorProposalCreatedEvent',
+                    OnchainGovernanceProposalCreatedEvent,
+                    'onchain_governance_proposal_created',
+                    ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
+                    ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+                    ONCHAIN_GOVERNANCE_START_BLOCK,
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_ONCHAIN_GOVERNANCE) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OnchainGovernanceProposalCreatedEvent>(
+                    connection,
+                    producer,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ZeroExProtocolGovernorProposalCreatedEvent',
+                    OnchainGovernanceProposalCreatedEvent,
+                    'onchain_governance_proposal_created',
+                    ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
+                    ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
+                    ONCHAIN_GOVERNANCE_START_BLOCK,
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_ONCHAIN_GOVERNANCE) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OnchainGovernanceCallScheduledEvent>(
+                    connection,
+                    producer,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'TreasuryZeroexTimelockCallScheduledEvent',
+                    OnchainGovernanceCallScheduledEvent,
+                    'onchain_governance_call_scheduled',
+                    ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
+                    TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
+                    ONCHAIN_GOVERNANCE_START_BLOCK,
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
+                    {},
+                ),
+            );
+        }
+
+        if (FEAT_ONCHAIN_GOVERNANCE) {
+            promises.push(
+                pullAndSaveEventsByTopic.getParseSaveEventsByTopic<OnchainGovernanceCallScheduledEvent>(
+                    connection,
+                    producer,
+                    web3Source,
+                    latestBlockWithOffset,
+                    'ProtocolZeroexTimelockCallScheduledEvent',
+                    OnchainGovernanceCallScheduledEvent,
+                    'onchain_governance_call_scheduled',
+                    ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
+                    PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
+                    ONCHAIN_GOVERNANCE_START_BLOCK,
+                    (decodedLog: RawLogEntry) =>
+                        parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
                     {},
                 ),
             );
