@@ -3,7 +3,6 @@ import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/events/web3';
-import { calculateEndBlockAsync } from './utils/shared_utils';
 
 import { getParseSaveTxAsync } from './utils/web3_utils';
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
@@ -24,9 +23,10 @@ export class EventsByTopicScraper {
     public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
         logger.info(`Pulling Events by Topic`);
-        const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);
 
-        logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
+        const currentBlock = await web3Source.getCurrentBlockAsync();
+
+        logger.info(`latest block: ${currentBlock.number}`);
 
         const promises: Promise<string[]>[] = [];
 
@@ -43,7 +43,7 @@ export class EventsByTopicScraper {
                         commonParams.connection,
                         commonParams.producer,
                         commonParams.web3Source,
-                        latestBlockWithOffset,
+                        currentBlock,
                         props.name,
                         props.tType,
                         props.table,

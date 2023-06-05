@@ -3,7 +3,6 @@ import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
 import { Web3Source } from '../data_sources/events/web3';
-import { calculateEndBlockAsync } from './utils/shared_utils';
 
 import { getParseSaveTxAsync } from './utils/web3_utils';
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
@@ -26,9 +25,9 @@ export class EventsBackfillScraper {
     public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
         logger.info(`Pulling Events by Topic`);
-        const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);
+        const currentBlock = await web3Source.getCurrentBlockAsync();
 
-        logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
+        logger.info(`latest block: ${currentBlock.number}`);
 
         const promises: Promise<string[]>[] = [];
 
@@ -60,7 +59,7 @@ export class EventsBackfillScraper {
                             commonParams.connection,
                             commonParams.producer,
                             commonParams.web3Source,
-                            latestBlockWithOffset,
+                            currentBlock,
                             props.name,
                             props.tType,
                             props.table,
@@ -72,15 +71,15 @@ export class EventsBackfillScraper {
                             props.tokenMetadataMap,
                             backfillEventsOldestBlock.get(props.name)!,
                         )
-                        .then(async ({ transactionHashes, startBlock, endBlock }) => {
-                            if (startBlock !== null && endBlock !== null) {
+                        .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
+                            if (startBlockNumber !== null && endBlockNumber !== null) {
                                 await connection
                                     .getRepository(EventBackfill)
                                     .createQueryBuilder('event')
                                     .delete()
                                     .from(EventBackfill)
-                                    .where('blockNumber >= :startBlock', { startBlock })
-                                    .andWhere('blockNumber <= :endBlock', { endBlock })
+                                    .where('blockNumber >= :startBlock', { startBlockNumber })
+                                    .andWhere('blockNumber <= :endBlock', { endBlockNumber })
                                     .execute();
                             }
 

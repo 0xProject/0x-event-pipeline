@@ -179,6 +179,11 @@ export class Web3Source {
         }
     }
 
+    public async getCurrentBlockAsync(): Promise<BlockWithoutTransactionData> {
+        const blockNumber = await this._web3Wrapper.getBlockNumberAsync();
+        return this.getBlockInfoAsync(blockNumber);
+    }
+
     public async getTransactionInfoAsync(txHash: string): Promise<Transaction> {
         return this._web3Wrapper.getTransactionByHashAsync(txHash);
     }
