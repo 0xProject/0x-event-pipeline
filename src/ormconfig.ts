@@ -8,6 +8,7 @@ import {
     CancelUpToEvent,
     CurrentEpochInfo,
     ERC20BridgeTransferEvent,
+    UniswapV3SwapEvent,
     EpochEndedEvent,
     EpochFinalizedEvent,
     Erc1155OrderCancelledEvent,
@@ -47,6 +48,8 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    OnchainGovernanceProposalCreatedEvent,
+    OnchainGovernanceCallScheduledEvent,
 } from './entities';
 
 const entities = [
@@ -55,6 +58,7 @@ const entities = [
     CancelUpToEvent,
     CurrentEpochInfo,
     ERC20BridgeTransferEvent,
+    UniswapV3SwapEvent,
     EpochEndedEvent,
     EpochFinalizedEvent,
     Erc1155OrderCancelledEvent,
@@ -94,6 +98,8 @@ const entities = [
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    OnchainGovernanceProposalCreatedEvent,
+    OnchainGovernanceCallScheduledEvent,
 ];
 
 const config: ConnectionOptions = {
