@@ -175,10 +175,11 @@ export class PullAndSaveEventsByTopic {
                     const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
                     const reorgedEvents = parsedLogs.filter((log: Event) => {
-                        return !(log.blockNumber == endBlockNumber && log.blockHash == endBlockHash);
+                        return log.blockNumber == endBlockNumber && log.blockHash != endBlockHash;
                     });
                     if (reorgedEvents.length > 0) {
-                        throw Error(`Detected a reorg while scraping ${eventName}, near block ${endBlockNumber}`);
+                        logger.error(`Detected a reorg while scraping ${eventName}, near block ${endBlockNumber}`);
+                        throw Error();
                     }
 
                     if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
