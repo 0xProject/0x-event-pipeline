@@ -1,6 +1,5 @@
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
-import { calculateEndBlockAsync } from './utils/shared_utils';
 import { Connection } from 'typeorm';
 
 import {

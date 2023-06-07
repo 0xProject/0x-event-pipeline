@@ -2,7 +2,6 @@ import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
-import { calculateEndBlockAsync } from './utils/shared_utils';
 import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
 import { getParseSaveTokensAsync } from './utils/web3_utils';
 import { getLastBlockProcessedEntity } from './utils/event_abi_utils';

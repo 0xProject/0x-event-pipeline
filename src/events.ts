@@ -164,7 +164,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
-        parser: parseUniswapV3SwapEvent,
+        parser: parseUniswapV3VIPSwapEvent,
         deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
