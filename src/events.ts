@@ -16,6 +16,8 @@ import {
     LogTransferEvent,
     MetaTransactionExecutedEvent,
     NativeFill,
+    OnchainGovernanceCallScheduledEvent,
+    OnchainGovernanceProposalCreatedEvent,
     OtcOrderFilledEvent,
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
@@ -33,12 +35,13 @@ import {
     FEAT_LIMIT_ORDERS,
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
     FEAT_NFT,
+    FEAT_ONCHAIN_GOVERNANCE,
     FEAT_OTC_ORDERS,
     FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
+    FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V2_SYNC_EVENT,
-    FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -49,6 +52,7 @@ import {
     FLASHWALLET_DEPLOYMENT_BLOCK,
     META_TRANSACTION_EXECUTED_START_BLOCK,
     NFT_FEATURE_START_BLOCK,
+    ONCHAIN_GOVERNANCE_START_BLOCK,
     OTC_ORDERS_FEATURE_START_BLOCK,
     POLYGON_RFQM_PAYMENTS_ADDRESSES,
     POLYGON_RFQM_PAYMENTS_START_BLOCK,
@@ -72,17 +76,23 @@ import {
     LIMITORDERFILLED_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
     META_TRANSACTION_EXECUTED_EVENT_TOPIC,
+    ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
+    ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
     OTC_ORDER_FILLED_EVENT_TOPIC,
     POLYGON_MATIC_ADDRESS,
+    PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
     RFQ_ORDER_FILLED_EVENT_TOPIC,
-    UNISWAP_V2_SWAP_EVENT_TOPIC_0,
-    UNISWAP_V3_SWAP_EVENT_TOPIC_0,
     TRANSFORMEDERC20_EVENT_TOPIC,
+    TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
     UNISWAP_V2_PAIR_CREATED_TOPIC,
+    UNISWAP_V2_SWAP_EVENT_TOPIC_0,
     UNISWAP_V2_SYNC_TOPIC,
+    UNISWAP_V3_SWAP_EVENT_TOPIC_0,
     V3_EXCHANGE_ADDRESS,
     V3_FILL_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
+    ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
+    ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
 } from './constants';
 
 import { DeleteOptions } from './scripts/utils/event_abi_utils';
@@ -121,6 +131,11 @@ import {
 import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
 import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
 import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
+
+import {
+    parseOnchainGovernanceProposalCreatedEvent,
+    parseOnchainGovernanceCallScheduledEvent,
+} from './parsers/events/onchain_governance_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 
@@ -429,6 +444,59 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V3_SWAP_START_BLOCK,
         parser: parseUniswapV3SwapEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+    },
+    {
+        enabled: FEAT_ONCHAIN_GOVERNANCE,
+        name: 'ZeroexTreasuryGovernorProposalCreatedEvent',
+        tType: OnchainGovernanceProposalCreatedEvent,
+        table: 'onchain_governance_proposal_created',
+        topics: ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
+        contractAddress: ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+        startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
+        parser: (decodedLog: RawLogEntry) =>
+            parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
+        deleteOptions: {},
+        tokenMetadataMap: null,
+    },
+    {
+        enabled: FEAT_ONCHAIN_GOVERNANCE,
+
+        name: 'ZeroExProtocolGovernorProposalCreatedEvent',
+        tType: OnchainGovernanceProposalCreatedEvent,
+        table: 'onchain_governance_proposal_created',
+        topics: ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
+        contractAddress: ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
+        startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
+        parser: (decodedLog: RawLogEntry) =>
+            parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
+        deleteOptions: {},
+        tokenMetadataMap: null,
+    },
+    {
+        enabled: FEAT_ONCHAIN_GOVERNANCE,
+        name: 'TreasuryZeroexTimelockCallScheduledEvent',
+        tType: OnchainGovernanceCallScheduledEvent,
+        table: 'onchain_governance_call_scheduled',
+        topics: ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
+        contractAddress: TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
+        startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
+        parser: (decodedLog: RawLogEntry) =>
+            parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
+        deleteOptions: {},
+        tokenMetadataMap: null,
+    },
+    {
+        enabled: FEAT_ONCHAIN_GOVERNANCE,
+        name: 'ProtocolZeroexTimelockCallScheduledEvent',
+        tType: OnchainGovernanceCallScheduledEvent,
+        table: 'onchain_governance_call_scheduled',
+        topics: ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
+        contractAddress: PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
+        startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
+        parser: (decodedLog: RawLogEntry) =>
+            parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
         deleteOptions: {},
         tokenMetadataMap: null,
     },
