@@ -1,5 +1,3 @@
-import { logger } from './utils/logger';
-
 import {
     DEFAULT_BASE_GITHUB_LOGO_URL,
     DEFAULT_BLOCK_FINALITY_THRESHOLD,
@@ -7,23 +5,15 @@ import {
     DEFAULT_EP_ADDRESS,
     DEFAULT_FEAT_CANCEL_EVENTS,
     DEFAULT_FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
-    DEFAULT_FEAT_TOKENS_FROM_TRANSFERS,
     DEFAULT_FEAT_LIMIT_ORDERS,
     DEFAULT_FEAT_META_TRANSACTION_EXECUTED_EVENT,
     DEFAULT_FEAT_NFT,
-    DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
-    DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
-    DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
     DEFAULT_FEAT_OTC_ORDERS,
-    DEFAULT_FEAT_PARASWAP_SWAPPED2_V5_EVENT,
-    DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
-    DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
     DEFAULT_FEAT_PLP_SWAP_EVENT,
     DEFAULT_FEAT_POLYGON_RFQM_PAYMENTS,
     DEFAULT_FEAT_RFQ_EVENT,
-    DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
     DEFAULT_FEAT_STAKING,
-    DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
+    DEFAULT_FEAT_TOKENS_FROM_TRANSFERS,
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
     DEFAULT_FEAT_TX_BACKFILL,
     DEFAULT_FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
@@ -36,6 +26,7 @@ import {
     DEFAULT_LOCAL_POSTGRES_URI,
     DEFAULT_MAX_BLOCKS_TO_PULL,
     DEFAULT_MAX_BLOCKS_TO_SEARCH,
+    DEFAULT_MAX_BLOCKS_REORG,
     DEFAULT_MAX_TIME_TO_SEARCH,
     DEFAULT_MAX_TX_TO_PULL,
     DEFAULT_METRICS_PATH,
@@ -43,8 +34,6 @@ import {
     DEFAULT_PROMETHEUS_PORT,
     DEFAULT_STAKING_POOLS_JSON_URL,
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
-    DEFAULT_START_BLOCK_OFFSET,
-    DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
     DEFAULT_FEAT_ONCHAIN_GOVERNANCE,
 } from './constants';
 
@@ -117,7 +106,7 @@ export const METRICS_PATH = process.env.METRICS_PATH || DEFAULT_METRICS_PATH;
 
 export const PROMETHEUS_PORT = getIntConfig('PROMETHEUS_PORT', DEFAULT_PROMETHEUS_PORT);
 
-export const START_BLOCK_OFFSET = getIntConfig('START_BLOCK_OFFSET', DEFAULT_START_BLOCK_OFFSET);
+export const MAX_BLOCKS_REORG = getIntConfig('BLOCKS_REORG', DEFAULT_MAX_BLOCKS_REORG);
 
 export const MAX_BLOCKS_TO_PULL = getIntConfig('MAX_BLOCKS_TO_PULL', DEFAULT_MAX_BLOCKS_TO_PULL);
 
@@ -160,11 +149,6 @@ export const BRIDGE_CONTRACTS = process.env.BRIDGE_CONTRACTS
     ? bridgeEnvVarToObject(String(process.env.BRIDGE_CONTRACTS))
     : bridgeContracts;
 
-export const START_BLOCK_TIMESTAMP_OFFSET = getIntConfig(
-    'START_BLOCK_TIMESTAMP_OFFSET',
-    DEFAULT_START_BLOCK_TIMESTAMP_OFFSET,
-);
-
 export const MAX_TIME_TO_SEARCH = getIntConfig('MAX_TIME_TO_SEARCH', DEFAULT_MAX_TIME_TO_SEARCH);
 
 export const FEAT_CANCEL_EVENTS = getBoolConfig('FEAT_CANCEL_EVENTS', DEFAULT_FEAT_CANCEL_EVENTS);
@@ -190,17 +174,6 @@ if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
 }
 */
 
-export const FEAT_TIMECHAIN_SWAP_V1_EVENT = getBoolConfig(
-    'FEAT_TIMECHAIN_SWAP_V1_EVENT',
-    DEFAULT_FEAT_TIMECHAIN_SWAP_V1_EVENT,
-);
-export const TIMECHAIN_V1_DEPLOYMENT_BLOCK = getIntConfig('TIMECHAIN_V1_DEPLOYMENT_BLOCK', -1);
-if (TIMECHAIN_V1_DEPLOYMENT_BLOCK === -1 && FEAT_TIMECHAIN_SWAP_V1_EVENT) {
-    throwError(
-        `The Tinechain Swap v1 scraper is enabled, but no TIMECHAIN_V1_DEPLOYMENT_BLOCK was provided. Please include TIMECHAIN_V1_DEPLOYMENT_BLOCK or disable the feature`,
-    );
-}
-
 export const FIRST_SEARCH_BLOCK = Math.min(
     EP_DEPLOYMENT_BLOCK,
     STAKING_DEPLOYMENT_BLOCK === -1 ? Infinity : STAKING_DEPLOYMENT_BLOCK,
@@ -211,72 +184,10 @@ export const FEAT_TRANSFORMED_ERC20_EVENT = getBoolConfig(
     DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT,
 );
 
-export const FEAT_ONEINCH_SWAPPED_V3_EVENT = getBoolConfig(
-    'FEAT_ONEINCH_SWAPPED_V3_EVENT',
-    DEFAULT_FEAT_ONEINCH_SWAPPED_V3_EVENT,
-);
-
-export const FEAT_ONEINCH_SWAPPED_V4_EVENT = getBoolConfig(
-    'FEAT_ONEINCH_SWAPPED_V4_EVENT',
-    DEFAULT_FEAT_ONEINCH_SWAPPED_V4_EVENT,
-);
-
-export const FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT = getBoolConfig(
-    'FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT',
-    DEFAULT_FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT,
-);
-export const OPEN_OCEAN_V1_DEPLOYMENT_BLOCK = getIntConfig('OPEN_OCEAN_V1_DEPLOYMENT_BLOCK', -1);
-if (OPEN_OCEAN_V1_DEPLOYMENT_BLOCK === -1 && FEAT_OPEN_OCEAN_SWAPPED_V1_EVENT) {
-    throwError(
-        `The Open Ocean Swapped v1 scraper is enabled, but no OPEN_OCEAN_V1_DEPLOYMENT_BLOCK was provided. Please include OPEN_OCEAN_V1_DEPLOYMENT_BLOCK or disable the feature`,
-    );
-}
-
 export const FEAT_UNISWAP_V2_VIP_SWAP_EVENT = getBoolConfig(
     'FEAT_UNISWAP_V2_VIP_SWAP_EVENT',
     DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
 );
-
-export const FEAT_SLINGSHOT_TRADE_EVENT = getBoolConfig(
-    'FEAT_SLINGSHOT_TRADE_EVENT',
-    DEFAULT_FEAT_SLINGSHOT_TRADE_EVENT,
-);
-
-export const FEAT_PARASWAP_SWAPPED_V4_EVENT = getBoolConfig(
-    'FEAT_PARASWAP_SWAPPED_V4_EVENT',
-    DEFAULT_FEAT_PARASWAP_SWAPPED_V4_EVENT,
-);
-
-export const FEAT_PARASWAP_SWAPPED_V5_EVENT = getBoolConfig(
-    'FEAT_PARASWAP_SWAPPED_V5_EVENT',
-    DEFAULT_FEAT_PARASWAP_SWAPPED_V5_EVENT,
-);
-
-export const FEAT_PARASWAP_SWAPPED2_V5_EVENT = getBoolConfig(
-    'FEAT_PARASWAP_SWAPPED2_V5_EVENT',
-    DEFAULT_FEAT_PARASWAP_SWAPPED2_V5_EVENT,
-);
-
-export const ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK', -1);
-if (ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_V3_EVENT) {
-    throwError(
-        `The Oneinch Swapped v3 Event scraper is enabled, but no ONEINCH_ROUTER_V3_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
-    );
-}
-
-export const ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK = getIntConfig('ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK', -1);
-if (ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK === -1 && FEAT_ONEINCH_SWAPPED_V4_EVENT) {
-    throwError(
-        `The Oneinch Swapped v4 Event scraper is enabled, but no ONEINCH_ROUTER_V4_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
-    );
-}
-
-export const SLINGSHOT_DEPLOYMENT_BLOCK = getIntConfig('SLINGSHOT_DEPLOYMENT_BLOCK', -1);
-if (SLINGSHOT_DEPLOYMENT_BLOCK === -1 && FEAT_SLINGSHOT_TRADE_EVENT) {
-    throwError(
-        `The Slingshot Trade Event scraper is enabled, but no SLINGSHOT_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
-    );
-}
 
 export const UNISWAP_V2_VIP_SWAP_SOURCES = process.env.UNISWAP_V2_VIP_SWAP_SOURCES
     ? process.env.UNISWAP_V2_VIP_SWAP_SOURCES.split(',')
@@ -289,45 +200,6 @@ if (UNISWAP_V2_VIP_SWAP_SOURCES === undefined && FEAT_UNISWAP_V2_VIP_SWAP_EVENT)
 
 export const UNISWAP_V2_VIP_SWAP_START_BLOCK = getIntConfig('UNISWAP_V2_VIP_SWAP_START_BLOCK', EP_DEPLOYMENT_BLOCK);
 
-export const PARASWAP_V4_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V4_DEPLOYMENT_BLOCK', -1);
-if (PARASWAP_V4_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_V4_EVENT) {
-    throwError(
-        `The Paraswap Swapped v4 Event scraper is enabled, but no PARASWAP_V4_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
-    );
-}
-
-export const PARASWAP_V4_CONTRACT_ADDRESS = process.env.PARASWAP_V4_CONTRACT_ADDRESS || '';
-if (PARASWAP_V4_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_V4_EVENT) {
-    throwError(
-        `The Paraswap Swapped v4 Event scraper is enabled, but no PARASWAP_V4_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
-    );
-}
-
-export const PARASWAP_V5_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V5_DEPLOYMENT_BLOCK', -1);
-if (PARASWAP_V5_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED_V5_EVENT) {
-    throwError(
-        `The Paraswap Swapped v5 Event scraper is enabled, but no PARASWAP_V5_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
-    );
-}
-
-export const PARASWAP_V5_CONTRACT_ADDRESS = process.env.PARASWAP_V5_CONTRACT_ADDRESS || '';
-if (PARASWAP_V5_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED_V5_EVENT) {
-    throwError(
-        `The Paraswap Swapped v5 Event scraper is enabled, but no PARASWAP_V5_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
-    );
-}
-if (PARASWAP_V5_CONTRACT_ADDRESS === '' && FEAT_PARASWAP_SWAPPED2_V5_EVENT) {
-    throwError(
-        `The Paraswap Swapped2 v5 Event scraper is enabled, but no PARASWAP_V5_CONTRACT_ADDRESS was provided. Please add a deployment block or disable the feature`,
-    );
-}
-
-export const PARASWAP_V5_5_DEPLOYMENT_BLOCK = getIntConfig('PARASWAP_V5_5_DEPLOYMENT_BLOCK', -1);
-if (PARASWAP_V5_5_DEPLOYMENT_BLOCK === -1 && FEAT_PARASWAP_SWAPPED2_V5_EVENT) {
-    throwError(
-        `The Paraswap Swapped2 v5 Event scraper is enabled, but no PARASWAP_V5_5_DEPLOYMENT_BLOCK was provided. Please add a deployment block or disable the feature`,
-    );
-}
 export const FEAT_RFQ_EVENT = getBoolConfig('FEAT_RFQ_EVENT', DEFAULT_FEAT_RFQ_EVENT);
 
 export const FEAT_LIMIT_ORDERS = getBoolConfig('FEAT_LIMIT_ORDERS', DEFAULT_FEAT_LIMIT_ORDERS);

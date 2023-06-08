@@ -1,15 +1,18 @@
 import { Producer } from 'kafkajs';
 
-import { BigNumber } from '@0x/utils';
-
-import { logger } from '../utils';
+import { logger } from './logger';
 
 export interface SchemaOptions {
     precision: number;
     scale: number;
 }
 
-export async function kafkaSendAsync(producer: Producer, topic: string, keyFields: string[], payload: any[]) {
+export async function kafkaSendAsync(
+    producer: Producer,
+    topic: string,
+    keyFields: string[],
+    payload: any[],
+): Promise<void> {
     const MAX_SIZE = 500000; // 1MB
 
     let currentSize = 0;

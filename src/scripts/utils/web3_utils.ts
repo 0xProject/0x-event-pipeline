@@ -16,10 +16,10 @@ import {
     CHAIN_NAME_LOWER,
     FEAT_NFT,
     FIRST_SEARCH_BLOCK,
+    MAX_BLOCKS_REORG,
     MAX_BLOCKS_TO_PULL,
     MAX_TX_TO_PULL,
     SCHEMA,
-    START_BLOCK_OFFSET,
 } from '../../config';
 
 import { ERC165_ERC1155_INTERFACE, ERC165_ERC721_INTERFACE, ERC165_SUPPORTS_INTERFACE_SELECTOR } from '../../constants';
@@ -114,7 +114,7 @@ export class PullAndSaveWeb3 {
         const lastKnownBlockNumber = Number(lastKnownBlock.block_number);
 
         return {
-            startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - START_BLOCK_OFFSET),
+            startBlock: Math.min(lastKnownBlockNumber + 1, latestBlockWithOffset - MAX_BLOCKS_REORG),
             hasLatestBlockChanged: lastKnownBlockNumber !== latestBlockWithOffset,
         };
     }
@@ -572,6 +572,7 @@ function parseHexString(hex: string): string | null {
     const parsed = hexToUtf8(hex);
 
     // remove unicode control characters
+    // eslint-disable-next-line no-control-regex
     return parsed.replace(/[\u0000-\u001F\u007F-\u009F]|\n/g, '').trim();
 }
 
@@ -676,9 +677,6 @@ export async function getParseSaveTxAsync(
 
         await queryRunner.commitTransaction();
         queryRunner.release();
-
-        let longestLen = 0;
-        let longest = '';
 
         await kafkaSendAsync(
             producer,

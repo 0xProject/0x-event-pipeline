@@ -26,8 +26,8 @@ export async function getEventsWithPaginationAsync<ArgsType extends DecodedLogAr
 ): Promise<Array<LogWithDecodedArgs<ArgsType>> | null> {
     let events: Array<LogWithDecodedArgs<ArgsType>> = [];
 
-    for (let fromBlock = startBlock; fromBlock <= endBlock; fromBlock += numPaginationBlocks(fromBlock)) {
-        const toBlock = Math.min(fromBlock + numPaginationBlocks(fromBlock) - 1, endBlock);
+    for (let fromBlock = startBlock; fromBlock <= endBlock; fromBlock += numPaginationBlocks()) {
+        const toBlock = Math.min(fromBlock + numPaginationBlocks() - 1, endBlock);
 
         logger.child({ fromBlock, toBlock }).info(`Query for events in block range ${fromBlock}-${toBlock}`);
 
@@ -65,11 +65,15 @@ async function _getEventsWithRetriesAsync<ArgsType extends DecodedLogArgs>(
         try {
             eventsInRange = await getEventsAsync(fromBlock, toBlock);
         } catch (err) {
-            if (_isErrorRetryable(err) && i < numRetries) {
-                continue;
+            if (err instanceof Error) {
+                if (_isErrorRetryable(err) && i < numRetries) {
+                    continue;
+                } else {
+                    logger.error(err);
+                    return null;
+                }
             } else {
                 logger.error(err);
-                return null;
             }
         }
         break;
@@ -83,6 +87,6 @@ function _isErrorRetryable(err: Error): boolean {
 
 // leaving this function available for use
 // tslint:disable custom-no-magic-numbers
-function numPaginationBlocks(startBlock: number): number {
+function numPaginationBlocks(): number {
     return 500;
 }

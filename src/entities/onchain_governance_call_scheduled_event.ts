@@ -7,7 +7,7 @@ import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers
 @Entity({ name: 'onchain_governance_call_scheduled' })
 export class OnchainGovernanceCallScheduledEvent extends Event {
     @Column({ name: 'id', type: 'varchar' })
-    public id!: String;
+    public id!: string;
     @Column({ name: 'index', type: 'bigint', transformer: bigNumberTransformer })
     public index!: BigNumber;
     @Column({ name: 'target', type: 'varchar' })
@@ -17,7 +17,7 @@ export class OnchainGovernanceCallScheduledEvent extends Event {
     @Column({ name: 'data', type: 'varchar' })
     public data!: string;
     @Column({ name: 'predecessor', type: 'varchar' })
-    public predecessor!: String;
+    public predecessor!: string;
     @Column({ name: 'delay', type: 'bigint', transformer: bigNumberTransformer })
     public delay!: BigNumber;
     @Column({ name: 'contract_name', type: 'varchar' })

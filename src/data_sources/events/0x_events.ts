@@ -26,12 +26,10 @@ import {
     StakingUnstakeEventArgs,
 } from '@0x/contract-wrappers';
 
-import { DEFAULT_EP_ADDRESS, DEFAULT_STAKING_PROXY_ADDRESS } from '../../constants';
-
 export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract | undefined;
     private readonly _stakingWrapper: StakingContract | undefined;
-    private readonly _networkId: Number;
+    private readonly _networkId: number;
     constructor(provider: Web3ProviderEngine, networkId: number) {
         this._networkId = networkId;
         if (networkId === 1) {

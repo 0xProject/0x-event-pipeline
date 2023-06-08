@@ -1,5 +1,3 @@
-import { assetDataUtils } from '@0x/order-utils';
-import { AssetProxyId } from '@0x/types';
 import { RawLogEntry } from 'ethereum-types';
 import { BigNumber } from '@0x/utils';
 

@@ -1,5 +1,4 @@
 import { BlockWithTransactionData, BlockWithoutTransactionData, RawLog, Transaction } from 'ethereum-types';
-const Web3Utils = require('web3-utils');
 
 const Web3 = require('web3');
 
@@ -138,7 +137,7 @@ export class Web3Source {
         const batch = new this._web3.BatchRequest();
 
         const promises = contractCallInfo.map((contractCall) => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, _reject) => {
                 const req = this._web3.eth.call.request(contractCall, (err: any, data: string) => {
                     if (err) {
                         resolve(null);
@@ -178,6 +177,11 @@ export class Web3Source {
         } catch (err) {
             return Promise.reject(new Error(`Encountered error while fetching block ${blockNumber}: ${err}`));
         }
+    }
+
+    public async getCurrentBlockAsync(): Promise<BlockWithoutTransactionData> {
+        const blockNumber = await this._web3Wrapper.getBlockNumberAsync();
+        return this.getBlockInfoAsync(blockNumber);
     }
 
     public async getTransactionInfoAsync(txHash: string): Promise<Transaction> {

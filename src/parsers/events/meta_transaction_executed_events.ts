@@ -3,7 +3,6 @@ import { RawLogEntry } from 'ethereum-types';
 import { MetaTransactionExecutedEvent } from '../../entities';
 import { parseEvent } from './parse_event';
 import { META_TRANSACTION_EXECUTED_ABI } from '../../constants';
-import { BigNumber } from '@0x/utils';
 
 export function parseMetaTransactionExecutedEvent(eventLog: RawLogEntry): MetaTransactionExecutedEvent {
     const metaTransactionExecutedEvent = new MetaTransactionExecutedEvent();

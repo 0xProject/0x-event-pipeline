@@ -2,19 +2,12 @@ import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
-import { calculateEndBlockAsync } from './utils/shared_utils';
 import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
 import { getParseSaveTokensAsync } from './utils/web3_utils';
 import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
 import { RawLog } from 'ethereum-types';
 
-import {
-    ETHEREUM_RPC_URL,
-    MAX_BLOCKS_TO_SEARCH,
-    SCHEMA,
-    START_BLOCK_OFFSET,
-    TOKENS_FROM_TRANSFERS_START_BLOCK,
-} from '../config';
+import { ETHEREUM_RPC_URL, MAX_BLOCKS_TO_SEARCH, TOKENS_FROM_TRANSFERS_START_BLOCK } from '../config';
 import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
 
 import { getStartBlockAsync } from './utils/event_abi_utils';
@@ -30,15 +23,15 @@ export class TokensFromTransfersScraper {
         const eventName = 'TSStandard';
         const startTime = new Date().getTime();
         logger.info(`Pulling Tokens from Transfers`);
-        const latestBlockWithOffset = await calculateEndBlockAsync(web3Source);
+        const currentBlock = await web3Source.getCurrentBlockAsync();
 
-        logger.child({ latestBlockWithOffset }).info(`latest block with offset: ${latestBlockWithOffset}`);
+        logger.info(`latest block: ${currentBlock.number}`);
 
-        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
+        const { startBlockNumber, hasLatestBlockChanged } = await getStartBlockAsync(
             eventName,
             connection,
             web3Source,
-            latestBlockWithOffset,
+            currentBlock,
             TOKENS_FROM_TRANSFERS_START_BLOCK,
         );
 
@@ -47,23 +40,23 @@ export class TokensFromTransfersScraper {
             return;
         }
 
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
-        logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+        const endBlockNumber = Math.min(currentBlock.number!, startBlockNumber + (MAX_BLOCKS_TO_SEARCH - 1));
+        logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlockNumber}`);
 
-        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
+        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
 
         if (endBlockHash === null) {
             logger.error(`Unstable last block for ${eventName}, trying next time`);
             return;
         }
 
-        SCAN_START_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(startBlock);
-        SCAN_END_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(endBlock);
+        SCAN_START_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(startBlockNumber);
+        SCAN_END_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(endBlockNumber);
 
         const logPullInfo: LogPullInfo = {
             address: 'nofilter',
-            fromBlock: startBlock,
-            toBlock: endBlock,
+            fromBlock: startBlockNumber,
+            toBlock: endBlockNumber,
             topics: TOKEN_TRANSFER_EVENT_TOPIC,
         };
 
@@ -81,7 +74,7 @@ export class TokensFromTransfersScraper {
 
         logger.info(`Saved metadata for ${savedTokenCount} tokens`);
 
-        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlock, endBlockHash);
+        const lastBlockProcessed = getLastBlockProcessedEntity(eventName, endBlockNumber, endBlockHash);
         const queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction('REPEATABLE READ');

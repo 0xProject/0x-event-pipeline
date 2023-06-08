@@ -1,29 +1,30 @@
 import { logger } from '../../utils/logger';
 import { Connection } from 'typeorm';
+import { BlockWithoutTransactionData } from 'ethereum-types';
 
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../../config';
+import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
-import { LogWithDecodedArgs } from '@0x/dev-utils';
+import { LogWithDecodedArgs, DecodedLogArgs } from '@0x/dev-utils';
 import { getStartBlockAsync, getLastBlockProcessedEntity } from '../utils/event_abi_utils';
 import { Web3Source } from '../../data_sources/events/web3';
 
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
 
 export class PullAndSaveEvents {
-    public async getParseSaveContractWrapperEventsAsync<ARGS, EVENT>(
+    public async getParseSaveContractWrapperEventsAsync<ARGS extends DecodedLogArgs, EVENT>(
         connection: Connection,
         web3Source: Web3Source,
-        latestBlockWithOffset: number,
+        currentBlock: BlockWithoutTransactionData,
         eventName: string,
         tableName: string,
-        getterFunction: (startBlock: number, endBlock: number) => Promise<LogWithDecodedArgs<ARGS>[] | null>,
+        getterFunction: (startBlockNumber: number, endBlock: number) => Promise<LogWithDecodedArgs<ARGS>[] | null>,
         parser: (decodedLog: LogWithDecodedArgs<ARGS>) => EVENT,
     ): Promise<void> {
-        const { startBlock, hasLatestBlockChanged } = await getStartBlockAsync(
+        const { startBlockNumber, hasLatestBlockChanged } = await getStartBlockAsync(
             eventName,
             connection,
             web3Source,
-            latestBlockWithOffset,
+            currentBlock,
             FIRST_SEARCH_BLOCK,
         );
 
@@ -32,9 +33,12 @@ export class PullAndSaveEvents {
             return;
         }
 
-        const endBlock = Math.min(latestBlockWithOffset, startBlock + (MAX_BLOCKS_TO_SEARCH - 1));
+        const endBlock = Math.min(
+            currentBlock.number! - MAX_BLOCKS_REORG,
+            startBlockNumber + (MAX_BLOCKS_TO_SEARCH - 1),
+        );
 
-        logger.info(`Searching for ${eventName} between blocks ${startBlock} and ${endBlock}`);
+        logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlock}`);
 
         const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
 
@@ -43,9 +47,9 @@ export class PullAndSaveEvents {
             return;
         }
 
-        const eventLogs = await getterFunction(startBlock, endBlock);
+        const eventLogs = await getterFunction(startBlockNumber, endBlock);
 
-        SCAN_START_BLOCK.labels({ type: 'event', event: eventName }).set(startBlock);
+        SCAN_START_BLOCK.labels({ type: 'event', event: eventName }).set(startBlockNumber);
         SCAN_END_BLOCK.labels({ type: 'event', event: eventName }).set(endBlock);
 
         if (eventLogs === null) {
@@ -64,7 +68,7 @@ export class PullAndSaveEvents {
             await this._deleteOverlapAndSaveAsync<EVENT>(
                 connection,
                 parsedEventLogs,
-                startBlock,
+                startBlockNumber,
                 endBlock,
                 tableName,
                 lastBlockProcessed,
@@ -75,7 +79,7 @@ export class PullAndSaveEvents {
     private async _deleteOverlapAndSaveAsync<T>(
         connection: Connection,
         toSave: T[],
-        startBlock: number,
+        startBlockNumber: number,
         endBlock: number,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
@@ -88,7 +92,7 @@ export class PullAndSaveEvents {
         try {
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(
-                `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`,
+                `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlockNumber} AND block_number <= ${endBlock}`,
             );
             await queryRunner.manager.save(toSave);
             await queryRunner.manager.save(lastBlockProcessed);

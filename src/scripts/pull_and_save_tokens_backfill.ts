@@ -2,16 +2,13 @@ import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Connection } from 'typeorm';
-import { calculateEndBlockAsync } from './utils/shared_utils';
-import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
 import { getParseSaveTokensAsync } from './utils/web3_utils';
-import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
-import { RawLog } from 'ethereum-types';
 
-import { ETHEREUM_RPC_URL, MAX_BLOCKS_TO_SEARCH, SCHEMA, START_BLOCK_OFFSET } from '../config';
-import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
+import { ETHEREUM_RPC_URL, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../config';
 
-import { SCRIPT_RUN_DURATION, SCAN_START_BLOCK, SCAN_END_BLOCK } from '../utils/metrics';
+import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+
+import { Web3Source } from '../data_sources/events/web3';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: ETHEREUM_RPC_URL,
@@ -20,7 +17,7 @@ const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
 
 export class TokensFromBackfill {
     public async getParseSaveTokensFromBackfillAsync(connection: Connection, producer: Producer): Promise<void> {
-        const eventName = 'TSStandard';
+        // const eventName = 'TSStandard';
         const startTime = new Date().getTime();
         logger.info(`Pulling Tokens from Backfill`);
 

@@ -23,6 +23,7 @@ import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
+import { EventsBackfillScraper } from './scripts/backfill_events';
 import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
 import { ChainIdChecker } from './scripts/check_chain_id';
@@ -52,6 +53,7 @@ const legacyEventScraper = new LegacyEventScraper();
 const backfillTxScraper = new BackfillTxScraper();
 const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
+const eventsBackfillScraper = new EventsBackfillScraper();
 const currentBlockMonitor = new CurrentBlockMonitor();
 const tokensFromTransfersScraper = new TokensFromTransfersScraper();
 const tokensFromBackfill = new TokensFromBackfill();
@@ -71,6 +73,7 @@ createConnection(ormConfig as ConnectionOptions)
 
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+        schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
         if (FEAT_TX_BACKFILL) {
             schedule(
                 connection,
