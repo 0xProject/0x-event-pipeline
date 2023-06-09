@@ -78,8 +78,8 @@ export class EventsBackfillScraper {
                                     .createQueryBuilder('event')
                                     .delete()
                                     .from(EventBackfill)
-                                    .where('blockNumber >= :startBlock', { startBlockNumber })
-                                    .andWhere('blockNumber <= :endBlock', { endBlockNumber })
+                                    .where('blockNumber >= :startBlock', { startBlock: startBlockNumber })
+                                    .andWhere('blockNumber <= :endBlock', { endBlock: endBlockNumber })
                                     .execute();
                             }
 
