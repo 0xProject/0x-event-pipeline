@@ -7,3 +7,5 @@ lib
 package-lock.json
 yarn-error.log
 .DS_Store
+docker-compose.dev.yml
+.env.example
