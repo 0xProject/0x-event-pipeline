@@ -45,24 +45,36 @@ export class PullAndSaveEventsByTopic {
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
     ): Promise<string[]> {
-        const { startBlockNumber, hasLatestBlockChanged } = await getStartBlockAsync(
-            eventName,
-            connection,
-            web3Source,
-            currentBlock,
-            startSearchBlock,
-        );
-
+        let startBlockResponse;
+        try {
+            startBlockResponse = await getStartBlockAsync(
+                eventName,
+                connection,
+                web3Source,
+                currentBlock,
+                startSearchBlock,
+            );
+        } catch (err) {
+            logger.error(`${err}, trying next time`);
+            return [];
+        }
+        const { startBlockNumber, hasLatestBlockChanged } = startBlockResponse;
         if (!hasLatestBlockChanged) {
             logger.debug(`No new blocks to scan for ${eventName}, skipping`);
             return [];
         }
 
         const endBlockNumber = Math.min(currentBlock.number!, startBlockNumber + (MAX_BLOCKS_TO_SEARCH - 1));
-        const endBlockHash =
-            endBlockNumber === currentBlock.number
-                ? currentBlock.hash
-                : (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
+        let endBlockHash: string | null = '';
+        try {
+            endBlockHash =
+                endBlockNumber === currentBlock.number
+                    ? currentBlock.hash
+                    : (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
+        } catch (err) {
+            logger.error(`${err}, trying next time`);
+            return [];
+        }
 
         return (
             await this._getParseSaveEventsByTopic(
@@ -108,7 +120,14 @@ export class PullAndSaveEventsByTopic {
             currentBlock.number! - MAX_BLOCKS_REORG,
             startBlockNumber + (MAX_BLOCKS_TO_SEARCH - 1),
         );
-        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
+
+        let endBlockHash = null;
+        try {
+            endBlockHash = (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
+        } catch (err) {
+            logger.error(`${err}, trying next time`);
+            return { transactionHashes: [], startBlockNumber: null, endBlockNumber: null };
+        }
 
         return this._getParseSaveEventsByTopic(
             connection,

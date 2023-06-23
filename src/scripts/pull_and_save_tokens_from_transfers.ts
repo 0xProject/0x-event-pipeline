@@ -43,8 +43,13 @@ export class TokensFromTransfersScraper {
         const endBlockNumber = Math.min(currentBlock.number!, startBlockNumber + (MAX_BLOCKS_TO_SEARCH - 1));
         logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlockNumber}`);
 
-        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
-
+        let endBlockHash = null;
+        try {
+            endBlockHash = (await web3Source.getBlockInfoAsync(endBlockNumber)).hash;
+        } catch (err) {
+            logger.error(`${err}, trying next time`);
+            return;
+        }
         if (endBlockHash === null) {
             logger.error(`Unstable last block for ${eventName}, trying next time`);
             return;
