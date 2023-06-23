@@ -39,8 +39,8 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): UniswapV3SwapEve
         eventLog.topics[1],
         eventLog.topics[2],
     ]);
-    const amount0 = new BigNumber(decodedLog.amount0).abs();
-    const amount1 = new BigNumber(decodedLog.amount1).abs();
+    const amount0 = new BigNumber(decodedLog.amount0);
+    const amount1 = new BigNumber(decodedLog.amount1);
 
     uniswapV3SwapEvent.sender = decodedLog.sender.toLowerCase();
     uniswapV3SwapEvent.recipient = decodedLog.recipient.toLowerCase();
