@@ -516,7 +516,7 @@ export const UNISWAP_V3_POOL_CREATED_ABI = {
     ],
     name: 'PoolCreated',
     type: 'event',
-}
+};
 
 export const OTC_ORDER_FILLED_ABI = {
     anonymous: false,
