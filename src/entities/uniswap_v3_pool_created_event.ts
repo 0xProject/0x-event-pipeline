@@ -1,11 +1,7 @@
-import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
 
 import { Event } from './event';
-import { bigNumberTransformer } from '../transformers';
 
-// These events come directly from the Exchange contract and are fired whenever
-// someone fills an order.
 @Entity({ name: 'uniswap_v3_pool_created_events' })
 export class UniswapV3PoolCreatedEvent extends Event {
     // The address of token0
@@ -17,7 +13,7 @@ export class UniswapV3PoolCreatedEvent extends Event {
     // The fee collected upon every swap in the pool, denominated in hundredths of a bip
     @Column({ name: 'fee', type: 'integer' })
     public fee!: number;
-    @Column({ name: 'tickSpacing', type: 'integer' })
+    @Column({ name: 'tick_spacing', type: 'integer' })
     public tickSpacing!: number;
     // The address of the pool
     @Column({ name: 'pool', type: 'varchar' })

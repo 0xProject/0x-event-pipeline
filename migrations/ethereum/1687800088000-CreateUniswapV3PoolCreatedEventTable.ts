@@ -16,7 +16,7 @@ export class CreateUniswapV3PoolCreatedEventTable1687800088000 implements Migrat
             token0 VARCHAR NOT NULL,
             token1 VARCHAR NOT NULL,
             fee INTEGER NOT NULL,
-            tickSpacing INTEGER NOT NULL,
+            tick_spacing INTEGER NOT NULL,
             pool VARCHAR NOT NULL,
             PRIMARY KEY (transaction_hash, log_index)
           );

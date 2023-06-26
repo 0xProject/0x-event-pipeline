@@ -53,7 +53,7 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): UniswapV3SwapEve
     return uniswapV3SwapEvent;
 }
 
-export function parseUniswapV3PoolCreatedEvent(eventLog: RawLogEntry, protocol: string): UniswapV3PoolCreatedEvent {
+export function parseUniswapV3PoolCreatedEvent(eventLog: RawLogEntry): UniswapV3PoolCreatedEvent {
     const UniswapV3poolCreated = new UniswapV3PoolCreatedEvent();
     parseEvent(eventLog, UniswapV3poolCreated);
     const decodedLog = abiCoder.decodeLog(UNISWAP_V3_POOL_CREATED_ABI.inputs, eventLog.data, [
