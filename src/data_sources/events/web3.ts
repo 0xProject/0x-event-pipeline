@@ -175,7 +175,7 @@ export class Web3Source {
             }
             return block;
         } catch (err) {
-            return Promise.reject(new Error(`Encountered error while fetching block ${blockNumber}: ${err}`));
+            throw new Error(`Encountered error while fetching block ${blockNumber}: ${err}`);
         }
     }
 

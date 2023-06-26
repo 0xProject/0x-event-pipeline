@@ -40,8 +40,13 @@ export class PullAndSaveEvents {
 
         logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlock}`);
 
-        const endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
-
+        let endBlockHash = null;
+        try {
+            endBlockHash = (await web3Source.getBlockInfoAsync(endBlock)).hash;
+        } catch (err) {
+            logger.error(`${err}, trying next time`);
+            return;
+        }
         if (endBlockHash === null) {
             logger.error(`Unstable last block for ${eventName}, trying next time`);
             return;
