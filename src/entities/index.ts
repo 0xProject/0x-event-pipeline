@@ -4,6 +4,7 @@ export { CancelUpToEvent } from './cancel_up_to_event';
 export { CurrentEpochInfo } from './current_epoch_info';
 export { ERC20BridgeTransferEvent } from './erc20_bridge_transfer_event';
 export { UniswapV3SwapEvent } from './uniswap_v3_swap_event';
+export { UniswapV3PoolCreatedEvent } from './uniswap_v3_pool_created_event';
 export { EpochEndedEvent } from './epoch_ended_event';
 export { EpochFinalizedEvent } from './epoch_finalized_event';
 export { EventBackfill } from './event_backfill';
