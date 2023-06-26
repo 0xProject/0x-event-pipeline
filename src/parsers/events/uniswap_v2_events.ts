@@ -1,12 +1,14 @@
 const abiCoder = require('web3-eth-abi');
 import { RawLogEntry } from 'ethereum-types';
+import { logger } from '../../utils/logger';
 import { ERC20BridgeTransferEvent, UniswapV2PairCreatedEvent, UniswapV2SyncEvent } from '../../entities';
 
 import { parseEvent } from './parse_event';
 import { UNISWAP_V2_SWAP_ABI, UNISWAP_V2_SYNC_ABI, UNISWAP_V2_PAIR_CREATED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { UniV2PoolSingleton } from '../../uniV2PoolSingleton';
 
-export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent {
+export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent | null {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent
@@ -15,13 +17,25 @@ export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
         eventLog.topics[2],
     ]);
 
+    const uniV2PoolSingleton = UniV2PoolSingleton.getInstance();
+
+    const poolInfo = uniV2PoolSingleton.getPool(eRC20BridgeTransferEvent.contractAddress);
+
+    if (poolInfo === undefined) {
+        logger.error(
+            `Got a Uni v2 VIP trade from an unknown pool, ignoring. Tx: ${eRC20BridgeTransferEvent.transactionHash}, Pool: ${eRC20BridgeTransferEvent.contractAddress}`,
+        );
+        return null;
+    }
+    const { token0, token1, protocol } = poolInfo;
+
     const amount0In = new BigNumber(decodedLog.amount0In);
     const amount1In = new BigNumber(decodedLog.amount1In);
     const amount0Out = new BigNumber(decodedLog.amount0Out);
     const amount1Out = new BigNumber(decodedLog.amount1Out);
 
-    eRC20BridgeTransferEvent.fromToken = amount0In.gt(amount0Out) ? '0' : '1'; // taker_token
-    eRC20BridgeTransferEvent.toToken = amount0In.gt(amount0Out) ? '1' : '0'; // maker_token
+    eRC20BridgeTransferEvent.fromToken = amount0In.gt(amount0Out) ? token0 : token1; // taker_token
+    eRC20BridgeTransferEvent.toToken = amount0In.gt(amount0Out) ? token1 : token0; // maker_token
 
     eRC20BridgeTransferEvent.fromTokenAmount = new BigNumber(
         amount0In.gt(amount0Out) ? amount0In.minus(amount0Out) : amount1In.minus(amount1Out),
@@ -29,10 +43,10 @@ export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(
         amount0In.gt(amount0Out) ? amount1Out.minus(amount1In) : amount0Out.minus(amount0In),
     ); // maker_token_amount
-    eRC20BridgeTransferEvent.from = ''; // maker
+    eRC20BridgeTransferEvent.from = protocol; // maker TODO(jorge): Replace with pool address, after checking downstream impact
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase(); // taker
     eRC20BridgeTransferEvent.directFlag = true;
-    eRC20BridgeTransferEvent.directProtocol = '';
+    eRC20BridgeTransferEvent.directProtocol = protocol;
 
     return eRC20BridgeTransferEvent;
 }

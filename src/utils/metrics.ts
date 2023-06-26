@@ -34,6 +34,12 @@ export const RPC_LOGS_ERROR = new Gauge({
     labelNames: ['type', 'event'],
 });
 
+export const SKIPPED_EVENTS = new Gauge({
+    name: 'event_scraper_skipped_events',
+    help: 'Counter for events that where skipped',
+    labelNames: ['type', 'event'],
+});
+
 export const startMetricsServer = (): void => {
     const defaultLabels = { chain: CHAIN_NAME };
     register.setDefaultLabels(defaultLabels);

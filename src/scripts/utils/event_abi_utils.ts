@@ -12,7 +12,7 @@ import { RawLogEntry } from 'ethereum-types';
 
 import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
-import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
 
 export interface DeleteOptions {
     isDirectTrade?: boolean;
@@ -44,6 +44,7 @@ export class PullAndSaveEventsByTopic {
         parser: (decodedLog: RawLogEntry) => Event,
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
+        callback: (event: Event) => void,
     ): Promise<string[]> {
         let startBlockResponse;
         try {
@@ -91,6 +92,7 @@ export class PullAndSaveEventsByTopic {
                 parser,
                 deleteOptions,
                 tokenMetadataMap,
+                callback,
                 startBlockNumber,
                 endBlockNumber,
                 endBlockHash!,
@@ -114,6 +116,7 @@ export class PullAndSaveEventsByTopic {
         parser: (decodedLog: RawLogEntry) => Event,
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
+        callback: (event: Event) => void,
         startBlockNumber: number,
     ): Promise<BackfillEventsResponse> {
         const endBlockNumber = Math.min(
@@ -143,6 +146,7 @@ export class PullAndSaveEventsByTopic {
             parser,
             deleteOptions,
             tokenMetadataMap,
+            callback,
             startBlockNumber,
             endBlockNumber,
             endBlockHash!,
@@ -165,6 +169,7 @@ export class PullAndSaveEventsByTopic {
         parser: (decodedLog: RawLogEntry) => Event,
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
+        callback: (event: Event) => void,
         startBlockNumber: number,
         endBlockNumber: number,
         endBlockHash: string,
@@ -191,7 +196,13 @@ export class PullAndSaveEventsByTopic {
             let txHashes: string[] = [];
             await Promise.all(
                 rawLogsArray.map(async (rawLogs) => {
-                    const parsedLogs = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
+                    const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
+
+                    const parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
+                    SKIPPED_EVENTS.inc(
+                        { type: scrapingType, event: eventName },
+                        parsedLogsWithSkipped.length - parsedLogs.length,
+                    );
 
                     const reorgedEvents = parsedLogs.filter((log: Event) => {
                         return log.blockNumber == endBlockNumber && log.blockHash != endBlockHash;
@@ -201,63 +212,6 @@ export class PullAndSaveEventsByTopic {
                         throw Error();
                     }
 
-                    if (eventName === 'VIPSwapEvent' && parsedLogs.length > 0) {
-                        const contractCallToken0Array = [];
-                        const contractCallToken1Array = [];
-
-                        const contractCallProtocolNameArray = [];
-
-                        for (const index in parsedLogs) {
-                            const contract_address: string = (parsedLogs[index] as any).contractAddress;
-
-                            const contractCallToken0: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0x0dfe1681',
-                            };
-                            contractCallToken0Array.push(contractCallToken0);
-
-                            const contractCallToken1: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0xd21220a7',
-                            };
-                            contractCallToken1Array.push(contractCallToken1);
-
-                            const contractCallProtocolName: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0x06fdde03',
-                            };
-                            contractCallProtocolNameArray.push(contractCallProtocolName);
-                        }
-
-                        const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
-                        const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
-                        const protocolName = await web3Source.callContractMethodsAsync(contractCallProtocolNameArray);
-
-                        for (let i = 0; i < parsedLogs.length; i++) {
-                            const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
-                            const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
-                            parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
-                            parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
-
-                            const protocolName_i = hexToUtf8('0x' + protocolName[i].slice(98))
-                                .split('LP')[0]
-                                .split(' ')[0]
-                                .slice(1);
-
-                            // Legacy compatibility
-                            if (protocolName_i === 'Uniswap') {
-                                parsedLogs[i].from = 'UniswapV2';
-                                parsedLogs[i].directProtocol = 'UniswapV2';
-                            } else {
-                                parsedLogs[i].from = protocolName_i.includes('Swap')
-                                    ? protocolName_i
-                                    : protocolName_i + 'Swap';
-                                parsedLogs[i].directProtocol = protocolName_i.includes('Swap')
-                                    ? protocolName_i
-                                    : protocolName_i + 'Swap';
-                            }
-                        }
-                    }
                     if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
                         const contractCallToken0Array = [];
                         const contractCallToken1Array = [];

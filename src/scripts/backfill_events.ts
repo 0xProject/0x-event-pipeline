@@ -69,6 +69,7 @@ export class EventsBackfillScraper {
                             props.parser,
                             props.deleteOptions,
                             props.tokenMetadataMap,
+                            props.callback,
                             backfillEventsOldestBlock.get(props.name)!,
                         )
                         .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
