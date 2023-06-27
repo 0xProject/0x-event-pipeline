@@ -71,12 +71,7 @@ createConnection(ormConfig as ConnectionOptions)
         await producer.connect();
         await TokenMetadataSingleton.getInstance(connection, producer);
         await UniV2PoolSingleton.initInstance(connection);
-
-        const uniV2PoolSingleton = UniV2PoolSingleton.getInstance();
-        const poolInfo = uniV2PoolSingleton.getPool('0x1bb1d4ad0a83cbf44f111bb0688c78aa94f4255e');
-
         schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
-
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
         schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
