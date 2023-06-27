@@ -327,10 +327,12 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
 
+            const topic = `event-scraper.${CHAIN_NAME_LOWER}.events.${tableName.replace(/_/g, '-')}.v1`;
+
             if (isBackfill) {
                 await kafkaSendCommandAsync(
                     producer,
-                    `event-scraper.${CHAIN_NAME_LOWER}.events.${tableName.replace(/_/g, '-')}.v0`,
+                    topic,
                     [],
                     [
                         {
@@ -344,12 +346,7 @@ export class PullAndSaveEventsByTopic {
                     ],
                 );
             }
-            await kafkaSendAsync(
-                producer,
-                `event-scraper.${CHAIN_NAME_LOWER}.events.${tableName.replace(/_/g, '-')}.v0`,
-                ['transactionHash', 'logIndex'],
-                toSave,
-            );
+            await kafkaSendAsync(producer, topic, ['transactionHash', 'logIndex'], toSave);
         } catch (err) {
             if (
                 err instanceof QueryFailedError &&
