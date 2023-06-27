@@ -138,6 +138,12 @@ import {
 } from './parsers/events/onchain_governance_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
+import { UniV2PoolSingleton } from './uniV2PoolSingleton';
+
+function uniV2PoolSingletonCallback(pools: UniswapV2PairCreatedEvent[]) {
+    const uniV2PoolSingleton = UniV2PoolSingleton.getInstance();
+    uniV2PoolSingleton.addNewPools(pools);
+}
 
 export type CommonEventParams = {
     connection: Connection;
@@ -156,6 +162,7 @@ export type EventScraperProps = {
     parser: (decodedLog: RawLogEntry) => any;
     deleteOptions: DeleteOptions;
     tokenMetadataMap: TokenMetadataMap;
+    callback: any | null;
 };
 
 export const eventScrperProps: EventScraperProps[] = [
@@ -170,6 +177,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseTransformedERC20Event,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -182,6 +190,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV3VIPSwapEvent,
         deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+        callback: null,
     },
     {
         enabled: FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
@@ -194,6 +203,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseBridgeFill,
         deleteOptions: { isDirectTrade: false },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
@@ -206,6 +216,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV2SwapEvent,
         deleteOptions: { isDirectTrade: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -218,6 +229,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV3SwapEvent,
         deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -230,6 +242,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseV4RfqOrderFilledEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
+        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -242,6 +255,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseNativeFillFromV4RfqOrderFilledEvent,
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -254,6 +268,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseExpiredRfqOrderEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_LIMIT_ORDERS,
@@ -266,6 +281,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseV4LimitOrderFilledEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
+        callback: null,
     },
     {
         enabled: FEAT_LIMIT_ORDERS,
@@ -278,6 +294,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseNativeFillFromV4LimitOrderFilledEvent,
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS,
@@ -290,6 +307,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseV4CancelEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_OTC_ORDERS,
@@ -302,6 +320,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseOtcOrderFilledEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
+        callback: null,
     },
     {
         enabled: FEAT_OTC_ORDERS,
@@ -314,6 +333,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseNativeFillFromV4OtcOrderFilledEvent,
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_V3_FILL_EVENT,
@@ -326,6 +346,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseFillEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
+        callback: null,
     },
     {
         enabled: FEAT_V3_NATIVE_FILL,
@@ -338,6 +359,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseNativeFillFromFillEvent,
         deleteOptions: { protocolVersion: 'v3' },
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -350,6 +372,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc721OrderFilledEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
+        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -362,6 +385,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc721OrderCancelledEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -374,6 +398,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc721OrderPresignedEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
+        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -386,6 +411,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc1155OrderFilledEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
+        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -398,6 +424,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc1155OrderCancelledEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -410,6 +437,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc1155OrderPresignedEvent,
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
+        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V2_SYNC_EVENT,
@@ -422,6 +450,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV2SyncEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_META_TRANSACTION_EXECUTED_EVENT,
@@ -434,6 +463,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseMetaTransactionExecutedEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V3_SWAP_EVENT,
@@ -446,6 +476,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV3SwapEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -459,6 +490,7 @@ export const eventScrperProps: EventScraperProps[] = [
             parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -473,6 +505,7 @@ export const eventScrperProps: EventScraperProps[] = [
             parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -486,6 +519,7 @@ export const eventScrperProps: EventScraperProps[] = [
             parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -499,6 +533,7 @@ export const eventScrperProps: EventScraperProps[] = [
             parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
         deleteOptions: {},
         tokenMetadataMap: null,
+        callback: null,
     },
 ];
 
@@ -519,6 +554,7 @@ for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
         parser: parseLogTransferEvent,
         deleteOptions: { recipient: payment_recipient },
         tokenMetadataMap: null,
+        callback: null,
     });
 }
 
@@ -534,6 +570,7 @@ for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_S
         parser: (decodedLog: RawLogEntry) => parseUniswapV2PairCreatedEvent(decodedLog, protocol.name),
         deleteOptions: { protocol: protocol.name },
         tokenMetadataMap: { tokenA: 'token0', tokenB: 'token1' },
+        callback: uniV2PoolSingletonCallback,
     });
 }
 

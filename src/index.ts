@@ -30,6 +30,7 @@ import { ChainIdChecker } from './scripts/check_chain_id';
 import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { startMetricsServer } from './utils/metrics';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
+import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 
 const kafka = new Kafka({
     clientId: 'event-pipeline',
@@ -69,8 +70,8 @@ createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
         await producer.connect();
         await TokenMetadataSingleton.getInstance(connection, producer);
+        await UniV2PoolSingleton.initInstance(connection);
         schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
-
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
         schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
