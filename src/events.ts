@@ -95,7 +95,7 @@ import {
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
 } from './constants';
 
-import { DeleteOptions } from './scripts/utils/event_abi_utils';
+import { DeleteOptions } from './utils';
 import { parseTransformedERC20Event } from './parsers/events/transformed_erc20_events';
 import {
     parseNativeFillFromV4RfqOrderFilledEvent,

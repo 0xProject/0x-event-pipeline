@@ -1,3 +1,3 @@
 export { logger } from './logger';
 export { chunk, slice } from './chunk';
-export { kafkaSendAsync } from './kafka_send';
+export { DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync } from './kafka_send';
