@@ -292,11 +292,11 @@ export class PullAndSaveEventsByTopic {
 
         let deleteQuery = '';
         if (tableName === 'erc20_bridge_transfer_events') {
-            if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
+            if (deleteOptions.directFlag && deleteOptions.directProtocol != undefined) {
                 deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
                     "','",
                 )}')`;
-            } else if (deleteOptions.isDirectTrade === false) {
+            } else if (deleteOptions.directFlag === false) {
                 deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_flag = FALSE`;
             }
         } else if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {

@@ -8,7 +8,7 @@ export interface SchemaOptions {
 }
 
 export interface DeleteOptions {
-    isDirectTrade?: boolean;
+    directFlag?: boolean;
     directProtocol?: string[];
     protocolVersion?: string;
     nativeOrderType?: string;
