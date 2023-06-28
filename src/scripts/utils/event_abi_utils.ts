@@ -68,6 +68,10 @@ export class PullAndSaveEventsByTopic {
             return [];
         }
 
+        if (reorgLikely) {
+            logger.info(`A reorg probably happened, rescraping blocks ${(startBlockNumber, endBlockNumber)}`);
+        }
+
         return (
             await this._getParseSaveEventsByTopic(
                 connection,
