@@ -69,7 +69,7 @@ export class PullAndSaveEventsByTopic {
         }
 
         if (reorgLikely) {
-            logger.info(`A reorg probably happened, rescraping blocks ${(startBlockNumber, endBlockNumber)}`);
+            logger.info(`A reorg probably happened, rescraping blocks ${startBlockNumber} to ${endBlockNumber}`);
         }
 
         return (
