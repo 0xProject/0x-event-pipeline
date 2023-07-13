@@ -36,9 +36,17 @@ export function parseTransaction(rawTx: RawTx1559): Transaction {
     if (transaction.input.includes('869584cd')) {
         const bytesPos = rawTx.input.indexOf('869584cd');
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
-        const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
-        transaction.quoteTimestamp = isNaN(parsedQuoteTimestamp) ? null : parsedQuoteTimestamp;
-        transaction.quoteId = rawTx.input.slice(bytesPos + 118, bytesPos + 128);
+        const quoteId = rawTx.input.slice(bytesPos + 104, bytesPos + 136);
+        if (quoteId.slice(0, 14) === '00000000000000') {
+            // Pre ZID QR ID
+            const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
+            transaction.quoteTimestamp = isNaN(parsedQuoteTimestamp) ? null : parsedQuoteTimestamp;
+            transaction.quoteId = rawTx.input.slice(bytesPos + 118, bytesPos + 128);
+        } else {
+            // ZID
+            transaction.quoteTimestamp = null;
+            transaction.quoteId = '0x' + quoteId;
+        }
     } else if (transaction.input.includes('fbc019a7')) {
         const bytesPos = rawTx.input.indexOf('fbc019a7');
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
