@@ -66,6 +66,7 @@ import {
     UNISWAP_V3_POOL_CREATED_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
+    UNISWAP_V3_FACTORY_ADDRESS,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -492,7 +493,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tType: UniswapV3PoolCreatedEvent,
         table: 'uniswap_v3_pool_created_events',
         topics: [UNISWAP_V3_POOL_CREATED_TOPIC_0],
-        contractAddress: 'nofilter',
+        contractAddress: UNISWAP_V3_FACTORY_ADDRESS,
         startBlock: UNISWAP_V3_POOL_CREATED_START_BLOCK,
         parser: parseUniswapV3PoolCreatedEvent,
         deleteOptions: {},

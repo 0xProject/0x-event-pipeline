@@ -1,3 +1,4 @@
+import { get } from 'http';
 import {
     DEFAULT_BASE_GITHUB_LOGO_URL,
     DEFAULT_BLOCK_FINALITY_THRESHOLD,
@@ -36,6 +37,7 @@ import {
     DEFAULT_STAKING_POOLS_JSON_URL,
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
     DEFAULT_FEAT_ONCHAIN_GOVERNANCE,
+    DEFAULT_UNISWAP_V3_FACTORY_ADDRESS,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -255,6 +257,8 @@ validateStartBlock(
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
 );
 
+export const UNISWAP_V3_FACTORY_ADDRESS = getStringConfig('UNISWAP_V3_FACTORY_ADDRESS', DEFAULT_UNISWAP_V3_FACTORY_ADDRESS);
+
 export const FEAT_V3_FILL_EVENT = getBoolConfig('FEAT_V3_FILL_EVENT', DEFAULT_FEAT_V3_FILL_EVENT);
 
 export const FEAT_OTC_ORDERS = getBoolConfig('FEAT_OTC_ORDERS', DEFAULT_FEAT_OTC_ORDERS);
@@ -411,6 +415,14 @@ function getIntConfig(env: string, defaultValue: number): number {
         return parseInt(process.env[env]!);
     }
     return defaultValue;
+}
+
+function getStringConfig(env: string, defaultString: string): string {
+    if (Object.prototype.hasOwnProperty.call(process.env, env)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return process.env[env]!;
+    }
+    return defaultString;
 }
 
 function validateStartBlock(startBlockVar: string, startBlock: number, featureFlagVar: string, featureFlag: boolean) {
