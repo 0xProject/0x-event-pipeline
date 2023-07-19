@@ -92,7 +92,9 @@ services:
             MAX_BLOCKS_TO_PULL: 5000
             SECONDS_BETWEEN_RUNS: 1
             FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
-            UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap"
+            UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap,CafeSwap,SwapLiquidity,ApeSwapFinance,CheeseSwap,Swap"
+            FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
+            UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "PancakeSwap:0xca143ce32fe78f1f7019d7d551a6402fc5350c73:6809737,BakerySwap:0x01bf7c66c6bd861915cdaae475042d3c4bae16a7:470617,SushiSwap:0xc35dadb65012ec5796536bd9864ed8773abc74c4:5205069,CafeSwap:0x3e708fdbe3ada63fc94f8f61811196f1302137ad:5865260,SwapLiquidity:0x553990f2cba90272390f62c5bdb1681ffc899675:784352,ApeSwapFinance:0x0841bd0b734e4f5853f0dd8d7ea041c241fb0da6:4855901,CheeseSwap:0xdd538e4fd1b69b7863e1f741213276a6cf1efb3b:1569172"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 15860129
 
