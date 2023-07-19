@@ -12,6 +12,7 @@ import {
     ENABLE_PROMETHEUS_METRICS,
     FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_TX_BACKFILL,
+    FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
     KAFKA_BROKERS,
@@ -70,7 +71,9 @@ createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
         await producer.connect();
         await TokenMetadataSingleton.getInstance(connection, producer);
-        await UniV2PoolSingleton.initInstance(connection);
+        if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
+            await UniV2PoolSingleton.initInstance(connection);
+        }
         schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
