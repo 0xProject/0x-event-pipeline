@@ -7,7 +7,27 @@ export interface SchemaOptions {
     scale: number;
 }
 
-export async function kafkaSendAsync(
+export interface DeleteOptions {
+    directFlag?: boolean;
+    directProtocol?: string[];
+    protocolVersion?: string;
+    nativeOrderType?: string;
+    protocol?: string;
+    recipient?: string;
+}
+
+interface DeleteCommandDetails {
+    startBlockNumber: number;
+    endBlockNumber: number;
+    deleteOptions: DeleteOptions;
+}
+
+export interface CommandMessage {
+    command: 'delete';
+    details: DeleteCommandDetails;
+}
+
+async function kafkaSendRawAsync(
     producer: Producer,
     topic: string,
     keyFields: string[],
@@ -41,4 +61,28 @@ export async function kafkaSendAsync(
     });
 
     logger.info(`Emitted ${payload.length} messages to ${topic}`);
+}
+
+export async function kafkaSendAsync(
+    producer: Producer,
+    topic: string,
+    keyFields: string[],
+    payload: any[],
+): Promise<void> {
+    const dataPayload = payload.map((message) => {
+        return { type: 'data', message };
+    });
+    await kafkaSendRawAsync(producer, topic, keyFields, dataPayload);
+}
+
+export async function kafkaSendCommandAsync(
+    producer: Producer,
+    topic: string,
+    keyFields: string[],
+    payload: CommandMessage[],
+): Promise<void> {
+    const commandPayload = payload.map((message) => {
+        return { type: 'command', message };
+    });
+    await kafkaSendRawAsync(producer, topic, keyFields, commandPayload);
 }

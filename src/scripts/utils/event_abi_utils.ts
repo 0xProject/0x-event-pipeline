@@ -5,7 +5,7 @@ import { BlockWithoutTransactionData } from 'ethereum-types';
 
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event } from '../../entities';
-import { chunk, kafkaSendAsync, logger } from '../../utils';
+import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
 import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
 
 import { RawLogEntry } from 'ethereum-types';
@@ -13,15 +13,6 @@ import { RawLogEntry } from 'ethereum-types';
 import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
-
-export interface DeleteOptions {
-    isDirectTrade?: boolean;
-    directProtocol?: string[];
-    protocolVersion?: string;
-    nativeOrderType?: string;
-    protocol?: string;
-    recipient?: string;
-}
 
 export interface BackfillEventsResponse {
     transactionHashes: string[];
@@ -59,7 +50,7 @@ export class PullAndSaveEventsByTopic {
             logger.error(`${err}, trying next time`);
             return [];
         }
-        const { startBlockNumber, hasLatestBlockChanged } = startBlockResponse;
+        const { startBlockNumber, hasLatestBlockChanged, reorgLikely } = startBlockResponse;
         if (!hasLatestBlockChanged) {
             logger.debug(`No new blocks to scan for ${eventName}, skipping`);
             return [];
@@ -75,6 +66,10 @@ export class PullAndSaveEventsByTopic {
         } catch (err) {
             logger.error(`${err}, trying next time`);
             return [];
+        }
+
+        if (reorgLikely) {
+            logger.info(`A reorg probably happened, rescraping blocks ${startBlockNumber} to ${endBlockNumber}`);
         }
 
         return (
@@ -96,6 +91,7 @@ export class PullAndSaveEventsByTopic {
                 startBlockNumber,
                 endBlockNumber,
                 endBlockHash!,
+                reorgLikely,
                 'event-by-topic',
                 true,
             )
@@ -150,6 +146,7 @@ export class PullAndSaveEventsByTopic {
             startBlockNumber,
             endBlockNumber,
             endBlockHash!,
+            true,
             'event-by-topic-backfill',
             false,
         );
@@ -173,6 +170,7 @@ export class PullAndSaveEventsByTopic {
         startBlockNumber: number,
         endBlockNumber: number,
         endBlockHash: string,
+        isBackfill: boolean,
         scrapingType: string,
         updateLastBlockProcessed: boolean,
     ): Promise<BackfillEventsResponse> {
@@ -265,6 +263,7 @@ export class PullAndSaveEventsByTopic {
                         getLastBlockProcessedEntity(eventName, endBlockNumber, endBlockHash),
                         deleteOptions,
                         updateLastBlockProcessed,
+                        isBackfill,
                     );
                 }),
             );
@@ -287,16 +286,17 @@ export class PullAndSaveEventsByTopic {
         lastBlockProcessed: LastBlockProcessed,
         deleteOptions: DeleteOptions,
         updateLastBlockProcessed: boolean,
+        isBackfill: boolean,
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
         let deleteQuery = '';
         if (tableName === 'erc20_bridge_transfer_events') {
-            if (deleteOptions.isDirectTrade && deleteOptions.directProtocol != undefined) {
+            if (deleteOptions.directFlag && deleteOptions.directProtocol != undefined) {
                 deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
                     "','",
                 )}')`;
-            } else if (deleteOptions.isDirectTrade === false) {
+            } else if (deleteOptions.directFlag === false) {
                 deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_flag = FALSE`;
             }
         } else if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
@@ -331,12 +331,26 @@ export class PullAndSaveEventsByTopic {
             // commit transaction now:
             await queryRunner.commitTransaction();
 
-            await kafkaSendAsync(
-                producer,
-                `event-scraper.${CHAIN_NAME_LOWER}.events.${tableName.replace(/_/g, '-')}.v0`,
-                ['transactionHash', 'logIndex'],
-                toSave,
-            );
+            const topic = `event-scraper.${CHAIN_NAME_LOWER}.events.${tableName.replace(/_/g, '-')}.v1`;
+
+            if (isBackfill) {
+                await kafkaSendCommandAsync(
+                    producer,
+                    topic,
+                    [],
+                    [
+                        {
+                            command: 'delete',
+                            details: {
+                                startBlockNumber: startBlock,
+                                endBlockNumber: endBlock,
+                                deleteOptions,
+                            },
+                        },
+                    ],
+                );
+            }
+            await kafkaSendAsync(producer, topic, ['transactionHash', 'logIndex'], toSave);
         } catch (err) {
             if (
                 err instanceof QueryFailedError &&
@@ -362,7 +376,7 @@ export const getStartBlockAsync = async (
     web3Source: Web3Source,
     currentBlock: BlockWithoutTransactionData,
     defaultStartBlock: number,
-): Promise<{ startBlockNumber: number; hasLatestBlockChanged: boolean }> => {
+): Promise<{ startBlockNumber: number; hasLatestBlockChanged: boolean; reorgLikely: boolean }> => {
     const queryResult = await connection.query(
         `SELECT last_processed_block_number, block_hash FROM ${SCHEMA}.last_block_processed WHERE event_name = '${eventName}'`,
     );
@@ -380,22 +394,26 @@ export const getStartBlockAsync = async (
             return {
                 startBlockNumber: lastKnownBlockNumber - MAX_BLOCKS_REORG,
                 hasLatestBlockChanged: true,
+                reorgLikely: true,
             };
         }
         return {
             startBlockNumber: lastKnownBlockNumber + 1,
             hasLatestBlockChanged: true,
+            reorgLikely: false,
         };
     }
     if (lastKnownBlock.block_hash !== currentBlock.hash) {
         return {
             startBlockNumber: lastKnownBlockNumber - MAX_BLOCKS_REORG,
             hasLatestBlockChanged: true,
+            reorgLikely: true,
         };
     }
     return {
         startBlockNumber: -1,
         hasLatestBlockChanged: false,
+        reorgLikely: false,
     };
 };
 
