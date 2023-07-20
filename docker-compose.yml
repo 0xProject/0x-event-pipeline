@@ -235,6 +235,25 @@ services:
             KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
 
+    event-pipeline-base:
+        depends_on:
+            - postgres
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        restart: always
+        environment:
+            ETHEREUM_RPC_URL: '${RPC_URL_BASE}'
+            CHAIN_ID: '8453'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            SCHEMA: 'events_base'
+            EP_DEPLOYMENT_BLOCK: 1410394
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 1000
+            SECONDS_BETWEEN_RUNS: 30
+            FEAT_NFT: "true"
+            NFT_FEATURE_START_BLOCK: 1410394
+
     token-scraper-ethereum:
         depends_on:
             - postgres
