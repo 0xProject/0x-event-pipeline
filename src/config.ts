@@ -52,6 +52,7 @@ const supportedChains: Map = {
     56: { name: 'BSC' },
     137: { name: 'Polygon' },
     250: { name: 'Fantom' },
+    8453: { name: 'Base' },
     42161: { name: 'Arbitrum' },
     43114: { name: 'Avalanche' },
     42220: { name: 'Celo' },
