@@ -7,16 +7,13 @@
         "build": "yarn tsc -b",
         "dev": "nodemon -r dotenv/config src/index.ts | pino-pretty",
         "start": "node lib/src/index.js",
-        "test": "yarn run_mocha",
+        "test": "yarn jest",
         "migrate_and_start": "yarn migrate:run && yarn start",
         "rebuild_and_test": "run-s build test:all",
-        "test:db": "yarn run_mocha:db",
         "test:all": "run-s test test:db",
         "test:circleci": "yarn test:coverage",
         "prettier": "prettier --write '{src,migrations}/**/*.{ts,tsx,json,md}'",
         "prettier:ci": "prettier --list-different '{src,migrations}/**/*.{ts,tsx,json,md}'",
-        "run_mocha": "mocha --require source-map-support/register --require make-promises-safe 'lib/test/**/*.test.js' --bail --exit",
-        "run_mocha:db": "mocha --require source-map-support/register --require make-promises-safe lib/test/db_global_hooks.js 'lib/test/**/*.test.js' --bail --exit --timeout 60000",
         "test:coverage": "nyc npm run test:all --all && yarn coverage:report:lcov",
         "coverage:report:lcov": "nyc report --reporter=text-lcov > coverage/lcov.info",
         "clean": "rm -rf lib",
@@ -26,7 +23,7 @@
         "migrate:create": "yarn typeorm migration:create --config ./lib/src/ormconfig --dir migrations"
     },
     "devDependencies": {
-        "@types/mocha": "^8.2.2",
+        "@types/jest": "^29.1.1",
         "@types/node": "^8.0.29",
         "@types/node-cron": "^2.0.2",
         "@typescript-eslint/eslint-plugin": "^4.29.0",
@@ -35,9 +32,11 @@
         "eslint-config-prettier": "^8.8.0",
         "eslint-import-resolver-typescript": "^3.5.5",
         "eslint-plugin-import": "^2.27.5",
+        "jest": "^29.5.0",
         "make-promises-safe": "^5.1.0",
         "nodemon": "^2.0.12",
         "prettier": "^2.4.1",
+        "ts-jest": "^29.1.1",
         "ts-node": "3.3.0"
     },
     "dependencies": {
