@@ -1,7 +1,7 @@
 import { Producer } from 'kafkajs';
 import { BigNumber } from '@0x/utils';
 import { hexToUtf8 } from 'web3-utils';
-import { chunk, kafkaSendAsync, logger } from '../../utils';
+import { chunk, kafkaSendRawAsync, logger } from '../../utils';
 import { Connection, InsertResult } from 'typeorm';
 import { Block, TokenMetadata, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import {
@@ -93,7 +93,7 @@ export class PullAndSaveWeb3 {
             logger.info(`saving ${parsedBlocks.length} blocks`);
 
             await this._deleteOverlapAndSaveBlocksAsync(connection, parsedBlocks, startBlock, endBlock, tableName);
-            await kafkaSendAsync(
+            await kafkaSendRawAsync(
                 producer,
                 `event-scraper.${CHAIN_NAME_LOWER}.blocks.v0`,
                 ['blockNumber'],
@@ -678,19 +678,19 @@ export async function getParseSaveTxAsync(
         await queryRunner.commitTransaction();
         queryRunner.release();
 
-        await kafkaSendAsync(
+        await kafkaSendRawAsync(
             producer,
             `event-scraper.${CHAIN_NAME_LOWER}.transactions.transactions.v0`,
             ['transactionHash'],
             txData.parsedTxs,
         );
-        await kafkaSendAsync(
+        await kafkaSendRawAsync(
             producer,
             `event-scraper.${CHAIN_NAME_LOWER}.transactions.receipts.v0`,
             ['transactionHash'],
             txData.parsedReceipts,
         );
-        await kafkaSendAsync(
+        await kafkaSendRawAsync(
             producer,
             `event-scraper.${CHAIN_NAME_LOWER}.transactions.logs.v0`,
             ['transactionHash'],

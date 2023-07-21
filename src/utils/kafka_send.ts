@@ -27,7 +27,7 @@ export interface CommandMessage {
     details: DeleteCommandDetails;
 }
 
-async function kafkaSendRawAsync(
+export async function kafkaSendRawAsync(
     producer: Producer,
     topic: string,
     keyFields: string[],
