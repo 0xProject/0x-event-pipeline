@@ -128,32 +128,6 @@ create table events_base.transaction_logs
   primary key (transaction_hash)
 );
 
-create table events_base.v4_rfq_order_filled_events
-(
-  observed_timestamp bigint not null,
-  contract_address varchar not null,
-  transaction_hash varchar not null,
-  transaction_index bigint not null,
-  log_index bigint not null,
-  block_hash varchar not null,
-  block_number bigint not null,
-  order_hash varchar not null,
-  maker varchar not null,
-  taker varchar not null,
-  maker_token varchar not null,
-  taker_token varchar not null,
-  maker_token_filled_amount numeric not null,
-  taker_token_filled_amount numeric not null,
-  pool varchar not null,
-  primary key (transaction_hash, log_index)
-);
-create index rfq_order_fills_v4_transaction_hash_index
-  on events_base.v4_rfq_order_filled_events (transaction_hash);
-create index rfq_order_fills_v4_block_number_index
-  on events_base.v4_rfq_order_filled_events (block_number);
-create index rfq_order_fills_v4_maker_index
-  on events_base.v4_rfq_order_filled_events (maker);
-
 create table events_base.v4_limit_order_filled_events
 (
   observed_timestamp bigint not null,

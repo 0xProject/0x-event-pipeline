@@ -253,6 +253,10 @@ services:
             SECONDS_BETWEEN_RUNS: 30
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 1410394
+            KAFKA_BROKERS: '${KAFKA_BROKERS}'
+            KAFKA_SSL: '${KAFKA_SSL}'
+            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
 
     token-scraper-ethereum:
         depends_on:
