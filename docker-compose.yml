@@ -256,10 +256,6 @@ services:
             EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 4050733
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
 
     event-pipeline-base:
         depends_on:
@@ -275,8 +271,8 @@ services:
             SCHEMA: 'events_base'
             EP_DEPLOYMENT_BLOCK: 1410394
             MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 30
+            MAX_BLOCKS_TO_PULL: 100
+            SECONDS_BETWEEN_RUNS: 1
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 1410394
             KAFKA_BROKERS: '${KAFKA_BROKERS}'
