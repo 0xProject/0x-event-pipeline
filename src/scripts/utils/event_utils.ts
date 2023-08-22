@@ -20,13 +20,20 @@ export class PullAndSaveEvents {
         getterFunction: (startBlockNumber: number, endBlock: number) => Promise<LogWithDecodedArgs<ARGS>[] | null>,
         parser: (decodedLog: LogWithDecodedArgs<ARGS>) => EVENT,
     ): Promise<void> {
-        const { startBlockNumber, hasLatestBlockChanged } = await getStartBlockAsync(
-            eventName,
-            connection,
-            web3Source,
-            currentBlock,
-            FIRST_SEARCH_BLOCK,
-        );
+        let startBlockResponse;
+        try {
+            startBlockResponse = await getStartBlockAsync(
+                eventName,
+                connection,
+                web3Source,
+                currentBlock,
+                FIRST_SEARCH_BLOCK,
+            );
+        } catch (err) {
+            logger.error(`${err}, trying next time`);
+            return;
+        }
+        const { startBlockNumber, hasLatestBlockChanged } = startBlockResponse;
 
         if (!hasLatestBlockChanged) {
             logger.debug(`No new blocks to scan for ${eventName}, skipping`);

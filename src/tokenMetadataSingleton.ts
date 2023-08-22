@@ -31,7 +31,7 @@ export class TokenMetadataSingleton {
                 .limit(10000) // Do not get all tokens, they don't fit in memory
                 .getMany();
             TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
-            kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v0`, ['address'], tmp);
+            kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v1`, ['address'], tmp);
         }
         return TokenMetadataSingleton.instance;
     }

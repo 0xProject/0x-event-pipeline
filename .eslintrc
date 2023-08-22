@@ -9,7 +9,7 @@
         "lib/*"
     ],
     "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint", "eslint-plugin-import"],
+    "plugins": ["@typescript-eslint", "import", "jest"],
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",

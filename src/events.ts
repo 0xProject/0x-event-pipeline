@@ -100,7 +100,7 @@ import {
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
 } from './constants';
 
-import { DeleteOptions } from './scripts/utils/event_abi_utils';
+import { DeleteOptions } from './utils';
 import { parseTransformedERC20Event } from './parsers/events/transformed_erc20_events';
 import {
     parseNativeFillFromV4RfqOrderFilledEvent,
@@ -197,7 +197,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV3VIPSwapEvent,
-        deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
+        deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
     },
@@ -210,7 +210,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV3SwapEvent,
-        deleteOptions: { isDirectTrade: true, directProtocol: ['UniswapV3'] },
+        deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
     },
@@ -223,7 +223,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: FLASHWALLET_ADDRESS,
         startBlock: FLASHWALLET_DEPLOYMENT_BLOCK,
         parser: parseBridgeFill,
-        deleteOptions: { isDirectTrade: false },
+        deleteOptions: { directFlag: false },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
     },
@@ -236,7 +236,20 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V2_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV2SwapEvent,
-        deleteOptions: { isDirectTrade: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
+        deleteOptions: { directFlag: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
+        tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+        callback: null,
+    },
+    {
+        enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+        name: 'UniswapV3VIPEvent',
+        tType: ERC20BridgeTransferEvent,
+        table: 'erc20_bridge_transfer_events',
+        topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
+        contractAddress: 'nofilter',
+        startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
+        parser: parseUniswapV3SwapEvent,
+        deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
     },
