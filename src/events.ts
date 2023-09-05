@@ -37,6 +37,7 @@ import {
     FEAT_NFT,
     FEAT_ONCHAIN_GOVERNANCE,
     FEAT_OTC_ORDERS,
+    FEAT_PLP_SWAP_EVENT,
     FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
     FEAT_TRANSFORMED_ERC20_EVENT,
@@ -54,6 +55,7 @@ import {
     NFT_FEATURE_START_BLOCK,
     ONCHAIN_GOVERNANCE_START_BLOCK,
     OTC_ORDERS_FEATURE_START_BLOCK,
+    PLP_VIP_START_BLOCK,
     POLYGON_RFQM_PAYMENTS_ADDRESSES,
     POLYGON_RFQM_PAYMENTS_START_BLOCK,
     UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS,
@@ -74,6 +76,7 @@ import {
     ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     LIMITORDERFILLED_EVENT_TOPIC,
+    LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
     META_TRANSACTION_EXECUTED_EVENT_TOPIC,
     ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
@@ -129,6 +132,7 @@ import {
 } from './parsers/events/nft_events';
 
 import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
+import { parseLiquidityProviderSwapEvent } from './parsers/events/liquidity_provider_swap_events';
 import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
 import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
 
@@ -228,6 +232,19 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV3SwapEvent,
         deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
+        tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
+        callback: null,
+    },
+    {
+        enabled: FEAT_PLP_SWAP_EVENT,
+        name: 'LiquidityProviderSwapEvent',
+        tType: ERC20BridgeTransferEvent,
+        table: 'erc20_bridge_transfer_events',
+        topics: LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
+        contractAddress: EP_ADDRESS,
+        startBlock: PLP_VIP_START_BLOCK,
+        parser: parseLiquidityProviderSwapEvent,
+        deleteOptions: { directFlag: true, directProtocol: ['PLP'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
     },
