@@ -11,7 +11,6 @@ import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
     FEAT_TOKENS_FROM_TRANSFERS,
-    FEAT_TX_BACKFILL,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
@@ -78,14 +77,12 @@ createConnection(ormConfig as ConnectionOptions)
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
         schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
-        if (FEAT_TX_BACKFILL) {
-            schedule(
-                connection,
-                producer,
-                backfillTxScraper.getParseSaveTxBackfillAsync,
-                'Pull and Save Backfill Transactions',
-            );
-        }
+        schedule(
+            connection,
+            producer,
+            backfillTxScraper.getParseSaveTxBackfillAsync,
+            'Pull and Save Backfill Transactions',
+        );
         if (CHAIN_ID === 1) {
             schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
         }

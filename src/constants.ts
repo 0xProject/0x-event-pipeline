@@ -25,7 +25,6 @@ export const DEFAULT_FEAT_POLYGON_RFQM_PAYMENTS = false;
 export const DEFAULT_FEAT_RFQ_EVENT = false;
 export const DEFAULT_FEAT_STAKING = false;
 export const DEFAULT_FEAT_TRANSFORMED_ERC20_EVENT = true;
-export const DEFAULT_FEAT_TX_BACKFILL = false;
 export const DEFAULT_FEAT_UNISWAP_V2_PAIR_CREATED_EVENT = false;
 export const DEFAULT_FEAT_UNISWAP_V2_SYNC_EVENT = false;
 export const DEFAULT_FEAT_UNISWAP_V2_VIP_SWAP_EVENT = false;
