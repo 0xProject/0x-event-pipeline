@@ -29,6 +29,8 @@ export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     }
     const { token0, token1, protocol } = poolInfo;
 
+    const protocolName = protocol.split('!')[0];
+
     const amount0In = new BigNumber(decodedLog.amount0In);
     const amount1In = new BigNumber(decodedLog.amount1In);
     const amount0Out = new BigNumber(decodedLog.amount0Out);
@@ -43,10 +45,10 @@ export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     eRC20BridgeTransferEvent.toTokenAmount = new BigNumber(
         amount0In.gt(amount0Out) ? amount1Out.minus(amount1In) : amount0Out.minus(amount0In),
     ); // maker_token_amount
-    eRC20BridgeTransferEvent.from = protocol; // maker TODO(jorge): Replace with pool address, after checking downstream impact
+    eRC20BridgeTransferEvent.from = protocolName; // maker TODO(jorge): Replace with pool address, after checking downstream impact
     eRC20BridgeTransferEvent.to = decodedLog.to.toLowerCase(); // taker
     eRC20BridgeTransferEvent.directFlag = true;
-    eRC20BridgeTransferEvent.directProtocol = protocol;
+    eRC20BridgeTransferEvent.directProtocol = protocolName;
 
     return eRC20BridgeTransferEvent;
 }
