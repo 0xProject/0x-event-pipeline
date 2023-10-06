@@ -56,7 +56,7 @@ const dropUnwrapETHEventIndexQuery = `
   DROP INDEX events.unwrap_eth_events_block_number_index;
 `;
 
-export class CreateOnchainGovernanceEventTable1683558341000 implements MigrationInterface {
+export class CreateWrapUnwrapETHEventsTable1696555657000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.createTable(wrapETHEvent);
         await queryRunner.query(createWrapETHEventIndexQuery);
