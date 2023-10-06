@@ -993,3 +993,23 @@ export const ONCHAIN_GOVERNANCE_CALL_SCHEDULED_ABI = {
     name: 'CallScheduled',
     type: 'event',
 };
+
+export const WRAP_ETH_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, name: 'dst', type: 'address' },
+        { indexed: false, name: 'wad', type: 'uint256' },
+    ],
+    name: 'Deposit',
+    type: 'event',
+};
+
+export const UNWRAP_ETH_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, name: 'src', type: 'address' },
+        { indexed: false, name: 'wad', type: 'uint256' },
+    ],
+    name: 'Withdrawal',
+    type: 'event',
+};

@@ -26,6 +26,8 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    WrapETHEvent,
+    UnwrapETHEvent,
 } from './entities';
 
 import {
@@ -46,6 +48,7 @@ import {
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    FEAT_WRAP_UNWRAP_ETH_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
@@ -65,7 +68,9 @@ import {
     UNISWAP_V3_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
+    WRAP_UNWRAP_ETH_START_BLOCK,
 } from './config';
+
 import {
     BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -96,6 +101,9 @@ import {
     V4_CANCEL_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+    WRAP_ETH_EVENT_TOPIC,
+    UNWRAP_ETH_EVENT_TOPIC,
+    WRAP_UNWRAP_ETH_CONTRACT_ADDRESS,
 } from './constants';
 
 import { DeleteOptions } from './utils';
@@ -140,6 +148,11 @@ import {
     parseOnchainGovernanceProposalCreatedEvent,
     parseOnchainGovernanceCallScheduledEvent,
 } from './parsers/events/onchain_governance_events';
+
+import {
+    parseWrapETHEvent,
+    parseUnwrapETHEvent,
+} from './parsers/events/wrap_unwrap_eth_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
@@ -548,6 +561,32 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
         parser: (decodedLog: RawLogEntry) =>
             parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_ETH_EVENT,
+        name: 'WrapETHEvent',
+        tType: WrapETHEvent,
+        table: 'wrap_eth_events',
+        topics: WRAP_ETH_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_ETH_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_ETH_START_BLOCK,
+        parser: parseWrapETHEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_ETH_EVENT,
+        name: 'UnwrapETHEvent',
+        tType: UnwrapETHEvent,
+        table: 'unwrap_eth_events',
+        topics: UNWRAP_ETH_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_ETH_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_ETH_START_BLOCK,
+        parser: parseUnwrapETHEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,

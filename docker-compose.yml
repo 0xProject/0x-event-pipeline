@@ -69,6 +69,8 @@ services:
             UNISWAP_V2_SYNC_START_BLOCK: 10000835
             FEAT_ONCHAIN_GOVERNANCE: "true"
             ONCHAIN_GOVERNANCE_START_BLOCK: 16990159
+            FEAT_WRAP_UNWRAP_ETH_EVENT: "true"
+            WRAP_UNWRAP_ETH_START_BLOCK: 18287970
 
     event-pipeline-bsc:
         depends_on:
