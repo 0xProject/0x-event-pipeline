@@ -57,6 +57,7 @@ export class EventsByTopicScraper {
                     ),
                 );
             }
+            console.log(props.name);
         });
 
         const txHashes = [

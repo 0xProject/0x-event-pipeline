@@ -34,7 +34,8 @@ import {
     DEFAULT_STAKING_POOLS_JSON_URL,
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
     DEFAULT_FEAT_ONCHAIN_GOVERNANCE,
-    DEFAULT_FEAT_WRAP_UNWRAP_ETH_EVENT,
+    DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+    DEFAULT_WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -375,19 +376,21 @@ validateStartBlock(
     DEFAULT_FEAT_ONCHAIN_GOVERNANCE,
 );
 
-export const FEAT_WRAP_UNWRAP_ETH_EVENT = getBoolConfig(
-    'FEAT_WRAP_UNWRAP_ETH_EVENT',
-    DEFAULT_FEAT_WRAP_UNWRAP_ETH_EVENT,
+export const FEAT_WRAP_UNWRAP_NATIVE_EVENT = getBoolConfig(
+    'FEAT_WRAP_UNWRAP_NATIVE_EVENT',
+    DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
 );
 
-export const WRAP_UNWRAP_ETH_START_BLOCK = getIntConfig('WRAP_UNWRAP_ETH_START_BLOCK', -1);
+export const WRAP_UNWRAP_NATIVE_START_BLOCK = getIntConfig('WRAP_UNWRAP_NATIVE_START_BLOCK', -1);
 
 validateStartBlock(
-    'WRAP_UNWRAP_ETH_START_BLOCK',
-    WRAP_UNWRAP_ETH_START_BLOCK,
-    'FEAT_WRAP_UNWRAP_ETH_EVENT',
-    FEAT_WRAP_UNWRAP_ETH_EVENT,
+    'WRAP_UNWRAP_NATIVE_START_BLOCK',
+    WRAP_UNWRAP_NATIVE_START_BLOCK,
+    'FEAT_WRAP_UNWRAP_NATIVE_EVENT',
+    DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
 );
+
+export const WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS = process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS ? process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS : DEFAULT_WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS;
 
 export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : [];
 if (KAFKA_BROKERS.length === 0) {
@@ -418,4 +421,6 @@ function validateStartBlock(startBlockVar: string, startBlock: number, featureFl
             `${featureFlagVar} is enabled but ${startBlockVar} is not set. Please set ${startBlockVar} or disable the feature`,
         );
     }
+    console.log(startBlock)
+    console.log(featureFlag)
 }

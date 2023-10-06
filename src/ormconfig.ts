@@ -50,8 +50,8 @@ import {
     V4RfqOrderFilledEvent,
     OnchainGovernanceProposalCreatedEvent,
     OnchainGovernanceCallScheduledEvent,
-    WrapETHEvent,
-    UnwrapETHEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 } from './entities';
 
 const entities = [
@@ -102,8 +102,8 @@ const entities = [
     V4RfqOrderFilledEvent,
     OnchainGovernanceProposalCreatedEvent,
     OnchainGovernanceCallScheduledEvent,
-    WrapETHEvent,
-    UnwrapETHEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 ];
 
 const config: ConnectionOptions = {

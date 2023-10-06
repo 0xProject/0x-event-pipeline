@@ -26,8 +26,8 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
-    WrapETHEvent,
-    UnwrapETHEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 } from './entities';
 
 import {
@@ -48,7 +48,7 @@ import {
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
-    FEAT_WRAP_UNWRAP_ETH_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
@@ -68,7 +68,8 @@ import {
     UNISWAP_V3_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
-    WRAP_UNWRAP_ETH_START_BLOCK,
+    WRAP_UNWRAP_NATIVE_START_BLOCK,
+    WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
 } from './config';
 
 import {
@@ -101,9 +102,8 @@ import {
     V4_CANCEL_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
-    WRAP_ETH_EVENT_TOPIC,
-    UNWRAP_ETH_EVENT_TOPIC,
-    WRAP_UNWRAP_ETH_CONTRACT_ADDRESS,
+    WRAP_NATIVE_EVENT_TOPIC,
+    UNWRAP_NATIVE_EVENT_TOPIC,
 } from './constants';
 
 import { DeleteOptions } from './utils';
@@ -149,10 +149,7 @@ import {
     parseOnchainGovernanceCallScheduledEvent,
 } from './parsers/events/onchain_governance_events';
 
-import {
-    parseWrapETHEvent,
-    parseUnwrapETHEvent,
-} from './parsers/events/wrap_unwrap_eth_events';
+import { parseWrapNativeEvent, parseUnwrapNativeEvent } from './parsers/events/wrap_unwrap_native_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
@@ -566,27 +563,27 @@ export const eventScrperProps: EventScraperProps[] = [
         callback: null,
     },
     {
-        enabled: FEAT_WRAP_UNWRAP_ETH_EVENT,
-        name: 'WrapETHEvent',
-        tType: WrapETHEvent,
-        table: 'wrap_eth_events',
-        topics: WRAP_ETH_EVENT_TOPIC,
-        contractAddress: WRAP_UNWRAP_ETH_CONTRACT_ADDRESS,
-        startBlock: WRAP_UNWRAP_ETH_START_BLOCK,
-        parser: parseWrapETHEvent,
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'WrapNativeEvent',
+        tType: WrapNativeEvent,
+        table: 'wrap_native_events',
+        topics: WRAP_NATIVE_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseWrapNativeEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
     },
     {
-        enabled: FEAT_WRAP_UNWRAP_ETH_EVENT,
-        name: 'UnwrapETHEvent',
-        tType: UnwrapETHEvent,
-        table: 'unwrap_eth_events',
-        topics: UNWRAP_ETH_EVENT_TOPIC,
-        contractAddress: WRAP_UNWRAP_ETH_CONTRACT_ADDRESS,
-        startBlock: WRAP_UNWRAP_ETH_START_BLOCK,
-        parser: parseUnwrapETHEvent,
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'UnwrapNativeEvent',
+        tType: UnwrapNativeEvent,
+        table: 'unwrap_native_events',
+        topics: UNWRAP_NATIVE_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseUnwrapNativeEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,

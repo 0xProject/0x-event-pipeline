@@ -269,6 +269,7 @@ export class PullAndSaveEventsByTopic {
             );
             return { transactionHashes: txHashes, startBlockNumber, endBlockNumber };
         } catch (err) {
+            logger.error(err)
             logger.error(`Failed to get logs for ${eventName}, retrying next time`);
             RPC_LOGS_ERROR.inc({ type: scrapingType, event: eventName });
             return { transactionHashes: [], startBlockNumber: null, endBlockNumber: null };

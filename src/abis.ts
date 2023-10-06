@@ -994,21 +994,21 @@ export const ONCHAIN_GOVERNANCE_CALL_SCHEDULED_ABI = {
     type: 'event',
 };
 
-export const WRAP_ETH_ABI = {
+export const WRAP_NATIVE_ABI = {
     anonymous: false,
     inputs: [
-        { indexed: true, name: 'dst', type: 'address' },
-        { indexed: false, name: 'wad', type: 'uint256' },
+        { indexed: true, internalType: 'address', name: 'dst', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'wad', type: 'uint256' },
     ],
     name: 'Deposit',
     type: 'event',
 };
 
-export const UNWRAP_ETH_ABI = {
+export const UNWRAP_NATIVE_ABI = {
     anonymous: false,
     inputs: [
-        { indexed: true, name: 'src', type: 'address' },
-        { indexed: false, name: 'wad', type: 'uint256' },
+        { indexed: true, internalType: 'address', name: 'src', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'wad', type: 'uint256' },
     ],
     name: 'Withdrawal',
     type: 'event',
