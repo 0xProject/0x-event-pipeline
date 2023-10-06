@@ -21,7 +21,7 @@ services:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
