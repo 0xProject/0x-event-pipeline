@@ -11,7 +11,7 @@ const wrapNativeEvent = new Table({
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'dst', type: 'varchar' },
-        { name: 'wad', type: 'bigint' },
+        { name: 'wad', type: 'numeric' },
     ],
 });
 
@@ -39,7 +39,7 @@ const unwrapNativeEvent = new Table({
         { name: 'block_hash', type: 'varchar' },
         { name: 'block_number', type: 'bigint' },
         { name: 'src', type: 'varchar' },
-        { name: 'wad', type: 'bigint' },
+        { name: 'wad', type: 'numeric' },
     ],
 });
 

@@ -390,7 +390,9 @@ validateStartBlock(
     DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
 );
 
-export const WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS = process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS ? process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS : DEFAULT_WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS;
+export const WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS = process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS
+    ? process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS
+    : DEFAULT_WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS;
 
 export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : [];
 if (KAFKA_BROKERS.length === 0) {
@@ -421,6 +423,4 @@ function validateStartBlock(startBlockVar: string, startBlock: number, featureFl
             `${featureFlagVar} is enabled but ${startBlockVar} is not set. Please set ${startBlockVar} or disable the feature`,
         );
     }
-    console.log(startBlock)
-    console.log(featureFlag)
 }
