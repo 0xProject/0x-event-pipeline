@@ -21,7 +21,7 @@ services:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
@@ -78,7 +78,7 @@ services:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_BSC}'
@@ -102,14 +102,13 @@ services:
             NFT_FEATURE_START_BLOCK: 15860129
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_START_BLOCK: 5375047
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
 
     event-pipeline-polygon:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_POLYGON}'
@@ -137,14 +136,13 @@ services:
             META_TRANSACTION_EXECUTED_START_BLOCK: 39406300
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_START_BLOCK: 14391480
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
 
     event-pipeline-avalanche:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_AVALANCHE}'
@@ -167,15 +165,13 @@ services:
             NFT_FEATURE_START_BLOCK: 11816835
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_START_BLOCK: 3601700
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
-
 
     event-pipeline-fantom:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_FANTOM}'
@@ -199,14 +195,13 @@ services:
             NFT_FEATURE_START_BLOCK: 32817445
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_START_BLOCK: 18855765
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
 
     event-pipeline-celo:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_CELO}'
@@ -224,13 +219,15 @@ services:
             MINUTES_BETWEEN_RUNS: 1
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11820000
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_START_BLOCK: 9350111
 
     event-pipeline-optimism:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_OPTIMISM}'
@@ -257,7 +254,7 @@ services:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ARBITRUM}'
@@ -277,14 +274,13 @@ services:
             NFT_FEATURE_START_BLOCK: 4050733
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_START_BLOCK: 4050733
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
 
     event-pipeline-base:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_BASE}'
@@ -303,14 +299,13 @@ services:
             KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_START_BLOCK: 1410394
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
 
     token-scraper-ethereum:
         depends_on:
             - postgres
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         restart: always
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
