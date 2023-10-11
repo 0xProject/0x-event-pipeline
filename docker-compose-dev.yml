@@ -193,7 +193,7 @@ services:
             FLASHWALLET_DEPLOYMENT_BLOCK: 18855797
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 32817445
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
 
     event-pipeline-celo:
@@ -269,7 +269,7 @@ services:
             EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 4050733
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
 
     event-pipeline-base:

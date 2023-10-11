@@ -49,6 +49,7 @@ import {
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
@@ -595,7 +596,7 @@ export const eventScrperProps: EventScraperProps[] = [
         callback: null,
     },
     {
-        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
         name: 'WrapNativeTransferEvent',
         tType: WrapNativeEvent,
         table: 'wrap_native_events',
@@ -608,7 +609,7 @@ export const eventScrperProps: EventScraperProps[] = [
         callback: null,
     },
     {
-        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
         name: 'UnwrapNativeTransferEvent',
         tType: UnwrapNativeEvent,
         table: 'unwrap_native_events',
