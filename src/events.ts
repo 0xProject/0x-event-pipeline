@@ -104,6 +104,7 @@ import {
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
     WRAP_NATIVE_EVENT_TOPIC,
     UNWRAP_NATIVE_EVENT_TOPIC,
+    TRANSFER_EVENT_TOPIC_0,
 } from './constants';
 
 import { DeleteOptions } from './utils';
@@ -149,7 +150,12 @@ import {
     parseOnchainGovernanceCallScheduledEvent,
 } from './parsers/events/onchain_governance_events';
 
-import { parseWrapNativeEvent, parseUnwrapNativeEvent } from './parsers/events/wrap_unwrap_native_events';
+import {
+    parseWrapNativeEvent,
+    parseUnwrapNativeEvent,
+    parseWrapNativeTransferEvent,
+    parseUnwrapNativeTransferEvent,
+} from './parsers/events/wrap_unwrap_native_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
@@ -584,6 +590,32 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'WrapNativeTransferEvent',
+        tType: WrapNativeEvent,
+        table: 'wrap_native_events',
+        topics: [TRANSFER_EVENT_TOPIC_0, '0x0000000000000000000000000000000000000000000000000000000000000000', null],
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseWrapNativeTransferEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'UnwrapNativeTransferEvent',
+        tType: UnwrapNativeEvent,
+        table: 'unwrap_native_events',
+        topics: [TRANSFER_EVENT_TOPIC_0, null, '0x0000000000000000000000000000000000000000000000000000000000000000'],
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseUnwrapNativeTransferEvent,
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,

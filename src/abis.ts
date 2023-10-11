@@ -1012,3 +1012,15 @@ export const UNWRAP_NATIVE_ABI = {
     name: 'Withdrawal',
     type: 'event',
 };
+
+// The ABI for the `Transfer` event of the ERC20 and ERC721 token contract.
+export const TRANSFER_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'from', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'to', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'value', type: 'uint256' },
+    ],
+    name: 'Transfer',
+    type: 'event',
+};
