@@ -35,7 +35,6 @@ import {
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
     DEFAULT_FEAT_ONCHAIN_GOVERNANCE,
     DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
-    DEFAULT_WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
 } from './constants';
 
 const throwError = (err: string) => {
@@ -265,10 +264,13 @@ export const FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET = getBoolConfig(
     DEFAULT_FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
 );
 
-export const FLASHWALLET_ADDRESS = process.env.FLASHWALLET_ADDRESS ? process.env.FLASHWALLET_ADDRESS : '';
-if (FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET && FLASHWALLET_ADDRESS === '') {
-    throwError(`FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET is enabled, but no FLASHWALLET_ADDRESS was provided`);
-}
+export const FLASHWALLET_ADDRESS = process.env.FLASHWALLET_ADDRESS || '';
+validateAddress(
+    'FLASHWALLET_ADDRESS',
+    FLASHWALLET_ADDRESS,
+    'FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET',
+    FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
+);
 
 export const FLASHWALLET_DEPLOYMENT_BLOCK = getIntConfig('FLASHWALLET_DEPLOYMENT_BLOCK', -1);
 validateStartBlock(
@@ -390,9 +392,13 @@ validateStartBlock(
     DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
 );
 
-export const WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS = process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS
-    ? process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS
-    : DEFAULT_WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS;
+export const WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS = process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS || '';
+validateAddress(
+    'WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS',
+    WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+    'FEAT_WRAP_UNWRAP_NATIVE_EVENT',
+    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+);
 
 export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : [];
 if (KAFKA_BROKERS.length === 0) {
@@ -421,6 +427,14 @@ function validateStartBlock(startBlockVar: string, startBlock: number, featureFl
     if (startBlock === -1 && featureFlag) {
         throwError(
             `${featureFlagVar} is enabled but ${startBlockVar} is not set. Please set ${startBlockVar} or disable the feature`,
+        );
+    }
+}
+
+function validateAddress(addressVar: string, address: string, featureFlagVar: string, featureFlag: boolean) {
+    if (address === '' && featureFlag) {
+        throwError(
+            `${featureFlagVar} is enabled but ${addressVar} is not set. Please set ${addressVar} or disable the feature`,
         );
     }
 }
