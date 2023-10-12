@@ -33,7 +33,7 @@ export async function kafkaSendRawAsync(
     keyFields: string[],
     payload: any[],
 ): Promise<void> {
-    const MAX_SIZE = 400000;
+    const MAX_SIZE = 100000;
 
     let currentSize = 0;
     let messages = [];
