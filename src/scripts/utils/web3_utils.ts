@@ -37,13 +37,13 @@ export type TokenMetadataMap = {
 export type TxDetailsType = {
     parsedTxs: Transaction[];
     parsedReceipts: TransactionReceipt[];
-    parsedTxLogs: TransactionLogs[];
+    // parsedTxLogs: TransactionLogs[];
 };
 
 export class TxDetails implements TxDetailsType {
     parsedTxs = [];
     parsedReceipts = [];
-    parsedTxLogs = [];
+    // parsedTxLogs = [];
 }
 
 export const MISSING_TRANSACTIONS = new Gauge({
@@ -626,7 +626,7 @@ export async function getParseTxsAsync(
 
     const parsedTxs = foundTxs.map((rawTxn) => parseTransaction(rawTxn));
     const parsedReceipts = foundTxReceipts.map((rawTxReceipt) => parseTransactionReceipt(rawTxReceipt));
-    const parsedTxLogs = foundTxReceipts.map((rawTxReceipt) => parseTransactionLogs(rawTxReceipt));
+    //const parsedTxLogs = foundTxReceipts.map((rawTxReceipt) => parseTransactionLogs(rawTxReceipt));
 
     const foundHashes = foundTxReceipts.map((rawTxReceipt) => rawTxReceipt.transactionHash);
     const missingHashes = dedupedHashes.filter((hash) => !foundHashes.includes(hash));
@@ -638,7 +638,11 @@ export async function getParseTxsAsync(
 
     logger.debug(`got ${parsedReceipts.length} txs`);
 
-    return { parsedTxs, parsedReceipts, parsedTxLogs };
+    return {
+        parsedTxs,
+        parsedReceipts,
+        //parsedTxLogs
+    };
 }
 
 export async function getParseSaveTxAsync(
@@ -654,7 +658,7 @@ export async function getParseSaveTxAsync(
     const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
     const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
     const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
-    const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
+    // const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
     if (txData.parsedTxs.length) {
         // delete the transactions for the fetched events
         const queryRunner = connection.createQueryRunner();
@@ -663,7 +667,7 @@ export async function getParseSaveTxAsync(
 
         await queryRunner.manager.query(txDeleteQuery);
         await queryRunner.manager.query(txReceiptDeleteQuery);
-        await queryRunner.manager.query(txLogsDeleteQuery);
+        //await queryRunner.manager.query(txLogsDeleteQuery);
 
         for (const chunkItems of chunk(txData.parsedTxs, 300)) {
             await queryRunner.manager.insert(Transaction, chunkItems);
@@ -671,9 +675,9 @@ export async function getParseSaveTxAsync(
         for (const chunkItems of chunk(txData.parsedReceipts, 300)) {
             await queryRunner.manager.insert(TransactionReceipt, chunkItems);
         }
-        for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
-            await queryRunner.manager.insert(TransactionLogs, chunkItems);
-        }
+        // for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
+        //     await queryRunner.manager.insert(TransactionLogs, chunkItems);
+        // }
 
         await queryRunner.commitTransaction();
         queryRunner.release();
@@ -690,12 +694,14 @@ export async function getParseSaveTxAsync(
             ['transactionHash'],
             txData.parsedReceipts,
         );
+        /*
         await kafkaSendRawAsync(
             producer,
             `event-scraper.${CHAIN_NAME_LOWER}.transactions.logs.v0`,
             ['transactionHash'],
             txData.parsedTxLogs,
         );
+        */
     }
     logger.info(`Saved ${txData.parsedTxs.length} Transactions`);
 }

@@ -35,7 +35,7 @@ export class BackfillTxScraper {
             const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
             const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
             const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
-            const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
+            // const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
             const txBacklogQuery = `DELETE FROM ${SCHEMA}.tx_backfill WHERE transaction_hash IN (${txHashList});`;
 
             const queryRunner = connection.createQueryRunner();
@@ -46,7 +46,7 @@ export class BackfillTxScraper {
                 // delete existing tx data, for safety
                 await queryRunner.manager.query(txDeleteQuery);
                 await queryRunner.manager.query(txReceiptDeleteQuery);
-                await queryRunner.manager.query(txLogsDeleteQuery);
+                // await queryRunner.manager.query(txLogsDeleteQuery);
                 await queryRunner.manager.query(txBacklogQuery);
 
                 for (const chunkItems of chunk(txData.parsedTxs, 300)) {
@@ -55,9 +55,9 @@ export class BackfillTxScraper {
                 for (const chunkItems of chunk(txData.parsedReceipts, 300)) {
                     await queryRunner.manager.insert(TransactionReceipt, chunkItems);
                 }
-                for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
-                    await queryRunner.manager.insert(TransactionLogs, chunkItems);
-                }
+                // for (const chunkItems of chunk(txData.parsedTxLogs, 300)) {
+                //     await queryRunner.manager.insert(TransactionLogs, chunkItems);
+                // }
 
                 // commit transaction now:
                 await queryRunner.commitTransaction();
