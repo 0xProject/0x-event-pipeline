@@ -67,7 +67,7 @@ export class EventsByTopicScraper {
                 ),
             ),
         ] as string[];
-
+        
         if (txHashes.length) {
             await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
         }
