@@ -4,9 +4,9 @@ import { hexToUtf8 } from 'web3-utils';
 import { BlockWithoutTransactionData } from 'ethereum-types';
 
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { Event } from '../../entities';
+import { Event, Transaction } from '../../entities';
 import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
 
 import { RawLogEntry } from 'ethereum-types';
 
@@ -192,11 +192,12 @@ export class PullAndSaveEventsByTopic {
             const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
             let txHashes: string[] = [];
+            let filteredTxHashes: string[] = [];
             await Promise.all(
                 rawLogsArray.map(async (rawLogs) => {
                     const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
-                    const parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
+                    let parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
                     SKIPPED_EVENTS.inc(
                         { type: scrapingType, event: eventName },
                         parsedLogsWithSkipped.length - parsedLogs.length,
@@ -244,6 +245,17 @@ export class PullAndSaveEventsByTopic {
 
                     // Get list of tx hashes
                     txHashes = parsedLogs.map((log: Event) => log.transactionHash);
+
+                    if (eventName.toLowerCase().includes('wrap') && parsedLogs.length > 0) {
+                        const txData = await getParseTxsAsync(connection, web3Source, txHashes);
+                        const filteredTxs = txData.parsedTxs.filter(
+                            (tx: Transaction) => tx.affiliateAddress && tx.affiliateAddress.trim() !== '',
+                        );
+                        txHashes = filteredTxs.map((tx) => tx.transactionHash);
+
+                        const validTxHashSet = new Set(txHashes);
+                        parsedLogs = parsedLogs.filter((log: Event) => validTxHashSet.has(log.transactionHash));
+                    }
 
                     // Get token metadata
                     const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
