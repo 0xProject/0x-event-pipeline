@@ -54,10 +54,13 @@ export class EventsByTopicScraper {
                         props.deleteOptions,
                         props.tokenMetadataMap,
                         props.callback,
+                        props.needsFilter,
                     ),
                 );
             }
         });
+
+        console.log('first\n\n\n\n\n\n\n\n\n\n');
 
         const txHashes = [
             ...new Set(
@@ -67,7 +70,10 @@ export class EventsByTopicScraper {
                 ),
             ),
         ] as string[];
-        
+
+        console.log(txHashes);
+        console.log('second\n\n\n\n\n\n\n\n\n\nhere');
+
         if (txHashes.length) {
             await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
         }

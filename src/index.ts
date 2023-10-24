@@ -76,30 +76,30 @@ createConnection(ormConfig as ConnectionOptions)
         schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
-        schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
-        schedule(
-            connection,
-            producer,
-            backfillTxScraper.getParseSaveTxBackfillAsync,
-            'Pull and Save Backfill Transactions',
-        );
-        if (CHAIN_ID === 1) {
-            schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
-        }
-        if (FEAT_TOKENS_FROM_TRANSFERS) {
-            schedule(
-                connection,
-                null,
-                tokensFromTransfersScraper.getParseSaveTokensFromTransfersAsync,
-                'Pull and Save Tokens',
-            );
-            schedule(
-                connection,
-                null,
-                tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
-                'Pull and Save Backfill Tokens',
-            );
-        }
+        // schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
+        // schedule(
+        //     connection,
+        //     producer,
+        //     backfillTxScraper.getParseSaveTxBackfillAsync,
+        //     'Pull and Save Backfill Transactions',
+        // );
+        // if (CHAIN_ID === 1) {
+        //     schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
+        // }
+        // if (FEAT_TOKENS_FROM_TRANSFERS) {
+        //     schedule(
+        //         connection,
+        //         null,
+        //         tokensFromTransfersScraper.getParseSaveTokensFromTransfersAsync,
+        //         'Pull and Save Tokens',
+        //     );
+        //     schedule(
+        //         connection,
+        //         null,
+        //         tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
+        //         'Pull and Save Backfill Tokens',
+        //     );
+        // }
     })
     .catch((error) => logger.error(error));
 
