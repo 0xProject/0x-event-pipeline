@@ -36,7 +36,7 @@ export class PullAndSaveEventsByTopic {
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
         callback: (event: Event) => void,
-        needsFilter: boolean = false,
+        needsAffiliateAddressFilter: boolean = false,
     ): Promise<string[]> {
         let startBlockResponse;
         try {
@@ -95,7 +95,7 @@ export class PullAndSaveEventsByTopic {
                 reorgLikely,
                 'event-by-topic',
                 true,
-                needsFilter,
+                needsAffiliateAddressFilter,
             )
         ).transactionHashes;
     }
@@ -116,7 +116,7 @@ export class PullAndSaveEventsByTopic {
         tokenMetadataMap: TokenMetadataMap = null,
         callback: (event: Event) => void,
         startBlockNumber: number,
-        needsFilter: boolean = false,
+        needsAffiliateAddressFilter: boolean = false,
     ): Promise<BackfillEventsResponse> {
         const endBlockNumber = Math.min(
             currentBlock.number! - MAX_BLOCKS_REORG,
@@ -152,7 +152,7 @@ export class PullAndSaveEventsByTopic {
             true,
             'event-by-topic-backfill',
             false,
-            needsFilter,
+            needsAffiliateAddressFilter,
         );
     }
 
@@ -177,7 +177,7 @@ export class PullAndSaveEventsByTopic {
         isBackfill: boolean,
         scrapingType: string,
         updateLastBlockProcessed: boolean,
-        needsFilter: boolean = false,
+        needsAffiliateAddressFilter: boolean = false,
     ): Promise<BackfillEventsResponse> {
         logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlockNumber}`);
 
@@ -251,11 +251,9 @@ export class PullAndSaveEventsByTopic {
                     // Get list of tx hashes
                     txHashes = parsedLogs.map((log: Event) => log.transactionHash);
 
-                    if (needsFilter && parsedLogs.length > 0) {
+                    if (needsAffiliateAddressFilter && parsedLogs.length > 0) {
                         const txData = await getParseTxsAsync(connection, web3Source, txHashes);
-                        const filteredTxs = txData.parsedTxs.filter(
-                            (tx: Transaction) => tx.affiliateAddress && tx.affiliateAddress.trim() !== '',
-                        );
+                        const filteredTxs = txData.parsedTxs.filter((tx: Transaction) => tx.affiliateAddress);
                         txHashes = filteredTxs.map((tx) => tx.transactionHash);
 
                         const validTxHashSet = new Set(txHashes);
@@ -383,7 +381,6 @@ export class PullAndSaveEventsByTopic {
             await queryRunner.rollbackTransaction();
         } finally {
             // you need to release query runner which is manually created:
-            console.log('release query runner');
             await queryRunner.release();
         }
     }

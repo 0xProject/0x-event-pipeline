@@ -71,7 +71,7 @@ export class EventsBackfillScraper {
                             props.tokenMetadataMap,
                             props.callback,
                             backfillEventsOldestBlock.get(props.name)!,
-                            props.needsFilter,
+                            props.needsAffiliateAddressFilter,
                         )
                         .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
                             if (startBlockNumber !== null && endBlockNumber !== null) {
