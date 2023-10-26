@@ -4,9 +4,9 @@ import { hexToUtf8 } from 'web3-utils';
 import { BlockWithoutTransactionData } from 'ethereum-types';
 
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { Event } from '../../entities';
+import { Event, Transaction } from '../../entities';
 import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
 
 import { RawLogEntry } from 'ethereum-types';
 
@@ -36,6 +36,7 @@ export class PullAndSaveEventsByTopic {
         deleteOptions: DeleteOptions,
         tokenMetadataMap: TokenMetadataMap = null,
         callback: (event: Event) => void,
+        needsAffiliateAddressFilter: boolean = false,
     ): Promise<string[]> {
         let startBlockResponse;
         try {
@@ -94,6 +95,7 @@ export class PullAndSaveEventsByTopic {
                 reorgLikely,
                 'event-by-topic',
                 true,
+                needsAffiliateAddressFilter,
             )
         ).transactionHashes;
     }
@@ -114,6 +116,7 @@ export class PullAndSaveEventsByTopic {
         tokenMetadataMap: TokenMetadataMap = null,
         callback: (event: Event) => void,
         startBlockNumber: number,
+        needsAffiliateAddressFilter: boolean = false,
     ): Promise<BackfillEventsResponse> {
         const endBlockNumber = Math.min(
             currentBlock.number! - MAX_BLOCKS_REORG,
@@ -149,6 +152,7 @@ export class PullAndSaveEventsByTopic {
             true,
             'event-by-topic-backfill',
             false,
+            needsAffiliateAddressFilter,
         );
     }
 
@@ -173,6 +177,7 @@ export class PullAndSaveEventsByTopic {
         isBackfill: boolean,
         scrapingType: string,
         updateLastBlockProcessed: boolean,
+        needsAffiliateAddressFilter: boolean = false,
     ): Promise<BackfillEventsResponse> {
         logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlockNumber}`);
 
@@ -192,11 +197,12 @@ export class PullAndSaveEventsByTopic {
             const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
             let txHashes: string[] = [];
+            let filteredTxHashes: string[] = [];
             await Promise.all(
                 rawLogsArray.map(async (rawLogs) => {
                     const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
-                    const parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
+                    let parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
                     SKIPPED_EVENTS.inc(
                         { type: scrapingType, event: eventName },
                         parsedLogsWithSkipped.length - parsedLogs.length,
@@ -245,6 +251,15 @@ export class PullAndSaveEventsByTopic {
                     // Get list of tx hashes
                     txHashes = parsedLogs.map((log: Event) => log.transactionHash);
 
+                    if (needsAffiliateAddressFilter && parsedLogs.length > 0) {
+                        const txData = await getParseTxsAsync(connection, web3Source, txHashes);
+                        const filteredTxs = txData.parsedTxs.filter((tx: Transaction) => tx.affiliateAddress);
+                        txHashes = filteredTxs.map((tx) => tx.transactionHash);
+
+                        const validTxHashSet = new Set(txHashes);
+                        parsedLogs = parsedLogs.filter((log: Event) => validTxHashSet.has(log.transactionHash));
+                    }
+
                     // Get token metadata
                     const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
                     await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
@@ -269,6 +284,7 @@ export class PullAndSaveEventsByTopic {
             );
             return { transactionHashes: txHashes, startBlockNumber, endBlockNumber };
         } catch (err) {
+            logger.error(err);
             logger.error(`Failed to get logs for ${eventName}, retrying next time`);
             RPC_LOGS_ERROR.inc({ type: scrapingType, event: eventName });
             return { transactionHashes: [], startBlockNumber: null, endBlockNumber: null };

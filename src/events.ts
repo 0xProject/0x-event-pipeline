@@ -26,6 +26,8 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 } from './entities';
 
 import {
@@ -46,6 +48,8 @@ import {
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
@@ -65,7 +69,10 @@ import {
     UNISWAP_V3_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
+    WRAP_UNWRAP_NATIVE_START_BLOCK,
+    WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
 } from './config';
+
 import {
     BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -96,6 +103,9 @@ import {
     V4_CANCEL_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+    WRAP_NATIVE_EVENT_TOPIC,
+    UNWRAP_NATIVE_EVENT_TOPIC,
+    TRANSFER_EVENT_TOPIC_0,
 } from './constants';
 
 import { DeleteOptions } from './utils';
@@ -141,6 +151,13 @@ import {
     parseOnchainGovernanceCallScheduledEvent,
 } from './parsers/events/onchain_governance_events';
 
+import {
+    parseWrapNativeEvent,
+    parseUnwrapNativeEvent,
+    parseWrapNativeTransferEvent,
+    parseUnwrapNativeTransferEvent,
+} from './parsers/events/wrap_unwrap_native_events';
+
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 
@@ -167,6 +184,7 @@ export type EventScraperProps = {
     deleteOptions: DeleteOptions;
     tokenMetadataMap: TokenMetadataMap;
     callback: any | null;
+    needsAffiliateAddressFilter: boolean;
 };
 
 export const eventScrperProps: EventScraperProps[] = [
@@ -182,6 +200,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -195,6 +214,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
@@ -208,6 +228,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { directFlag: false },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
@@ -221,6 +242,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { directFlag: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -234,6 +256,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_PLP_SWAP_EVENT,
@@ -247,6 +270,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { directFlag: true, directProtocol: ['PLP'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -260,6 +284,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -273,6 +298,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -286,6 +312,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_LIMIT_ORDERS,
@@ -299,6 +326,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_LIMIT_ORDERS,
@@ -312,6 +340,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS,
@@ -325,6 +354,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_OTC_ORDERS,
@@ -338,6 +368,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_OTC_ORDERS,
@@ -351,6 +382,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_V3_FILL_EVENT,
@@ -364,6 +396,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_V3_NATIVE_FILL,
@@ -377,6 +410,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v3' },
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_NFT,
@@ -390,6 +424,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_NFT,
@@ -403,6 +438,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_NFT,
@@ -416,6 +452,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_NFT,
@@ -429,6 +466,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_NFT,
@@ -442,6 +480,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_NFT,
@@ -455,6 +494,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_UNISWAP_V2_SYNC_EVENT,
@@ -468,6 +508,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_META_TRANSACTION_EXECUTED_EVENT,
@@ -481,6 +522,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_UNISWAP_V3_SWAP_EVENT,
@@ -494,6 +536,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -508,6 +551,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -523,6 +567,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -537,6 +582,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -551,6 +597,63 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: {},
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'WrapNativeEvent',
+        tType: WrapNativeEvent,
+        table: 'wrap_native_events',
+        topics: WRAP_NATIVE_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseWrapNativeEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+        needsAffiliateAddressFilter: true,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'UnwrapNativeEvent',
+        tType: UnwrapNativeEvent,
+        table: 'unwrap_native_events',
+        topics: UNWRAP_NATIVE_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseUnwrapNativeEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+        needsAffiliateAddressFilter: true,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
+        name: 'WrapNativeTransferEvent',
+        tType: WrapNativeEvent,
+        table: 'wrap_native_events',
+        topics: [TRANSFER_EVENT_TOPIC_0, '0x0000000000000000000000000000000000000000000000000000000000000000', null],
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseWrapNativeTransferEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+        needsAffiliateAddressFilter: true,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
+        name: 'UnwrapNativeTransferEvent',
+        tType: UnwrapNativeEvent,
+        table: 'unwrap_native_events',
+        topics: [TRANSFER_EVENT_TOPIC_0, null, '0x0000000000000000000000000000000000000000000000000000000000000000'],
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseUnwrapNativeTransferEvent,
+        deleteOptions: {},
+        tokenMetadataMap: null,
+        callback: null,
+        needsAffiliateAddressFilter: true,
     },
 ];
 
@@ -572,6 +675,7 @@ for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
         deleteOptions: { recipient: payment_recipient },
         tokenMetadataMap: null,
         callback: null,
+        needsAffiliateAddressFilter: false,
     });
 }
 
@@ -588,6 +692,7 @@ for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_S
         deleteOptions: { protocol: protocol.name },
         tokenMetadataMap: { tokenA: 'token0', tokenB: 'token1' },
         callback: uniV2PoolSingletonCallback,
+        needsAffiliateAddressFilter: false,
     });
 }
 
