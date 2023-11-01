@@ -25,6 +25,7 @@ export class CreateSocketBridgeEventTable1698670784000 implements MigrationInter
 
           CREATE INDEX socket_bridge_events_block_number_idx ON ${schema}.socket_bridge_events (block_number);
           CREATE INDEX socket_bridge_events_sender_idx ON ${schema}.socket_bridge_events (sender);
+          CREATE INDEX socket_bridge_events_receiver_idx ON ${schema}.socket_bridge_events (receiver);
         `);
     }
 
