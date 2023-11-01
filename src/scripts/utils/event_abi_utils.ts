@@ -33,10 +33,10 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => Event,
-        deleteOptions: DeleteOptions,
-        tokenMetadataMap: TokenMetadataMap = null,
-        callback: (event: Event) => void,
-        needsAffiliateAddressFilter: boolean = false,
+        deleteOptions?: DeleteOptions,
+        tokenMetadataMap?: TokenMetadataMap,
+        callback?: (event: Event) => void,
+        filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>,
     ): Promise<string[]> {
         let startBlockResponse;
         try {
@@ -86,16 +86,16 @@ export class PullAndSaveEventsByTopic {
                 contractAddress,
                 startSearchBlock,
                 parser,
-                deleteOptions,
-                tokenMetadataMap,
-                callback,
                 startBlockNumber,
                 endBlockNumber,
                 endBlockHash!,
                 reorgLikely,
                 'event-by-topic',
                 true,
-                needsAffiliateAddressFilter,
+                deleteOptions,
+                tokenMetadataMap,
+                callback,
+                filterFunction,
             )
         ).transactionHashes;
     }
@@ -112,11 +112,11 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => Event,
-        deleteOptions: DeleteOptions,
-        tokenMetadataMap: TokenMetadataMap = null,
-        callback: (event: Event) => void,
         startBlockNumber: number,
-        needsAffiliateAddressFilter: boolean = false,
+        deleteOptions?: DeleteOptions,
+        tokenMetadataMap?: TokenMetadataMap,
+        callback?: (event: Event) => void,
+        filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>,
     ): Promise<BackfillEventsResponse> {
         const endBlockNumber = Math.min(
             currentBlock.number! - MAX_BLOCKS_REORG,
@@ -143,16 +143,16 @@ export class PullAndSaveEventsByTopic {
             contractAddress,
             startSearchBlock,
             parser,
-            deleteOptions,
-            tokenMetadataMap,
-            callback,
             startBlockNumber,
             endBlockNumber,
             endBlockHash!,
             true,
             'event-by-topic-backfill',
             false,
-            needsAffiliateAddressFilter,
+            deleteOptions,
+            tokenMetadataMap,
+            callback,
+            filterFunction,
         );
     }
 
@@ -168,16 +168,16 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => Event,
-        deleteOptions: DeleteOptions,
-        tokenMetadataMap: TokenMetadataMap = null,
-        callback: (event: Event) => void,
         startBlockNumber: number,
         endBlockNumber: number,
         endBlockHash: string,
         isBackfill: boolean,
         scrapingType: string,
         updateLastBlockProcessed: boolean,
-        needsAffiliateAddressFilter: boolean = false,
+        deleteOptions?: DeleteOptions,
+        tokenMetadataMap?: TokenMetadataMap,
+        callback?: (event: Event) => void,
+        filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>,
     ): Promise<BackfillEventsResponse> {
         logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlockNumber}`);
 
@@ -197,12 +197,11 @@ export class PullAndSaveEventsByTopic {
             const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);
 
             let txHashes: string[] = [];
-            let filteredTxHashes: string[] = [];
             await Promise.all(
                 rawLogsArray.map(async (rawLogs) => {
                     const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
 
-                    let parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
+                    const parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
                     SKIPPED_EVENTS.inc(
                         { type: scrapingType, event: eventName },
                         parsedLogsWithSkipped.length - parsedLogs.length,
@@ -248,37 +247,30 @@ export class PullAndSaveEventsByTopic {
 
                     SCAN_RESULTS.labels({ type: scrapingType, event: eventName }).set(parsedLogs.length);
 
+                    const filteredLogs = filterFunction ? await filterFunction(parsedLogs, web3Source) : parsedLogs;
+
                     // Get list of tx hashes
-                    txHashes = parsedLogs.map((log: Event) => log.transactionHash);
-
-                    if (needsAffiliateAddressFilter && parsedLogs.length > 0) {
-                        const txData = await getParseTxsAsync(connection, web3Source, txHashes);
-                        const filteredTxs = txData.parsedTxs.filter((tx: Transaction) => tx.affiliateAddress);
-                        txHashes = filteredTxs.map((tx) => tx.transactionHash);
-
-                        const validTxHashSet = new Set(txHashes);
-                        parsedLogs = parsedLogs.filter((log: Event) => validTxHashSet.has(log.transactionHash));
-                    }
+                    txHashes = filteredLogs.map((log: Event) => log.transactionHash);
 
                     // Get token metadata
-                    const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
+                    const tokens = extractTokensFromLogs(filteredLogs, tokenMetadataMap);
                     await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
-                    logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
+                    logger.info(`Saving ${filteredLogs.length} ${eventName} events`);
 
                     await this._deleteOverlapAndSaveAsync(
                         connection,
                         producer,
-                        parsedLogs,
+                        filteredLogs,
                         startBlockNumber,
                         endBlockNumber,
                         eventName,
                         eventType,
                         tableName,
                         getLastBlockProcessedEntity(eventName, endBlockNumber, endBlockHash),
-                        deleteOptions,
                         updateLastBlockProcessed,
                         isBackfill,
+                        deleteOptions,
                     );
                 }),
             );
@@ -300,9 +292,9 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
-        deleteOptions: DeleteOptions,
         updateLastBlockProcessed: boolean,
         isBackfill: boolean,
+        deleteOptions: DeleteOptions = {},
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 

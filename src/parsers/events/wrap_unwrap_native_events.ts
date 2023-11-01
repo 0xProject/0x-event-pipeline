@@ -1,10 +1,11 @@
 const abiCoder = require('web3-eth-abi');
 import { RawLogEntry } from 'ethereum-types';
-import { WrapNativeEvent, UnwrapNativeEvent } from '../../entities';
 
+import { BigNumber } from '@0x/utils';
+
+import { WrapNativeEvent, UnwrapNativeEvent, Event } from '../../entities';
 import { parseEvent } from './parse_event';
 import { WRAP_NATIVE_ABI, UNWRAP_NATIVE_ABI, TRANSFER_ABI } from '../../constants';
-import { BigNumber } from '@0x/utils';
 
 export function parseWrapNativeEvent(eventLog: RawLogEntry): WrapNativeEvent {
     const wrapNativeEvent = new WrapNativeEvent();

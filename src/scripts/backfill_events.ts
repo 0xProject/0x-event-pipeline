@@ -67,11 +67,11 @@ export class EventsBackfillScraper {
                             props.contractAddress,
                             props.startBlock,
                             props.parser,
+                            backfillEventsOldestBlock.get(props.name)!,
                             props.deleteOptions,
                             props.tokenMetadataMap,
                             props.callback,
-                            backfillEventsOldestBlock.get(props.name)!,
-                            props.needsAffiliateAddressFilter,
+                            props.filterFunction,
                         )
                         .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
                             if (startBlockNumber !== null && endBlockNumber !== null) {
