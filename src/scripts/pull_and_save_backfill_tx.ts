@@ -30,7 +30,7 @@ export class BackfillTxScraper {
 
         if (txList.length > 0) {
             SCAN_RESULTS.labels({ type: 'tx-backfill' }).set(txList.length);
-            const txData = await getParseTxsAsync(connection, web3Source, txList);
+            const txData = await getParseTxsAsync(web3Source, txList);
 
             const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
             const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;

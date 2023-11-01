@@ -1024,3 +1024,18 @@ export const TRANSFER_ABI = {
     name: 'Transfer',
     type: 'event',
 };
+
+export const SOCKET_BRIDGE_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+        { indexed: false, internalType: 'address', name: 'token', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'toChainId', type: 'uint256' },
+        { indexed: false, internalType: 'bytes32', name: 'bridgeName', type: 'bytes32' },
+        { indexed: false, internalType: 'address', name: 'sender', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+        { indexed: false, internalType: 'bytes32', name: 'metadata', type: 'bytes32' },
+    ],
+    name: 'SocketBridge',
+    type: 'event',
+};
