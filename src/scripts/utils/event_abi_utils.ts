@@ -10,7 +10,7 @@ import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getPa
 
 import { RawLogEntry } from 'ethereum-types';
 
-import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
+import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
 
@@ -406,7 +406,7 @@ export const getStartBlockAsync = async (
             };
         }
         return {
-            startBlockNumber: lastKnownBlockNumber + 1,
+            startBlockNumber: lastKnownBlockNumber - (RESCRAPE_BLOCKS - 1),
             hasLatestBlockChanged: true,
             reorgLikely: false,
         };

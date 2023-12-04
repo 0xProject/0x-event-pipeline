@@ -12,7 +12,7 @@ export class TokenMetadataSingleton {
         this.tokens = [];
     }
 
-    static async getInstance(connection: Connection, producer: Producer): Promise<TokenMetadataSingleton> {
+    static async getInstance(connection: Connection, producer: Producer | null): Promise<TokenMetadataSingleton> {
         if (!TokenMetadataSingleton.instance) {
             TokenMetadataSingleton.instance = new TokenMetadataSingleton();
             const tmp = await connection
