@@ -97,6 +97,7 @@ services:
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 5000
             SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
             UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap,CafeSwap,SwapLiquidity,ApeSwapFinance,CheeseSwap,Swap"
             FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
@@ -126,7 +127,8 @@ services:
             EP_DEPLOYMENT_BLOCK: 14391480
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
-            MINUTES_BETWEEN_RUNS: 1
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             FEAT_SLINGSHOT_TRADE_EVENT: "true"
             SLINGSHOT_DEPLOYMENT_BLOCK: 14500000
             FEAT_LIMIT_ORDERS: "true"
@@ -160,7 +162,10 @@ services:
             EP_DEPLOYMENT_BLOCK: 3601700
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
-            MINUTES_BETWEEN_RUNS: 1
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
             FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
             FLASHWALLET_DEPLOYMENT_BLOCK: 11805869
@@ -191,7 +196,8 @@ services:
             EP_DEPLOYMENT_BLOCK: 18855765
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 60
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
             FLASHWALLET_ADDRESS: "0xb4d961671cadfed687e040b076eee29840c142e5"
             FLASHWALLET_DEPLOYMENT_BLOCK: 18855797
@@ -220,7 +226,8 @@ services:
             EP_DEPLOYMENT_BLOCK: 9350111
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
-            MINUTES_BETWEEN_RUNS: 1
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11820000
 
@@ -244,6 +251,7 @@ services:
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             EP_ADDRESS: "0xdef1abe32c034e558cdd535791643c58a13acc10"
             FEAT_TRANSFORMED_ERC20_EVENT: "true"
             FEAT_NFT: "true"
@@ -274,6 +282,7 @@ services:
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 30
+            RESCRAPE_BLOCKS: 10
             EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 4050733
@@ -296,6 +305,7 @@ services:
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 100
             SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 1410394
             KAFKA_BROKERS: '${KAFKA_BROKERS}'
