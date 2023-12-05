@@ -32,20 +32,24 @@ import { startMetricsServer } from './utils/metrics';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 
-const kafka = new Kafka({
-    clientId: 'event-pipeline',
-    brokers: KAFKA_BROKERS,
-    ssl: KAFKA_SSL,
-    sasl: KAFKA_SSL
-        ? {
-              mechanism: 'plain',
-              username: KAFKA_AUTH_USER,
-              password: KAFKA_AUTH_PASSWORD,
-          }
-        : undefined,
-});
+let producer: Producer | null = null;
 
-const producer = kafka.producer();
+if (KAFKA_BROKERS.length > 0) {
+    const kafka = new Kafka({
+        clientId: 'event-pipeline',
+        brokers: KAFKA_BROKERS,
+        ssl: KAFKA_SSL,
+        sasl: KAFKA_SSL
+            ? {
+                  mechanism: 'plain',
+                  username: KAFKA_AUTH_USER,
+                  password: KAFKA_AUTH_PASSWORD,
+              }
+            : undefined,
+    });
+
+    producer = kafka.producer();
+}
 
 logger.info('App is running...');
 
@@ -68,7 +72,9 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
-        await producer.connect();
+        if (producer) {
+            await producer.connect();
+        }
         await TokenMetadataSingleton.getInstance(connection, producer);
         if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
             await UniV2PoolSingleton.initInstance(connection);
