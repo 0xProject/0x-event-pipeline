@@ -15,6 +15,7 @@ export async function filterWrapUnwrapEvents(events: Event[], web3Source: Web3So
 
         const validTxHashSet = new Set(txHashes);
         const filteredLogs = events.filter((log: Event) => validTxHashSet.has(log.transactionHash));
+        return filteredLogs;
     }
     return [];
 }

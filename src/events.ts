@@ -364,7 +364,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: V3_EXCHANGE_ADDRESS,
         startBlock: FIRST_SEARCH_BLOCK,
         parser: parseFillEvent,
-
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
     },
     {
@@ -387,7 +386,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc721OrderFilledEvent,
-
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
     },
     {
@@ -409,7 +407,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc721OrderPresignedEvent,
-
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
     },
     {
@@ -421,7 +418,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc1155OrderFilledEvent,
-
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
     },
     {
@@ -443,7 +439,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc1155OrderPresignedEvent,
-
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
     },
     {
@@ -489,7 +484,6 @@ export const eventScrperProps: EventScraperProps[] = [
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
-
         name: 'ZeroExProtocolGovernorProposalCreatedEvent',
         tType: OnchainGovernanceProposalCreatedEvent,
         table: 'onchain_governance_proposal_created',
