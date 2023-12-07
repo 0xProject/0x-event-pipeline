@@ -11,9 +11,11 @@ export async function filterWrapUnwrapEvents(events: Event[], web3Source: Web3So
     if (events.length > 0) {
         const txHashes = events.map((log: Event) => log.transactionHash);
         const txData = await getParseTxsAsync(web3Source, txHashes);
-        const filteredTxs = txData.parsedTxs.filter((tx: Transaction) => tx.affiliateAddress);
+        const filteredTxsHashes = txData.parsedTxs
+            .filter((tx: Transaction) => tx.affiliateAddress)
+            .map((tx: Transaction) => tx.transactionHash);
 
-        const validTxHashSet = new Set(txHashes);
+        const validTxHashSet = new Set(filteredTxsHashes);
         const filteredLogs = events.filter((log: Event) => validTxHashSet.has(log.transactionHash));
         return filteredLogs;
     }
