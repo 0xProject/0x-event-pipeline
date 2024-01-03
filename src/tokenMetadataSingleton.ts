@@ -1,7 +1,7 @@
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
 import { TokenMetadata, TokenRegistry } from './entities';
-import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
+import { CHAIN_ID, CHAIN_NAME_LOWER, SCHEMA } from './config';
 import { kafkaSendAsync } from './utils';
 
 export class TokenMetadataSingleton {
@@ -44,10 +44,14 @@ export class TokenMetadataSingleton {
         producer: Producer,
         newTokenMetadata: TokenMetadata[],
     ): Promise<void> {
-        const queryRunner = connection.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.manager.upsert(TokenMetadata, newTokenMetadata, ['address']);
-        await queryRunner.release();
+        await connection
+            .getRepository(TokenMetadata)
+            .createQueryBuilder('token_metadata')
+            .insert()
+            .into(TokenMetadata)
+            .values(newTokenMetadata)
+            .orIgnore() // "ON CONFLICT DO NOTHING"
+            .execute();
 
         this.tokens = this.tokens.concat(newTokenMetadata.map((token) => token.address));
 
