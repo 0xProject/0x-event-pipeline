@@ -1,7 +1,7 @@
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
 import { TokenMetadata, TokenRegistry } from './entities';
-import { CHAIN_ID, CHAIN_NAME_LOWER, SCHEMA } from './config';
+import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
 import { kafkaSendAsync } from './utils';
 
 export class TokenMetadataSingleton {
