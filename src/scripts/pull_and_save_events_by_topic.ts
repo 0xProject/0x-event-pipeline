@@ -54,6 +54,7 @@ export class EventsByTopicScraper {
                         props.deleteOptions,
                         props.tokenMetadataMap,
                         props.callback,
+                        props.filterFunction,
                     ),
                 );
             }

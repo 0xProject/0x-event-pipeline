@@ -11,7 +11,6 @@ import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
     FEAT_TOKENS_FROM_TRANSFERS,
-    FEAT_TX_BACKFILL,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
@@ -33,20 +32,24 @@ import { startMetricsServer } from './utils/metrics';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 
-const kafka = new Kafka({
-    clientId: 'event-pipeline',
-    brokers: KAFKA_BROKERS,
-    ssl: KAFKA_SSL,
-    sasl: KAFKA_SSL
-        ? {
-              mechanism: 'plain',
-              username: KAFKA_AUTH_USER,
-              password: KAFKA_AUTH_PASSWORD,
-          }
-        : undefined,
-});
+let producer: Producer | null = null;
 
-const producer = kafka.producer();
+if (KAFKA_BROKERS.length > 0) {
+    const kafka = new Kafka({
+        clientId: 'event-pipeline',
+        brokers: KAFKA_BROKERS,
+        ssl: KAFKA_SSL,
+        sasl: KAFKA_SSL
+            ? {
+                  mechanism: 'plain',
+                  username: KAFKA_AUTH_USER,
+                  password: KAFKA_AUTH_PASSWORD,
+              }
+            : undefined,
+    });
+
+    producer = kafka.producer();
+}
 
 logger.info('App is running...');
 
@@ -69,7 +72,9 @@ chainIdChecker.checkChainId(CHAIN_ID);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
-        await producer.connect();
+        if (producer) {
+            await producer.connect();
+        }
         await TokenMetadataSingleton.getInstance(connection, producer);
         if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
             await UniV2PoolSingleton.initInstance(connection);
@@ -78,14 +83,12 @@ createConnection(ormConfig as ConnectionOptions)
         schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
         schedule(connection, producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
         schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
-        if (FEAT_TX_BACKFILL) {
-            schedule(
-                connection,
-                producer,
-                backfillTxScraper.getParseSaveTxBackfillAsync,
-                'Pull and Save Backfill Transactions',
-            );
-        }
+        schedule(
+            connection,
+            producer,
+            backfillTxScraper.getParseSaveTxBackfillAsync,
+            'Pull and Save Backfill Transactions',
+        );
         if (CHAIN_ID === 1) {
             schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
         }

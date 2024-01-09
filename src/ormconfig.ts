@@ -31,6 +31,7 @@ import {
     OtcOrderFilledEvent,
     ParamsSetEvent,
     RewardsPaidEvent,
+    SocketBridgeEvent,
     StakeEvent,
     StakingPoolCreatedEvent,
     StakingPoolEarnedRewardsInEpochEvent,
@@ -51,6 +52,8 @@ import {
     V4RfqOrderFilledEvent,
     OnchainGovernanceProposalCreatedEvent,
     OnchainGovernanceCallScheduledEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 } from './entities';
 
 const entities = [
@@ -82,6 +85,7 @@ const entities = [
     OtcOrderFilledEvent,
     ParamsSetEvent,
     RewardsPaidEvent,
+    SocketBridgeEvent,
     StakeEvent,
     StakingPoolCreatedEvent,
     StakingPoolEarnedRewardsInEpochEvent,
@@ -102,6 +106,8 @@ const entities = [
     V4RfqOrderFilledEvent,
     OnchainGovernanceProposalCreatedEvent,
     OnchainGovernanceCallScheduledEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 ];
 
 const config: ConnectionOptions = {

@@ -4,13 +4,13 @@ import { hexToUtf8 } from 'web3-utils';
 import { BlockWithoutTransactionData } from 'ethereum-types';
 
 import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { Event } from '../../entities';
+import { Event, Transaction } from '../../entities';
 import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
 
 import { RawLogEntry } from 'ethereum-types';
 
-import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
+import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
 import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
 
@@ -33,9 +33,10 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => Event,
-        deleteOptions: DeleteOptions,
-        tokenMetadataMap: TokenMetadataMap = null,
-        callback: (event: Event) => void,
+        deleteOptions?: DeleteOptions,
+        tokenMetadataMap?: TokenMetadataMap,
+        callback?: (event: Event) => void,
+        filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>,
     ): Promise<string[]> {
         let startBlockResponse;
         try {
@@ -85,15 +86,16 @@ export class PullAndSaveEventsByTopic {
                 contractAddress,
                 startSearchBlock,
                 parser,
-                deleteOptions,
-                tokenMetadataMap,
-                callback,
                 startBlockNumber,
                 endBlockNumber,
                 endBlockHash!,
                 reorgLikely,
                 'event-by-topic',
                 true,
+                deleteOptions,
+                tokenMetadataMap,
+                callback,
+                filterFunction,
             )
         ).transactionHashes;
     }
@@ -110,10 +112,11 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => Event,
-        deleteOptions: DeleteOptions,
-        tokenMetadataMap: TokenMetadataMap = null,
-        callback: (event: Event) => void,
         startBlockNumber: number,
+        deleteOptions?: DeleteOptions,
+        tokenMetadataMap?: TokenMetadataMap,
+        callback?: (event: Event) => void,
+        filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>,
     ): Promise<BackfillEventsResponse> {
         const endBlockNumber = Math.min(
             currentBlock.number! - MAX_BLOCKS_REORG,
@@ -140,15 +143,16 @@ export class PullAndSaveEventsByTopic {
             contractAddress,
             startSearchBlock,
             parser,
-            deleteOptions,
-            tokenMetadataMap,
-            callback,
             startBlockNumber,
             endBlockNumber,
             endBlockHash!,
             true,
             'event-by-topic-backfill',
             false,
+            deleteOptions,
+            tokenMetadataMap,
+            callback,
+            filterFunction,
         );
     }
 
@@ -164,15 +168,16 @@ export class PullAndSaveEventsByTopic {
         contractAddress: string,
         startSearchBlock: number,
         parser: (decodedLog: RawLogEntry) => Event,
-        deleteOptions: DeleteOptions,
-        tokenMetadataMap: TokenMetadataMap = null,
-        callback: (event: Event) => void,
         startBlockNumber: number,
         endBlockNumber: number,
         endBlockHash: string,
         isBackfill: boolean,
         scrapingType: string,
         updateLastBlockProcessed: boolean,
+        deleteOptions?: DeleteOptions,
+        tokenMetadataMap?: TokenMetadataMap,
+        callback?: (event: Event) => void,
+        filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>,
     ): Promise<BackfillEventsResponse> {
         logger.info(`Searching for ${eventName} between blocks ${startBlockNumber} and ${endBlockNumber}`);
 
@@ -242,33 +247,36 @@ export class PullAndSaveEventsByTopic {
 
                     SCAN_RESULTS.labels({ type: scrapingType, event: eventName }).set(parsedLogs.length);
 
+                    const filteredLogs = filterFunction ? await filterFunction(parsedLogs, web3Source) : parsedLogs;
+
                     // Get list of tx hashes
-                    txHashes = parsedLogs.map((log: Event) => log.transactionHash);
+                    txHashes = filteredLogs.map((log: Event) => log.transactionHash);
 
                     // Get token metadata
-                    const tokens = extractTokensFromLogs(parsedLogs, tokenMetadataMap);
+                    const tokens = extractTokensFromLogs(filteredLogs, tokenMetadataMap);
                     await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
-                    logger.info(`Saving ${parsedLogs.length} ${eventName} events`);
+                    logger.info(`Saving ${filteredLogs.length} ${eventName} events`);
 
                     await this._deleteOverlapAndSaveAsync(
                         connection,
                         producer,
-                        parsedLogs,
+                        filteredLogs,
                         startBlockNumber,
                         endBlockNumber,
                         eventName,
                         eventType,
                         tableName,
                         getLastBlockProcessedEntity(eventName, endBlockNumber, endBlockHash),
-                        deleteOptions,
                         updateLastBlockProcessed,
                         isBackfill,
+                        deleteOptions,
                     );
                 }),
             );
             return { transactionHashes: txHashes, startBlockNumber, endBlockNumber };
         } catch (err) {
+            logger.error(err);
             logger.error(`Failed to get logs for ${eventName}, retrying next time`);
             RPC_LOGS_ERROR.inc({ type: scrapingType, event: eventName });
             return { transactionHashes: [], startBlockNumber: null, endBlockNumber: null };
@@ -284,9 +292,9 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         lastBlockProcessed: LastBlockProcessed,
-        deleteOptions: DeleteOptions,
         updateLastBlockProcessed: boolean,
         isBackfill: boolean,
+        deleteOptions: DeleteOptions = {},
     ): Promise<void> {
         const queryRunner = connection.createQueryRunner();
 
@@ -398,7 +406,7 @@ export const getStartBlockAsync = async (
             };
         }
         return {
-            startBlockNumber: lastKnownBlockNumber + 1,
+            startBlockNumber: lastKnownBlockNumber - (RESCRAPE_BLOCKS - 1),
             hasLatestBlockChanged: true,
             reorgLikely: false,
         };

@@ -11,6 +11,7 @@ import {
     Erc721OrderCancelledEvent,
     Erc721OrderFilledEvent,
     Erc721OrderPresignedEvent,
+    Event,
     ExpiredRfqOrderEvent,
     FillEvent,
     LogTransferEvent,
@@ -19,6 +20,7 @@ import {
     OnchainGovernanceCallScheduledEvent,
     OnchainGovernanceProposalCreatedEvent,
     OtcOrderFilledEvent,
+    SocketBridgeEvent,
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
     UniswapV2SyncEvent,
@@ -27,6 +29,8 @@ import {
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
+    WrapNativeEvent,
+    UnwrapNativeEvent,
 } from './entities';
 
 import {
@@ -38,15 +42,19 @@ import {
     FEAT_NFT,
     FEAT_ONCHAIN_GOVERNANCE,
     FEAT_OTC_ORDERS,
+    FEAT_PLP_SWAP_EVENT,
     FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
+    FEAT_SOCKET_BRIDGE_EVENT,
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V2_SYNC_EVENT,
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
-    FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
+    FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FIRST_SEARCH_BLOCK,
@@ -56,8 +64,11 @@ import {
     NFT_FEATURE_START_BLOCK,
     ONCHAIN_GOVERNANCE_START_BLOCK,
     OTC_ORDERS_FEATURE_START_BLOCK,
+    PLP_VIP_START_BLOCK,
     POLYGON_RFQM_PAYMENTS_ADDRESSES,
     POLYGON_RFQM_PAYMENTS_START_BLOCK,
+    SOCKET_BRIDGE_CONTRACT_ADDRESS,
+    SOCKET_BRIDGE_EVENT_START_BLOCK,
     UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS,
     UNISWAP_V2_SYNC_START_BLOCK,
     UNISWAP_V2_VIP_SWAP_SOURCES,
@@ -67,7 +78,10 @@ import {
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
     UNISWAP_V3_FACTORY_ADDRESS,
+    WRAP_UNWRAP_NATIVE_START_BLOCK,
+    WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
 } from './config';
+
 import {
     BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -78,7 +92,9 @@ import {
     ERC721_ORDER_PRESIGNED_EVENT_TOPIC,
     EXPIRED_RFQ_ORDER_EVENT_TOPIC,
     LIMITORDERFILLED_EVENT_TOPIC,
+    LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
+    SOCKET_BRIDGE_EVENT_TOPIC,
     META_TRANSACTION_EXECUTED_EVENT_TOPIC,
     ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
     ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
@@ -98,6 +114,9 @@ import {
     V4_CANCEL_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+    WRAP_NATIVE_EVENT_TOPIC,
+    UNWRAP_NATIVE_EVENT_TOPIC,
+    TRANSFER_EVENT_TOPIC_0,
 } from './constants';
 
 import { DeleteOptions } from './utils';
@@ -138,6 +157,7 @@ import {
 } from './parsers/events/nft_events';
 
 import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
+import { parseLiquidityProviderSwapEvent } from './parsers/events/liquidity_provider_swap_events';
 import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
 import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
 
@@ -145,6 +165,18 @@ import {
     parseOnchainGovernanceProposalCreatedEvent,
     parseOnchainGovernanceCallScheduledEvent,
 } from './parsers/events/onchain_governance_events';
+
+import {
+    parseWrapNativeEvent,
+    parseUnwrapNativeEvent,
+    parseWrapNativeTransferEvent,
+    parseUnwrapNativeTransferEvent,
+} from './parsers/events/wrap_unwrap_native_events';
+
+import { parseSocketBridgeEvent } from './parsers/events/socket_bridge_events';
+
+import { filterWrapUnwrapEvents } from './filters/wrap_unwrap_native_events';
+import { filterSocketBridgeEvents } from './filters/socket_bridge_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
@@ -169,9 +201,10 @@ export type EventScraperProps = {
     contractAddress: string;
     startBlock: number;
     parser: (decodedLog: RawLogEntry) => any;
-    deleteOptions: DeleteOptions;
-    tokenMetadataMap: TokenMetadataMap;
-    callback: any | null;
+    deleteOptions?: DeleteOptions;
+    tokenMetadataMap?: TokenMetadataMap;
+    callback?: any;
+    filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>;
 };
 
 export const eventScrperProps: EventScraperProps[] = [
@@ -184,9 +217,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: EP_DEPLOYMENT_BLOCK,
         parser: parseTransformedERC20Event,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
@@ -199,20 +229,6 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV3VIPSwapEvent,
         deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
-        callback: null,
-    },
-    {
-        enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
-        name: 'UniswapV3VIPEvent',
-        tType: ERC20BridgeTransferEvent,
-        table: 'erc20_bridge_transfer_events',
-        topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
-        contractAddress: 'nofilter',
-        startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
-        parser: parseUniswapV3SwapEvent,
-        deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
-        tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
-        callback: null,
     },
     {
         enabled: FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
@@ -225,7 +241,6 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseBridgeFill,
         deleteOptions: { directFlag: false },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
-        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
@@ -238,20 +253,18 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV2SwapEvent,
         deleteOptions: { directFlag: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
-        callback: null,
     },
     {
-        enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
-        name: 'UniswapV3VIPEvent',
+        enabled: FEAT_PLP_SWAP_EVENT,
+        name: 'LiquidityProviderSwapEvent',
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
-        topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
-        contractAddress: 'nofilter',
-        startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
-        parser: parseUniswapV3SwapEvent,
-        deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
+        topics: LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
+        contractAddress: EP_ADDRESS,
+        startBlock: PLP_VIP_START_BLOCK,
+        parser: parseLiquidityProviderSwapEvent,
+        deleteOptions: { directFlag: true, directProtocol: ['PLP'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
-        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -262,9 +275,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: V4_NATIVE_FILL_START_BLOCK,
         parser: parseV4RfqOrderFilledEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
-        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -276,8 +287,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: V4_NATIVE_FILL_START_BLOCK,
         parser: parseNativeFillFromV4RfqOrderFilledEvent,
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT,
@@ -288,9 +297,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: V4_NATIVE_FILL_START_BLOCK,
         parser: parseExpiredRfqOrderEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_LIMIT_ORDERS,
@@ -301,9 +307,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: V4_NATIVE_FILL_START_BLOCK,
         parser: parseV4LimitOrderFilledEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
-        callback: null,
     },
     {
         enabled: FEAT_LIMIT_ORDERS,
@@ -315,8 +319,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: V4_NATIVE_FILL_START_BLOCK,
         parser: parseNativeFillFromV4LimitOrderFilledEvent,
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS,
@@ -327,9 +329,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: V4_NATIVE_FILL_START_BLOCK,
         parser: parseV4CancelEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_OTC_ORDERS,
@@ -340,9 +339,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: OTC_ORDERS_FEATURE_START_BLOCK,
         parser: parseOtcOrderFilledEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
-        callback: null,
     },
     {
         enabled: FEAT_OTC_ORDERS,
@@ -354,8 +351,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: OTC_ORDERS_FEATURE_START_BLOCK,
         parser: parseNativeFillFromV4OtcOrderFilledEvent,
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_V3_FILL_EVENT,
@@ -366,9 +361,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: V3_EXCHANGE_ADDRESS,
         startBlock: FIRST_SEARCH_BLOCK,
         parser: parseFillEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
-        callback: null,
     },
     {
         enabled: FEAT_V3_NATIVE_FILL,
@@ -380,8 +373,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: FIRST_SEARCH_BLOCK,
         parser: parseNativeFillFromFillEvent,
         deleteOptions: { protocolVersion: 'v3' },
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -392,9 +383,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc721OrderFilledEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
-        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -405,9 +394,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc721OrderCancelledEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -418,9 +404,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc721OrderPresignedEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
-        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -431,9 +415,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc1155OrderFilledEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
-        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -444,9 +426,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc1155OrderCancelledEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_NFT,
@@ -457,9 +436,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: NFT_FEATURE_START_BLOCK,
         parser: parseErc1155OrderPresignedEvent,
-        deleteOptions: {},
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
-        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V2_SYNC_EVENT,
@@ -470,9 +447,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V2_SYNC_START_BLOCK,
         parser: parseUniswapV2SyncEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_META_TRANSACTION_EXECUTED_EVENT,
@@ -483,9 +457,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: EP_ADDRESS,
         startBlock: META_TRANSACTION_EXECUTED_START_BLOCK,
         parser: parseMetaTransactionExecutedEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V3_SWAP_EVENT,
@@ -496,9 +467,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V3_SWAP_START_BLOCK,
         parser: parseUniswapV3SwapEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
@@ -509,9 +477,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: UNISWAP_V3_FACTORY_ADDRESS,
         startBlock: UNISWAP_V3_POOL_CREATED_START_BLOCK,
         parser: parseUniswapV3PoolCreatedEvent,
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -523,13 +488,9 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
         parser: (decodedLog: RawLogEntry) =>
             parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
-
         name: 'ZeroExProtocolGovernorProposalCreatedEvent',
         tType: OnchainGovernanceProposalCreatedEvent,
         table: 'onchain_governance_proposal_created',
@@ -538,9 +499,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
         parser: (decodedLog: RawLogEntry) =>
             parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -552,9 +510,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
         parser: (decodedLog: RawLogEntry) =>
             parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -566,9 +521,61 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
         parser: (decodedLog: RawLogEntry) =>
             parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
-        deleteOptions: {},
-        tokenMetadataMap: null,
-        callback: null,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'WrapNativeEvent',
+        tType: WrapNativeEvent,
+        table: 'wrap_native_events',
+        topics: WRAP_NATIVE_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseWrapNativeEvent,
+        filterFunction: filterWrapUnwrapEvents,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+        name: 'UnwrapNativeEvent',
+        tType: UnwrapNativeEvent,
+        table: 'unwrap_native_events',
+        topics: UNWRAP_NATIVE_EVENT_TOPIC,
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseUnwrapNativeEvent,
+        filterFunction: filterWrapUnwrapEvents,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
+        name: 'WrapNativeTransferEvent',
+        tType: WrapNativeEvent,
+        table: 'wrap_native_events',
+        topics: [TRANSFER_EVENT_TOPIC_0, '0x0000000000000000000000000000000000000000000000000000000000000000', null],
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseWrapNativeTransferEvent,
+        filterFunction: filterWrapUnwrapEvents,
+    },
+    {
+        enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
+        name: 'UnwrapNativeTransferEvent',
+        tType: UnwrapNativeEvent,
+        table: 'unwrap_native_events',
+        topics: [TRANSFER_EVENT_TOPIC_0, null, '0x0000000000000000000000000000000000000000000000000000000000000000'],
+        contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+        startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
+        parser: parseUnwrapNativeTransferEvent,
+        filterFunction: filterWrapUnwrapEvents,
+    },
+    {
+        enabled: FEAT_SOCKET_BRIDGE_EVENT,
+        name: 'SocketBridgeEvent',
+        tType: SocketBridgeEvent,
+        table: 'socket_bridge_events',
+        topics: SOCKET_BRIDGE_EVENT_TOPIC,
+        contractAddress: SOCKET_BRIDGE_CONTRACT_ADDRESS,
+        startBlock: SOCKET_BRIDGE_EVENT_START_BLOCK,
+        parser: parseSocketBridgeEvent,
+        filterFunction: filterSocketBridgeEvents,
     },
 ];
 
@@ -588,8 +595,6 @@ for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
         startBlock: POLYGON_RFQM_PAYMENTS_START_BLOCK,
         parser: parseLogTransferEvent,
         deleteOptions: { recipient: payment_recipient },
-        tokenMetadataMap: null,
-        callback: null,
     });
 }
 

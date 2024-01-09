@@ -1031,3 +1031,49 @@ export const ONCHAIN_GOVERNANCE_CALL_SCHEDULED_ABI = {
     name: 'CallScheduled',
     type: 'event',
 };
+
+export const WRAP_NATIVE_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, name: 'dst', type: 'address' },
+        { indexed: false, name: 'wad', type: 'uint256' },
+    ],
+    name: 'Deposit',
+    type: 'event',
+};
+export const UNWRAP_NATIVE_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, name: 'src', type: 'address' },
+        { indexed: false, name: 'wad', type: 'uint256' },
+    ],
+    name: 'Withdrawal',
+    type: 'event',
+};
+
+// The ABI for the `Transfer` event of the ERC20 and ERC721 token contract.
+export const TRANSFER_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'from', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'to', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'value', type: 'uint256' },
+    ],
+    name: 'Transfer',
+    type: 'event',
+};
+
+export const SOCKET_BRIDGE_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+        { indexed: false, internalType: 'address', name: 'token', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'toChainId', type: 'uint256' },
+        { indexed: false, internalType: 'bytes32', name: 'bridgeName', type: 'bytes32' },
+        { indexed: false, internalType: 'address', name: 'sender', type: 'address' },
+        { indexed: false, internalType: 'address', name: 'receiver', type: 'address' },
+        { indexed: false, internalType: 'bytes32', name: 'metadata', type: 'bytes32' },
+    ],
+    name: 'SocketBridge',
+    type: 'event',
+};

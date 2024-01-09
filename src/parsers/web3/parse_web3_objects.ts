@@ -1,6 +1,7 @@
 import { BigNumber } from '@0x/utils';
 import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { BlockWithoutTransactionData, TransactionReceipt as RawReceipt, Transaction as RawTx } from 'ethereum-types';
+import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
 
 export interface RawTx1559 extends RawTx {
     type: number;
@@ -33,8 +34,8 @@ export function parseTransaction(rawTx: RawTx1559): Transaction {
     transaction.maxPriorityFeePerGas =
         rawTx.maxPriorityFeePerGas === undefined ? null : new BigNumber(rawTx.maxPriorityFeePerGas);
 
-    if (transaction.input.includes('869584cd')) {
-        const bytesPos = rawTx.input.indexOf('869584cd');
+    if (transaction.input.includes(ZEROEX_API_AFFILIATE_SELECTOR)) {
+        const bytesPos = rawTx.input.indexOf(ZEROEX_API_AFFILIATE_SELECTOR);
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         const quoteId = rawTx.input.slice(bytesPos + 104, bytesPos + 136);
         if (quoteId.slice(0, 14) === '00000000000000') {

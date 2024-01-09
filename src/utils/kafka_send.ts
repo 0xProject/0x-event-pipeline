@@ -28,43 +28,45 @@ export interface CommandMessage {
 }
 
 export async function kafkaSendRawAsync(
-    producer: Producer,
+    producer: Producer | null,
     topic: string,
     keyFields: string[],
     payload: any[],
 ): Promise<void> {
-    const MAX_SIZE = 500000; // 1MB
+    const MAX_SIZE = 100000;
 
     let currentSize = 0;
     let messages = [];
 
-    for (const message of payload) {
-        const jsonMessage = JSON.stringify(message);
-        const keyValues = keyFields.map((keyField) => String(message[keyField]));
-        const key = keyValues.join('-');
-        const messageLength = jsonMessage.length;
+    if (producer !== null) {
+        for (const message of payload) {
+            const jsonMessage = JSON.stringify(message);
+            const keyValues = keyFields.map((keyField) => String(message[keyField]));
+            const key = keyValues.join('-');
+            const messageLength = jsonMessage.length;
 
-        if (currentSize + messageLength >= MAX_SIZE) {
-            await producer.send({
-                topic,
-                messages,
-            });
-            currentSize = 0;
-            messages = [];
+            if (currentSize + messageLength >= MAX_SIZE) {
+                await producer.send({
+                    topic,
+                    messages,
+                });
+                currentSize = 0;
+                messages = [];
+            }
+            currentSize += messageLength;
+            messages.push({ key, value: jsonMessage });
         }
-        currentSize += messageLength;
-        messages.push({ key, value: jsonMessage });
-    }
-    await producer.send({
-        topic,
-        messages,
-    });
+        await producer.send({
+            topic,
+            messages,
+        });
 
-    logger.info(`Emitted ${payload.length} messages to ${topic}`);
+        logger.info(`Emitted ${payload.length} messages to ${topic}`);
+    }
 }
 
 export async function kafkaSendAsync(
-    producer: Producer,
+    producer: Producer | null,
     topic: string,
     keyFields: string[],
     payload: any[],
@@ -72,11 +74,13 @@ export async function kafkaSendAsync(
     const dataPayload = payload.map((message) => {
         return { type: 'data', message };
     });
-    await kafkaSendRawAsync(producer, topic, keyFields, dataPayload);
+    if (producer != null) {
+        await kafkaSendRawAsync(producer, topic, keyFields, dataPayload);
+    }
 }
 
 export async function kafkaSendCommandAsync(
-    producer: Producer,
+    producer: Producer | null,
     topic: string,
     keyFields: string[],
     payload: CommandMessage[],
@@ -84,5 +88,7 @@ export async function kafkaSendCommandAsync(
     const commandPayload = payload.map((message) => {
         return { type: 'command', message };
     });
-    await kafkaSendRawAsync(producer, topic, keyFields, commandPayload);
+    if (producer != null) {
+        await kafkaSendRawAsync(producer, topic, keyFields, commandPayload);
+    }
 }

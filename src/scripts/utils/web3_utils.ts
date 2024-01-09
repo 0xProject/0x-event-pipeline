@@ -32,7 +32,7 @@ import { TokenMetadataSingleton } from '../../tokenMetadataSingleton';
 export type TokenMetadataMap = {
     tokenA: string;
     tokenB: string;
-} | null;
+};
 
 export type TxDetailsType = {
     parsedTxs: Transaction[];
@@ -424,8 +424,8 @@ FROM (
     }
 }
 
-export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadataMap) {
-    if (tokenMetadataMap !== null) {
+export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadataMap | undefined) {
+    if (tokenMetadataMap !== undefined) {
         const tokens: string[] = [];
         try {
             logs.map((log: any) => {
@@ -605,11 +605,7 @@ async function _erc165Filter(web3Source: Web3Source, tokenAddresses: string[], e
     return keptTokens;
 }
 
-export async function getParseTxsAsync(
-    connection: Connection,
-    web3Source: Web3Source,
-    hashes: string[],
-): Promise<TxDetailsType> {
+export async function getParseTxsAsync(web3Source: Web3Source, hashes: string[]): Promise<TxDetailsType> {
     logger.debug(`Grabbing transaction data`);
 
     const dedupedHashes = [...new Set(hashes)];
@@ -649,7 +645,7 @@ export async function getParseSaveTxAsync(
 ): Promise<void> {
     logger.info(`Searching for ${hashes.length} Transactions`);
 
-    const txData = await getParseTxsAsync(connection, web3Source, hashes);
+    const txData = await getParseTxsAsync(web3Source, hashes);
 
     const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
     const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
