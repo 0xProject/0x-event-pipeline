@@ -7,15 +7,15 @@ import { Web3Source } from '../data_sources/events/web3';
 import { getParseSaveTxAsync } from './utils/web3_utils';
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
-import { ETHEREUM_RPC_URL } from '../config';
+import { EVM_RPC_URL } from '../config';
 import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
 
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 
@@ -54,7 +54,7 @@ export class EventsByTopicScraper {
                         props.deleteOptions,
                         props.tokenMetadataMap,
                         props.callback,
-                        props.filterFunction,
+                        props.filterFunctionGetContext,
                     ),
                 );
             }

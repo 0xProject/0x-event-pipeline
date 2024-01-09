@@ -1,6 +1,15 @@
-import { BlockWithTransactionData, BlockWithoutTransactionData, RawLog, Transaction } from 'ethereum-types';
+import {
+    BlockWithTransactionData,
+    BlockWithoutTransactionData,
+    RawLog,
+    Transaction,
+    TransactionReceipt,
+} from 'ethereum-types';
 
 const Web3 = require('web3');
+
+var helpers = require('web3-core-helpers');
+var formatter = helpers.formatters;
 
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { chunk, logger } from '../../utils';
@@ -18,8 +27,20 @@ export interface ContractCallInfo {
     data: string;
 }
 
-export interface BlockWithTransactionData1155 extends BlockWithTransactionData {
+export interface Transaction1559 extends Transaction {
+    type: number;
+}
+
+export interface BlockWithoutTransactionData1559 extends BlockWithoutTransactionData {
     baseFeePerGas: number;
+}
+export interface BlockWithTransactionData1559 extends BlockWithTransactionData {
+    baseFeePerGas: number;
+    transactions: Transaction1559[];
+}
+
+export interface TransactionReceipt1559 extends TransactionReceipt {
+    effectiveGasPrice: number;
 }
 
 export class Web3Source {
@@ -28,9 +49,25 @@ export class Web3Source {
     constructor(provider: Web3ProviderEngine, wsProvider: string) {
         this._web3Wrapper = new Web3Wrapper(provider);
         this._web3 = new Web3(wsProvider);
+
+        this._web3.eth.extend({
+            methods: [
+                {
+                    name: 'getBlockReceipts',
+                    call: 'eth_getBlockReceipts',
+                    params: 1,
+                    inputFormatter: [this._web3.utils.numberToHex],
+                    outputFormatter: (block: any) => formatter.outputTransactionReceiptFormatter(block),
+                },
+            ],
+        });
     }
 
-    public async getBatchBlockInfoForRangeAsync(startBlock: number, endBlock: number): Promise<any[]> {
+    public async getBatchBlockInfoForRangeAsync(
+        startBlock: number,
+        endBlock: number,
+        includeTransactions: boolean,
+    ): Promise<any[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
         const batch = new this._web3.BatchRequest();
 
@@ -38,7 +75,8 @@ export class Web3Source {
             return new Promise((resolve, reject) => {
                 const req = this._web3.eth.getBlock.request(
                     i + startBlock,
-                    (err: any, data: BlockWithTransactionData1155) => {
+                    includeTransactions,
+                    (err: any, data: BlockWithTransactionData1559) => {
                         if (err) {
                             logger.error(`Blocks error: ${err}`);
                             reject(err);
@@ -54,6 +92,23 @@ export class Web3Source {
         const blocks = await Promise.all(promises);
 
         return blocks;
+    }
+
+    public async getBatchBlockReceiptsForRangeAsync(
+        startBlock: number,
+        endBlock: number,
+    ): Promise<TransactionReceipt1559[][]> {
+        const iter = Array.from(Array(endBlock - startBlock + 1).keys());
+
+        const promises = iter.map((i) => {
+            return this._web3.eth.getBlockReceipts(i + startBlock).catch((err: any) => {
+                logger.error(`Blocks error: ${err}`);
+            });
+        });
+
+        const blocks = await Promise.all(promises);
+
+        return blocks as TransactionReceipt1559[][];
     }
 
     public async getBatchTxInfoAsync(hashes: string[]): Promise<any[]> {

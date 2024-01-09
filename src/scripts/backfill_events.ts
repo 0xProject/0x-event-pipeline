@@ -7,7 +7,7 @@ import { Web3Source } from '../data_sources/events/web3';
 import { getParseSaveTxAsync } from './utils/web3_utils';
 import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
 
-import { ETHEREUM_RPC_URL } from '../config';
+import { EVM_RPC_URL } from '../config';
 import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
 
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
@@ -15,16 +15,16 @@ import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 import { EventBackfill } from '../entities';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 
 export class EventsBackfillScraper {
     public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
-        logger.info(`Pulling Events by Topic`);
+        logger.info(`Pulling Events by Topic Backfill`);
         const currentBlock = await web3Source.getCurrentBlockAsync();
 
         logger.info(`latest block: ${currentBlock.number}`);
@@ -71,7 +71,7 @@ export class EventsBackfillScraper {
                             props.deleteOptions,
                             props.tokenMetadataMap,
                             props.callback,
-                            props.filterFunction,
+                            props.filterFunctionGetContext,
                         )
                         .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
                             if (startBlockNumber !== null && endBlockNumber !== null) {

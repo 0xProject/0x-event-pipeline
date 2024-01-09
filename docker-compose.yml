@@ -24,7 +24,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
+            EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events'
@@ -87,7 +87,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_BSC}'
+            EVM_RPC_URL: '${RPC_URL_BSC}'
             CHAIN_ID: '56'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
@@ -118,7 +118,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_POLYGON}'
+            EVM_RPC_URL: '${RPC_URL_POLYGON}'
             CHAIN_ID: '137'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'
@@ -153,7 +153,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_AVALANCHE}'
+            EVM_RPC_URL: '${RPC_URL_AVALANCHE}'
             CHAIN_ID: '43114'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_avalanche'
@@ -186,7 +186,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_FANTOM}'
+            EVM_RPC_URL: '${RPC_URL_FANTOM}'
             CHAIN_ID: '250'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_fantom'
@@ -217,7 +217,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_CELO}'
+            EVM_RPC_URL: '${RPC_URL_CELO}'
             CHAIN_ID: '42220'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_celo'
@@ -242,7 +242,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_OPTIMISM}'
+            EVM_RPC_URL: '${RPC_URL_OPTIMISM}'
             CHAIN_ID: '10'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_optimism'
@@ -273,7 +273,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_ARBITRUM}'
+            EVM_RPC_URL: '${RPC_URL_ARBITRUM}'
             CHAIN_ID: '42161'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_arbitrum'
@@ -300,7 +300,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_BASE}'
+            EVM_RPC_URL: '${RPC_URL_BASE}'
             CHAIN_ID: '8453'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_base'
@@ -326,7 +326,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
+            EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events'

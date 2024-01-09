@@ -1,12 +1,12 @@
 const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { LogTransferEvent } from '../../entities';
 
 import { parseEvent } from './parse_event';
 import { LOG_TRANSFER_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseLogTransferEvent(eventLog: RawLogEntry): LogTransferEvent {
+export function parseLogTransferEvent(eventLog: LogEntry): LogTransferEvent {
     const logTransferEvent = new LogTransferEvent();
     parseEvent(eventLog, logTransferEvent);
     // decode the basic info directly into logTransferEvent

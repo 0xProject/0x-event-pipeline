@@ -6,15 +6,15 @@ import { Connection } from 'typeorm';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 import { PullAndSaveWeb3 } from './utils/web3_utils';
 import { Web3Source } from '../data_sources/events/web3';
-import { ETHEREUM_RPC_URL } from '../config';
+import { EVM_RPC_URL } from '../config';
 
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
 
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 const pullAndSaveWeb3 = new PullAndSaveWeb3(web3Source);
 
 export class BlockScraper {

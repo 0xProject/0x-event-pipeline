@@ -1,5 +1,6 @@
 import { BigNumber } from '@0x/utils';
-import { parseTransaction, RawTx1559 } from '../parsers/web3/parse_web3_objects';
+import { parseTransaction } from '../parsers/web3/parse_web3_objects';
+import { Transaction1559 as EVMTransaction } from '../data_sources/events/web3';
 import { Transaction } from '../entities';
 
 jest.useFakeTimers();
@@ -26,7 +27,7 @@ test('Old QR ID works', () => {
         value: new BigNumber('0'),
     };
 
-    const rawTransaction: RawTx1559 = {
+    const rawTransaction: EVMTransaction = {
         blockHash: '0xc3153e3681ccab6366b3cf3339f61911facfa98833d56e0e75dd6a435974c306',
         blockNumber: 17578209,
         hash: '0xca343cd9cff11f3b423a5237594dd0e20259a1402988aa2db6c30710d9c131ae',
@@ -68,7 +69,7 @@ test('New ZID works', () => {
         value: new BigNumber('0'),
     };
 
-    const rawTransaction: RawTx1559 = {
+    const rawTransaction: EVMTransaction = {
         blockHash: '0xc3153e3681ccab6366b3cf3339f61911facfa98833d56e0e75dd6a435974c306',
         blockNumber: 17578209,
         hash: '0xca343cd9cff11f3b423a5237594dd0e20259a1402988aa2db6c30710d9c131ae',

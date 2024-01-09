@@ -5,15 +5,15 @@ import { Connection } from 'typeorm';
 
 import { getParseTxsAsync } from './utils/web3_utils';
 import { Web3Source } from '../data_sources/events/web3';
-import { ETHEREUM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
+import { EVM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
 
 import { SCAN_RESULTS, SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
 
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 // We changed the way tx data is scraped, previously it was paralell to events, now it is secuential.
 // This Scraper should be used to get the missing Tx data during the transition. It expects the table backfil_tx to be filled with:

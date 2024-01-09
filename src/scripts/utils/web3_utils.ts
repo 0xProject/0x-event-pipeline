@@ -75,7 +75,7 @@ export class PullAndSaveWeb3 {
         SCAN_END_BLOCK.labels({ type: 'blocks' }).set(endBlock);
 
         logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
-        const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
+        const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock, false);
         logger.debug('rawBlocks:');
         rawBlocks.map((rawBlock) => logger.debug(rawBlock));
 

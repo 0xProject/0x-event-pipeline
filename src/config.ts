@@ -92,9 +92,9 @@ function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     return bridgeContracts;
 }
 
-export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL
-    ? process.env.ETHEREUM_RPC_URL
-    : throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
+export const EVM_RPC_URL = process.env.EVM_RPC_URL
+    ? process.env.EVM_RPC_URL
+    : throwError(`Must specify valid EVM_RPC_URL. Got: ${process.env.EVM_RPC_URL}`);
 
 export const EP_DEPLOYMENT_BLOCK = process.env.EP_DEPLOYMENT_BLOCK
     ? parseInt(process.env.EP_DEPLOYMENT_BLOCK, 10)

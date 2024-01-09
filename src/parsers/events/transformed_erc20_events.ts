@@ -1,11 +1,11 @@
 const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { TransformedERC20Event } from '../../entities';
 import { parseEvent } from './parse_event';
 import { TRANSFORMED_ERC20_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseTransformedERC20Event(eventLog: RawLogEntry): TransformedERC20Event {
+export function parseTransformedERC20Event(eventLog: LogEntry): TransformedERC20Event {
     const transformedERC20Event = new TransformedERC20Event();
 
     parseEvent(eventLog, transformedERC20Event);

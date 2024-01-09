@@ -1,11 +1,11 @@
 const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { V4CancelEvent } from '../../entities';
 
 import { parseEvent } from './parse_event';
 import { V4_CANCEL_ABI } from '../../constants';
 
-export function parseV4CancelEvent(eventLog: RawLogEntry): V4CancelEvent {
+export function parseV4CancelEvent(eventLog: LogEntry): V4CancelEvent {
     const v4CancelEvent = new V4CancelEvent();
     parseEvent(eventLog, v4CancelEvent);
 

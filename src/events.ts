@@ -1,7 +1,7 @@
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
 import { Web3Source } from './data_sources/events/web3';
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 
 import {
     ERC20BridgeTransferEvent,
@@ -21,6 +21,7 @@ import {
     OnchainGovernanceProposalCreatedEvent,
     OtcOrderFilledEvent,
     SocketBridgeEvent,
+    Transaction,
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
     UniswapV2SyncEvent,
@@ -175,8 +176,8 @@ import {
 
 import { parseSocketBridgeEvent } from './parsers/events/socket_bridge_events';
 
-import { filterWrapUnwrapEvents } from './filters/wrap_unwrap_native_events';
-import { filterSocketBridgeEvents } from './filters/socket_bridge_events';
+import { filterWrapUnwrapEvents, filterWrapUnwrapEventsGetContext } from './filters/wrap_unwrap_native_events';
+import { filterSocketBridgeEventsGetContext, filterSocketBridgeEvents } from './filters/socket_bridge_events';
 
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
@@ -200,11 +201,12 @@ export type EventScraperProps = {
     topics: (string | null)[];
     contractAddress: string;
     startBlock: number;
-    parser: (decodedLog: RawLogEntry) => any;
+    parser: (log: LogEntry) => any;
     deleteOptions?: DeleteOptions;
     tokenMetadataMap?: TokenMetadataMap;
     callback?: any;
-    filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>;
+    filterFunction?: (events: Event[], transaction: Transaction) => Event[];
+    filterFunctionGetContext?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>;
 };
 
 export const eventScrperProps: EventScraperProps[] = [
@@ -486,8 +488,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
         contractAddress: ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
+        parser: (log: LogEntry) => parseOnchainGovernanceProposalCreatedEvent(log, 'ZeroexTreasuryGovernor'),
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -497,8 +498,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
         contractAddress: ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
+        parser: (log: LogEntry) => parseOnchainGovernanceProposalCreatedEvent(log, 'ZeroexProtocolGovernor'),
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -508,8 +508,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
         contractAddress: TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
+        parser: (log: LogEntry) => parseOnchainGovernanceCallScheduledEvent(log, 'TreasuryZeroexTimelock'),
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -519,8 +518,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
         contractAddress: PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
+        parser: (log: LogEntry) => parseOnchainGovernanceCallScheduledEvent(log, 'ProtocolZeroexTimelock'),
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -532,6 +530,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseWrapNativeEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -543,6 +542,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
@@ -554,6 +554,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseWrapNativeTransferEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
@@ -565,6 +566,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeTransferEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_SOCKET_BRIDGE_EVENT,
@@ -575,6 +577,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: SOCKET_BRIDGE_CONTRACT_ADDRESS,
         startBlock: SOCKET_BRIDGE_EVENT_START_BLOCK,
         parser: parseSocketBridgeEvent,
+        filterFunctionGetContext: filterSocketBridgeEventsGetContext,
         filterFunction: filterSocketBridgeEvents,
     },
 ];
@@ -607,7 +610,7 @@ for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_S
         topics: UNISWAP_V2_PAIR_CREATED_TOPIC,
         contractAddress: protocol.factoryAddress,
         startBlock: protocol.startBlock,
-        parser: (decodedLog: RawLogEntry) => parseUniswapV2PairCreatedEvent(decodedLog, protocol.name),
+        parser: (log: LogEntry) => parseUniswapV2PairCreatedEvent(log, protocol.name),
         deleteOptions: { protocol: protocol.name },
         tokenMetadataMap: { tokenA: 'token0', tokenB: 'token1' },
         callback: uniV2PoolSingletonCallback,

@@ -53,15 +53,15 @@ import {
 
 import { PullAndSaveEvents } from './utils/event_utils';
 import { Web3Source } from '../data_sources/events/web3';
-import { CHAIN_ID, ETHEREUM_RPC_URL, FEAT_CANCEL_EVENTS, FEAT_STAKING } from '../config';
+import { CHAIN_ID, EVM_RPC_URL, FEAT_CANCEL_EVENTS, FEAT_STAKING } from '../config';
 
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
 
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 const eventsSource = new EventsSource(provider, CHAIN_ID);
 const pullAndSaveEvents = new PullAndSaveEvents();
 

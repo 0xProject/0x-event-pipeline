@@ -2,12 +2,12 @@ import { web3Factory } from '@0x/dev-utils';
 import { logger } from '../utils/logger';
 import { Web3Source } from '../data_sources/events/web3';
 
-import { ETHEREUM_RPC_URL } from '../config';
+import { EVM_RPC_URL } from '../config';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 export class ChainIdChecker {
     public checkChainId(expected: number): void {

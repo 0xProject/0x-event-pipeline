@@ -1,12 +1,11 @@
 const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { ERC20BridgeTransferEvent, UniswapV3SwapEvent, UniswapV3PoolCreatedEvent } from '../../entities';
-
 import { parseEvent } from './parse_event';
 import { UNISWAP_V3_SWAP_ABI, UNISWAP_V3_POOL_CREATED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
-export function parseUniswapV3VIPSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent {
+export function parseUniswapV3VIPSwapEvent(eventLog: LogEntry): ERC20BridgeTransferEvent {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent
@@ -32,7 +31,7 @@ export function parseUniswapV3VIPSwapEvent(eventLog: RawLogEntry): ERC20BridgeTr
     return eRC20BridgeTransferEvent;
 }
 
-export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): UniswapV3SwapEvent {
+export function parseUniswapV3SwapEvent(eventLog: LogEntry): UniswapV3SwapEvent {
     const uniswapV3SwapEvent = new UniswapV3SwapEvent();
     parseEvent(eventLog, uniswapV3SwapEvent);
     const decodedLog = abiCoder.decodeLog(UNISWAP_V3_SWAP_ABI.inputs, eventLog.data, [
@@ -53,7 +52,7 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): UniswapV3SwapEve
     return uniswapV3SwapEvent;
 }
 
-export function parseUniswapV3PoolCreatedEvent(eventLog: RawLogEntry): UniswapV3PoolCreatedEvent {
+export function parseUniswapV3PoolCreatedEvent(eventLog: LogEntry): UniswapV3PoolCreatedEvent {
     const UniswapV3poolCreated = new UniswapV3PoolCreatedEvent();
     parseEvent(eventLog, UniswapV3poolCreated);
     const decodedLog = abiCoder.decodeLog(UNISWAP_V3_POOL_CREATED_ABI.inputs, eventLog.data, [

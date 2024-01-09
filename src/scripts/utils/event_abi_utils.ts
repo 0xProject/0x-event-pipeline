@@ -8,7 +8,7 @@ import { Event, Transaction } from '../../entities';
 import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
 import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
 
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 
 import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
@@ -32,7 +32,7 @@ export class PullAndSaveEventsByTopic {
         topics: (string | null)[],
         contractAddress: string,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => Event,
+        parser: (decodedLog: LogEntry) => Event,
         deleteOptions?: DeleteOptions,
         tokenMetadataMap?: TokenMetadataMap,
         callback?: (event: Event) => void,
@@ -111,7 +111,7 @@ export class PullAndSaveEventsByTopic {
         topics: (string | null)[],
         contractAddress: string,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => Event,
+        parser: (decodedLog: LogEntry) => Event,
         startBlockNumber: number,
         deleteOptions?: DeleteOptions,
         tokenMetadataMap?: TokenMetadataMap,
@@ -167,7 +167,7 @@ export class PullAndSaveEventsByTopic {
         topics: (string | null)[],
         contractAddress: string,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => Event,
+        parser: (decodedLog: LogEntry) => Event,
         startBlockNumber: number,
         endBlockNumber: number,
         endBlockHash: string,
@@ -199,7 +199,7 @@ export class PullAndSaveEventsByTopic {
             let txHashes: string[] = [];
             await Promise.all(
                 rawLogsArray.map(async (rawLogs) => {
-                    const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
+                    const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: LogEntry) => parser(encodedLog));
 
                     const parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
                     SKIPPED_EVENTS.inc(

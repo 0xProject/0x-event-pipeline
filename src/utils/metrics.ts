@@ -4,6 +4,12 @@ import express from 'express';
 import { logger } from './logger';
 import { Gauge, register } from 'prom-client';
 
+export const CURRENT_BLOCK = new Gauge({
+    name: 'event_scraper_current_block',
+    help: 'The current head of the chain',
+    labelNames: ['chain'],
+});
+
 export const SCRIPT_RUN_DURATION = new Gauge({
     name: 'event_scraper_script_run_duration',
     help: 'The time a script took to run',

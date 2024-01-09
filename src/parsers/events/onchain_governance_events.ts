@@ -1,5 +1,5 @@
 const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { OnchainGovernanceProposalCreatedEvent, OnchainGovernanceCallScheduledEvent } from '../../entities';
 
 import { parseEvent } from './parse_event';
@@ -7,7 +7,7 @@ import { ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_ABI, ONCHAIN_GOVERNANCE_CALL_SCHEDU
 import { BigNumber } from '@0x/utils';
 
 export function parseOnchainGovernanceProposalCreatedEvent(
-    eventLog: RawLogEntry,
+    eventLog: LogEntry,
     contract_name: string,
 ): OnchainGovernanceProposalCreatedEvent {
     const onchainGovernanceProposalCreatedEvent = new OnchainGovernanceProposalCreatedEvent();
@@ -29,7 +29,7 @@ export function parseOnchainGovernanceProposalCreatedEvent(
 }
 
 export function parseOnchainGovernanceCallScheduledEvent(
-    eventLog: RawLogEntry,
+    eventLog: LogEntry,
     contract_name: string,
 ): OnchainGovernanceCallScheduledEvent {
     const onchainGovernanceCallScheduledEvent = new OnchainGovernanceCallScheduledEvent();
