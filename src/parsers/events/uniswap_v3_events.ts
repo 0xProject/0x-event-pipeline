@@ -1,9 +1,9 @@
 const abiCoder = require('web3-eth-abi');
 import { RawLogEntry } from 'ethereum-types';
-import { ERC20BridgeTransferEvent, UniswapV3SwapEvent } from '../../entities';
+import { ERC20BridgeTransferEvent, UniswapV3SwapEvent, UniswapV3PoolCreatedEvent } from '../../entities';
 
 import { parseEvent } from './parse_event';
-import { UNISWAP_V3_SWAP_ABI } from '../../constants';
+import { UNISWAP_V3_SWAP_ABI, UNISWAP_V3_POOL_CREATED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
 
 export function parseUniswapV3VIPSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent {
@@ -51,4 +51,22 @@ export function parseUniswapV3SwapEvent(eventLog: RawLogEntry): UniswapV3SwapEve
     uniswapV3SwapEvent.tick = decodedLog.tick;
 
     return uniswapV3SwapEvent;
+}
+
+export function parseUniswapV3PoolCreatedEvent(eventLog: RawLogEntry): UniswapV3PoolCreatedEvent {
+    const UniswapV3poolCreated = new UniswapV3PoolCreatedEvent();
+    parseEvent(eventLog, UniswapV3poolCreated);
+    const decodedLog = abiCoder.decodeLog(UNISWAP_V3_POOL_CREATED_ABI.inputs, eventLog.data, [
+        eventLog.topics[1],
+        eventLog.topics[2],
+        eventLog.topics[3],
+    ]);
+
+    UniswapV3poolCreated.token0 = decodedLog.token0.toLowerCase();
+    UniswapV3poolCreated.token1 = decodedLog.token1.toLowerCase();
+    UniswapV3poolCreated.fee = decodedLog.fee;
+    UniswapV3poolCreated.tickSpacing = decodedLog.tickSpacing;
+    UniswapV3poolCreated.pool = decodedLog.pool.toLowerCase();
+
+    return UniswapV3poolCreated;
 }

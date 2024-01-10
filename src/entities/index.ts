@@ -42,6 +42,7 @@ export { TransactionReceipt } from './transaction_receipt';
 export { TransformedERC20Event } from './transformed_erc20_event';
 export { UniswapV2PairCreatedEvent } from './uniswap_v2_pair_created_event';
 export { UniswapV2SyncEvent } from './uniswap_v2_sync_event';
+export { UniswapV3PoolCreatedEvent } from './uniswap_v3_pool_created_event';
 export { UniswapV3SwapEvent } from './uniswap_v3_swap_event';
 export { UnstakeEvent } from './unstake_event';
 export { UnwrapNativeEvent } from './unwrap_native_event';

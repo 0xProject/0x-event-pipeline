@@ -24,12 +24,13 @@ import {
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
     UniswapV2SyncEvent,
+    UniswapV3PoolCreatedEvent,
     UniswapV3SwapEvent,
+    UnwrapNativeEvent,
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     WrapNativeEvent,
-    UnwrapNativeEvent,
 } from './entities';
 
 import {
@@ -49,12 +50,13 @@ import {
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V2_SYNC_EVENT,
     FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
+    FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
-    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
-    FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
+    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
+    FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
     FIRST_SEARCH_BLOCK,
     FLASHWALLET_ADDRESS,
     FLASHWALLET_DEPLOYMENT_BLOCK,
@@ -71,11 +73,13 @@ import {
     UNISWAP_V2_SYNC_START_BLOCK,
     UNISWAP_V2_VIP_SWAP_SOURCES,
     UNISWAP_V2_VIP_SWAP_START_BLOCK,
+    UNISWAP_V3_FACTORY_ADDRESS,
+    UNISWAP_V3_POOL_CREATED_START_BLOCK,
     UNISWAP_V3_SWAP_START_BLOCK,
     UNISWAP_V3_VIP_SWAP_START_BLOCK,
     V4_NATIVE_FILL_START_BLOCK,
-    WRAP_UNWRAP_NATIVE_START_BLOCK,
     WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
+    WRAP_UNWRAP_NATIVE_START_BLOCK,
 } from './config';
 
 import {
@@ -90,7 +94,6 @@ import {
     LIMITORDERFILLED_EVENT_TOPIC,
     LIQUIDITYPROVIDERSWAP_EVENT_TOPIC,
     LOG_TRANSFER_EVENT_TOPIC_0,
-    SOCKET_BRIDGE_EVENT_TOPIC,
     META_TRANSACTION_EXECUTED_EVENT_TOPIC,
     ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
     ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
@@ -98,20 +101,22 @@ import {
     POLYGON_MATIC_ADDRESS,
     PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
     RFQ_ORDER_FILLED_EVENT_TOPIC,
+    SOCKET_BRIDGE_EVENT_TOPIC,
+    TRANSFER_EVENT_TOPIC_0,
     TRANSFORMEDERC20_EVENT_TOPIC,
     TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
     UNISWAP_V2_PAIR_CREATED_TOPIC,
     UNISWAP_V2_SWAP_EVENT_TOPIC_0,
     UNISWAP_V2_SYNC_TOPIC,
+    UNISWAP_V3_POOL_CREATED_TOPIC_0,
     UNISWAP_V3_SWAP_EVENT_TOPIC_0,
+    UNWRAP_NATIVE_EVENT_TOPIC,
     V3_EXCHANGE_ADDRESS,
     V3_FILL_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
+    WRAP_NATIVE_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
-    WRAP_NATIVE_EVENT_TOPIC,
-    UNWRAP_NATIVE_EVENT_TOPIC,
-    TRANSFER_EVENT_TOPIC_0,
 } from './constants';
 
 import { DeleteOptions } from './utils';
@@ -120,7 +125,11 @@ import {
     parseNativeFillFromV4RfqOrderFilledEvent,
     parseV4RfqOrderFilledEvent,
 } from './parsers/events/v4_rfq_order_filled_events';
-import { parseUniswapV3VIPSwapEvent, parseUniswapV3SwapEvent } from './parsers/events/uniswap_v3_events';
+import {
+    parseUniswapV3VIPSwapEvent,
+    parseUniswapV3SwapEvent,
+    parseUniswapV3PoolCreatedEvent,
+} from './parsers/events/uniswap_v3_events';
 import {
     parseNativeFillFromV4LimitOrderFilledEvent,
     parseV4LimitOrderFilledEvent,
@@ -243,18 +252,6 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: UNISWAP_V2_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV2SwapEvent,
         deleteOptions: { directFlag: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
-        tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
-    },
-    {
-        enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
-        name: 'UniswapV3VIPEvent',
-        tType: ERC20BridgeTransferEvent,
-        table: 'erc20_bridge_transfer_events',
-        topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
-        contractAddress: 'nofilter',
-        startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
-        parser: parseUniswapV3SwapEvent,
-        deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
     {
@@ -470,6 +467,16 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: 'nofilter',
         startBlock: UNISWAP_V3_SWAP_START_BLOCK,
         parser: parseUniswapV3SwapEvent,
+    },
+    {
+        enabled: FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
+        name: 'UniswapV3PoolCreatedEvent',
+        tType: UniswapV3PoolCreatedEvent,
+        table: 'uniswap_v3_pool_created_events',
+        topics: [UNISWAP_V3_POOL_CREATED_TOPIC_0],
+        contractAddress: UNISWAP_V3_FACTORY_ADDRESS,
+        startBlock: UNISWAP_V3_POOL_CREATED_START_BLOCK,
+        parser: parseUniswapV3PoolCreatedEvent,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
