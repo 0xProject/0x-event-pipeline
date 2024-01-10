@@ -1,10 +1,10 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
-import { ExpiredRfqOrderEvent } from '../../entities';
-
-import { parseEvent } from './parse_event';
 import { EXPIRED_RFQ_ORDER_ABI } from '../../constants';
+import { ExpiredRfqOrderEvent } from '../../entities';
+import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 export function parseExpiredRfqOrderEvent(eventLog: LogEntry): ExpiredRfqOrderEvent {
     const expiredRfqOrderEvent = new ExpiredRfqOrderEvent();

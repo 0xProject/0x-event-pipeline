@@ -1,12 +1,4 @@
 // load env vars
-import { resolve } from 'path';
-import { config } from 'dotenv';
-config({ path: resolve(__dirname, '../../.env') });
-
-import { Connection, ConnectionOptions, createConnection } from 'typeorm';
-import { Kafka, Producer } from 'kafkajs';
-import * as ormConfig from './ormconfig';
-import { logger } from './utils/logger';
 import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
@@ -19,21 +11,28 @@ import {
     KAFKA_SSL,
     SECONDS_BETWEEN_RUNS,
 } from './config';
-
-import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
+import * as ormConfig from './ormconfig';
+import { EventsBackfillScraper } from './scripts/backfill_events';
+import { ChainIdChecker } from './scripts/check_chain_id';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
+import { BlockEventsScraper } from './scripts/pull_and_save_block_events';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
-import { BlockEventsScraper } from './scripts/pull_and_save_block_events';
-import { EventsBackfillScraper } from './scripts/backfill_events';
-import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
+import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
-import { ChainIdChecker } from './scripts/check_chain_id';
-//import { CurrentBlockMonitor } from './scripts/monitor_current_block';
-import { startMetricsServer } from './utils/metrics';
+import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
+import { logger } from './utils/logger';
+//import { CurrentBlockMonitor } from './scripts/monitor_current_block';
+import { startMetricsServer } from './utils/metrics';
+import { config } from 'dotenv';
+import { Kafka, Producer } from 'kafkajs';
+import { resolve } from 'path';
+import { Connection, ConnectionOptions, createConnection } from 'typeorm';
+
+config({ path: resolve(__dirname, '../../.env') });
 
 let producer: Producer | null = null;
 

@@ -1,11 +1,12 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
-import { ERC20BridgeTransferEvent, UniswapV3SwapEvent, UniswapV3PoolCreatedEvent } from '../../entities';
-import { parseEvent } from './parse_event';
 import { UNISWAP_V3_SWAP_ABI, UNISWAP_V3_POOL_CREATED_ABI } from '../../constants';
-import { BigNumber } from '@0x/utils';
+import { ERC20BridgeTransferEvent, UniswapV3SwapEvent, UniswapV3PoolCreatedEvent } from '../../entities';
 import { UniV3PoolSingleton } from '../../uniV3PoolSingleton';
 import { logger } from '../../utils/logger';
+import { parseEvent } from './parse_event';
+import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 export function parseUniswapV3VIPSwapEvent(eventLog: LogEntry): ERC20BridgeTransferEvent | null {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();

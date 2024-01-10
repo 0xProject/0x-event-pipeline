@@ -1,10 +1,9 @@
-import { LogEntry } from 'ethereum-types';
-import { BigNumber } from '@0x/utils';
-
-import { OtcOrderFilledEvent } from '../../entities';
-import { parseEvent } from './parse_event';
 import { OTC_ORDER_FILLED_ABI } from '../../constants';
+import { OtcOrderFilledEvent } from '../../entities';
 import { NativeFill } from '../../entities';
+import { parseEvent } from './parse_event';
+import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 

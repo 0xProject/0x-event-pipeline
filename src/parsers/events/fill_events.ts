@@ -1,14 +1,12 @@
-import { assetDataUtils } from '@0x/order-utils';
-import { AssetProxyId } from '@0x/types';
-import { LogEntry } from 'ethereum-types';
-
+import { V3_FILL_ABI } from '../../constants';
 import { FillEvent } from '../../entities';
 import { NativeFill } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils/proxyType';
-import { parseEvent } from './parse_event';
-import { V3_FILL_ABI } from '../../constants';
-
 import { parse0xAssetTokenAddress, parseV30xBridgeAddress } from '../utils/asset_data_utils';
+import { parseEvent } from './parse_event';
+import { assetDataUtils } from '@0x/order-utils';
+import { AssetProxyId } from '@0x/types';
+import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 

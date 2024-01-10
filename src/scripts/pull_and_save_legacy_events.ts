@@ -1,26 +1,6 @@
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
-
-import {
-    ExchangeCancelEventArgs,
-    ExchangeCancelUpToEventArgs,
-    ExchangeTransactionExecutionEventArgs,
-    StakingEpochEndedEventArgs,
-    StakingEpochFinalizedEventArgs,
-    StakingMakerStakingPoolSetEventArgs,
-    StakingMoveStakeEventArgs,
-    StakingOperatorShareDecreasedEventArgs,
-    StakingParamsSetEventArgs,
-    StakingRewardsPaidEventArgs,
-    StakingStakeEventArgs,
-    StakingStakingPoolCreatedEventArgs,
-    StakingStakingPoolEarnedRewardsInEpochEventArgs,
-    StakingUnstakeEventArgs,
-} from '@0x/contract-wrappers';
-import { parseCancelEvent, parseCancelUpToEvent } from '../parsers/events/cancel_events';
-import { parseTransactionExecutionEvent } from '../parsers/events/transaction_execution_events';
+import { CHAIN_ID, EVM_RPC_URL, FEAT_CANCEL_EVENTS, FEAT_STAKING } from '../config';
 import { EventsSource } from '../data_sources/events/0x_events';
+import { Web3Source } from '../data_sources/events/web3';
 import {
     CancelEvent,
     CancelUpToEvent,
@@ -37,6 +17,7 @@ import {
     TransactionExecutionEvent,
     UnstakeEvent,
 } from '../entities';
+import { parseCancelEvent, parseCancelUpToEvent } from '../parsers/events/cancel_events';
 import {
     parseEpochEndedEvent,
     parseEpochFinalizedEvent,
@@ -50,12 +31,28 @@ import {
     parseStakingPoolEarnedRewardsInEpochEvent,
     parseUnstakeEvent,
 } from '../parsers/events/staking_events';
-
-import { PullAndSaveEvents } from './utils/event_utils';
-import { Web3Source } from '../data_sources/events/web3';
-import { CHAIN_ID, EVM_RPC_URL, FEAT_CANCEL_EVENTS, FEAT_STAKING } from '../config';
-
+import { parseTransactionExecutionEvent } from '../parsers/events/transaction_execution_events';
+import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { PullAndSaveEvents } from './utils/event_utils';
+import {
+    ExchangeCancelEventArgs,
+    ExchangeCancelUpToEventArgs,
+    ExchangeTransactionExecutionEventArgs,
+    StakingEpochEndedEventArgs,
+    StakingEpochFinalizedEventArgs,
+    StakingMakerStakingPoolSetEventArgs,
+    StakingMoveStakeEventArgs,
+    StakingOperatorShareDecreasedEventArgs,
+    StakingParamsSetEventArgs,
+    StakingRewardsPaidEventArgs,
+    StakingStakeEventArgs,
+    StakingStakingPoolCreatedEventArgs,
+    StakingStakingPoolEarnedRewardsInEpochEventArgs,
+    StakingUnstakeEventArgs,
+} from '@0x/contract-wrappers';
+import { web3Factory } from '@0x/dev-utils';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

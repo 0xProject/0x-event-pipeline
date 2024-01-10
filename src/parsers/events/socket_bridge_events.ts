@@ -1,8 +1,7 @@
-import { LogEntry } from 'ethereum-types';
-
+import { SOCKET_BRIDGE_ABI } from '../../constants';
 import { SocketBridgeEvent } from '../../entities';
 import { parseEvent } from './parse_event';
-import { SOCKET_BRIDGE_ABI } from '../../constants';
+import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 

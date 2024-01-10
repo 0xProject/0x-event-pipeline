@@ -1,8 +1,7 @@
-import { LogWithDecodedArgs } from 'ethereum-types';
-import { ExchangeTransactionExecutionEventArgs } from '@0x/contract-wrappers';
-
 import { TransactionExecutionEvent } from '../../entities';
 import { parseEvent } from './parse_event';
+import { ExchangeTransactionExecutionEventArgs } from '@0x/contract-wrappers';
+import { LogWithDecodedArgs } from 'ethereum-types';
 
 /**
  * Parses raw event logs for a transaction execution events and returns an array of

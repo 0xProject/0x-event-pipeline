@@ -1,14 +1,12 @@
-import { Producer } from 'kafkajs';
-import { web3Factory } from '@0x/dev-utils';
+import { EVM_RPC_URL } from '../config';
+import { Web3Source } from '../data_sources/events/web3';
 import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
-
+import { SCRIPT_RUN_DURATION } from '../utils/metrics';
 import { calculateEndBlockAsync } from './utils/shared_utils';
 import { PullAndSaveWeb3 } from './utils/web3_utils';
-import { Web3Source } from '../data_sources/events/web3';
-import { EVM_RPC_URL } from '../config';
-
-import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { web3Factory } from '@0x/dev-utils';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+
 const createTable = ` create table events_optimism.erc721_order_cancelled_events
 (
     observed_timestamp bigint not null,

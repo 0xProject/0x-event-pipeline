@@ -1,9 +1,8 @@
-import { Web3Wrapper } from '@0x/web3-wrapper';
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Gauge } from 'prom-client';
-
 import { CHAIN_NAME, EVM_RPC_URL } from '../config';
+import { logger } from '../utils/logger';
+import { web3Factory } from '@0x/dev-utils';
+import { Web3Wrapper } from '@0x/web3-wrapper';
+import { Gauge } from 'prom-client';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

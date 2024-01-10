@@ -1,9 +1,10 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
+import { BRIDGE_FILL_ABI } from '../../constants';
 import { ERC20BridgeTransferEvent } from '../../entities';
 import { parseEvent } from './parse_event';
-import { BRIDGE_FILL_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 const Web3Utils = require('web3-utils');
 

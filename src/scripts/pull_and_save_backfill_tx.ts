@@ -1,13 +1,11 @@
-import { web3Factory } from '@0x/dev-utils';
+import { EVM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
+import { Web3Source } from '../data_sources/events/web3';
 import { Transaction, TransactionReceipt } from '../entities';
 import { chunk, logger } from '../utils';
-import { Connection } from 'typeorm';
-
-import { getParseTxsAsync } from './utils/web3_utils';
-import { Web3Source } from '../data_sources/events/web3';
-import { EVM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
-
 import { SCAN_RESULTS, SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { getParseTxsAsync } from './utils/web3_utils';
+import { web3Factory } from '@0x/dev-utils';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

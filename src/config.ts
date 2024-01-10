@@ -40,7 +40,6 @@ import {
     DEFAULT_STAKING_POOLS_JSON_URL,
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
 } from './constants';
-
 import { logger } from './utils';
 
 const throwError = (err: string) => {

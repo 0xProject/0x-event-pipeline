@@ -1,10 +1,10 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
-import { LogTransferEvent } from '../../entities';
-
-import { parseEvent } from './parse_event';
 import { LOG_TRANSFER_ABI } from '../../constants';
+import { LogTransferEvent } from '../../entities';
+import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 export function parseLogTransferEvent(eventLog: LogEntry): LogTransferEvent {
     const logTransferEvent = new LogTransferEvent();

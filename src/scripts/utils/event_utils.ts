@@ -1,14 +1,12 @@
-import { logger } from '../../utils/logger';
-import { Connection } from 'typeorm';
-import { BlockWithoutTransactionData } from 'ethereum-types';
-
 import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
-import { LastBlockProcessed } from '../../entities';
-import { LogWithDecodedArgs, DecodedLogArgs } from '@0x/dev-utils';
-import { getStartBlockAsync, getLastBlockProcessedEntity } from '../utils/event_abi_utils';
 import { Web3Source } from '../../data_sources/events/web3';
-
+import { LastBlockProcessed } from '../../entities';
+import { logger } from '../../utils/logger';
 import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+import { getStartBlockAsync, getLastBlockProcessedEntity } from '../utils/event_abi_utils';
+import { LogWithDecodedArgs, DecodedLogArgs } from '@0x/dev-utils';
+import { BlockWithoutTransactionData } from 'ethereum-types';
+import { Connection } from 'typeorm';
 
 export class PullAndSaveEvents {
     public async getParseSaveContractWrapperEventsAsync<ARGS extends DecodedLogArgs, EVENT>(

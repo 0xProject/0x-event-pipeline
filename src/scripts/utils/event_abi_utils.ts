@@ -1,17 +1,14 @@
-import { Producer } from 'kafkajs';
-import { Connection, QueryFailedError } from 'typeorm';
-import { BlockWithoutTransactionData } from 'ethereum-types';
-
+import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
 import { LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event } from '../../entities';
-import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
-
-import { LogEntry } from 'ethereum-types';
-
-import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
 import { LastBlockProcessed } from '../../entities';
+import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
 import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
+import { BlockWithoutTransactionData } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
+import { Producer } from 'kafkajs';
+import { Connection, QueryFailedError } from 'typeorm';
 
 export interface BackfillEventsResponse {
     transactionHashes: string[];

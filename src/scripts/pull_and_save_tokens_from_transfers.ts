@@ -1,17 +1,15 @@
-import { Producer } from 'kafkajs';
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
-import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
-import { getParseSaveTokensAsync } from './utils/web3_utils';
-import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
-import { RawLog } from 'ethereum-types';
-
 import { EVM_RPC_URL, MAX_BLOCKS_TO_SEARCH, TOKENS_FROM_TRANSFERS_START_BLOCK } from '../config';
 import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
-
-import { getStartBlockAsync } from './utils/event_abi_utils';
+import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
+import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION, SCAN_START_BLOCK, SCAN_END_BLOCK } from '../utils/metrics';
+import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
+import { getStartBlockAsync } from './utils/event_abi_utils';
+import { getParseSaveTokensAsync } from './utils/web3_utils';
+import { web3Factory } from '@0x/dev-utils';
+import { RawLog } from 'ethereum-types';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

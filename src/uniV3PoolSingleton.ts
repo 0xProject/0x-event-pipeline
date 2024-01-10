@@ -1,5 +1,5 @@
-import { Connection } from 'typeorm';
 import { UniswapV3PoolCreatedEvent } from './entities';
+import { Connection } from 'typeorm';
 
 export class UniV3PoolSingleton {
     private static instance: UniV3PoolSingleton;

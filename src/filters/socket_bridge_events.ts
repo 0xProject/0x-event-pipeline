@@ -1,6 +1,6 @@
+import { SOCKET_BRIDGE_MATCHA_METADATA } from '../constants';
 import { Web3Source } from '../data_sources/events/web3';
 import { Event, SocketBridgeEvent, Transaction } from '../entities';
-import { SOCKET_BRIDGE_MATCHA_METADATA } from '../constants';
 
 export async function filterSocketBridgeEventsGetContext(events: Event[], _: Web3Source): Promise<Event[]> {
     return new Promise((resolve) =>

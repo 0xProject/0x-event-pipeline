@@ -1,11 +1,11 @@
-import { BigNumber } from '@0x/utils';
-import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
+import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
 import {
     BlockWithoutTransactionData1559,
     TransactionReceipt1559 as RawReceipt,
     Transaction1559 as EVMTransaction,
 } from '../../data_sources/events/web3';
-import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
+import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
+import { BigNumber } from '@0x/utils';
 
 /**
  * Converts a raw tx into a Transaction entity

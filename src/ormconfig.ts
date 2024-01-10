@@ -1,7 +1,4 @@
-import { ConnectionOptions } from 'typeorm';
-
 import { CHAIN_NAME, POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE } from './config';
-
 import {
     Block,
     CancelEvent,
@@ -55,6 +52,7 @@ import {
     WrapNativeEvent,
     UnwrapNativeEvent,
 } from './entities';
+import { ConnectionOptions } from 'typeorm';
 
 const entities = [
     Block,

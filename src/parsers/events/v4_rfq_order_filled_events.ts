@@ -1,11 +1,11 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
+import { RFQ_ORDER_FILLED_ABI } from '../../constants';
 import { V4RfqOrderFilledEvent } from '../../entities';
 import { NativeFill } from '../../entities';
-
 import { parseEvent } from './parse_event';
-import { RFQ_ORDER_FILLED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 export function parseV4RfqOrderFilledEvent(eventLog: LogEntry): V4RfqOrderFilledEvent {
     const rfqOrderFilledEvent = new V4RfqOrderFilledEvent();

@@ -1,3 +1,7 @@
+import { MAX_TX_TO_PULL } from '../../config';
+import { chunk, logger } from '../../utils';
+import { Web3ProviderEngine } from '@0x/subproviders';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 import {
     BlockWithTransactionData,
     BlockWithoutTransactionData,
@@ -10,11 +14,6 @@ const Web3 = require('web3');
 
 const helpers = require('web3-core-helpers');
 const formatter = helpers.formatters;
-
-import { Web3ProviderEngine } from '@0x/subproviders';
-import { chunk, logger } from '../../utils';
-import { Web3Wrapper } from '@0x/web3-wrapper';
-import { MAX_TX_TO_PULL } from '../../config';
 
 export interface LogPullInfo {
     address: string;

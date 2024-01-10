@@ -1,8 +1,7 @@
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Web3Source } from '../data_sources/events/web3';
-
 import { EVM_RPC_URL } from '../config';
+import { Web3Source } from '../data_sources/events/web3';
+import { logger } from '../utils/logger';
+import { web3Factory } from '@0x/dev-utils';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

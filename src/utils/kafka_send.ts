@@ -1,6 +1,5 @@
-import { Producer } from 'kafkajs';
-
 import { logger } from './logger';
+import { Producer } from 'kafkajs';
 
 export interface SchemaOptions {
     precision: number;

@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+
 const createTable = ` create table events_polygon.slingshot_trade_events
 (
     observed_timestamp bigint not null,

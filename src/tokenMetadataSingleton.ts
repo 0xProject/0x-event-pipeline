@@ -1,8 +1,8 @@
+import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
+import { TokenMetadata, TokenRegistry } from './entities';
+import { kafkaSendAsync } from './utils';
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
-import { TokenMetadata, TokenRegistry } from './entities';
-import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
-import { kafkaSendAsync } from './utils';
 
 export class TokenMetadataSingleton {
     private static instance: TokenMetadataSingleton;

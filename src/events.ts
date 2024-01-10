@@ -1,39 +1,3 @@
-import { Producer } from 'kafkajs';
-import { Connection } from 'typeorm';
-import { Web3Source } from './data_sources/events/web3';
-import { LogEntry } from 'ethereum-types';
-
-import {
-    ERC20BridgeTransferEvent,
-    Erc1155OrderCancelledEvent,
-    Erc1155OrderFilledEvent,
-    Erc1155OrderPresignedEvent,
-    Erc721OrderCancelledEvent,
-    Erc721OrderFilledEvent,
-    Erc721OrderPresignedEvent,
-    Event,
-    ExpiredRfqOrderEvent,
-    FillEvent,
-    LogTransferEvent,
-    MetaTransactionExecutedEvent,
-    NativeFill,
-    OnchainGovernanceCallScheduledEvent,
-    OnchainGovernanceProposalCreatedEvent,
-    OtcOrderFilledEvent,
-    SocketBridgeEvent,
-    Transaction,
-    TransformedERC20Event,
-    UniswapV2PairCreatedEvent,
-    UniswapV2SyncEvent,
-    UniswapV3PoolCreatedEvent,
-    UniswapV3SwapEvent,
-    UnwrapNativeEvent,
-    V4CancelEvent,
-    V4LimitOrderFilledEvent,
-    V4RfqOrderFilledEvent,
-    WrapNativeEvent,
-} from './entities';
-
 import {
     EP_ADDRESS,
     EP_DEPLOYMENT_BLOCK,
@@ -82,7 +46,6 @@ import {
     WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
     WRAP_UNWRAP_NATIVE_START_BLOCK,
 } from './config';
-
 import {
     BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -119,35 +82,46 @@ import {
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
 } from './constants';
-
-import { DeleteOptions } from './utils';
-import { parseTransformedERC20Event } from './parsers/events/transformed_erc20_events';
+import { Web3Source } from './data_sources/events/web3';
 import {
-    parseNativeFillFromV4RfqOrderFilledEvent,
-    parseV4RfqOrderFilledEvent,
-} from './parsers/events/v4_rfq_order_filled_events';
-import {
-    parseUniswapV3VIPSwapEvent,
-    parseUniswapV3SwapEvent,
-    parseUniswapV3PoolCreatedEvent,
-} from './parsers/events/uniswap_v3_events';
-import {
-    parseNativeFillFromV4LimitOrderFilledEvent,
-    parseV4LimitOrderFilledEvent,
-} from './parsers/events/v4_limit_order_filled_events';
+    ERC20BridgeTransferEvent,
+    Erc1155OrderCancelledEvent,
+    Erc1155OrderFilledEvent,
+    Erc1155OrderPresignedEvent,
+    Erc721OrderCancelledEvent,
+    Erc721OrderFilledEvent,
+    Erc721OrderPresignedEvent,
+    Event,
+    ExpiredRfqOrderEvent,
+    FillEvent,
+    LogTransferEvent,
+    MetaTransactionExecutedEvent,
+    NativeFill,
+    OnchainGovernanceCallScheduledEvent,
+    OnchainGovernanceProposalCreatedEvent,
+    OtcOrderFilledEvent,
+    SocketBridgeEvent,
+    Transaction,
+    TransformedERC20Event,
+    UniswapV2PairCreatedEvent,
+    UniswapV2SyncEvent,
+    UniswapV3PoolCreatedEvent,
+    UniswapV3SwapEvent,
+    UnwrapNativeEvent,
+    V4CancelEvent,
+    V4LimitOrderFilledEvent,
+    V4RfqOrderFilledEvent,
+    WrapNativeEvent,
+} from './entities';
+import { filterSocketBridgeEventsGetContext, filterSocketBridgeEvents } from './filters/socket_bridge_events';
+import { filterWrapUnwrapEvents, filterWrapUnwrapEventsGetContext } from './filters/wrap_unwrap_native_events';
+import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
+import { parseExpiredRfqOrderEvent } from './parsers/events/expired_rfq_order_events';
 import { parseFillEvent } from './parsers/events/fill_events';
 import { parseNativeFillFromFillEvent } from './parsers/events/fill_events';
-import { parseV4CancelEvent } from './parsers/events/v4_cancel_events';
-import { parseExpiredRfqOrderEvent } from './parsers/events/expired_rfq_order_events';
-import {
-    parseNativeFillFromV4OtcOrderFilledEvent,
-    parseOtcOrderFilledEvent,
-} from './parsers/events/otc_order_filled_events';
-import {
-    parseUniswapV2SwapEvent,
-    parseUniswapV2SyncEvent,
-    parseUniswapV2PairCreatedEvent,
-} from './parsers/events/uniswap_v2_events';
+import { parseLiquidityProviderSwapEvent } from './parsers/events/liquidity_provider_swap_events';
+import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
+import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
 import {
     parseErc1155OrderCancelledEvent,
     parseErc1155OrderFilledEvent,
@@ -156,31 +130,47 @@ import {
     parseErc721OrderFilledEvent,
     parseErc721OrderPresignedEvent,
 } from './parsers/events/nft_events';
-
-import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
-import { parseLiquidityProviderSwapEvent } from './parsers/events/liquidity_provider_swap_events';
-import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
-import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
-
 import {
     parseOnchainGovernanceProposalCreatedEvent,
     parseOnchainGovernanceCallScheduledEvent,
 } from './parsers/events/onchain_governance_events';
-
+import {
+    parseNativeFillFromV4OtcOrderFilledEvent,
+    parseOtcOrderFilledEvent,
+} from './parsers/events/otc_order_filled_events';
+import { parseSocketBridgeEvent } from './parsers/events/socket_bridge_events';
+import { parseTransformedERC20Event } from './parsers/events/transformed_erc20_events';
+import {
+    parseUniswapV2SwapEvent,
+    parseUniswapV2SyncEvent,
+    parseUniswapV2PairCreatedEvent,
+} from './parsers/events/uniswap_v2_events';
+import {
+    parseUniswapV3VIPSwapEvent,
+    parseUniswapV3SwapEvent,
+    parseUniswapV3PoolCreatedEvent,
+} from './parsers/events/uniswap_v3_events';
+import { parseV4CancelEvent } from './parsers/events/v4_cancel_events';
+import {
+    parseNativeFillFromV4LimitOrderFilledEvent,
+    parseV4LimitOrderFilledEvent,
+} from './parsers/events/v4_limit_order_filled_events';
+import {
+    parseNativeFillFromV4RfqOrderFilledEvent,
+    parseV4RfqOrderFilledEvent,
+} from './parsers/events/v4_rfq_order_filled_events';
 import {
     parseWrapNativeEvent,
     parseUnwrapNativeEvent,
     parseWrapNativeTransferEvent,
     parseUnwrapNativeTransferEvent,
 } from './parsers/events/wrap_unwrap_native_events';
-
-import { parseSocketBridgeEvent } from './parsers/events/socket_bridge_events';
-
-import { filterWrapUnwrapEvents, filterWrapUnwrapEventsGetContext } from './filters/wrap_unwrap_native_events';
-import { filterSocketBridgeEventsGetContext, filterSocketBridgeEvents } from './filters/socket_bridge_events';
-
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
+import { DeleteOptions } from './utils';
+import { LogEntry } from 'ethereum-types';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 function uniV2PoolSingletonCallback(pools: UniswapV2PairCreatedEvent[]) {
     const uniV2PoolSingleton = UniV2PoolSingleton.getInstance();

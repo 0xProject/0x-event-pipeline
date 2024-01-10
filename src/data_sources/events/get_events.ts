@@ -1,6 +1,5 @@
-import { DecodedLogArgs, LogWithDecodedArgs } from 'ethereum-types';
-
 import { logger } from '../../utils/logger';
+import { DecodedLogArgs, LogWithDecodedArgs } from 'ethereum-types';
 
 const NUM_RETRIES = 1; // Number of retries if a request fails or times out.
 

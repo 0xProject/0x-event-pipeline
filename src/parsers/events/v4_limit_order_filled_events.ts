@@ -1,11 +1,11 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
+import { LIMIT_ORDER_FILLED_ABI } from '../../constants';
 import { V4LimitOrderFilledEvent } from '../../entities';
 import { NativeFill } from '../../entities';
-
 import { parseEvent } from './parse_event';
-import { LIMIT_ORDER_FILLED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 export function parseV4LimitOrderFilledEvent(eventLog: LogEntry): V4LimitOrderFilledEvent {
     const limitOrderFilledEvent = new V4LimitOrderFilledEvent();

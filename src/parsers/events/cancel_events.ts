@@ -1,14 +1,11 @@
-import { LogWithDecodedArgs } from 'ethereum-types';
-import { ExchangeCancelEventArgs, ExchangeCancelUpToEventArgs } from '@0x/contract-wrappers';
-
-import { AssetProxyId } from '@0x/types';
-import { convertAssetProxyIdToType } from '../../utils/proxyType';
-import { assetDataUtils } from '@0x/order-utils';
-
 import { CancelEvent, CancelUpToEvent } from '../../entities';
-import { parseEvent } from './parse_event';
-
+import { convertAssetProxyIdToType } from '../../utils/proxyType';
 import { parse0xAssetTokenAddress } from '../utils/asset_data_utils';
+import { parseEvent } from './parse_event';
+import { ExchangeCancelEventArgs, ExchangeCancelUpToEventArgs } from '@0x/contract-wrappers';
+import { assetDataUtils } from '@0x/order-utils';
+import { AssetProxyId } from '@0x/types';
+import { LogWithDecodedArgs } from 'ethereum-types';
 
 /**
  * Converts a raw event log for a fill event into an ExchangeFillEvent entity.

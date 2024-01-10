@@ -1,16 +1,13 @@
-import { Producer } from 'kafkajs';
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
-import { Web3Source } from '../data_sources/events/web3';
-
-import { getParseSaveTxAsync } from './utils/web3_utils';
-import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
-
 import { EVM_RPC_URL } from '../config';
+import { Web3Source } from '../data_sources/events/web3';
 import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
-
+import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
+import { getParseSaveTxAsync } from './utils/web3_utils';
+import { web3Factory } from '@0x/dev-utils';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
     rpcUrl: EVM_RPC_URL,

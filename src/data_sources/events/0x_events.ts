@@ -1,7 +1,4 @@
 import { GetEventsFunc, getEventsWithPaginationAsync } from './get_events';
-import { Web3ProviderEngine } from '@0x/subproviders';
-import { LogWithDecodedArgs } from 'ethereum-types';
-
 import {
     ExchangeCancelEventArgs,
     ExchangeCancelUpToEventArgs,
@@ -25,6 +22,8 @@ import {
     StakingStakingPoolEarnedRewardsInEpochEventArgs,
     StakingUnstakeEventArgs,
 } from '@0x/contract-wrappers';
+import { Web3ProviderEngine } from '@0x/subproviders';
+import { LogWithDecodedArgs } from 'ethereum-types';
 
 export class EventsSource {
     private readonly _exchangeWrapper: ExchangeContract | undefined;

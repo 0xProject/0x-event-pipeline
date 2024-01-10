@@ -1,5 +1,11 @@
-const abiCoder = require('web3-eth-abi');
-import { LogEntry } from 'ethereum-types';
+import {
+    ERC1155_ORDER_CANCELLED_ABI,
+    ERC1155_ORDER_FILLED_ABI,
+    ERC1155_ORDER_PRESIGNED_ABI,
+    ERC721_ORDER_CANCELLED_ABI,
+    ERC721_ORDER_FILLED_ABI,
+    ERC721_ORDER_PRESIGNED_ABI,
+} from '../../constants';
 import {
     Erc1155OrderCancelledEvent,
     Erc1155OrderFilledEvent,
@@ -9,15 +15,10 @@ import {
     Erc721OrderPresignedEvent,
 } from '../../entities';
 import { parseEvent } from './parse_event';
-import {
-    ERC1155_ORDER_CANCELLED_ABI,
-    ERC1155_ORDER_FILLED_ABI,
-    ERC1155_ORDER_PRESIGNED_ABI,
-    ERC721_ORDER_CANCELLED_ABI,
-    ERC721_ORDER_FILLED_ABI,
-    ERC721_ORDER_PRESIGNED_ABI,
-} from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
+
+const abiCoder = require('web3-eth-abi');
 
 export function parseErc721OrderFilledEvent(eventLog: LogEntry): Erc721OrderFilledEvent {
     const parsedEvent = new Erc721OrderFilledEvent();

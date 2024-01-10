@@ -1,7 +1,6 @@
 import { CHAIN_NAME, METRICS_PATH, PROMETHEUS_PORT } from '../config';
-
-import express from 'express';
 import { logger } from './logger';
+import express from 'express';
 import { Gauge, register } from 'prom-client';
 
 export const CURRENT_BLOCK = new Gauge({
