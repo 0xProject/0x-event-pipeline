@@ -2,28 +2,18 @@ import { Producer } from 'kafkajs';
 import { web3Factory } from '@0x/dev-utils';
 import { chunk, logger } from '../utils';
 import { Connection, QueryFailedError, InsertResult } from 'typeorm';
-import {
-    Web3Source,
-    TransactionReceipt1559,
-    BlockWithTransactionData1559 as EVMBlock,
-} from '../data_sources/events/web3';
+import { Web3Source, BlockWithTransactionData1559 as EVMBlock } from '../data_sources/events/web3';
 import { Block, Transaction, TransactionReceipt } from '../entities';
 
-import {
-    parseBlock,
-    parseTransaction,
-    parseTransactionLogs,
-    parseTransactionReceipt,
-} from '../parsers/web3/parse_web3_objects';
+import { parseBlock, parseTransaction, parseTransactionReceipt } from '../parsers/web3/parse_web3_objects';
 
 import { LogEntry, TransactionReceiptStatus } from 'ethereum-types';
 
-import { getParseSaveTxAsync } from '../scripts/utils/web3_utils';
 import { Transaction1559 as EVMTransaction } from '../data_sources/events/web3';
 import { contractTopicFilter } from './utils/block_utils';
 
 import { SCHEMA, CHAIN_NAME, EVM_RPC_URL, MAX_BLOCKS_TO_PULL } from '../config';
-import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
+import { eventScrperProps, EventScraperProps } from '../events';
 
 import { CURRENT_BLOCK, SCRIPT_RUN_DURATION } from '../utils/metrics';
 
@@ -229,7 +219,7 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
 }
 
 export class BlockEventsScraper {
-    public async getParseSaveAsync(connection: Connection, producer: Producer | null): Promise<void> {
+    public async getParseSaveAsync(connection: Connection, _producer: Producer | null): Promise<void> {
         // Monitor
 
         const currentBlockNumber = await web3Source.getBlockNumberAsync();
@@ -312,6 +302,7 @@ export class BlockEventsScraper {
         });
 
         if (queryResult === undefined) {
+            //TODO: ?
         }
         return queryResult!;
     };

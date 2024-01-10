@@ -1,5 +1,5 @@
 import { web3Factory } from '@0x/dev-utils';
-import { Transaction, TransactionLogs, TransactionReceipt } from '../entities';
+import { Transaction, TransactionReceipt } from '../entities';
 import { chunk, logger } from '../utils';
 import { Connection } from 'typeorm';
 

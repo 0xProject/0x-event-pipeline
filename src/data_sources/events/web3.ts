@@ -8,8 +8,8 @@ import {
 
 const Web3 = require('web3');
 
-var helpers = require('web3-core-helpers');
-var formatter = helpers.formatters;
+const helpers = require('web3-core-helpers');
+const formatter = helpers.formatters;
 
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { chunk, logger } from '../../utils';

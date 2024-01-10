@@ -1,8 +1,3 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
-
-import { BigNumber } from '@0x/utils';
-
 import { Web3Source } from '../data_sources/events/web3';
 import { Event, Transaction } from '../entities';
 import { getParseTxsAsync } from '../scripts/utils/web3_utils';

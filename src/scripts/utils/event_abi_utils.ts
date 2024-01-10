@@ -1,12 +1,11 @@
 import { Producer } from 'kafkajs';
 import { Connection, QueryFailedError } from 'typeorm';
-import { hexToUtf8 } from 'web3-utils';
 import { BlockWithoutTransactionData } from 'ethereum-types';
 
-import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { Event, Transaction } from '../../entities';
+import { LogPullInfo, Web3Source } from '../../data_sources/events/web3';
+import { Event } from '../../entities';
 import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
 
 import { LogEntry } from 'ethereum-types';
 

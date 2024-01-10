@@ -1,7 +1,3 @@
-const abiCoder = require('web3-eth-abi');
-
-import { BigNumber } from '@0x/utils';
-
 import { Web3Source } from '../data_sources/events/web3';
 import { Event, SocketBridgeEvent, Transaction } from '../entities';
 import { SOCKET_BRIDGE_MATCHA_METADATA } from '../constants';
@@ -14,6 +10,6 @@ export async function filterSocketBridgeEventsGetContext(events: Event[], _: Web
     );
 }
 
-export function filterSocketBridgeEvents(events: Event[], transaction: Transaction): Event[] {
+export function filterSocketBridgeEvents(events: Event[], _transaction: Transaction): Event[] {
     return events.filter((event: Event) => (event as SocketBridgeEvent).metadata === SOCKET_BRIDGE_MATCHA_METADATA);
 }
