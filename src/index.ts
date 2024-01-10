@@ -12,6 +12,7 @@ import {
     ENABLE_PROMETHEUS_METRICS,
     FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
+    FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
     KAFKA_BROKERS,
@@ -32,6 +33,7 @@ import { ChainIdChecker } from './scripts/check_chain_id';
 import { startMetricsServer } from './utils/metrics';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
+import { UniV3PoolSingleton } from './uniV3PoolSingleton';
 
 let producer: Producer | null = null;
 
@@ -81,6 +83,9 @@ createConnection(ormConfig as ConnectionOptions)
         await TokenMetadataSingleton.getInstance(connection, producer);
         if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
             await UniV2PoolSingleton.initInstance(connection);
+        }
+        if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
+            await UniV3PoolSingleton.initInstance(connection);
         }
         schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
         //schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');

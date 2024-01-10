@@ -4,8 +4,10 @@ import { ERC20BridgeTransferEvent, UniswapV3SwapEvent, UniswapV3PoolCreatedEvent
 import { parseEvent } from './parse_event';
 import { UNISWAP_V3_SWAP_ABI, UNISWAP_V3_POOL_CREATED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { UniV3PoolSingleton } from '../../uniV3PoolSingleton';
+import { logger } from '../../utils/logger';
 
-export function parseUniswapV3VIPSwapEvent(eventLog: LogEntry): ERC20BridgeTransferEvent {
+export function parseUniswapV3VIPSwapEvent(eventLog: LogEntry): ERC20BridgeTransferEvent | null {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent
@@ -16,11 +18,23 @@ export function parseUniswapV3VIPSwapEvent(eventLog: LogEntry): ERC20BridgeTrans
     const amount0 = new BigNumber(decodedLog.amount0).abs();
     const amount1 = new BigNumber(decodedLog.amount1).abs();
 
+    const uniV3PoolSingleton = UniV3PoolSingleton.getInstance();
+
+    const poolInfo = uniV3PoolSingleton.getPool(eRC20BridgeTransferEvent.contractAddress);
+
+    if (poolInfo === undefined) {
+        logger.error(
+            `Got a Uni v3 VIP trade from an unknown pool, ignoring. Tx: ${eRC20BridgeTransferEvent.transactionHash}, Pool: ${eRC20BridgeTransferEvent.contractAddress}`,
+        );
+        return null;
+    }
+    const { token0, token1 } = poolInfo;
+
     // amount0 and amount1 are of opposite signs
     // neg value means token left the pool ie. maker
     // pos value means token entered the pool ie. taker
-    eRC20BridgeTransferEvent.fromToken = decodedLog.amount0 >= 0 ? '0' : '1'; // taker_token
-    eRC20BridgeTransferEvent.toToken = decodedLog.amount0 < 0 ? '0' : '1'; // maker_token
+    eRC20BridgeTransferEvent.fromToken = decodedLog.amount0 >= 0 ? token0 : token1; // taker_token
+    eRC20BridgeTransferEvent.toToken = decodedLog.amount0 < 0 ? token0 : token1; // maker_token
     eRC20BridgeTransferEvent.fromTokenAmount = decodedLog.amount0 >= 0 ? amount0 : amount1; // taker_token_amount
     eRC20BridgeTransferEvent.toTokenAmount = decodedLog.amount0 < 0 ? amount0 : amount1; // maker_token_amount
     eRC20BridgeTransferEvent.from = 'UniswapV3'; // maker

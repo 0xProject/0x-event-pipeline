@@ -215,36 +215,6 @@ export class PullAndSaveEventsByTopic {
                         throw Error();
                     }
 
-                    if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
-                        const contractCallToken0Array = [];
-                        const contractCallToken1Array = [];
-
-                        for (const index in parsedLogs) {
-                            const contract_address: string = (parsedLogs[index] as any).contractAddress;
-
-                            const contractCallToken0: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0x0dfe1681',
-                            };
-                            contractCallToken0Array.push(contractCallToken0);
-
-                            const contractCallToken1: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0xd21220a7',
-                            };
-                            contractCallToken1Array.push(contractCallToken1);
-                        }
-                        const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
-                        const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
-
-                        for (let i = 0; i < parsedLogs.length; i++) {
-                            const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
-                            const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
-                            parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
-                            parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
-                        }
-                    }
-
                     SCAN_RESULTS.labels({ type: scrapingType, event: eventName }).set(parsedLogs.length);
 
                     const filteredLogs = filterFunction ? await filterFunction(parsedLogs, web3Source) : parsedLogs;
