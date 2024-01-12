@@ -220,7 +220,7 @@ export class Web3Source {
 
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
         try {
-            logger.info(`Fetching block ${blockNumber}`);
+            logger.debug(`Fetching block ${blockNumber}`);
 
             const block = await this._web3Wrapper.getBlockIfExistsAsync(blockNumber);
 

@@ -1,6 +1,16 @@
-import { SCHEMA, CHAIN_NAME, EVM_RPC_URL, MAX_BLOCKS_TO_PULL } from '../config';
+import {
+    BLOCKS_REORG_CHECK_INCREMENT,
+    CHAIN_NAME,
+    EVM_RPC_URL,
+    MAX_BLOCKS_REORG,
+    MAX_BLOCKS_TO_PULL,
+    SCHEMA,
+} from '../config';
 import { Web3Source, BlockWithTransactionData1559 as EVMBlock } from '../data_sources/events/web3';
-import { Transaction1559 as EVMTransaction } from '../data_sources/events/web3';
+import {
+    Transaction1559 as EVMTransaction,
+    TransactionReceipt1559 as EVMTransactionReceipt,
+} from '../data_sources/events/web3';
 import { Block, Transaction, TransactionReceipt } from '../entities';
 import { eventScrperProps, EventScraperProps } from '../events';
 import { parseBlock, parseTransaction, parseTransactionReceipt } from '../parsers/web3/parse_web3_objects';
@@ -8,22 +18,15 @@ import { chunk, logger } from '../utils';
 import { CURRENT_BLOCK, SCRIPT_RUN_DURATION } from '../utils/metrics';
 import { contractTopicFilter } from './utils/block_utils';
 import { web3Factory } from '@0x/dev-utils';
-import { LogEntry, TransactionReceiptStatus } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { Producer } from 'kafkajs';
 import { Connection, QueryFailedError, InsertResult } from 'typeorm';
 
-interface FullTransaction extends EVMTransaction {
+interface FullTransaction extends EVMTransaction, EVMTransactionReceipt {
     blockHash: string;
     blockNumber: number;
-    gasUsed: number;
-    transactionIndex: number;
     to: string;
-    effectiveGasPrice: number;
-    logs: LogEntry[];
-    status: TransactionReceiptStatus;
-    cumulativeGasUsed: number;
-    contractAddress: string;
-    transactionHash: string;
+    transactionIndex: number;
 }
 
 interface FullBlock extends EVMBlock {
@@ -96,13 +99,12 @@ function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction
                     ? props.filterFunction(parsedLogs, parsedTransaction)
                     : parsedLogs;
 
-                if (props.callback) {
-                    filteredLogs.map((log) => [log]).map(props.callback); // TODO: do not convert to array
-                }
+                const postProcessedLogs = props.postProcess ? props.postProcess(filteredLogs) : filteredLogs;
+
                 return {
                     eventType: props.tType,
                     eventName: props.name,
-                    events: filteredLogs,
+                    events: postProcessedLogs,
                 };
             }
         }
@@ -139,11 +141,6 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
         }, {} as { [id: string]: TypedEvents }),
     ).filter((typedEvents) => typedEvents.events.length > 0);
 
-    //console.log(parsedBlocks);
-    //console.log(parsedTransactions);
-    //console.log(parsedTransactionReceipts);
-    //console.log(parsedEventsByType);
-
     const blockRangeStart = parsedBlocks[0].blockNumber;
     const blockRangeEnd = parsedBlocks[parsedBlocks.length - 1].blockNumber;
 
@@ -167,7 +164,7 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
             );
         });
 
-        Promise.all(deletePromises);
+        await Promise.all(deletePromises);
 
         // Insert
 
@@ -194,7 +191,7 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
             }
         });
 
-        Promise.all(promises);
+        await Promise.all(promises);
         await queryRunner.commitTransaction();
 
         // TODO: Add Kafka support if we need it again
@@ -205,12 +202,42 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
             logger.error(`Failed while saving full blocks ${blockRangeStart} - ${blockRangeEnd}`);
             logger.error(err);
         }
-        // since we have errors lets rollback changes we made
         await queryRunner.rollbackTransaction();
     } finally {
-        // you need to release query runner which is manually created:
-        //await queryRunner.release();
+        await queryRunner.release();
     }
+}
+async function getParseSaveBlocksTransactionsEvents(
+    connection: Connection,
+    newBlocks: EVMBlock[],
+    blockRangeStart: number,
+    blockRangeEnd: number,
+) {
+    logger.info(`Pulling Block Events for blocks: ${blockRangeStart} - ${blockRangeEnd}`);
+
+    const newBlockReceipts = await web3Source.getBatchBlockReceiptsForRangeAsync(blockRangeStart, blockRangeEnd);
+
+    const fullBlocks: FullBlock[] = newBlocks.map((newBlock, blockIndex): FullBlock => {
+        const transactionsWithLogs = newBlock.transactions.map(
+            (tx: EVMTransaction, txIndex: number): FullTransaction => {
+                if (newBlock.hash !== newBlockReceipts[blockIndex][txIndex].blockHash) {
+                    throw Error('Wrong Block hash');
+                }
+                return {
+                    ...tx,
+                    ...newBlockReceipts[blockIndex][txIndex],
+                    type: tx.type,
+                };
+            },
+        );
+        return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
+    });
+
+    const parsedFullBlocks = fullBlocks.map(parseBlockTransactionsEvents);
+
+    const eventTables = eventScrperProps.map((props: EventScraperProps) => props.table);
+
+    await saveFullBlocks(connection, eventTables, parsedFullBlocks);
 }
 
 export class BlockEventsScraper {
@@ -243,62 +270,42 @@ export class BlockEventsScraper {
                 ? currentBlockNumber
                 : lastKnownBlock.blockNumber + MAX_BLOCKS_TO_PULL;
 
-        // Was there a reorg?
         const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
 
+        // Reorg handling
         if (newBlocks[0].parentHash !== lastKnownBlock.blockHash) {
-            // TODO: reorg
-            logger.error('Possible Reorg');
-            return;
+            let lookback = BLOCKS_REORG_CHECK_INCREMENT;
+            while (lookback < MAX_BLOCKS_REORG) {
+                const testBlockNumber = lastKnownBlock.blockNumber - lookback;
+                const testBlock = await web3Source.getBlockInfoAsync(testBlockNumber);
+                const testBlockDB = await connection.getRepository(Block).findOne({
+                    where: { blockNumber: testBlockNumber },
+                });
+
+                if (testBlock.hash! === testBlockDB!.blockHash) {
+                    logger.warn(`Reorg detected, rewinded ${lookback} blocks`);
+                    const queryRunner = connection.createQueryRunner();
+                    await queryRunner.connect();
+                    await queryRunner.manager.query(
+                        `DELETE FROM ${SCHEMA}.blocks
+                         WHERE block_number > ${testBlockNumber}`,
+                    );
+                    queryRunner.release();
+
+                    return;
+                }
+                lookback += BLOCKS_REORG_CHECK_INCREMENT;
+            }
+            throw Error(`Big reorg detected, of more than ${lookback}, manual intervention needed`);
         }
 
         const startTime = new Date().getTime();
-        logger.info(`Pulling Block Events for blocks: ${blockRangeStart} - ${blockRangeEnd}`);
-
-        const newBlockReceipts = await web3Source.getBatchBlockReceiptsForRangeAsync(blockRangeStart, blockRangeEnd);
-
-        const fullBlocks: FullBlock[] = newBlocks.map((newBlock, blockIndex) => {
-            const transactionsWithLogs = newBlock.transactions.map((tx: EVMTransaction, txIndex: number) => {
-                if (newBlock.hash !== newBlockReceipts[blockIndex][txIndex].blockHash) {
-                    throw Error('Wrong Block hash');
-                }
-                return {
-                    ...tx,
-                    gasUsed: newBlockReceipts[blockIndex][txIndex].gasUsed,
-                    logs: newBlockReceipts[blockIndex][txIndex].logs,
-                    transactionHash: tx.hash,
-                    cumulativeGasUsed: newBlockReceipts[blockIndex][txIndex].cumulativeGasUsed,
-                    contractAddress: newBlockReceipts[blockIndex][txIndex].contractAddress,
-                };
-            });
-            return { ...newBlock, transactions: transactionsWithLogs };
-        });
-
-        const parsedFullBlocks = fullBlocks.map(parseBlockTransactionsEvents);
-
-        const eventTables = eventScrperProps.map((props: EventScraperProps) => props.table);
-
-        await saveFullBlocks(connection, eventTables, parsedFullBlocks);
+        getParseSaveBlocksTransactionsEvents(connection, newBlocks, blockRangeStart, blockRangeEnd);
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
         SCRIPT_RUN_DURATION.set({ script: 'events-by-topic' }, scriptDurationSeconds);
 
         logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
-
-        //throw Error('Pause');
     }
-
-    private getLastKnownBlock = async (connection: Connection): Promise<Block> => {
-        const queryResult = await connection.getRepository(Block).findOne({
-            order: {
-                blockNumber: 'DESC',
-            },
-        });
-
-        if (queryResult === undefined) {
-            //TODO: ?
-        }
-        return queryResult!;
-    };
 }

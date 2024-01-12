@@ -2,11 +2,11 @@ export * from './abis';
 
 export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events';
 export const DEFAULT_MAX_BLOCKS_REORG = 35;
+export const DEFAULT_BLOCKS_REORG_CHECK_INCREMENT = 35;
 export const DEFAULT_MAX_BLOCKS_TO_PULL = 120;
 export const DEFAULT_MAX_BLOCKS_TO_SEARCH = 120;
 export const DEFAULT_MAX_TX_TO_PULL = 1000;
 export const DEFAULT_BLOCK_FINALITY_THRESHOLD = 10;
-export const DEFAULT_RESCRAPE_BLOCKS = 0;
 export const DEFAULT_MINUTES_BETWEEN_RUNS = 3;
 export const DEFAULT_STAKING_POOLS_JSON_URL =
     'https://raw.githubusercontent.com/0xProject/0x-staking-pool-registry/master/staking_pools.json';
