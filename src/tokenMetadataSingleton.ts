@@ -41,7 +41,7 @@ export class TokenMetadataSingleton {
 
     async saveNewTokenMetadata(
         connection: Connection,
-        producer: Producer,
+        producer: Producer | null,
         newTokenMetadata: TokenMetadata[],
     ): Promise<void> {
         await connection

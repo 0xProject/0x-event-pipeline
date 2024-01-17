@@ -11,7 +11,6 @@ import {
     FEAT_POLYGON_RFQM_PAYMENTS,
     FEAT_RFQ_EVENT,
     FEAT_SOCKET_BRIDGE_EVENT,
-    FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_TRANSFORMED_ERC20_EVENT,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V2_SYNC_EVENT,
@@ -19,6 +18,7 @@ import {
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    FEAT_V3_CANCEL_EVENTS,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -67,7 +67,6 @@ import {
     PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
     RFQ_ORDER_FILLED_EVENT_TOPIC,
     SOCKET_BRIDGE_EVENT_TOPIC,
-    TOKEN_TRANSFER_EVENT_TOPIC,
     TRANSFER_EVENT_TOPIC_0,
     TRANSFORMEDERC20_EVENT_TOPIC,
     TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
@@ -78,7 +77,10 @@ import {
     UNISWAP_V3_SWAP_EVENT_TOPIC_0,
     UNWRAP_NATIVE_EVENT_TOPIC,
     V3_EXCHANGE_ADDRESS,
+    V3_DEPLOYMENT_BLOCK,
     V3_FILL_EVENT_TOPIC,
+    V3_CANCEL_EVENT_TOPIC,
+    V3_CANCEL_UP_TO_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
     WRAP_NATIVE_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
@@ -97,6 +99,8 @@ import {
     ExpiredRfqOrderEvent,
     FillEvent,
     LogTransferEvent,
+    CancelEvent,
+    CancelUpToEvent,
     MetaTransactionExecutedEvent,
     NativeFill,
     OnchainGovernanceCallScheduledEvent,
@@ -131,6 +135,8 @@ import {
     parseErc721OrderPresignedEvent,
     parseExpiredRfqOrderEvent,
     parseFillEvent,
+    parseCancelEvent,
+    parseCancelUpToEvent,
     parseLiquidityProviderSwapEvent,
     parseLogTransferEvent,
     parseMetaTransactionExecutedEvent,
@@ -142,7 +148,6 @@ import {
     parseOnchainGovernanceProposalCreatedEvent,
     parseOtcOrderFilledEvent,
     parseSocketBridgeEvent,
-    parseTokenTransfer,
     parseTransformedERC20Event,
     parseUniswapV2PairCreatedEvent,
     parseUniswapV2SwapEvent,
@@ -188,7 +193,7 @@ export type EventScraperProps = {
     enabled: boolean;
     name: string;
     tType: any;
-    table: string | null;
+    table: string;
     topics: (string | null)[];
     contractAddress: string | null;
     startBlock: number;
@@ -572,16 +577,26 @@ export const eventScrperProps: EventScraperProps[] = [
         filterFunctionGetContext: filterSocketBridgeEventsGetContext,
         filterFunction: filterSocketBridgeEvents,
     },
+
     {
-        enabled: FEAT_TOKENS_FROM_TRANSFERS,
-        name: 'TokenTransferEvent',
-        tType: null,
-        table: null,
-        topics: TOKEN_TRANSFER_EVENT_TOPIC,
-        contractAddress: null,
-        startBlock: 0,
-        parser: parseTokenTransfer,
-        postProcess: saveTokens,
+        enabled: FEAT_V3_CANCEL_EVENTS,
+        name: 'CancelEvent',
+        tType: CancelEvent,
+        table: 'cancel_events',
+        topics: V3_CANCEL_EVENT_TOPIC,
+        contractAddress: V3_EXCHANGE_ADDRESS,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseCancelEvent,
+    },
+    {
+        enabled: FEAT_V3_CANCEL_EVENTS,
+        name: 'CancelUpToEvent',
+        tType: CancelUpToEvent,
+        table: 'cancel_up_to_events',
+        topics: V3_CANCEL_UP_TO_EVENT_TOPIC,
+        contractAddress: V3_EXCHANGE_ADDRESS,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseCancelUpToEvent,
     },
 ];
 

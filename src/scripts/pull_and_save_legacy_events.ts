@@ -72,31 +72,6 @@ export class LegacyEventScraper {
 
         const promises: Promise<void>[] = [];
 
-        if (FEAT_CANCEL_EVENTS) {
-            promises.push(
-                pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelEventArgs, CancelEvent>(
-                    connection,
-                    web3Source,
-                    currentBlock,
-                    'CancelEvent',
-                    'cancel_events',
-                    eventsSource.getCancelEventsAsync.bind(eventsSource),
-                    parseCancelEvent,
-                ),
-            );
-            promises.push(
-                pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<ExchangeCancelUpToEventArgs, CancelUpToEvent>(
-                    connection,
-                    web3Source,
-                    currentBlock,
-                    'CancelUpToEvent',
-                    'cancel_up_to_events',
-                    eventsSource.getCancelUpToEventsAsync.bind(eventsSource),
-                    parseCancelUpToEvent,
-                ),
-            );
-        }
-
         if (FEAT_STAKING) {
             promises.push(
                 pullAndSaveEvents.getParseSaveContractWrapperEventsAsync<

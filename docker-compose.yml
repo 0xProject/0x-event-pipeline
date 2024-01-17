@@ -118,7 +118,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            EVM_RPC_URL: '${RPC_URL_POLYGON}'
+            EVM_RPC_URL: '${EVM_RPC_URL_POLYGON}'
             CHAIN_ID: '137'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'

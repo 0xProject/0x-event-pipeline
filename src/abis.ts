@@ -24,6 +24,31 @@ export const EXPIRED_RFQ_ORDER_ABI = {
     type: 'event',
 };
 
+export const V3_CANCEL_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'makerAddress', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'feeRecipientAddress', type: 'address' },
+        { indexed: false, internalType: 'bytes', name: 'makerAssetData', type: 'bytes' },
+        { indexed: false, internalType: 'bytes', name: 'takerAssetData', type: 'bytes' },
+        { indexed: false, internalType: 'address', name: 'senderAddress', type: 'address' },
+        { indexed: true, internalType: 'bytes32', name: 'orderHash', type: 'bytes32' },
+    ],
+    name: 'Cancel',
+    type: 'event',
+};
+
+export const V3_CANCEL_UP_TO_ABI = {
+    anonymous: false,
+    inputs: [
+        { indexed: true, internalType: 'address', name: 'makerAddress', type: 'address' },
+        { indexed: true, internalType: 'address', name: 'orderSenderAddress', type: 'address' },
+        { indexed: false, internalType: 'uint256', name: 'orderEpoch', type: 'uint256' },
+    ],
+    name: 'CancelUpTo',
+    type: 'event',
+};
+
 export const V4_CANCEL_ABI = {
     anonymous: false,
     inputs: [

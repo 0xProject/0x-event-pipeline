@@ -1,81 +1,53 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
-
-const eventsV4CancelEvents = new Table({
-    name: 'events.v4_cancel_events',
-    columns: [
-        { name: 'observed_timestamp', type: 'bigint' },
-        { name: 'contract_address', type: 'varchar' },
-        { name: 'transaction_hash', type: 'varchar', isPrimary: true },
-        { name: 'transaction_index', type: 'bigint' },
-        { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar' },
-        { name: 'block_number', type: 'bigint' },
-
-        { name: 'maker', type: 'varchar' },
-        { name: 'order_hash', type: 'varchar' },
-    ],
-});
-
-const eventsExpiredRfqOrderEvents = new Table({
-    name: 'events.expired_rfq_order_events',
-    columns: [
-        { name: 'observed_timestamp', type: 'bigint' },
-        { name: 'contract_address', type: 'varchar' },
-        { name: 'transaction_hash', type: 'varchar', isPrimary: true },
-        { name: 'transaction_index', type: 'bigint' },
-        { name: 'log_index', type: 'bigint', isPrimary: true },
-        { name: 'block_hash', type: 'varchar' },
-        { name: 'block_number', type: 'bigint' },
-
-        { name: 'maker', type: 'varchar' },
-        { name: 'order_hash', type: 'varchar' },
-        { name: 'expiry', type: 'numeric' },
-    ],
-});
-
-const indexQuery = `
-
-    CREATE INDEX v4_cancel_events_transaction_hash_index
-        ON events.v4_cancel_events (transaction_hash);
-    CREATE INDEX v4_cancel_events_block_number_index
-        ON events.v4_cancel_events (block_number);
-    CREATE INDEX v4_cancel_events_maker_index
-        ON events.v4_cancel_events (maker);
-    CREATE INDEX v4_cancel_events_order_hash_index
-        ON events.v4_cancel_events (order_hash);
-
-    
-    CREATE INDEX expired_rfq_events_block_number_index
-        ON events.expired_rfq_order_events (block_number);
-    CREATE INDEX expired_rfq_events_transaction_hash_index
-        ON events.expired_rfq_order_events (transaction_hash);
-    CREATE INDEX expired_rfq_events_maker_index
-        ON events.expired_rfq_order_events (maker);
-    CREATE INDEX expired_rfq_events_order_hash_index
-        ON events.v4_cancel_events (order_hash);
-`;
-
-const dropIndexQuery = `
-    DROP INDEX events.v4_cancel_events_transaction_hash_index;
-    DROP INDEX events.v4_cancel_events_block_number_index;
-    DROP INDEX events.v4_cancel_events_maker_index;
-    DROP INDEX events.v4_cancel_events_order_hash_index;
-    DROP INDEX events.expired_rfq_events_block_number_index;
-    DROP INDEX events.expired_rfq_events_transaction_hash_index;
-    DROP INDEX events.expired_rfq_events_maker_index;
-    DROP INDEX events.expired_rfq_events_order_hash_index;
-`;
+import { MigrationInterface, QueryRunner, getConnection } from 'typeorm';
 
 export class AddV4CancelAndMultiplexEvents1615870349094 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
-        await queryRunner.createTable(eventsV4CancelEvents);
-        await queryRunner.createTable(eventsExpiredRfqOrderEvents);
-        await queryRunner.query(indexQuery);
+        const connection = getConnection();
+        const { schema } = connection.options as any;
+        await queryRunner.query(`
+          CREATE TABLE ${schema}.v4_cancel_events (
+            observed_timestamp int8 NOT NULL,
+            contract_address varchar NOT NULL,
+            transaction_hash varchar NOT NULL,
+            transaction_index int8 NOT NULL,
+            log_index int8 NOT NULL,
+            block_hash varchar NOT NULL,
+            block_number int8 NOT NULL,
+            maker varchar NOT NULL,
+            order_hash varchar NOT NULL,
+            CONSTRAINT v4_cancel_events_pk PRIMARY KEY (transaction_hash, log_index)
+          );
+          CREATE INDEX v4_xancel_events_order_hash_index ON ${schema}.v4_cancel_events USING btree (order_hash);
+          CREATE INDEX v4_cancel_events_block_number_index ON ${schema}.v4_cancel_events USING btree (block_number);
+          CREATE INDEX v4_cancel_events_maker_index ON ${schema}.v4_cancel_events USING btree (maker);
+          CREATE INDEX v4_cancel_events_order_hash_index ON ${schema}.v4_cancel_events USING btree (order_hash);
+          CREATE INDEX v4_cancel_events_transaction_hash_index ON ${schema}.v4_cancel_events USING btree (transaction_hash);
+
+          CREATE TABLE ${schema}.expired_rfq_order_events (
+            observed_timestamp int8 NOT NULL,
+            contract_address varchar NOT NULL,
+            transaction_hash varchar NOT NULL,
+            transaction_index int8 NOT NULL,
+            log_index int8 NOT NULL,
+            block_hash varchar NOT NULL,
+            block_number int8 NOT NULL,
+            maker varchar NOT NULL,
+            order_hash varchar NOT NULL,
+            expiry numeric NOT NULL,
+            CONSTRAINT expired_rfq_order_events_pk PRIMARY KEY (transaction_hash, log_index)
+          );
+          CREATE INDEX expired_rfq_events_block_number_index ON ${schema}.expired_rfq_order_events USING btree (block_number);
+          CREATE INDEX expired_rfq_events_maker_index ON ${schema}.expired_rfq_order_events USING btree (maker);
+          CREATE INDEX expired_rfq_events_transaction_hash_index ON ${schema}.expired_rfq_order_events USING btree (transaction_hash);
+`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
-        await queryRunner.query(dropIndexQuery);
-        await queryRunner.dropTable(eventsExpiredRfqOrderEvents);
-        await queryRunner.dropTable(eventsV4CancelEvents);
+        const connection = getConnection();
+        const { schema } = connection.options as any;
+        await queryRunner.query(`
+          DROP TABLE ${schema}.v4_cancel_events;
+          DROP TABLE ${schema}.expired_rfq_order_events;
+        `);
     }
 }

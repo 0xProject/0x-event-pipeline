@@ -4,8 +4,10 @@ import {
     EVM_RPC_URL,
     MAX_BLOCKS_REORG,
     MAX_BLOCKS_TO_PULL,
+    FEAT_TOKENS_FROM_TRANSFERS,
     SCHEMA,
 } from '../config';
+import { TRANSFER_EVENT_TOPIC_0 } from '../constants';
 import { Web3Source, BlockWithTransactionData1559 as EVMBlock } from '../data_sources/events/web3';
 import {
     Transaction1559 as EVMTransaction,
@@ -17,6 +19,7 @@ import { parseBlock, parseTransaction, parseTransactionReceipt } from '../parser
 import { chunk, logger } from '../utils';
 import { CURRENT_BLOCK, SCRIPT_RUN_DURATION } from '../utils/metrics';
 import { contractTopicFilter } from './utils/block_utils';
+import { getParseSaveTokensAsync } from './utils/web3_utils';
 import { web3Factory } from '@0x/dev-utils';
 import { LogEntry } from 'ethereum-types';
 import { Producer } from 'kafkajs';
@@ -121,6 +124,28 @@ function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction
     };
 }
 
+type range = {
+    start: number;
+    end: number;
+};
+
+function findRanges(nums: number[]): range[] {
+    const sorted = [...new Set(nums)].sort();
+    const ranges: { start: number; end: number }[] = [];
+    const currentRange = { start: sorted[0], end: sorted[0] };
+    for (let i = 1; i < sorted.length; i++) {
+        if (currentRange.end + 1 === sorted[i]) {
+            currentRange.end = sorted[i];
+        } else {
+            ranges.push(currentRange);
+            currentRange.start = sorted[i];
+            currentRange.end = sorted[i];
+        }
+    }
+    ranges.push(currentRange);
+    return ranges;
+}
+
 async function saveFullBlocks(connection: Connection, eventTables: string[], parsedFullBlocks: ParsedFullBlock[]) {
     const parsedBlocks = parsedFullBlocks.map((block) => block.parsedBlock);
     const parsedTransactions = parsedFullBlocks.map((block) => block.parsedTransactions).flat();
@@ -141,8 +166,7 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
         }, {} as { [id: string]: TypedEvents }),
     ).filter((typedEvents) => typedEvents.events.length > 0);
 
-    const blockRangeStart = parsedBlocks[0].blockNumber;
-    const blockRangeEnd = parsedBlocks[parsedBlocks.length - 1].blockNumber;
+    const blockRanges = findRanges(parsedBlocks.map((block) => block.blockNumber));
 
     const queryRunner = connection.createQueryRunner();
     await queryRunner.connect();
@@ -154,14 +178,16 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
 
         const deletePromises: Promise<InsertResult>[] = [];
         tablesToDelete.forEach(async (tableName) => {
-            deletePromises.push(
-                queryRunner.manager.query(
-                    `DELETE FROM ${SCHEMA}.${tableName}
+            blockRanges.forEach(async (blockRange) => {
+                deletePromises.push(
+                    queryRunner.manager.query(
+                        `DELETE FROM ${SCHEMA}.${tableName}
                      WHERE
-                       block_number >= ${blockRangeStart} AND
-                       block_number <= ${blockRangeEnd}`,
-                ),
-            );
+                       block_number >= ${blockRange.start} AND
+                       block_number <= ${blockRange.end}`,
+                    ),
+                );
+            });
         });
 
         await Promise.all(deletePromises);
@@ -199,7 +225,7 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
         if (err instanceof QueryFailedError && err.message === 'could not serialize access due to concurrent update') {
             logger.warn('Simultaneous write attempt, will retry on the next run');
         } else {
-            logger.error(`Failed while saving full blocks ${blockRangeStart} - ${blockRangeEnd}`);
+            logger.error(`Failed while saving full blocks ${JSON.stringify(blockRanges)}`);
             logger.error(err);
         }
         await queryRunner.rollbackTransaction();
@@ -209,13 +235,16 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
 }
 async function getParseSaveBlocksTransactionsEvents(
     connection: Connection,
+    producer: Producer | null,
     newBlocks: EVMBlock[],
-    blockRangeStart: number,
-    blockRangeEnd: number,
 ) {
-    logger.info(`Pulling Block Events for blocks: ${blockRangeStart} - ${blockRangeEnd}`);
+    const blockNumbers = newBlocks.map((newBlock) => newBlock.number!);
 
-    const newBlockReceipts = await web3Source.getBatchBlockReceiptsForRangeAsync(blockRangeStart, blockRangeEnd);
+    const blockRanges = findRanges(blockNumbers);
+
+    logger.info(`Pulling Block Events for blocks: ${JSON.stringify(blockRanges)}`);
+
+    const newBlockReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
 
     const fullBlocks: FullBlock[] = newBlocks.map((newBlock, blockIndex): FullBlock => {
         const transactionsWithLogs = newBlock.transactions.map(
@@ -235,13 +264,64 @@ async function getParseSaveBlocksTransactionsEvents(
 
     const parsedFullBlocks = fullBlocks.map(parseBlockTransactionsEvents);
 
-    const eventTables = eventScrperProps.map((props: EventScraperProps) => props.table);
+    const eventTables = eventScrperProps
+        .filter((props) => props.enabled)
+        .map((props: EventScraperProps) => props.table);
 
     await saveFullBlocks(connection, eventTables, parsedFullBlocks);
+
+    if (FEAT_TOKENS_FROM_TRANSFERS) {
+        const tokensFromTransfers = [
+            ...new Set(
+                newBlockReceipts
+                    .flat()
+                    .map((tx) => tx.logs)
+                    .flat()
+                    .filter((log) => log.topics.length > 0 && log.topics[0] === TRANSFER_EVENT_TOPIC_0)
+                    .map((log) => log.address),
+            ),
+        ];
+        await getParseSaveTokensAsync(connection, producer, web3Source, tokensFromTransfers);
+    }
 }
 
 export class BlockEventsScraper {
-    public async getParseSaveAsync(connection: Connection, _producer: Producer | null): Promise<void> {
+    public async backfillAsync(connection: Connection, producer: Producer | null): Promise<void> {
+        const startTime = new Date().getTime();
+
+        const oldestBlocksToBackfill = await connection.query(
+            `SELECT DISTINCT block_number
+             FROM ${SCHEMA}.tx_backfill
+             ORDER BY block_number
+             LIMIT ${MAX_BLOCKS_TO_PULL}`,
+        );
+
+        if (oldestBlocksToBackfill.length > 0) {
+            logger.info(`Backfilling blocks`);
+
+            const blockNumbers = oldestBlocksToBackfill.map(
+                (backfillBlock: { block_number: number }) => backfillBlock.block_number,
+            );
+
+            const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);
+            getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks);
+
+            const queryRunner = connection.createQueryRunner();
+            await queryRunner.connect();
+            await queryRunner.manager.query(
+                `DELETE FROM ${SCHEMA}.backfill_blocks
+                         WHERE block_number IN (${blockNumbers.join(',')})`,
+            );
+            queryRunner.release();
+
+            const endTime = new Date().getTime();
+            const scriptDurationSeconds = (endTime - startTime) / 1000;
+            SCRIPT_RUN_DURATION.set({ script: 'events-by-block-backfill' }, scriptDurationSeconds);
+        }
+    }
+    public async getParseSaveAsync(connection: Connection, producer: Producer | null): Promise<void> {
+        const startTime = new Date().getTime();
+
         // Monitor
 
         const currentBlockNumber = await web3Source.getBlockNumberAsync();
@@ -255,7 +335,11 @@ export class BlockEventsScraper {
         });
 
         if (lastKnownBlock === undefined) {
-            // TODO: coldStart
+            logger.warn('First Run');
+            const firstStartBlock = Math.max(...eventScrperProps.map((props) => props.startBlock));
+            logger.warn(`Going to start from block: ${firstStartBlock}`);
+            const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(firstStartBlock, firstStartBlock, true);
+            getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks);
             return;
         }
 
@@ -299,12 +383,11 @@ export class BlockEventsScraper {
             throw Error(`Big reorg detected, of more than ${lookback}, manual intervention needed`);
         }
 
-        const startTime = new Date().getTime();
-        getParseSaveBlocksTransactionsEvents(connection, newBlocks, blockRangeStart, blockRangeEnd);
+        getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks);
 
         const endTime = new Date().getTime();
         const scriptDurationSeconds = (endTime - startTime) / 1000;
-        SCRIPT_RUN_DURATION.set({ script: 'events-by-topic' }, scriptDurationSeconds);
+        SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
 
         logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
     }

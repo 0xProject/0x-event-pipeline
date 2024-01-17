@@ -16,7 +16,7 @@ const helpers = require('web3-core-helpers');
 const formatter = helpers.formatters;
 
 export interface LogPullInfo {
-    address: string;
+    address: string | null;
     fromBlock: number;
     toBlock: number;
     topics: (string | null)[];
@@ -62,18 +62,36 @@ export class Web3Source {
         });
     }
 
+    public async getBatchBlockInfoForRangeAsync<B extends boolean>(
+        startBlock: number,
+        endBlock: number,
+        includeTransactions: B,
+    ): Promise<B extends true ? BlockWithTransactionData1559[] : BlockWithoutTransactionData1559[]>;
+
     public async getBatchBlockInfoForRangeAsync(
         startBlock: number,
         endBlock: number,
         includeTransactions: boolean,
-    ): Promise<any[]> {
-        const iter = Array.from(Array(endBlock - startBlock + 1).keys());
+    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData1559)[]> {
+        const blockNumbers = Array.from(Array(endBlock - startBlock + 1).keys()).map((i) => i + startBlock);
+        return this.getBatchBlockInfoAsync(blockNumbers, includeTransactions);
+    }
+
+    public async getBatchBlockInfoAsync<B extends boolean>(
+        blockNumbers: number[],
+        includeTransactions: B,
+    ): Promise<B extends true ? BlockWithTransactionData1559[] : BlockWithoutTransactionData1559[]>;
+
+    public async getBatchBlockInfoAsync(
+        blockNumbers: number[],
+        includeTransactions: boolean,
+    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData1559)[]> {
         const batch = new this._web3.BatchRequest();
 
-        const promises = iter.map((i) => {
-            return new Promise((resolve, reject) => {
+        const promises = blockNumbers.map((blockNumber) => {
+            return new Promise<BlockWithoutTransactionData | BlockWithTransactionData1559>((resolve, reject) => {
                 const req = this._web3.eth.getBlock.request(
-                    i + startBlock,
+                    blockNumber,
                     includeTransactions,
                     (err: any, data: BlockWithTransactionData1559) => {
                         if (err) {
@@ -97,17 +115,20 @@ export class Web3Source {
         startBlock: number,
         endBlock: number,
     ): Promise<TransactionReceipt1559[][]> {
-        const iter = Array.from(Array(endBlock - startBlock + 1).keys());
+        const blockNumbers = Array.from(Array(endBlock - startBlock + 1).keys()).map((i) => i + startBlock);
+        return this.getBatchBlockReceiptsAsync(blockNumbers);
+    }
 
-        const promises = iter.map((i) => {
-            return this._web3.eth.getBlockReceipts(i + startBlock).catch((err: any) => {
+    public async getBatchBlockReceiptsAsync(blockNumbers: number[]): Promise<TransactionReceipt1559[][]> {
+        const promises = blockNumbers.map((blockNumber) => {
+            return this._web3.eth.getBlockReceipts(blockNumber).catch((err: any) => {
                 logger.error(`Blocks error: ${err}`);
             });
         });
 
         const blocks = await Promise.all(promises);
 
-        return blocks as TransactionReceipt1559[][];
+        return blocks;
     }
 
     public async getBatchTxInfoAsync(hashes: string[]): Promise<any[]> {

@@ -439,7 +439,7 @@ export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadata
 
 export async function getParseSaveTokensAsync(
     connection: Connection,
-    producer: Producer,
+    producer: Producer | null,
     web3Source: Web3Source,
     tokens: string[],
 ): Promise<number> {
@@ -635,7 +635,7 @@ export async function getParseTxsAsync(web3Source: Web3Source, hashes: string[])
 
 export async function getParseSaveTxAsync(
     connection: Connection,
-    producer: Producer,
+    producer: Producer | null,
     web3Source: Web3Source,
     hashes: string[],
 ): Promise<void> {

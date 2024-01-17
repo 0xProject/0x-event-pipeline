@@ -50,7 +50,7 @@ export class EventsByTopicScraper {
                         props.parser,
                         props.deleteOptions,
                         props.tokenMetadataMap,
-                        props.callback,
+                        props.postProcess,
                         props.filterFunctionGetContext,
                     ),
                 );

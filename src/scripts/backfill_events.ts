@@ -20,19 +20,6 @@ const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 export class EventsBackfillScraper {
     public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
-        logger.info(`Pulling Events by Topic Backfill`);
-        const currentBlock = await web3Source.getCurrentBlockAsync();
-
-        logger.info(`latest block: ${currentBlock.number}`);
-
-        const promises: Promise<string[]>[] = [];
-
-        const commonParams: CommonEventParams = {
-            connection,
-            producer,
-            web3Source,
-        };
-
         const oldestBlocksForEvents = await connection
             .getRepository(EventBackfill)
             .createQueryBuilder('event')
@@ -41,69 +28,83 @@ export class EventsBackfillScraper {
             .groupBy('event.name')
             .getRawMany();
 
-        const backfillEventsOldestBlock = new Map<string, number>();
+        if (oldestBlocksForEvents.length > 0) {
+            logger.info(`Pulling Events by Topic Backfill`);
 
-        oldestBlocksForEvents.forEach((event) => {
-            backfillEventsOldestBlock.set(event.name, parseInt(event.oldestBlockNumber));
-        });
+            const backfillEventsOldestBlock = new Map<string, number>();
 
-        eventScrperProps.forEach((props: EventScraperProps) => {
-            if (backfillEventsOldestBlock.has(props.name)) {
-                promises.push(
-                    pullAndSaveEventsByTopic
-                        .getParseSaveEventsByTopicBackfill(
-                            commonParams.connection,
-                            commonParams.producer,
-                            commonParams.web3Source,
-                            currentBlock,
-                            props.name,
-                            props.tType,
-                            props.table,
-                            props.topics,
-                            props.contractAddress,
-                            props.startBlock,
-                            props.parser,
-                            backfillEventsOldestBlock.get(props.name)!,
-                            props.deleteOptions,
-                            props.tokenMetadataMap,
-                            props.callback,
-                            props.filterFunctionGetContext,
-                        )
-                        .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
-                            if (startBlockNumber !== null && endBlockNumber !== null) {
-                                await connection
-                                    .getRepository(EventBackfill)
-                                    .createQueryBuilder('event')
-                                    .delete()
-                                    .from(EventBackfill)
-                                    .where('blockNumber >= :startBlockNumber', { startBlockNumber })
-                                    .andWhere('blockNumber <= :endBlockNumber', { endBlockNumber })
-                                    .execute();
-                            }
+            oldestBlocksForEvents.forEach((event) => {
+                backfillEventsOldestBlock.set(event.name, parseInt(event.oldestBlockNumber));
+            });
 
-                            return transactionHashes;
-                        }),
-                );
-            }
-        });
+            const currentBlock = await web3Source.getCurrentBlockAsync();
 
-        const txHashes = [
-            ...new Set(
-                (await Promise.all(promises)).reduce(
-                    (accumulator: string[], value: string[]) => accumulator.concat(value),
-                    [],
+            const promises: Promise<string[]>[] = [];
+
+            const commonParams: CommonEventParams = {
+                connection,
+                producer,
+                web3Source,
+            };
+
+            eventScrperProps.forEach((props: EventScraperProps) => {
+                if (backfillEventsOldestBlock.has(props.name)) {
+                    promises.push(
+                        pullAndSaveEventsByTopic
+                            .getParseSaveEventsByTopicBackfill(
+                                commonParams.connection,
+                                commonParams.producer,
+                                commonParams.web3Source,
+                                currentBlock,
+                                props.name,
+                                props.tType,
+                                props.table,
+                                props.topics,
+                                props.contractAddress,
+                                props.startBlock,
+                                props.parser,
+                                backfillEventsOldestBlock.get(props.name)!,
+                                props.deleteOptions,
+                                props.tokenMetadataMap,
+                                props.postProcess,
+                                props.filterFunctionGetContext,
+                            )
+                            .then(async ({ transactionHashes, startBlockNumber, endBlockNumber }) => {
+                                if (startBlockNumber !== null && endBlockNumber !== null) {
+                                    await connection
+                                        .getRepository(EventBackfill)
+                                        .createQueryBuilder('event')
+                                        .delete()
+                                        .from(EventBackfill)
+                                        .where('blockNumber >= :startBlockNumber', { startBlockNumber })
+                                        .andWhere('blockNumber <= :endBlockNumber', { endBlockNumber })
+                                        .execute();
+                                }
+
+                                return transactionHashes;
+                            }),
+                    );
+                }
+            });
+
+            const txHashes = [
+                ...new Set(
+                    (await Promise.all(promises)).reduce(
+                        (accumulator: string[], value: string[]) => accumulator.concat(value),
+                        [],
+                    ),
                 ),
-            ),
-        ] as string[];
+            ] as string[];
 
-        if (txHashes.length) {
-            await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
+            if (txHashes.length) {
+                await getParseSaveTxAsync(connection, producer, web3Source, txHashes);
+            }
+
+            const endTime = new Date().getTime();
+            const scriptDurationSeconds = (endTime - startTime) / 1000;
+            SCRIPT_RUN_DURATION.set({ script: 'events-by-topic-backfill' }, scriptDurationSeconds);
+
+            logger.info(`Finished backfilling events by topic in ${scriptDurationSeconds}`);
         }
-
-        const endTime = new Date().getTime();
-        const scriptDurationSeconds = (endTime - startTime) / 1000;
-        SCRIPT_RUN_DURATION.set({ script: 'events-by-topic-backfill' }, scriptDurationSeconds);
-
-        logger.info(`Finished backfilling events by topic in ${scriptDurationSeconds}`);
     }
 }

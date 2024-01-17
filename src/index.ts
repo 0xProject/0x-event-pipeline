@@ -2,7 +2,6 @@
 import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
-    FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     KAFKA_AUTH_PASSWORD,
@@ -14,13 +13,13 @@ import {
 import * as ormConfig from './ormconfig';
 import { EventsBackfillScraper } from './scripts/backfill_events';
 import { ChainIdChecker } from './scripts/check_chain_id';
+import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
 import { BlockEventsScraper } from './scripts/pull_and_save_block_events';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
-import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
@@ -62,13 +61,14 @@ const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
 const eventsBackfillScraper = new EventsBackfillScraper();
 const blockEventsScraper = new BlockEventsScraper();
-// const currentBlockMonitor = new CurrentBlockMonitor();
-const tokensFromTransfersScraper = new TokensFromTransfersScraper();
+const currentBlockMonitor = new CurrentBlockMonitor();
 const tokensFromBackfill = new TokensFromBackfill();
 
 if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
 }
+
+const SCRAPER_MODE = 'Blocks';
 
 chainIdChecker.checkChainId(CHAIN_ID);
 
@@ -86,8 +86,20 @@ createConnection(ormConfig as ConnectionOptions)
         if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
             await UniV3PoolSingleton.initInstance(connection);
         }
-        schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
-        //schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
+        if (SCRAPER_MODE === 'Blocks') {
+            schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
+            schedule(connection, producer, blockEventsScraper.backfillAsync, 'Backfill Blocks and Events');
+        } else if (SCRAPER_MODE === 'Logs') {
+            schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
+            schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
+            schedule(
+                connection,
+                producer,
+                eventsByTopicScraper.getParseSaveEventsAsync,
+                'Pull and Save Events by Topic',
+            );
+        }
+        schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
         //schedule(
         //    connection,
         //    producer,
@@ -96,14 +108,6 @@ createConnection(ormConfig as ConnectionOptions)
         //);
         if (CHAIN_ID === 1) {
             //    schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
-        }
-        if (FEAT_TOKENS_FROM_TRANSFERS) {
-            //schedule(
-            //    connection,
-            //    null,
-            //    tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
-            //    'Pull and Save Backfill Tokens',
-            //);
         }
     })
     .catch((error) => logger.error(error));

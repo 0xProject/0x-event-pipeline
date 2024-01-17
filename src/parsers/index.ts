@@ -1,5 +1,6 @@
 export { parseBridgeFill } from './events/bridge_transfer_events';
 export { parseExpiredRfqOrderEvent } from './events/expired_rfq_order_events';
+export { parseCancelEvent, parseCancelUpToEvent } from './events/cancel_events';
 export { parseFillEvent } from './events/fill_events';
 export { parseNativeFillFromFillEvent } from './events/fill_events';
 export { parseLiquidityProviderSwapEvent } from './events/liquidity_provider_swap_events';
@@ -45,4 +46,3 @@ export {
     parseWrapNativeTransferEvent,
     parseUnwrapNativeTransferEvent,
 } from './events/wrap_unwrap_native_events';
-export { parseTokenTransfer } from './events/token_transfer_events';
