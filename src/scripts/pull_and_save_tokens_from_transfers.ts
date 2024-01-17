@@ -1,5 +1,5 @@
 import { EVM_RPC_URL, MAX_BLOCKS_TO_SEARCH, TOKENS_FROM_TRANSFERS_START_BLOCK } from '../config';
-import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
+import { TRANSFER_EVENT_TOPIC_0 } from '../constants';
 import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
 import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION, SCAN_START_BLOCK, SCAN_END_BLOCK } from '../utils/metrics';
@@ -60,7 +60,7 @@ export class TokensFromTransfersScraper {
             address: 'nofilter',
             fromBlock: startBlockNumber,
             toBlock: endBlockNumber,
-            topics: TOKEN_TRANSFER_EVENT_TOPIC,
+            topics: [TRANSFER_EVENT_TOPIC_0],
         };
 
         const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);

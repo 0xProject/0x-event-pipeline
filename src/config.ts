@@ -1,4 +1,7 @@
 import {
+    ScraperMode,
+    DEFAULT_RESCRAPE_BLOCKS,
+    DEFAULT_SCRAPER_MODE,
     DEFAULT_BASE_GITHUB_LOGO_URL,
     DEFAULT_BLOCKS_REORG_CHECK_INCREMENT,
     DEFAULT_BLOCK_FINALITY_THRESHOLD,
@@ -69,8 +72,6 @@ interface BridgeContract {
     startingBlock: number;
 }
 
-export const RESCRAPE_BLOCKS = 10; //TODO: delete me
-
 const bridgeContracts = [
     { contract: '0x1c29670f7a77f1052d30813a0a4f632c78a02610', startingBlock: 9613431 },
     { contract: '0x991c745401d5b5e469b8c3e2cb02c748f08754f1', startingBlock: 9613441 },
@@ -111,6 +112,14 @@ export const POSTGRES_URI = process.env.POSTGRES_URI || DEFAULT_LOCAL_POSTGRES_U
 export const SHOULD_SYNCHRONIZE = process.env.SHOULD_SYNCHRONIZE === 'true';
 
 export const ENABLE_PROMETHEUS_METRICS = getBoolConfig('ENABLE_PROMETHEUS_METRICS', DEFAULT_ENABLE_PROMETHEUS_METRICS);
+export const SCRAPER_MODE: ScraperMode =
+    process.env.SCRAPER_MODE === undefined
+        ? DEFAULT_SCRAPER_MODE
+        : process.env.SCRAPER_MODE === 'BLOCKS'
+        ? 'BLOCKS'
+        : process.env.SCRAPER_MODE === 'EVENTS'
+        ? 'EVENTS'
+        : throwError('Wrong SCRAPER_MODE');
 export const METRICS_PATH = process.env.METRICS_PATH || DEFAULT_METRICS_PATH;
 
 export const PROMETHEUS_PORT = getIntConfig('PROMETHEUS_PORT', DEFAULT_PROMETHEUS_PORT);
@@ -374,6 +383,15 @@ export const FEAT_TOKENS_FROM_TRANSFERS = getBoolConfig(
     DEFAULT_FEAT_TOKENS_FROM_TRANSFERS,
 );
 
+export const TOKENS_FROM_TRANSFERS_START_BLOCK = getIntConfig('TOKENS_FROM_TRANSFERS_START_BLOCK', -1);
+
+validateStartBlock(
+    'TOKENS_FROM_TRANSFERS_START_BLOCK',
+    TOKENS_FROM_TRANSFERS_START_BLOCK,
+    "FEAT_TOKENS_FROM_TRANSFERS && SCRAPER_MODE !== 'BLOCKS'",
+    FEAT_TOKENS_FROM_TRANSFERS && SCRAPER_MODE !== 'BLOCKS',
+);
+
 export const FEAT_META_TRANSACTION_EXECUTED_EVENT = getBoolConfig(
     'FEAT_META_TRANSACTION_EXECUTED_EVENT',
     DEFAULT_FEAT_META_TRANSACTION_EXECUTED_EVENT,
@@ -449,6 +467,8 @@ validateStartBlock(
     'FEAT_SOCKET_BRIDGE_EVENT',
     FEAT_SOCKET_BRIDGE_EVENT,
 );
+
+export const RESCRAPE_BLOCKS = getIntConfig('RESCRAPE_BLOCKS', DEFAULT_RESCRAPE_BLOCKS);
 
 export const BLOCKS_REORG_CHECK_INCREMENT = getIntConfig(
     'BLOCKS_REORG_CHECK_INCREMENT',
