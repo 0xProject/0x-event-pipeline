@@ -1,8 +1,7 @@
 import { bigNumberTransformer } from '../transformers';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
 
 // These events come directly from the Exchange contract and are fired whenever
 // someone fills an order.

@@ -1,6 +1,5 @@
-import { Column, Entity } from 'typeorm';
-
 import { Event } from './event';
+import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'erc1155_order_cancelled_events' })
 export class Erc1155OrderCancelledEvent extends Event {

@@ -1,7 +1,6 @@
+import { numberToBigIntTransformer } from '../transformers';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-
-import { numberToBigIntTransformer } from '../transformers';
 
 @Entity({ name: 'token_registry', schema: 'api' })
 export class TokenRegistry {

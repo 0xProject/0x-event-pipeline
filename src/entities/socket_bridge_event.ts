@@ -1,8 +1,7 @@
+import { bigNumberTransformer } from '../transformers';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
-import { bigNumberTransformer } from '../transformers';
 
 @Entity({ name: 'socket_bridge_events' })
 export class SocketBridgeEvent extends Event {

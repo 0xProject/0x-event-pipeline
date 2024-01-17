@@ -1,6 +1,5 @@
-import { Column, PrimaryColumn } from 'typeorm';
-
 import { numberToBigIntTransformer } from '../transformers';
+import { Column, PrimaryColumn } from 'typeorm';
 
 // Abstract class with common event fields
 export abstract class Event {

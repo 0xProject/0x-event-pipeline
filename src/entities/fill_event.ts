@@ -1,9 +1,8 @@
 import { bigNumberTransformer } from '../transformers/big_number';
+import { ProxyType } from '../utils/proxyType';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
-import { ProxyType } from '../utils/proxyType';
 
 // These events come directly from the Exchange contract and are fired whenever
 // someone fills an order.
