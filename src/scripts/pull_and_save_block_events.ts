@@ -237,52 +237,86 @@ async function getParseSaveBlocksTransactionsEvents(
     connection: Connection,
     producer: Producer | null,
     newBlocks: EVMBlock[],
-) {
+    allowPartialSuccess: boolean,
+): Promise<boolean> {
     const blockNumbers = newBlocks.map((newBlock) => newBlock.number!);
 
     const blockRanges = findRanges(blockNumbers);
 
     logger.info(`Pulling Block Events for blocks: ${JSON.stringify(blockRanges)}`);
 
-    const newBlockReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
+    const newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
 
-    const fullBlocks: FullBlock[] = newBlocks.map((newBlock, blockIndex): FullBlock => {
-        const transactionsWithLogs = newBlock.transactions.map(
-            (tx: EVMTransaction, txIndex: number): FullTransaction => {
-                if (newBlock.hash !== newBlockReceipts[blockIndex][txIndex].blockHash) {
-                    throw Error('Wrong Block hash');
+    const filteredNewBlocksReceipts = newBlocksReceipts.filter((blockReciepts) => blockReciepts !== null);
+
+    if (newBlocksReceipts.length !== filteredNewBlocksReceipts.length) {
+        if (!allowPartialSuccess) {
+            return false;
+        }
+        const { nullOnlyAtEnd } = newBlocksReceipts.reduce(
+            (state, blockReciepts) => {
+                if (state.hasSeenNull && blockReciepts !== null) {
+                    state.nullOnlyAtEnd = false;
                 }
-                return {
-                    ...tx,
-                    ...newBlockReceipts[blockIndex][txIndex],
-                    type: tx.type,
-                };
+
+                if (newBlocksReceipts === null) {
+                    state.hasSeenNull = true;
+                }
+                return state;
             },
+            { hasSeenNull: false, nullOnlyAtEnd: true },
         );
-        return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
-    });
 
-    const parsedFullBlocks = fullBlocks.map(parseBlockTransactionsEvents);
-
-    const eventTables = eventScrperProps
-        .filter((props) => props.enabled)
-        .map((props: EventScraperProps) => props.table);
-
-    await saveFullBlocks(connection, eventTables, parsedFullBlocks);
-
-    if (FEAT_TOKENS_FROM_TRANSFERS) {
-        const tokensFromTransfers = [
-            ...new Set(
-                newBlockReceipts
-                    .flat()
-                    .map((tx) => tx.logs)
-                    .flat()
-                    .filter((log) => log.topics.length > 0 && log.topics[0] === TRANSFER_EVENT_TOPIC_0)
-                    .map((log) => log.address),
-            ),
-        ];
-        await getParseSaveTokensAsync(connection, producer, web3Source, tokensFromTransfers);
+        if (nullOnlyAtEnd) {
+            logger.info('Last block(s) reciepts not found, retrying that block on the next run');
+        } else {
+            logger.error("Missing intermideate block reciepts, can't continue. Retrying next run");
+            logger.error(newBlocksReceipts);
+            return false;
+        }
     }
+
+    if (filteredNewBlocksReceipts.length > 0) {
+        const fullBlocks: FullBlock[] = filteredNewBlocksReceipts.map((newBlockReceipts, blockIndex): FullBlock => {
+            const transactionsWithLogs = newBlockReceipts.map(
+                (txReceipt: EVMTransactionReceipt, txIndex: number): FullTransaction => {
+                    if (txReceipt.blockHash !== newBlocks[blockIndex].hash) {
+                        throw Error('Wrong Block hash');
+                    }
+                    return {
+                        ...newBlocks[blockIndex].transactions[txIndex],
+                        ...txReceipt,
+                        type: newBlocks[blockIndex].transactions[txIndex].type,
+                    };
+                },
+            );
+            return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
+        });
+
+        const parsedFullBlocks = fullBlocks.map(parseBlockTransactionsEvents);
+
+        const eventTables = eventScrperProps
+            .filter((props) => props.enabled)
+            .map((props: EventScraperProps) => props.table);
+
+        await saveFullBlocks(connection, eventTables, parsedFullBlocks);
+
+        if (FEAT_TOKENS_FROM_TRANSFERS) {
+            const tokensFromTransfers = [
+                ...new Set(
+                    filteredNewBlocksReceipts
+                        .flat()
+                        .map((tx) => tx.logs)
+                        .flat()
+                        .filter((log) => log.topics.length > 0 && log.topics[0] === TRANSFER_EVENT_TOPIC_0)
+                        .map((log) => log.address),
+                ),
+            ];
+            await getParseSaveTokensAsync(connection, producer, web3Source, tokensFromTransfers);
+        }
+        return true;
+    }
+    return false;
 }
 
 export class BlockEventsScraper {
@@ -304,19 +338,25 @@ export class BlockEventsScraper {
             );
 
             const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);
-            getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks);
-
-            const queryRunner = connection.createQueryRunner();
-            await queryRunner.connect();
-            await queryRunner.manager.query(
-                `DELETE FROM ${SCHEMA}.backfill_blocks
-                         WHERE block_number IN (${blockNumbers.join(',')})`,
+            const success = await getParseSaveBlocksTransactionsEvents(
+                connection,
+                producer,
+                newBlocks,
+                allowPartialSuccess,
             );
-            queryRunner.release();
+            if (success) {
+                const queryRunner = connection.createQueryRunner();
+                await queryRunner.connect();
+                await queryRunner.manager.query(
+                    `DELETE FROM ${SCHEMA}.backfill_blocks
+                         WHERE block_number IN (${blockNumbers.join(',')})`,
+                );
+                queryRunner.release();
 
-            const endTime = new Date().getTime();
-            const scriptDurationSeconds = (endTime - startTime) / 1000;
-            SCRIPT_RUN_DURATION.set({ script: 'events-by-block-backfill' }, scriptDurationSeconds);
+                const endTime = new Date().getTime();
+                const scriptDurationSeconds = (endTime - startTime) / 1000;
+                SCRIPT_RUN_DURATION.set({ script: 'events-by-block-backfill' }, scriptDurationSeconds);
+            }
         }
     }
     public async getParseSaveAsync(connection: Connection, producer: Producer | null): Promise<void> {
@@ -339,7 +379,7 @@ export class BlockEventsScraper {
             const firstStartBlock = Math.max(...eventScrperProps.map((props) => props.startBlock));
             logger.warn(`Going to start from block: ${firstStartBlock}`);
             const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(firstStartBlock, firstStartBlock, true);
-            getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks);
+            await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
             return;
         }
 
@@ -383,12 +423,14 @@ export class BlockEventsScraper {
             throw Error(`Big reorg detected, of more than ${lookback}, manual intervention needed`);
         }
 
-        getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks);
+        const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
 
-        const endTime = new Date().getTime();
-        const scriptDurationSeconds = (endTime - startTime) / 1000;
-        SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
+        if (success) {
+            const endTime = new Date().getTime();
+            const scriptDurationSeconds = (endTime - startTime) / 1000;
+            SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
 
-        logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
+            logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
+        }
     }
 }

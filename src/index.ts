@@ -8,6 +8,7 @@ import {
     KAFKA_AUTH_USER,
     KAFKA_BROKERS,
     KAFKA_SSL,
+    SCRAPER_MODE,
     SECONDS_BETWEEN_RUNS,
 } from './config';
 import * as ormConfig from './ormconfig';
@@ -68,8 +69,6 @@ if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
 }
 
-const SCRAPER_MODE = 'Blocks';
-
 chainIdChecker.checkChainId(CHAIN_ID);
 
 // run pull and save events
@@ -86,10 +85,10 @@ createConnection(ormConfig as ConnectionOptions)
         if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
             await UniV3PoolSingleton.initInstance(connection);
         }
-        if (SCRAPER_MODE === 'Blocks') {
+        if (SCRAPER_MODE === 'BLOCKS') {
             schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
             schedule(connection, producer, blockEventsScraper.backfillAsync, 'Backfill Blocks and Events');
-        } else if (SCRAPER_MODE === 'Logs') {
+        } else if (SCRAPER_MODE === 'EVENTS') {
             schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
             schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
             schedule(
