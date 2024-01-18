@@ -268,7 +268,7 @@ async function getParseSaveBlocksTransactionsEvents(
         );
 
         if (nullOnlyAtEnd) {
-            logger.info('Last block(s) reciepts not found, retrying that block on the next run');
+            logger.info('Last block(s) reciepts not found, retrying that block(s) on the next run');
         } else {
             logger.error("Missing intermideate block reciepts, can't continue. Retrying next run");
             logger.error(newBlocksReceipts);
@@ -343,7 +343,7 @@ export class BlockEventsScraper {
                 const queryRunner = connection.createQueryRunner();
                 await queryRunner.connect();
                 await queryRunner.manager.query(
-                    `DELETE FROM ${SCHEMA}.backfill_blocks
+                    `DELETE FROM ${SCHEMA}.tx_backfill
                          WHERE block_number IN (${blockNumbers.join(',')})`,
                 );
                 queryRunner.release();

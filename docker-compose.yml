@@ -122,6 +122,7 @@ services:
             CHAIN_ID: '137'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'
+            SCRAPER_MODE: 'BLOCKS'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
@@ -129,9 +130,8 @@ services:
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
             MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
+            MAX_BLOCKS_TO_PULL: 251
+            SECONDS_BETWEEN_RUNS: 2
             FEAT_SLINGSHOT_TRADE_EVENT: "true"
             SLINGSHOT_DEPLOYMENT_BLOCK: 14500000
             FEAT_LIMIT_ORDERS: "true"
@@ -144,6 +144,7 @@ services:
             META_TRANSACTION_EXECUTED_START_BLOCK: 39406300
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
 
     event-pipeline-avalanche:
         depends_on:

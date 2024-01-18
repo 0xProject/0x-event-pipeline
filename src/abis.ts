@@ -49,6 +49,20 @@ export const V3_CANCEL_UP_TO_ABI = {
     type: 'event',
 };
 
+export const V3_TRANSACTION_EXECUTION_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'transactionHash',
+            type: 'bytes32',
+        },
+    ],
+    name: 'TransactionExecution',
+    type: 'event',
+};
+
 export const V4_CANCEL_ABI = {
     anonymous: false,
     inputs: [
@@ -1100,5 +1114,315 @@ export const SOCKET_BRIDGE_ABI = {
         { indexed: false, internalType: 'bytes32', name: 'metadata', type: 'bytes32' },
     ],
     name: 'SocketBridge',
+    type: 'event',
+};
+
+export const STAKING_STAKE_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'staker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'amount',
+            type: 'uint256',
+        },
+    ],
+    name: 'Stake',
+    type: 'event',
+};
+
+export const STAKING_UNSTAKE_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'staker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'amount',
+            type: 'uint256',
+        },
+    ],
+    name: 'Unstake',
+    type: 'event',
+};
+
+export const STAKING_MOVE_STAKE_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'staker',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'amount',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint8',
+            name: 'fromStatus',
+            type: 'uint8',
+        },
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'fromPool',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'uint8',
+            name: 'toStatus',
+            type: 'uint8',
+        },
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'toPool',
+            type: 'bytes32',
+        },
+    ],
+    name: 'MoveStake',
+    type: 'event',
+};
+
+export const STAKING_STAKING_POOL_CREATED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'bytes32',
+            name: 'poolId',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'address',
+            name: 'operator',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint32',
+            name: 'operatorShare',
+            type: 'uint32',
+        },
+    ],
+    name: 'StakingPoolCreated',
+    type: 'event',
+};
+
+export const STAKING_STAKING_POOL_EARNED_REWARDS_IN_EPOCH_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'epoch',
+            type: 'uint256',
+        },
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'poolId',
+            type: 'bytes32',
+        },
+    ],
+    name: 'StakingPoolEarnedRewardsInEpoch',
+    type: 'event',
+};
+
+export const STAKING_MAKER_STAKING_POOL_SET_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'makerAddress',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'poolId',
+            type: 'bytes32',
+        },
+    ],
+    name: 'MakerStakingPoolSet',
+    type: 'event',
+};
+
+export const STAKING_PARAMS_SET_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'epochDurationInSeconds',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint32',
+            name: 'rewardDelegatedStakeWeight',
+            type: 'uint32',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'minimumPoolStake',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'cobbDouglasAlphaNumerator',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'cobbDouglasAlphaDenominator',
+            type: 'uint256',
+        },
+    ],
+    name: 'ParamsSet',
+    type: 'event',
+};
+
+export const STAKING_OPERATOR_SHARE_DECREASED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'poolId',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'uint32',
+            name: 'oldOperatorShare',
+            type: 'uint32',
+        },
+        {
+            indexed: false,
+            internalType: 'uint32',
+            name: 'newOperatorShare',
+            type: 'uint32',
+        },
+    ],
+    name: 'OperatorShareDecreased',
+    type: 'event',
+};
+
+export const STAKING_EPOCH_ENDED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'epoch',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'numPoolsToFinalize',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'rewardsAvailable',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'totalFeesCollected',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'totalWeightedStake',
+            type: 'uint256',
+        },
+    ],
+    name: 'EpochEnded',
+    type: 'event',
+};
+
+export const STAKING_EPOCH_FINALIZED_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'epoch',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'rewardsPaid',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'rewardsRemaining',
+            type: 'uint256',
+        },
+    ],
+    name: 'EpochFinalized',
+    type: 'event',
+};
+
+export const STAKING_REWARDS_PAID_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'epoch',
+            type: 'uint256',
+        },
+        {
+            indexed: true,
+            internalType: 'bytes32',
+            name: 'poolId',
+            type: 'bytes32',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'operatorReward',
+            type: 'uint256',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'membersReward',
+            type: 'uint256',
+        },
+    ],
+    name: 'RewardsPaid',
     type: 'event',
 };

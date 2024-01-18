@@ -63,8 +63,8 @@ export function parseCancelUpToEvent(eventLog: LogEntry): CancelUpToEvent {
 
     const decodedLog = abiCoder.decodeLog(V3_CANCEL_UP_TO_ABI.inputs, eventLog.data, eventLog.topics.slice(1));
 
-    cancelUpToEvent.makerAddress = decodedLog.makerAddress;
-    cancelUpToEvent.senderAddress = decodedLog.orderSenderAddress;
+    cancelUpToEvent.makerAddress = decodedLog.makerAddress.toLowerCase();
+    cancelUpToEvent.senderAddress = decodedLog.orderSenderAddress.toLowerCase();
     cancelUpToEvent.orderEpoch = decodedLog.orderEpoch;
 
     return cancelUpToEvent;

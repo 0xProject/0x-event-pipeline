@@ -19,7 +19,6 @@ import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
 import { BlockEventsScraper } from './scripts/pull_and_save_block_events';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
-import { LegacyEventScraper } from './scripts/pull_and_save_legacy_events';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
@@ -56,7 +55,6 @@ if (KAFKA_BROKERS.length > 0) {
 logger.info('App is running...');
 
 const chainIdChecker = new ChainIdChecker();
-const legacyEventScraper = new LegacyEventScraper();
 const backfillTxScraper = new BackfillTxScraper();
 const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
@@ -105,9 +103,6 @@ createConnection(ormConfig as ConnectionOptions)
         //    backfillTxScraper.getParseSaveTxBackfillAsync,
         //    'Pull and Save Backfill Transactions',
         //);
-        if (CHAIN_ID === 1) {
-            //    schedule(connection, null, legacyEventScraper.getParseSaveEventsAsync, 'Pull and Save Legacy Events');
-        }
     })
     .catch((error) => logger.error(error));
 
