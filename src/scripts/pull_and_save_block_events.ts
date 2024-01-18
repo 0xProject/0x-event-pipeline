@@ -118,8 +118,13 @@ function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction
         };
     });
 
+    const foundScrapedEventInTx = nestedParsedEvents.map((npe) => npe.events).flat().length > 0;
+
     return {
-        parsedTransaction: nestedParsedEvents.map((npe) => npe.events).flat().length > 0 ? parsedTransaction : null,
+        // We need all reverted txs for joining with traces later
+        // toString is needed because we libraries do not match
+        parsedTransaction:
+            foundScrapedEventInTx || transaction.status!.toString() === 'false' ? parsedTransaction : null,
         parsedEvents: nestedParsedEvents,
     };
 }
