@@ -338,12 +338,7 @@ export class BlockEventsScraper {
             );
 
             const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);
-            const success = await getParseSaveBlocksTransactionsEvents(
-                connection,
-                producer,
-                newBlocks,
-                allowPartialSuccess,
-            );
+            const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, false);
             if (success) {
                 const queryRunner = connection.createQueryRunner();
                 await queryRunner.connect();
