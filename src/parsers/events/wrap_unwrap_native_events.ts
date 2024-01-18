@@ -1,5 +1,5 @@
 import { WRAP_NATIVE_ABI, UNWRAP_NATIVE_ABI, TRANSFER_ABI } from '../../constants';
-import { WrapNativeEvent, UnwrapNativeEvent, Event } from '../../entities';
+import { WrapNativeEvent, UnwrapNativeEvent } from '../../entities';
 import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
 import { LogEntry } from 'ethereum-types';

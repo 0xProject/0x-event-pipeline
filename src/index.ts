@@ -52,8 +52,6 @@ if (KAFKA_BROKERS.length > 0) {
     producer = kafka.producer();
 }
 
-logger.info('App is running...');
-
 const chainIdChecker = new ChainIdChecker();
 const backfillTxScraper = new BackfillTxScraper();
 const blockScraper = new BlockScraper();
@@ -68,6 +66,8 @@ if (ENABLE_PROMETHEUS_METRICS) {
 }
 
 chainIdChecker.checkChainId(CHAIN_ID);
+
+logger.info(`Running in ${SCRAPER_MODE} mode`);
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
@@ -95,14 +95,20 @@ createConnection(ormConfig as ConnectionOptions)
                 eventsByTopicScraper.getParseSaveEventsAsync,
                 'Pull and Save Events by Topic',
             );
+            schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
+            schedule(
+                connection,
+                producer,
+                backfillTxScraper.getParseSaveTxBackfillAsync,
+                'Pull and Save Backfill Transactions',
+            );
+            schedule(
+                connection,
+                producer,
+                tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
+                'Pull and Save Backfill Transactions',
+            );
         }
-        schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
-        //schedule(
-        //    connection,
-        //    producer,
-        //    backfillTxScraper.getParseSaveTxBackfillAsync,
-        //    'Pull and Save Backfill Transactions',
-        //);
     })
     .catch((error) => logger.error(error));
 
