@@ -1,6 +1,7 @@
 import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
 import { TokenMetadata, TokenRegistry } from './entities';
 import { kafkaSendAsync } from './utils';
+import { SAVED_RESULTS } from './utils/metrics';
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
 
@@ -55,6 +56,8 @@ export class TokenMetadataSingleton {
 
         this.tokens = this.tokens.concat(newTokenMetadata.map((token) => token.address));
 
+        // Does not exclude "ignored" tokens
+        SAVED_RESULTS.labels({ type: 'tokens' }).inc(newTokenMetadata.length);
         kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v0`, ['address'], newTokenMetadata);
     }
 }
