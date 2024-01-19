@@ -1,11 +1,17 @@
 import { CHAIN_NAME, METRICS_PATH, PROMETHEUS_PORT } from '../config';
 import { logger } from './logger';
 import express from 'express';
-import { Gauge, register } from 'prom-client';
+import { Counter, Gauge, register } from 'prom-client';
 
 export const CURRENT_BLOCK = new Gauge({
     name: 'event_scraper_current_block',
     help: 'The current head of the chain',
+    labelNames: ['chain'],
+});
+
+export const LATEST_SCRAPED_BLOCK = new Gauge({
+    name: 'event_scraper_latest_scraped_block',
+    help: 'The latest scraped block',
     labelNames: ['chain'],
 });
 
@@ -31,6 +37,12 @@ export const SCAN_RESULTS = new Gauge({
     name: 'event_scraper_scan_results',
     help: 'The count of how many entities are going to be saved to DB',
     labelNames: ['type', 'event', 'includeBridgeTrades'],
+});
+
+export const SAVED_RESULTS = new Counter({
+    name: 'event_scraper_saved_results',
+    help: 'The count of how many results are going to be saved to DB',
+    labelNames: ['type', 'event'],
 });
 
 export const RPC_LOGS_ERROR = new Gauge({

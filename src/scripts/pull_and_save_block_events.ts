@@ -17,7 +17,7 @@ import { Block, Transaction, TransactionReceipt } from '../entities';
 import { eventScrperProps, EventScraperProps } from '../events';
 import { parseBlock, parseTransaction, parseTransactionReceipt } from '../parsers/web3/parse_web3_objects';
 import { chunk, logger } from '../utils';
-import { CURRENT_BLOCK, SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { LATEST_SCRAPED_BLOCK, CURRENT_BLOCK, SCRIPT_RUN_DURATION, SAVED_RESULTS } from '../utils/metrics';
 import { contractTopicFilter } from './utils/block_utils';
 import { getParseSaveTokensAsync } from './utils/web3_utils';
 import { web3Factory } from '@0x/dev-utils';
@@ -51,6 +51,15 @@ interface ParsedFullBlock {
 interface ParsedTransaction {
     parsedTransaction: Transaction | null;
     parsedEvents: TypedEvents[] | null;
+}
+
+class BlockHashMismatchError extends Error {
+    constructor(m: string) {
+        super(m);
+
+        // Set the prototype explicitly.
+        Object.setPrototypeOf(this, BlockHashMismatchError.prototype);
+    }
 }
 
 const provider = web3Factory.getRpcProvider({
@@ -201,22 +210,26 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
 
         const promises: Promise<InsertResult>[] = [];
         /// Blocks
+        SAVED_RESULTS.labels({ type: 'block' }).inc(parsedBlocks.length);
         for (const chunkItems of chunk(parsedBlocks, 300)) {
             promises.push(queryRunner.manager.insert(Block, chunkItems));
         }
 
         /// Transactions
+        SAVED_RESULTS.labels({ type: 'transactions' }).inc(parsedTransactions.length);
         for (const chunkItems of chunk(parsedTransactions, 300)) {
             promises.push(queryRunner.manager.insert(Transaction, chunkItems));
         }
 
         /// TransactionReceipts
+        SAVED_RESULTS.labels({ type: 'transactionReceipts' }).inc(parsedTransactionReceipts.length);
         for (const chunkItems of chunk(parsedTransactionReceipts, 300)) {
             promises.push(queryRunner.manager.insert(TransactionReceipt, chunkItems));
         }
 
         /// Events
         parsedEventsByType.forEach(async (typedEvents: TypedEvents) => {
+            SAVED_RESULTS.labels({ type: 'event', event: typedEvents.eventName }).inc(typedEvents.events.length);
             for (const chunkItems of chunk(typedEvents.events, 300)) {
                 promises.push(queryRunner.manager.insert(typedEvents.eventType, chunkItems as any[]));
             }
@@ -286,7 +299,7 @@ async function getParseSaveBlocksTransactionsEvents(
             const transactionsWithLogs = newBlockReceipts.map(
                 (txReceipt: EVMTransactionReceipt, txIndex: number): FullTransaction => {
                     if (txReceipt.blockHash !== newBlocks[blockIndex].hash) {
-                        throw Error('Wrong Block hash');
+                        throw new BlockHashMismatchError('Wrong Block hash');
                     }
                     return {
                         ...newBlocks[blockIndex].transactions[txIndex],
@@ -423,14 +436,22 @@ export class BlockEventsScraper {
             throw Error(`Big reorg detected, of more than ${lookback}, manual intervention needed`);
         }
 
-        const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
+        try {
+            const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
 
-        if (success) {
-            const endTime = new Date().getTime();
-            const scriptDurationSeconds = (endTime - startTime) / 1000;
-            SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
+            if (success) {
+                const endTime = new Date().getTime();
+                const scriptDurationSeconds = (endTime - startTime) / 1000;
+                SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
+                LATEST_SCRAPED_BLOCK.labels({ chain: CHAIN_NAME }).set(blockRangeEnd);
 
-            logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
+                logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
+            }
+        } catch (err) {
+            if (err instanceof BlockHashMismatchError) {
+                logger.error(err);
+                return;
+            } else throw err;
         }
     }
 }
