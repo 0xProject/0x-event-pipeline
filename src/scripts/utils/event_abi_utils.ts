@@ -366,20 +366,20 @@ export const getStartBlockAsync = async (
 
         if (lastKnownBlock.block_hash !== lastKnownBlockFresh.hash) {
             return {
-                startBlockNumber: lastKnownBlockNumber - MAX_BLOCKS_REORG,
+                startBlockNumber: min0(lastKnownBlockNumber - MAX_BLOCKS_REORG),
                 hasLatestBlockChanged: true,
                 reorgLikely: true,
             };
         }
         return {
-            startBlockNumber: lastKnownBlockNumber - (RESCRAPE_BLOCKS - 1),
+            startBlockNumber: min0(lastKnownBlockNumber - (RESCRAPE_BLOCKS - 1)),
             hasLatestBlockChanged: true,
             reorgLikely: false,
         };
     }
     if (lastKnownBlock.block_hash !== currentBlock.hash) {
         return {
-            startBlockNumber: lastKnownBlockNumber - MAX_BLOCKS_REORG,
+            startBlockNumber: min0(lastKnownBlockNumber - MAX_BLOCKS_REORG),
             hasLatestBlockChanged: true,
             reorgLikely: true,
         };
@@ -390,6 +390,13 @@ export const getStartBlockAsync = async (
         reorgLikely: false,
     };
 };
+
+export function min0(num: number): number {
+    if (num > 0) {
+        return num;
+    }
+    return 0;
+}
 
 export const getLastBlockProcessedEntity = (
     eventName: string,

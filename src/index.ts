@@ -2,6 +2,7 @@
 import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
+    FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     KAFKA_AUTH_PASSWORD,
@@ -20,11 +21,11 @@ import { BlockEventsScraper } from './scripts/pull_and_save_block_events';
 import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
+import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
 import { logger } from './utils/logger';
-//import { CurrentBlockMonitor } from './scripts/monitor_current_block';
 import { startMetricsServer } from './utils/metrics';
 import { config } from 'dotenv';
 import { Kafka, Producer } from 'kafkajs';
@@ -59,6 +60,7 @@ const eventsByTopicScraper = new EventsByTopicScraper();
 const eventsBackfillScraper = new EventsBackfillScraper();
 const blockEventsScraper = new BlockEventsScraper();
 const currentBlockMonitor = new CurrentBlockMonitor();
+const tokensFromTransfersScraper = new TokensFromTransfersScraper();
 const tokensFromBackfill = new TokensFromBackfill();
 
 if (ENABLE_PROMETHEUS_METRICS) {
@@ -106,8 +108,17 @@ createConnection(ormConfig as ConnectionOptions)
                 connection,
                 producer,
                 tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
-                'Pull and Save Backfill Transactions',
+                'Pull and Save Backfill Tokens',
             );
+
+            if (FEAT_TOKENS_FROM_TRANSFERS) {
+                schedule(
+                    connection,
+                    producer,
+                    tokensFromTransfersScraper.getParseSaveTokensFromTransfersAsync,
+                    'Pull and Save Tokens From Transfers',
+                );
+            }
         }
     })
     .catch((error) => logger.error(error));
