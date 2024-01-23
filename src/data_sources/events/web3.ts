@@ -1,4 +1,5 @@
-import { MAX_TX_TO_PULL } from '../../config';
+import { MAX_TX_TO_PULL, BLOCK_RECEIPTS_MODE } from '../../config';
+import { BLOCK_RECEIPTS_MODE_ENDPOINT } from '../../constants';
 import { chunk, logger } from '../../utils';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { Web3Wrapper } from '@0x/web3-wrapper';
@@ -12,6 +13,7 @@ import {
 
 const Web3 = require('web3');
 
+const utils = require('web3-utils');
 const helpers = require('web3-core-helpers');
 const formatter = helpers.formatters;
 
@@ -42,6 +44,31 @@ export interface TransactionReceipt1559 extends TransactionReceipt {
     effectiveGasPrice: number;
 }
 
+const alchemyBlockTransactionReceiptsFormatter = function (response: any): TransactionReceipt1559[] {
+    if (typeof response !== 'object') {
+        throw new Error('Received receipt is invalid: ' + response);
+    }
+
+    return response.receipts.map((receipt: any) => {
+        if (receipt.blockNumber !== null) receipt.blockNumber = utils.hexToNumber(receipt.blockNumber);
+        if (receipt.transactionIndex !== null) receipt.transactionIndex = utils.hexToNumber(receipt.transactionIndex);
+        receipt.cumulativeGasUsed = utils.hexToNumber(receipt.cumulativeGasUsed);
+        receipt.gasUsed = utils.hexToNumber(receipt.gasUsed);
+        if (receipt.effectiveGasPrice) {
+            receipt.effectiveGasPrice = utils.hexToNumber(receipt.effectiveGasPrice);
+        }
+        if (Array.isArray(receipt.logs)) {
+            receipt.logs = receipt.logs.map(formatter.outputLogFormatter);
+        }
+
+        if (typeof receipt.status !== 'undefined' && receipt.status !== null) {
+            receipt.status = Boolean(parseInt(receipt.status));
+        }
+
+        return receipt;
+    });
+};
+
 export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
     private readonly _web3: any;
@@ -49,17 +76,33 @@ export class Web3Source {
         this._web3Wrapper = new Web3Wrapper(provider);
         this._web3 = new Web3(wsProvider);
 
-        this._web3.eth.extend({
-            methods: [
-                {
-                    name: 'getBlockReceipts',
-                    call: 'eth_getBlockReceipts',
-                    params: 1,
-                    inputFormatter: [this._web3.utils.numberToHex],
-                    outputFormatter: (block: any) => formatter.outputTransactionReceiptFormatter(block),
-                },
-            ],
-        });
+        if (BLOCK_RECEIPTS_MODE === 'standard') {
+            this._web3.eth.extend({
+                methods: [
+                    {
+                        name: 'getBlockReceipts',
+                        call: 'eth_getBlockReceipts',
+                        params: 1,
+                        inputFormatter: [this._web3.utils.numberToHex],
+                        outputFormatter: (block: any) => formatter.outputTransactionReceiptFormatter(block),
+                    },
+                ],
+            });
+        } else if (BLOCK_RECEIPTS_MODE === 'alchemy') {
+            this._web3.eth.extend({
+                methods: [
+                    {
+                        name: 'getBlockReceipts',
+                        call: 'alchemy_getTransactionReceipts',
+                        params: 1,
+                        inputFormatter: [
+                            (blockNumber: number) => ({ blockNumber: this._web3.utils.numberToHex(blockNumber) }),
+                        ],
+                        outputFormatter: alchemyBlockTransactionReceiptsFormatter,
+                    },
+                ],
+            });
+        }
     }
 
     public async getBatchBlockInfoForRangeAsync<B extends boolean>(

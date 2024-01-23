@@ -3,6 +3,7 @@ export type ScraperMode = 'BLOCKS' | 'EVENTS';
 export * from './abis';
 
 export const DEFAULT_SCRAPER_MODE: ScraperMode = 'EVENTS';
+export const DEFAULT_BLOCK_RECEIPTS_MODE = 'standard';
 export const DEFAULT_LOCAL_POSTGRES_URI = 'postgresql://user:password@localhost/events';
 export const DEFAULT_MAX_BLOCKS_REORG = 35;
 export const DEFAULT_BLOCKS_REORG_CHECK_INCREMENT = 35;
@@ -150,3 +151,7 @@ export const STAKING_EPOCH_ENDED_TOPIC = ['0xbb4a26fa0ace13ee4da343896c20eaa44a6
 export const STAKING_EPOCH_FINALIZED_TOPIC = ['0xb463d19ecf455be65365092cf8e1db6934a0334cf8cd532ddf9964d01f36b5b2'];
 
 export const STAKING_REWARDS_PAID_TOPIC = ['0xf1116b309178aa62dcb6bf8c3b8bc2321724907c7ebf52192d14c8ce3aa9194c'];
+
+export const BLOCK_RECEIPTS_MODE_ENDPOINT = new Map<string, string>();
+BLOCK_RECEIPTS_MODE_ENDPOINT.set('standard', 'eth_getBlockReceipts');
+BLOCK_RECEIPTS_MODE_ENDPOINT.set('alchemy', 'alchemy_getTransactionReceipts');
