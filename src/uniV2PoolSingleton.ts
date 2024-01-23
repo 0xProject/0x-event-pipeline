@@ -1,5 +1,5 @@
-import { UniswapV2PairCreatedEvent } from './entities';
-import { Connection } from 'typeorm';
+import prisma from './client';
+import { Prisma } from '@prisma/client';
 
 export class UniV2PoolSingleton {
     private static instance: UniV2PoolSingleton;
@@ -23,10 +23,10 @@ export class UniV2PoolSingleton {
         >();
     }
 
-    static async initInstance(connection: Connection): Promise<void> {
+    static async initInstance(): Promise<void> {
         if (!UniV2PoolSingleton.instance) {
             UniV2PoolSingleton.instance = new UniV2PoolSingleton();
-            const newPools = await connection.getRepository(UniswapV2PairCreatedEvent).find();
+            const newPools = await prisma.uniswapV2PairCreatedEvent.findMany();
             UniV2PoolSingleton.instance.addNewPools(newPools);
         }
     }
@@ -38,7 +38,7 @@ export class UniV2PoolSingleton {
         return UniV2PoolSingleton.instance;
     }
 
-    addNewPools(newPools: UniswapV2PairCreatedEvent[]) {
+    addNewPools(newPools: Prisma.UniswapV2PairCreatedEventCreateInput[]) {
         newPools.forEach((pool) =>
             this.pools.set(pool.pair, {
                 token0: pool.token0,

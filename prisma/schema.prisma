@@ -1,0 +1,989 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model Block {
+  observed_timestamp BigInt
+  blockHash         String  @db.VarChar @map("block_hash")
+  blockNumber       BigInt  @id(map: "PK_b8e63c9ef83cb68441ca1b6cae6") @map("block_number")
+  blockTimestamp    BigInt  @map("block_timestamp")
+  baseFeePerGas     BigInt? @map("base_fee_per_gas")
+  gasUsed           BigInt? @map("gas_used")
+  parentHash        String? @default("0x") @map("parent_hash")
+
+  @@map("blocks")
+}
+
+model CancelEvent {
+  observed_timestamp    BigInt
+  contract_address      String  @db.VarChar
+  transaction_hash      String  @db.VarChar
+  transaction_index     BigInt
+  log_index             BigInt
+  block_hash            String  @db.VarChar
+  block_number          BigInt
+  maker_address         String  @db.Char(42)
+  fee_recipient_address String  @db.Char(42)
+  sender_address        String  @db.Char(42)
+  order_hash            String  @db.VarChar
+  raw_maker_asset_data  String  @db.VarChar
+  maker_proxy_type      String? @db.VarChar
+  maker_asset_proxy_id  String? @db.VarChar
+  maker_token_address   String? @db.Char(42)
+  raw_taker_asset_data  String  @db.VarChar
+  taker_proxy_type      String? @db.VarChar
+  taker_asset_proxy_id  String? @db.VarChar
+  taker_token_address   String? @db.Char(42)
+
+  @@map("cancel_events")
+  @@id([transaction_hash, log_index], map: "PK_e4e9466ae44977458fd40621972")
+  @@index([block_number], map: "cancel_events_block_number_index")
+  @@index([maker_address], map: "cancel_events_maker_index")
+  @@index([order_hash], map: "cancel_events_order_hash_index")
+  @@index([transaction_hash], map: "cancel_events_transaction_hash_index")
+}
+
+model CancelUpToEvent {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  maker_address      String  @db.Char(42)
+  sender_address     String  @db.Char(42)
+  order_epoch        Decimal @db.Decimal
+
+  @@map("cancel_up_to_events")
+  @@id([transaction_hash, log_index], map: "PK_8258c64a4d94449fa4b8d16c0cb")
+  @@index([block_number], map: "cancel_up_to_events_block_number_index")
+  @@index([maker_address], map: "cancel_up_to_events_maker_address_index")
+  @@index([transaction_hash], map: "cancel_up_to_events_transaction_hash_index")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model competitor_swaps {
+  competitor         String?
+  observed_timestamp BigInt?
+  contract_address   String?  @db.VarChar
+  transaction_hash   String?  @db.VarChar
+  transaction_index  BigInt?
+  log_index          BigInt?
+  block_hash         String?  @db.VarChar
+  block_number       BigInt?
+  from_token         String?  @db.VarChar
+  to_token           String?  @db.VarChar
+  from_token_amount  Decimal? @db.Decimal
+  to_token_amount    Decimal? @db.Decimal
+  from               String?  @db.VarChar
+  to                 String?  @db.VarChar
+
+  @@ignore
+}
+
+model EpochEndedEvent {
+  observed_timestamp    BigInt
+  contract_address      String  @db.VarChar
+  transaction_hash      String  @db.VarChar
+  transaction_index     BigInt
+  log_index             BigInt
+  block_hash            String  @db.VarChar
+  block_number          BigInt
+  epoch_id              BigInt
+  num_pools_to_finalize BigInt
+  rewards_available     Decimal @db.Decimal
+  total_fees_collected  Decimal @db.Decimal
+  total_weighted_stake  Decimal @db.Decimal
+
+  @@map("epoch_ended_events")
+  @@id([transaction_hash, log_index], map: "PK_3b5b517d6cfb441c90705d2b197")
+  @@index([block_number], map: "epoch_ended_events_block_number_index")
+}
+
+model EpochFinalizedEvent {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  epoch_id           BigInt
+  rewards_paid       Decimal @db.Decimal
+  rewards_remaining  Decimal @db.Decimal
+
+  @@map("epoch_finalized_events")
+  @@id([transaction_hash, log_index], map: "PK_4b1a8d5db69beb65ad65c1f7fcb")
+  @@index([block_number], map: "epoch_finalized_events_block_number_index")
+}
+
+model ERC1155OrderCancelledEvent {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  order_hash         String @db.VarChar
+  maker              String @db.VarChar
+
+  @@map("erc1155_order_cancelled_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([maker])
+}
+
+model ERC1155OrderFilledEvent {
+  observed_timestamp  BigInt
+  contract_address    String  @db.VarChar
+  transaction_hash    String  @db.VarChar
+  transaction_index   BigInt
+  log_index           BigInt
+  block_hash          String  @db.VarChar
+  block_number        BigInt
+  is_sell             Boolean
+  maker               String  @db.VarChar
+  taker               String  @db.VarChar
+  nonce               Decimal @db.Decimal
+  erc20_token         String  @db.VarChar
+  erc20_fill_amount   Decimal @db.Decimal
+  erc1155_token       String  @db.VarChar
+  erc1155_token_id    Decimal @db.Decimal
+  erc1155_fill_amount Decimal @db.Decimal
+  matcher             String? @db.VarChar
+
+  @@map("erc1155_order_filled_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([erc1155_token_id])
+  @@index([erc20_token])
+  @@index([maker])
+  @@index([matcher])
+  @@index([taker])
+}
+
+model ERC1155OrderPresignedEvent {
+  observed_timestamp       BigInt
+  contract_address         String   @db.VarChar
+  transaction_hash         String   @db.VarChar
+  transaction_index        BigInt
+  log_index                BigInt
+  block_hash               String   @db.VarChar
+  block_number             BigInt
+  is_sell                  Boolean
+  maker                    String   @db.VarChar
+  taker                    String   @db.VarChar
+  expiry                   Decimal  @db.Decimal
+  nonce                    Decimal  @db.Decimal
+  erc20_token              String   @db.VarChar
+  erc20_token_amount       Decimal  @db.Decimal
+  fees                     String?  @db.VarChar
+  erc1155_token            String   @db.VarChar
+  erc1155_token_id         Decimal? @db.Decimal
+  erc1155_token_properties String?  @db.VarChar
+  erc1155_token_amount     Decimal  @db.Decimal
+
+  @@map("erc1155_order_presigned_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([erc1155_token_id])
+  @@index([erc20_token])
+  @@index([maker])
+  @@index([taker])
+}
+
+model ERC20BridgeTransferEvent {
+  observed_timestamp BigInt
+  contract_address   String   @db.VarChar
+  transaction_hash   String   @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String   @db.VarChar
+  block_number       BigInt
+  from_token         String   @db.VarChar
+  to_token           String   @db.VarChar
+  from_token_amount  Decimal  @db.Decimal
+  to_token_amount    Decimal  @db.Decimal
+  from               String   @db.VarChar
+  to                 String?  @db.VarChar
+  direct_flag        Boolean?
+  direct_protocol    String?  @db.VarChar
+
+  @@map("erc20_bridge_transfer_events")
+  @@id([transaction_hash, log_index], map: "PK_6a90383e51b80fba738995892a8")
+  @@index([block_number], map: "bridge_trades_block_number_index")
+  @@index([contract_address], map: "bridge_trades_contract_address_index")
+  @@index([transaction_hash], map: "bridge_trades_transaction_hash_index")
+}
+
+model ERC721OrderCancelledEvent {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  maker              String  @db.VarChar
+  nonce              Decimal @db.Decimal
+
+  @@map("erc721_order_cancelled_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([maker])
+}
+
+model ERC721OrderFilledEvent {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  is_sell            Boolean
+  maker              String  @db.VarChar
+  taker              String  @db.VarChar
+  nonce              Decimal @db.Decimal
+  erc20_token        String  @db.VarChar
+  erc20_token_amount Decimal @db.Decimal
+  erc721_token       String  @db.VarChar
+  erc721_token_id    Decimal @db.Decimal
+  matcher            String? @db.VarChar
+
+  @@map("erc721_order_filled_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([erc20_token])
+  @@index([erc721_token_id])
+  @@index([maker])
+  @@index([matcher])
+  @@index([taker])
+}
+
+model ERC721OrderPresignedEvent {
+  observed_timestamp      BigInt
+  contract_address        String   @db.VarChar
+  transaction_hash        String   @db.VarChar
+  transaction_index       BigInt
+  log_index               BigInt
+  block_hash              String   @db.VarChar
+  block_number            BigInt
+  is_sell                 Boolean
+  maker                   String   @db.VarChar
+  taker                   String   @db.VarChar
+  expiry                  Decimal  @db.Decimal
+  nonce                   Decimal  @db.Decimal
+  erc20_token             String   @db.VarChar
+  erc20_token_amount      Decimal  @db.Decimal
+  fees                    String?  @db.VarChar
+  erc721_token            String   @db.VarChar
+  erc721_token_id         Decimal? @db.Decimal
+  erc721_token_properties String?  @db.VarChar
+
+  @@map("erc721_order_presigned_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([erc20_token])
+  @@index([erc721_token_id])
+  @@index([maker])
+  @@index([taker])
+}
+
+model EventBackfill {
+  name         String  @db.VarChar
+  blockNumber Decimal @db.Decimal @map("block_number")
+
+  @@map("events_backfill")
+  @@id([name, blockNumber])
+}
+
+model evm_event_pipeline_migrations {
+  id        Int    @id(map: "PK_b4ec374f5a5fcac6dc87efb320b") @default(autoincrement())
+  timestamp BigInt
+  name      String @db.VarChar
+
+  @@ignore
+}
+
+model ExpiredRFQOrderEvent {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  maker              String  @db.VarChar
+  order_hash         String  @db.VarChar
+  expiry             Decimal @db.Decimal
+
+  @@map("expired_rfq_order_events")
+  @@id([transaction_hash, log_index], map: "PK_399d9d436be49d88a44fd4e73ec")
+  @@index([block_number], map: "expired_rfq_events_block_number_index")
+  @@index([maker], map: "expired_rfq_events_maker_index")
+  @@index([transaction_hash], map: "expired_rfq_events_transaction_hash_index")
+}
+
+model FillEvent {
+  observed_timestamp        BigInt
+  contract_address          String   @db.VarChar
+  transaction_hash          String   @db.VarChar
+  transaction_index         BigInt
+  log_index                 BigInt
+  block_hash                String   @db.VarChar
+  block_number              BigInt
+  maker_address             String   @db.VarChar
+  taker_address             String   @db.VarChar
+  fee_recipient_address     String   @db.VarChar
+  sender_address            String   @db.VarChar
+  maker_asset_filled_amount Decimal  @db.Decimal
+  taker_asset_filled_amount Decimal  @db.Decimal
+  order_hash                String   @db.VarChar
+  raw_maker_asset_data      String   @db.VarChar
+  maker_proxy_type          String   @db.VarChar
+  maker_proxy_id            String   @db.VarChar
+  maker_token_address       String?  @db.VarChar
+  raw_taker_asset_data      String   @db.VarChar
+  taker_proxy_type          String   @db.VarChar
+  taker_proxy_id            String   @db.VarChar
+  taker_token_address       String?  @db.VarChar
+  maker_fee_paid            Decimal  @db.Decimal
+  taker_fee_paid            Decimal  @db.Decimal
+  maker_fee_proxy_type      String?  @db.VarChar
+  maker_fee_token_address   String?  @db.VarChar
+  taker_fee_proxy_type      String?  @db.VarChar
+  taker_fee_token_address   String?  @db.VarChar
+  protocol_fee_paid         Decimal? @db.Decimal
+  taker_bridge_address      String?  @db.VarChar
+  maker_bridge_address      String?  @db.VarChar
+
+  @@map("fill_events")
+  @@id([transaction_hash, log_index], map: "PK_773c327705710df0e4f2767133f")
+  @@index([block_number], map: "fill_events_block_number_index")
+  @@index([block_number, transaction_index], map: "fill_events_block_position_index")
+  @@index([transaction_hash], map: "fill_events_transaction_hash_index")
+}
+
+model LastBlockProcessed {
+  event_name                     String  @id(map: "PK_a71c75f590dc32b77cdc5d5258d") @db.VarChar
+  last_processed_block_number    BigInt?
+  processed_timestamp            BigInt
+  last_processed_block_timestamp BigInt?
+  block_hash                     String?
+
+  @@map("last_block_processed")
+}
+
+model MakerStakingPoolSetEvent {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  maker_address      String @db.VarChar
+  pool_id            String @db.VarChar
+
+  @@map("maker_staking_pool_set_events")
+  @@id([transaction_hash, log_index], map: "PK_7d21f54d27cc5280248b00a164e")
+  @@index([block_number], map: "maker_staking_pool_set_events_events_block_number_index")
+}
+
+model MetaTransactionExecudedEvent {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  hash               String @db.VarChar
+  selector           String @db.VarChar
+  signer             String @db.VarChar
+  sender             String @db.VarChar
+
+  @@map("meta_transaction_executed_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number], map: "meta_transaction_executed_events_block_number_index")
+  @@index([sender], map: "meta_transaction_executed_events_sender_index")
+  @@index([signer], map: "meta_transaction_executed_events_signer_index")
+}
+
+model MoveStakeEvent {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  staker             String  @db.VarChar
+  amount             Decimal @db.Decimal
+  from_status        Int
+  from_pool          String  @db.VarChar
+  to_status          Int
+  to_pool            String  @db.VarChar
+
+  @@map("move_stake_events")
+  @@id([transaction_hash, log_index], map: "PK_2c211711c7982873d128a55b710")
+  @@index([block_number], map: "move_stake_events_block_number_index")
+}
+
+model NativeFill {
+  observed_timestamp        BigInt
+  contract_address          String   @db.VarChar
+  transaction_hash          String   @db.VarChar
+  transaction_index         BigInt
+  log_index                 BigInt
+  block_hash                String   @db.VarChar
+  block_number              BigInt
+  order_hash                String   @db.VarChar
+  maker                     String   @db.VarChar
+  taker                     String   @db.VarChar
+  fee_recipient             String?  @db.VarChar
+  maker_token               String?  @db.VarChar
+  taker_token               String?  @db.VarChar
+  maker_token_filled_amount Decimal  @db.Decimal
+  taker_token_filled_amount Decimal  @db.Decimal
+  maker_proxy_type          String?  @db.VarChar
+  taker_proxy_type          String?  @db.VarChar
+  maker_fee_paid            Decimal? @db.Decimal
+  taker_fee_paid            Decimal? @db.Decimal
+  maker_fee_token           String?  @db.VarChar
+  taker_fee_token           String?  @db.VarChar
+  protocol_fee_paid         Decimal? @db.Decimal
+  pool                      String?  @db.VarChar
+  protocol_version          String   @db.VarChar
+  native_order_type         String?  @db.VarChar
+
+  @@map("native_fills")
+  @@id([transaction_hash, log_index], map: "PK_5b640dbd6d3fcd46a4777e3e599")
+  @@index([block_number], map: "native_fills_block_number_index")
+  @@index([maker], map: "native_fills_maker_index")
+  @@index([transaction_hash], map: "native_fills_transaction_hash_index")
+}
+
+model OnchainGovernanceCallScheduled {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  id                 String  @db.VarChar
+  index              Decimal @db.Decimal
+  target             String  @db.VarChar
+  value              Decimal @db.Decimal
+  data               String  @db.VarChar
+  predecessor        String  @db.VarChar
+  delay              Decimal @db.Decimal
+  contract_name      String  @db.VarChar
+
+  @@map("onchain_governance_call_scheduled")
+  @@id([transaction_hash, log_index], map: "PK_c94ff5dfcaf566ff1332712e2b3")
+  @@index([block_number], map: "onchain_governance_call_scheduled_block_number_index")
+  @@index([transaction_hash], map: "onchain_governance_call_scheduled_transaction_hash_index")
+}
+
+model OnchainGovernanceProposalCreated {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  proposal_id        Decimal @db.Decimal
+  proposer           String  @db.VarChar
+  targets            String  @db.VarChar
+  signatures         String  @db.VarChar
+  calldatas          String  @db.VarChar
+  start_block        BigInt
+  end_block          BigInt
+  description        String  @db.VarChar
+  contract_name      String  @db.VarChar
+
+  @@map("onchain_governance_proposal_created")
+  @@id([transaction_hash, log_index], map: "PK_c389361ed9b08df8ec2e41466d1")
+  @@index([block_number], map: "onchain_governance_proposal_created_block_number_index")
+  @@index([transaction_hash], map: "onchain_governance_proposal_created_transaction_hash_index")
+}
+
+model OperatorShareDecreasedEvent {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  pool_id            String @db.VarChar
+  old_operator_share BigInt
+  new_operator_share BigInt
+
+  @@map("operator_share_decreased_events")
+  @@id([transaction_hash, log_index], map: "PK_381b2b8bcddda93a53d82fc848a")
+  @@index([block_number], map: "operator_share_decreased_events_block_number_index")
+}
+
+model OTCOrderFilledEvent {
+  observed_timestamp        BigInt
+  contract_address          String  @db.VarChar
+  transaction_hash          String  @db.VarChar
+  transaction_index         BigInt
+  log_index                 BigInt
+  block_hash                String  @db.VarChar
+  block_number              BigInt
+  order_hash                String  @db.VarChar
+  maker_address             String  @db.VarChar
+  taker_address             String  @db.VarChar
+  maker_token_address       String  @db.VarChar
+  taker_token_address       String  @db.VarChar
+  maker_token_filled_amount Decimal @db.Decimal
+  taker_token_filled_amount Decimal @db.Decimal
+
+  @@map("otc_order_filled_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number], map: "otc_order_filled_events_block_number_index", type: Brin)
+  @@index([maker_address], map: "otc_order_filled_events_maker_address_index", type: Hash)
+  @@index([order_hash], map: "otc_order_filled_events_order_hash_index", type: Hash)
+  @@index([transaction_hash], map: "otc_order_filled_events_transaction_hash_index", type: Hash)
+}
+
+model ParamsSetEvent {
+  observed_timestamp            BigInt
+  contract_address              String  @db.VarChar
+  transaction_hash              String  @db.VarChar
+  transaction_index             BigInt
+  log_index                     BigInt
+  block_hash                    String  @db.VarChar
+  block_number                  BigInt
+  epoch_duration_in_seconds     BigInt
+  reward_delegated_stake_weight BigInt
+  minimum_pool_stake            Decimal @db.Decimal
+  cobb_douglas_alpa_numerator   BigInt
+  cobb_douglas_alpa_denominator BigInt
+
+  @@map("params_set_events")
+  @@id([transaction_hash, log_index], map: "PK_4b48a3f53eb6abd26b73d57ee3c")
+  @@index([block_number], map: "params_set_events_block_number_index")
+}
+
+model rewards_paid_events {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  epoch_id           BigInt
+  pool_id            String  @db.VarChar
+  operator_reward    Decimal @db.Decimal
+  members_reward     Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index], map: "PK_fa7d9c8648d932a505a6f70b22e")
+  @@index([block_number], map: "rewards_paid_events_block_number_index")
+}
+
+model socket_bridge_events {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  amount             Decimal @db.Decimal
+  token              String  @db.VarChar
+  to_chain_id        Decimal @db.Decimal
+  bridge_name        String  @db.VarChar
+  sender             String  @db.VarChar
+  receiver           String  @db.VarChar
+  metadata           String  @db.VarChar
+
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([sender])
+}
+
+model stake_events {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  staker             String  @db.VarChar
+  amount             Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index], map: "PK_c348d7c415dfb1e3fe31eb7c5c0")
+  @@index([block_number], map: "stake_events_block_number_index")
+}
+
+model staking_pool_created_events {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  pool_id            String @db.VarChar
+  operator_address   String @db.VarChar
+  operator_share     BigInt
+
+  @@id([transaction_hash, log_index], map: "PK_88cb2631d83313ba2598bdc2577")
+  @@index([block_number], map: "staking_pool_created_events_block_number_index")
+}
+
+model staking_pool_earned_rewards_in_epoch_events {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  epoch_id           BigInt
+  pool_id            String @db.VarChar
+
+  @@id([transaction_hash, log_index], map: "PK_4f04cf9e77d99d0640ba5346180")
+}
+
+model staking_proxy_deployment {
+  observed_timestamp BigInt
+  transaction_hash   String @id(map: "PK_566e11162b5b24677f0384c5d6a") @db.VarChar
+  transaction_index  BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  block_timestamp    BigInt
+}
+
+model tokens_backfill {
+  address String @id @db.VarChar
+}
+
+model TokenMetadata {
+  observed_timestamp BigInt
+  address            String  @id(map: "tokens_metadata_pk") @db.VarChar
+  type               String  @db.VarChar
+  symbol             String? @db.VarChar
+  name               String? @db.VarChar
+  decimals           BigInt?
+
+  @@map("tokens_metadata")
+  @@index([type])
+}
+
+model transaction_execution_events {
+  observed_timestamp      BigInt
+  contract_address        String @db.VarChar
+  transaction_hash        String @db.VarChar
+  transaction_index       BigInt
+  log_index               BigInt
+  block_hash              String @db.VarChar
+  block_number            BigInt
+  zeroex_transaction_hash String @db.VarChar
+
+  @@id([transaction_hash, log_index], map: "PK_4b0df4c9cc1a7dc210f94c749c8")
+  @@index([zeroex_transaction_hash], map: "transaction_execution_events_0x_tx_index")
+  @@index([block_number], map: "transaction_execution_events_block_number_index")
+  @@index([transaction_hash], map: "transaction_execution_events_transaction_hash_index")
+}
+
+model transaction_logs {
+  observed_timestamp BigInt
+  transaction_hash   String  @id(map: "PK_72ae8973a7ec20deee2013b1310") @db.VarChar
+  logs               String  @db.VarChar
+  block_hash         String? @default("0x")
+  block_number       BigInt?
+}
+
+model TransactionReceipt {
+  observed_timestamp BigInt
+  transaction_hash   String  @id(map: "PK_93d5432c5e0da254a6704c5bdc4") @db.VarChar
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  transaction_index  BigInt
+  sender_address     String  @db.VarChar
+  to_address         String? @db.VarChar
+  gas_used           Decimal @db.Decimal
+
+  @@map("transaction_receipts")
+  @@index([block_number], map: "transaction_receipts_block_number_index")
+}
+
+model Transaction {
+  observed_timestamp       BigInt
+  transaction_hash         String  @id(map: "PK_b53cfe42d3c5c88fe715b9432ba") @db.VarChar
+  nonce                    BigInt
+  block_hash               String  @db.VarChar
+  block_number             BigInt
+  transaction_index        BigInt
+  sender_address           String  @db.VarChar
+  to_address               String? @db.VarChar
+  value                    Decimal @db.Decimal
+  gas_price                Decimal @db.Decimal
+  gas                      Decimal @db.Decimal
+  input                    String  @db.VarChar
+  affiliate_address        String? @db.VarChar
+  quote_timestamp          BigInt?
+  quote_id                 String? @db.VarChar
+  type                     Int?
+  max_fee_per_gas          BigInt?
+  max_priority_fee_per_gas BigInt?
+
+  @@map("transactions")
+  @@index([block_number], map: "transactions_block_number_index")
+}
+
+model transformed_erc20_events {
+  observed_timestamp  BigInt
+  contract_address    String  @db.VarChar
+  transaction_hash    String  @db.VarChar
+  transaction_index   BigInt
+  log_index           BigInt
+  block_hash          String  @db.VarChar
+  block_number        BigInt
+  taker               String  @db.VarChar
+  input_token         String  @db.VarChar
+  output_token        String  @db.VarChar
+  input_token_amount  Decimal @db.Decimal
+  output_token_amount Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index], map: "PK_fd6f38e2c4f20aca65017ad33e0")
+  @@index([block_number], map: "transformed_erc20_block_number_index")
+  @@index([taker], map: "transformed_erc20_taker_index")
+  @@index([transaction_hash], map: "transformed_erc20_transaction_hash_index")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tx_backfill {
+  transaction_hash String? @db.VarChar
+  block_number     BigInt?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model typeorm_metadata {
+  type     String  @db.VarChar
+  database String? @db.VarChar
+  schema   String? @db.VarChar
+  table    String? @db.VarChar
+  name     String? @db.VarChar
+  value    String?
+
+  @@ignore
+}
+
+model UniswapV2PairCreatedEvent {
+  observed_timestamp   Decimal  @db.Decimal
+  contract_address     String   @db.VarChar
+  transaction_hash     String   @db.VarChar
+  transaction_index    Decimal  @db.Decimal
+  log_index            Decimal  @db.Decimal
+  block_hash           String   @db.VarChar
+  block_number         Decimal  @db.Decimal
+  token0               String   @db.VarChar
+  token1               String   @db.VarChar
+  pair                 String   @db.VarChar
+  pair_factory_counter Decimal? @db.Decimal
+  protocol             String   @db.VarChar
+
+  @@map("uniswap_v2_pair_created_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([protocol])
+  @@index([token0])
+  @@index([token1])
+}
+
+model uniswap_v2_sync_events {
+  observed_timestamp Decimal @db.Decimal
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  Decimal @db.Decimal
+  log_index          Decimal @db.Decimal
+  block_hash         String  @db.VarChar
+  block_number       Decimal @db.Decimal
+  reserve0           Decimal @db.Decimal
+  reserve1           Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([contract_address])
+  @@index([log_index])
+}
+
+model UniswapV3PoolCreatedEvent {
+  observed_timestamp Decimal @db.Decimal
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  Decimal @db.Decimal
+  log_index          Decimal @db.Decimal
+  block_hash         String  @db.VarChar
+  block_number       Decimal @db.Decimal
+  token0             String  @db.VarChar
+  token1             String  @db.VarChar
+  fee                Int
+  tick_spacing       Int
+  pool               String  @db.VarChar
+
+  @@map("uniswap_v3_pool_created_events")
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([pool])
+  @@index([token0])
+  @@index([token1])
+}
+
+model uniswap_v3_swap_events {
+  observed_timestamp Decimal @db.Decimal
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  Decimal @db.Decimal
+  log_index          Decimal @db.Decimal
+  block_hash         String  @db.VarChar
+  block_number       Decimal @db.Decimal
+  sender             String  @db.VarChar
+  recipient          String  @db.VarChar
+  amount0            Decimal @db.Decimal
+  amount1            Decimal @db.Decimal
+  sqrtpricex96       Decimal @db.Decimal
+  liquidity          Decimal @db.Decimal
+  tick               Int
+
+  @@id([transaction_hash, log_index])
+  @@index([block_number])
+  @@index([contract_address])
+  @@index([transaction_hash])
+}
+
+model unstake_events {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  staker             String  @db.VarChar
+  amount             Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index], map: "PK_4ff89d5048d23e9157396696725")
+  @@index([block_number], map: "unstake_events_block_number_index")
+}
+
+model unwrap_native_events {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  src                String  @db.VarChar
+  wad                Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index], map: "PK_527b07c8068ce4984d87e0522d9")
+  @@index([block_number], map: "unwrap_native_events_block_number_index")
+  @@index([transaction_hash], map: "unwrap_native_events_transaction_hash_index")
+}
+
+model v4_cancel_events {
+  observed_timestamp BigInt
+  contract_address   String @db.VarChar
+  transaction_hash   String @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String @db.VarChar
+  block_number       BigInt
+  maker              String @db.VarChar
+  order_hash         String @db.VarChar
+
+  @@id([transaction_hash, log_index], map: "PK_fcfc7bde338faa7d95078b3feb1")
+  @@index([order_hash], map: "expired_rfq_events_order_hash_index")
+  @@index([block_number], map: "v4_cancel_events_block_number_index")
+  @@index([maker], map: "v4_cancel_events_maker_index")
+  @@index([order_hash], map: "v4_cancel_events_order_hash_index")
+  @@index([transaction_hash], map: "v4_cancel_events_transaction_hash_index")
+}
+
+model v4_limit_order_filled_events {
+  observed_timestamp            BigInt
+  contract_address              String  @db.VarChar
+  transaction_hash              String  @db.VarChar
+  transaction_index             BigInt
+  log_index                     BigInt
+  block_hash                    String  @db.VarChar
+  block_number                  BigInt
+  order_hash                    String  @db.VarChar
+  maker                         String  @db.VarChar
+  taker                         String  @db.VarChar
+  fee_recipient                 String  @db.VarChar
+  maker_token                   String  @db.VarChar
+  taker_token                   String  @db.VarChar
+  maker_token_filled_amount     Decimal @db.Decimal
+  taker_token_filled_amount     Decimal @db.Decimal
+  taker_token_fee_filled_amount Decimal @db.Decimal
+  protocol_fee_paid             Decimal @db.Decimal
+  pool                          String  @db.VarChar
+
+  @@id([transaction_hash, log_index], map: "PK_7e323e2b8c83fa3a4c23a38cbe7")
+  @@index([block_number], map: "limit_order_fills_v4_block_number_index")
+  @@index([maker], map: "limit_order_fills_v4_maker_index")
+  @@index([transaction_hash], map: "limit_order_fills_v4_transaction_hash_index")
+}
+
+model v4_rfq_order_filled_events {
+  observed_timestamp        BigInt
+  contract_address          String  @db.VarChar
+  transaction_hash          String  @db.VarChar
+  transaction_index         BigInt
+  log_index                 BigInt
+  block_hash                String  @db.VarChar
+  block_number              BigInt
+  order_hash                String  @db.VarChar
+  maker                     String  @db.VarChar
+  taker                     String  @db.VarChar
+  maker_token               String  @db.VarChar
+  taker_token               String  @db.VarChar
+  maker_token_filled_amount Decimal @db.Decimal
+  taker_token_filled_amount Decimal @db.Decimal
+  pool                      String  @db.VarChar
+
+  @@id([transaction_hash, log_index], map: "PK_aed50ac0037b71ab83c368a2f2d")
+  @@index([block_number], map: "rfq_order_fills_v4_block_number_index")
+  @@index([maker], map: "rfq_order_fills_v4_maker_index")
+  @@index([transaction_hash], map: "rfq_order_fills_v4_transaction_hash_index")
+}
+
+model wrap_native_events {
+  observed_timestamp BigInt
+  contract_address   String  @db.VarChar
+  transaction_hash   String  @db.VarChar
+  transaction_index  BigInt
+  log_index          BigInt
+  block_hash         String  @db.VarChar
+  block_number       BigInt
+  dst                String  @db.VarChar
+  wad                Decimal @db.Decimal
+
+  @@id([transaction_hash, log_index], map: "PK_c072457f665327237415d379e76")
+  @@index([block_number], map: "wrap_native_events_block_number_index")
+  @@index([transaction_hash], map: "wrap_native_events_transaction_hash_index")
+}

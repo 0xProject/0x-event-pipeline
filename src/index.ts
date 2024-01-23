@@ -1,4 +1,3 @@
-// load env vars
 import {
     CHAIN_ID,
     ENABLE_PROMETHEUS_METRICS,
@@ -11,26 +10,24 @@ import {
     KAFKA_SSL,
     SCRAPER_MODE,
     SECONDS_BETWEEN_RUNS,
-} from './config';
-import * as ormConfig from './ormconfig';
-import { EventsBackfillScraper } from './scripts/backfill_events';
-import { ChainIdChecker } from './scripts/check_chain_id';
-import { CurrentBlockMonitor } from './scripts/monitor_current_block';
-import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx';
-import { BlockEventsScraper } from './scripts/pull_and_save_block_events';
-import { BlockScraper } from './scripts/pull_and_save_blocks';
-import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
-import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
-import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
-import { TokenMetadataSingleton } from './tokenMetadataSingleton';
-import { UniV2PoolSingleton } from './uniV2PoolSingleton';
-import { UniV3PoolSingleton } from './uniV3PoolSingleton';
-import { logger } from './utils/logger';
-import { startMetricsServer } from './utils/metrics';
+} from './config.ts';
+import { EventsBackfillScraper } from './scripts/backfill_events.ts';
+import { ChainIdChecker } from './scripts/check_chain_id.ts';
+import { CurrentBlockMonitor } from './scripts/monitor_current_block.ts';
+import { BackfillTxScraper } from './scripts/pull_and_save_backfill_tx.ts';
+import { BlockEventsScraper } from './scripts/pull_and_save_block_events.ts';
+import { BlockScraper } from './scripts/pull_and_save_blocks.ts';
+import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic.ts';
+import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill.ts';
+import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers.ts';
+import { TokenMetadataSingleton } from './tokenMetadataSingleton.ts';
+import { UniV2PoolSingleton } from './uniV2PoolSingleton.ts';
+import { UniV3PoolSingleton } from './uniV3PoolSingleton.ts';
+import { logger } from './utils/logger.ts';
+import { startMetricsServer } from './utils/metrics.ts';
 import { config } from 'dotenv';
 import { Kafka, Producer } from 'kafkajs';
 import { resolve } from 'path';
-import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -54,78 +51,63 @@ if (KAFKA_BROKERS.length > 0) {
 }
 
 const chainIdChecker = new ChainIdChecker();
+const blockEventsScraper = new BlockEventsScraper();
+/*
 const backfillTxScraper = new BackfillTxScraper();
 const blockScraper = new BlockScraper();
 const eventsByTopicScraper = new EventsByTopicScraper();
 const eventsBackfillScraper = new EventsBackfillScraper();
-const blockEventsScraper = new BlockEventsScraper();
 const currentBlockMonitor = new CurrentBlockMonitor();
 const tokensFromTransfersScraper = new TokensFromTransfersScraper();
 const tokensFromBackfill = new TokensFromBackfill();
-
+*/
 if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
 }
 
-chainIdChecker.checkChainId(CHAIN_ID);
+(async () => {
+    await chainIdChecker.checkChainId(CHAIN_ID);
 
-logger.info(`Running in ${SCRAPER_MODE} mode`);
+    logger.info(`Running in ${SCRAPER_MODE} mode`);
 
-// run pull and save events
-createConnection(ormConfig as ConnectionOptions)
-    .then(async (connection) => {
-        if (producer) {
-            await producer.connect();
-        }
+    // run pull and save events
+    if (producer) {
+        await producer.connect();
+    }
 
-        await TokenMetadataSingleton.getInstance(connection, producer);
-        if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
-            await UniV2PoolSingleton.initInstance(connection);
-        }
-        if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
-            await UniV3PoolSingleton.initInstance(connection);
-        }
-        if (SCRAPER_MODE === 'BLOCKS') {
-            schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
-            schedule(connection, producer, blockEventsScraper.backfillAsync, 'Backfill Blocks and Events');
-        } else if (SCRAPER_MODE === 'EVENTS') {
-            schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
-            schedule(connection, producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
-            schedule(
-                connection,
-                producer,
-                eventsByTopicScraper.getParseSaveEventsAsync,
-                'Pull and Save Events by Topic',
-            );
-            schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
-            schedule(
-                connection,
-                producer,
-                backfillTxScraper.getParseSaveTxBackfillAsync,
-                'Pull and Save Backfill Transactions',
-            );
-            schedule(
-                connection,
-                producer,
-                tokensFromBackfill.getParseSaveTokensFromBackfillAsync,
-                'Pull and Save Backfill Tokens',
-            );
+    await TokenMetadataSingleton.getInstance(producer);
+    if (FEAT_UNISWAP_V2_PAIR_CREATED_EVENT) {
+        await UniV2PoolSingleton.initInstance();
+    }
+    if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
+        await UniV3PoolSingleton.initInstance();
+    }
+    if (SCRAPER_MODE === 'BLOCKS') {
+        schedule(producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
+        //schedule(producer, blockEventsScraper.backfillAsync, 'Backfill Blocks and Events');
+    } else if (SCRAPER_MODE === 'EVENTS') {
+        /*
+    schedule(null, currentBlockMonitor.monitor, 'Current Block');
+    schedule(producer, blockScraper.getParseSaveEventsAsync, 'Pull and Save Blocks');
+    schedule(producer, eventsByTopicScraper.getParseSaveEventsAsync, 'Pull and Save Events by Topic');
+    schedule(producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
+    schedule(producer, backfillTxScraper.getParseSaveTxBackfillAsync, 'Pull and Save Backfill Transactions');
+    schedule(producer, tokensFromBackfill.getParseSaveTokensFromBackfillAsync, 'Pull and Save Backfill Tokens');
 
-            if (FEAT_TOKENS_FROM_TRANSFERS) {
-                schedule(
-                    connection,
-                    producer,
-                    tokensFromTransfersScraper.getParseSaveTokensFromTransfersAsync,
-                    'Pull and Save Tokens From Transfers',
-                );
-            }
-        }
-    })
-    .catch((error) => logger.error(error));
+    if (FEAT_TOKENS_FROM_TRANSFERS) {
+        schedule(
+            producer,
+            tokensFromTransfersScraper.getParseSaveTokensFromTransfersAsync,
+            'Pull and Save Tokens From Transfers',
+        );
+    }
+    */
+    }
+})();
 
-async function schedule(connection: Connection | null, producer: Producer | null, func: any, funcName: string) {
+async function schedule(producer: Producer | null, func: any, funcName: string) {
     const start = new Date().getTime();
-    await func(connection, producer);
+    await func(producer);
     const end = new Date().getTime();
     const duration = end - start;
     let wait: number;
@@ -136,6 +118,6 @@ async function schedule(connection: Connection | null, producer: Producer | null
         wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
     }
     setTimeout(() => {
-        schedule(connection, producer, func, funcName);
+        schedule(producer, func, funcName);
     }, wait);
 }

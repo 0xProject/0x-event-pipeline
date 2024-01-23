@@ -1,7 +1,5 @@
-import { MAX_TX_TO_PULL } from '../../config';
+import { EVM_RPC_URL, MAX_TX_TO_PULL } from '../../config';
 import { chunk, logger } from '../../utils';
-import { Web3ProviderEngine } from '@0x/subproviders';
-import { Web3Wrapper } from '@0x/web3-wrapper';
 import {
     BlockWithTransactionData,
     BlockWithoutTransactionData,
@@ -9,10 +7,10 @@ import {
     Transaction,
     TransactionReceipt,
 } from 'ethereum-types';
+import { createPublicClient, http, PublicClient } from 'viem';
+import { mainnet } from 'viem/chains';
 
-const Web3 = require('web3');
-
-const helpers = require('web3-core-helpers');
+const helpers = require('web3-core');
 const formatter = helpers.formatters;
 
 export interface LogPullInfo {
@@ -43,12 +41,17 @@ export interface TransactionReceipt1559 extends TransactionReceipt {
 }
 
 export class Web3Source {
-    private readonly _web3Wrapper: Web3Wrapper;
-    private readonly _web3: any;
-    constructor(provider: Web3ProviderEngine, wsProvider: string) {
-        this._web3Wrapper = new Web3Wrapper(provider);
-        this._web3 = new Web3(wsProvider);
+    private _client: PublicClient;
+    constructor() {
+        this._client = createPublicClient({
+            chain: mainnet,
 
+            transport: http(EVM_RPC_URL),
+            batch: {
+                multicall: true,
+            },
+        });
+        /*
         this._web3.eth.extend({
             methods: [
                 {
@@ -60,35 +63,38 @@ export class Web3Source {
                 },
             ],
         });
+  */
     }
 
-    public async getBatchBlockInfoForRangeAsync<B extends boolean>(
+    public async getBatchBlocksRange<B extends boolean>(
         startBlock: number,
         endBlock: number,
         includeTransactions: B,
     ): Promise<B extends true ? BlockWithTransactionData1559[] : BlockWithoutTransactionData1559[]>;
 
-    public async getBatchBlockInfoForRangeAsync(
+    public async getBatchBlocksRange(
         startBlock: number,
         endBlock: number,
         includeTransactions: boolean,
     ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData1559)[]> {
         const blockNumbers = Array.from(Array(endBlock - startBlock + 1).keys()).map((i) => i + startBlock);
-        return this.getBatchBlockInfoAsync(blockNumbers, includeTransactions);
+        return this.getBatchBlocks(blockNumbers, includeTransactions);
     }
 
-    public async getBatchBlockInfoAsync<B extends boolean>(
-        blockNumbers: number[],
+    public async getBatchBlocks<B extends boolean>(
+        blockNumbers: bigint[],
         includeTransactions: B,
     ): Promise<B extends true ? BlockWithTransactionData1559[] : BlockWithoutTransactionData1559[]>;
 
-    public async getBatchBlockInfoAsync(
-        blockNumbers: number[],
+    public async getBatchBlocks(
+        blockNumbers: bigint[],
         includeTransactions: boolean,
     ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData1559)[]> {
-        const batch = new this._web3.BatchRequest();
 
         const promises = blockNumbers.map((blockNumber) => {
+            return this._client.getBlock({ blockNumber });
+        }
+            /*
             return new Promise<BlockWithoutTransactionData | BlockWithTransactionData1559>((resolve, reject) => {
                 const req = this._web3.eth.getBlock.request(
                     blockNumber,
@@ -103,14 +109,14 @@ export class Web3Source {
                 batch.add(req);
             });
         });
+            */
 
-        batch.execute();
 
-        const blocks = await Promise.all(promises);
+        return await Promise.all(promises);
 
-        return blocks;
     }
 
+    /*
     public async getBatchBlockReceiptsForRangeAsync(
         startBlock: number,
         endBlock: number,
@@ -192,7 +198,6 @@ export class Web3Source {
             });
         });
     }
-
     async chunkedBatchWeb3CallAsync(payload: any[], proccesingFunction: any): Promise<any[]> {
         const chunkedPayload = chunk(payload, MAX_TX_TO_PULL);
         const promises: Promise<any>[] = [];
@@ -228,19 +233,20 @@ export class Web3Source {
 
         return contractMethodValues;
     }
-
+*/
     public async getBlockInfoForRangeAsync(
         startBlock: number,
         endBlock: number,
     ): Promise<BlockWithoutTransactionData[]> {
         const iter = Array.from(Array(endBlock - startBlock + 1).keys());
-        const blocks = await Promise.all(iter.map((num) => this.getBlockInfoAsync(num + startBlock)));
+        const blocks = await Promise.all(iter.map((num) => this.getBlockInfo(num + startBlock)));
 
         return blocks;
     }
 
-    public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
-        try {
+    public async getBlockInfo(blockNumber: number): Promise<BlockWithoutTransactionData> {
+        return this._client.getBlock({ blockNumber: blockNumber });
+        /*    try {
             logger.debug(`Fetching block ${blockNumber}`);
 
             const block = await this._web3Wrapper.getBlockIfExistsAsync(blockNumber);
@@ -252,26 +258,27 @@ export class Web3Source {
         } catch (err) {
             throw new Error(`Encountered error while fetching block ${blockNumber}: ${err}`);
         }
+   */
     }
 
-    public async getCurrentBlockAsync(): Promise<BlockWithoutTransactionData> {
-        const blockNumber = await this._web3Wrapper.getBlockNumberAsync();
-        return this.getBlockInfoAsync(blockNumber);
+    public async getCurrentBlock(): Promise<BlockWithoutTransactionData> {
+        return this._client.getBlock();
     }
 
-    public async getTransactionInfoAsync(txHash: string): Promise<Transaction> {
-        return this._web3Wrapper.getTransactionByHashAsync(txHash);
+    public async getTransaction(txHash: string): Promise<Transaction> {
+        return this._client.getTransaction(txHash);
     }
 
-    public async getBlockNumberAsync(): Promise<number> {
-        return this._web3Wrapper.getBlockNumberAsync();
+    public async getBlockNumber(): Promise<bigint> {
+        return this._client.getBlockNumber();
     }
 
+    /*
     public async getBlockTimestampAsync(blockNumber: number): Promise<number> {
         return this._web3Wrapper.getBlockTimestampAsync(blockNumber);
     }
-
-    public async getChainIdAsync(): Promise<number> {
-        return this._web3.eth.getChainId();
+*/
+    public async getChainId(): Promise<bigint> {
+        return this._client.getChainId().then((chainId: number) => bigint(chainId));
     }
 }

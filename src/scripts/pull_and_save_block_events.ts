@@ -1,7 +1,6 @@
 import {
     BLOCKS_REORG_CHECK_INCREMENT,
     CHAIN_NAME,
-    EVM_RPC_URL,
     MAX_BLOCKS_REORG,
     MAX_BLOCKS_TO_PULL,
     FEAT_TOKENS_FROM_TRANSFERS,
@@ -13,17 +12,15 @@ import {
     Transaction1559 as EVMTransaction,
     TransactionReceipt1559 as EVMTransactionReceipt,
 } from '../data_sources/events/web3';
-import { Block, Transaction, TransactionReceipt } from '../entities';
 import { eventScrperProps, EventScraperProps } from '../events';
 import { parseBlock, parseTransaction, parseTransactionReceipt } from '../parsers/web3/parse_web3_objects';
 import { chunk, logger } from '../utils';
 import { LATEST_SCRAPED_BLOCK, CURRENT_BLOCK, SCRIPT_RUN_DURATION, SAVED_RESULTS } from '../utils/metrics';
 import { contractTopicFilter } from './utils/block_utils';
 import { getParseSaveTokensAsync } from './utils/web3_utils';
-import { web3Factory } from '@0x/dev-utils';
-import { LogEntry } from 'ethereum-types';
 import { Producer } from 'kafkajs';
-import { Connection, QueryFailedError, InsertResult } from 'typeorm';
+import prisma from '../client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 interface FullTransaction extends EVMTransaction, EVMTransactionReceipt {
     blockHash: string;
@@ -42,14 +39,14 @@ interface TypedEvents {
     events: Event[];
 }
 interface ParsedFullBlock {
-    parsedBlock: Block;
-    parsedTransactions: Transaction[];
-    parsedTransactionReceipts: TransactionReceipt[];
+    parsedBlock: Prisma.BlockCreateInput;
+    parsedTransactions: Prisma.TransactionCreateInput[];
+    parsedTransactionReceipts: Prisma.TransactionReceiptCreateInput;
     parsedEvents: TypedEvents[];
 }
 
 interface ParsedTransaction {
-    parsedTransaction: Transaction | null;
+    parsedTransaction: Prisma.TransactionCreateInput | null;
     parsedEvents: TypedEvents[] | null;
 }
 
@@ -62,10 +59,7 @@ class BlockHashMismatchError extends Error {
     }
 }
 
-const provider = web3Factory.getRpcProvider({
-    rpcUrl: EVM_RPC_URL,
-});
-const web3Source = new Web3Source(provider, EVM_RPC_URL);
+const web3Source = new Web3Source();
 
 function parseBlockTransactionsEvents(fullBlock: FullBlock): ParsedFullBlock {
     const parsedBlock = parseBlock({ ...fullBlock, transactions: [''] });
@@ -81,10 +75,10 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock): ParsedFullBlock {
         })
         .filter((tx) => tx !== null) as ParsedTransaction[];
 
-    const parsedTransactions: Transaction[] = usefullTxs.map((tx) => tx!.parsedTransaction!);
+    const parsedTransactions: Prisma.TransactionCreateInput[] = usefullTxs.map((tx) => tx!.parsedTransaction!);
     const parsedTransactionHashes: string[] = parsedTransactions.map((tx) => tx.transactionHash);
 
-    const parsedTransactionReceipts: TransactionReceipt[] = fullBlock.transactions
+    const parsedTransactionReceipts: Prisma.TransactionReceiptCreateInput[] = fullBlock.transactions
         .filter((tx) => parsedTransactionHashes.includes(tx.hash))
         .map(parseTransactionReceipt);
 
@@ -338,7 +332,8 @@ async function getParseSaveBlocksTransactionsEvents(
 }
 
 export class BlockEventsScraper {
-    public async backfillAsync(connection: Connection, producer: Producer | null): Promise<void> {
+    /*
+    public async backfillAsync(producer: Producer | null): Promise<void> {
         const startTime = new Date().getTime();
 
         const oldestBlocksToBackfill = await connection.query(
@@ -371,21 +366,19 @@ export class BlockEventsScraper {
                 SCRIPT_RUN_DURATION.set({ script: 'events-by-block-backfill' }, scriptDurationSeconds);
             }
         }
-    }
-    public async getParseSaveAsync(connection: Connection, producer: Producer | null): Promise<void> {
+    }*/
+    public async getParseSaveAsync(producer: Producer | null): Promise<void> {
         const startTime = new Date().getTime();
 
         // Monitor
 
-        const currentBlockNumber = await web3Source.getBlockNumberAsync();
+        const currentBlockNumber = await web3Source.getBlockNumber();
 
         CURRENT_BLOCK.labels({ chain: CHAIN_NAME }).set(currentBlockNumber);
         logger.info(`Current block: ${currentBlockNumber}`);
 
         // Is new?
-        const lastKnownBlock = await connection.getRepository(Block).findOne({
-            order: { blockNumber: 'DESC' },
-        });
+        const lastKnownBlock = await prisma.block.findFirst({ orderBy: blockNumber: 'desc' });
 
         if (lastKnownBlock === undefined) {
             logger.warn('First Run');

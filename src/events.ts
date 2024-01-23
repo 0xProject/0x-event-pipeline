@@ -224,7 +224,6 @@ function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
 }
 
 export type CommonEventParams = {
-    connection: Connection;
     producer: Producer;
     web3Source: Web3Source;
 };

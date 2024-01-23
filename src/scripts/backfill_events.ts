@@ -1,48 +1,40 @@
-import { EVM_RPC_URL } from '../config';
-import { Web3Source } from '../data_sources/events/web3';
-import { EventBackfill } from '../entities';
-import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
-import { logger } from '../utils/logger';
-import { SCRIPT_RUN_DURATION } from '../utils/metrics';
-import { PullAndSaveEventsByTopic } from './utils/event_abi_utils';
-import { getParseSaveTxAsync } from './utils/web3_utils';
-import { web3Factory } from '@0x/dev-utils';
+import { Web3Source } from '../data_sources/events/web3.ts';
+import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events.ts';
+import { logger } from '../utils/logger.ts';
+import { SCRIPT_RUN_DURATION } from '../utils/metrics.ts';
+import { PullAndSaveEventsByTopic } from './utils/event_abi_utils.ts';
+import { getParseSaveTxAsync } from './utils/web3_utils.ts';
 import { Producer } from 'kafkajs';
-import { Connection } from 'typeorm';
+import prisma from '../client.ts';
+import { Prisma, PrismaClient } from '@prisma/client';
 
-const provider = web3Factory.getRpcProvider({
-    rpcUrl: EVM_RPC_URL,
-});
-const web3Source = new Web3Source(provider, EVM_RPC_URL);
+const web3Source = new Web3Source();
 
 const pullAndSaveEventsByTopic = new PullAndSaveEventsByTopic();
 
 export class EventsBackfillScraper {
-    public async getParseSaveEventsAsync(connection: Connection, producer: Producer): Promise<void> {
+    public async getParseSaveEventsAsync(producer: Producer): Promise<void> {
         const startTime = new Date().getTime();
-        const oldestBlocksForEvents = await connection
-            .getRepository(EventBackfill)
-            .createQueryBuilder('event')
-            .select('event.name', 'name')
-            .addSelect('MIN(event.blockNumber)', 'oldestBlockNumber')
-            .groupBy('event.name')
-            .getRawMany();
-
+        const oldestBlocksForEvents = await prisma.eventBackfill.groupBy({
+            by: ['name'],
+            _min: {
+                blockNumber: true,
+            },
+        });
         if (oldestBlocksForEvents.length > 0) {
             logger.info(`Pulling Events by Topic Backfill`);
 
             const backfillEventsOldestBlock = new Map<string, number>();
 
             oldestBlocksForEvents.forEach((event) => {
-                backfillEventsOldestBlock.set(event.name, parseInt(event.oldestBlockNumber));
+                backfillEventsOldestBlock.set(event.name, parseInt(event._min.blockNumber));
             });
 
-            const currentBlock = await web3Source.getCurrentBlockAsync();
+            const currentBlock = await web3Source.getCurrentBlock();
 
             const promises: Promise<string[]>[] = [];
 
             const commonParams: CommonEventParams = {
-                connection,
                 producer,
                 web3Source,
             };
@@ -52,7 +44,6 @@ export class EventsBackfillScraper {
                     promises.push(
                         pullAndSaveEventsByTopic
                             .getParseSaveEventsByTopicBackfill(
-                                commonParams.connection,
                                 commonParams.producer,
                                 commonParams.web3Source,
                                 currentBlock,

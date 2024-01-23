@@ -1,5 +1,5 @@
-import { UniswapV3PoolCreatedEvent } from './entities';
-import { Connection } from 'typeorm';
+import prisma from './client';
+import { Prisma } from '@prisma/client';
 
 export class UniV3PoolSingleton {
     private static instance: UniV3PoolSingleton;
@@ -21,10 +21,10 @@ export class UniV3PoolSingleton {
         >();
     }
 
-    static async initInstance(connection: Connection): Promise<void> {
+    static async initInstance(): Promise<void> {
         if (!UniV3PoolSingleton.instance) {
             UniV3PoolSingleton.instance = new UniV3PoolSingleton();
-            const newPools = await connection.getRepository(UniswapV3PoolCreatedEvent).find();
+            const newPools = await prisma.uniswapV3PairCreatedEvent.findMany();
             UniV3PoolSingleton.instance.addNewPools(newPools);
         }
     }

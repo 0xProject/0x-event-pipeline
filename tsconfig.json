@@ -1,21 +1,32 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
-        "lib": ["es2019", "dom", "esnext.asynciterable", "es2018.promise"],
-        "experimentalDecorators": true,
+      "allowImportingTsExtensions": true,
+        "allowSyntheticDefaultImports": true,
+        "declaration": false, // Since we have the source code, we don't need to generate declaration files
         "downlevelIteration": true,
-        "noImplicitReturns": true,
-        "pretty": true,
-        "skipLibCheck": true,
-        "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"],
-        "strict": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "es2022",
+        "moduleResolution": "node",
+        "lib": ["es2020"],
         "esModuleInterop": true,
-        "sourceMap": true,
-        "outDir": "lib",
-        "rootDir": ".",
+        "noErrorTruncation": true,
+        "noImplicitReturns": true,
         "resolveJsonModule": true,
-        "emitDecoratorMetadata": true
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "target": "es2017",
+        "typeRoots": [
+            "./node_modules/@types",
+            "../../node_modules/@0x/typescript-typings/types",
+            "../../node_modules/@types"
+        ],
+        "types": ["jest", "node"],
+        "useUnknownInCatchVariables": false
     },
-    "include": ["./src/**/*", "./test/**/*", "./migrations/**/*"]
+    "ts-node": {
+        // Tell ts-node CLI to install the --loader automatically
+        "esm": true
+    }
 }

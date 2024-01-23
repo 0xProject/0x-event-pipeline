@@ -133,7 +133,7 @@ export const MAX_BLOCKS_TO_SEARCH = getIntConfig('MAX_BLOCKS_TO_SEARCH', DEFAULT
 export const MAX_TX_TO_PULL = getIntConfig('MAX_TX_TO_PULL', DEFAULT_MAX_TX_TO_PULL);
 
 export const CHAIN_ID = process.env.CHAIN_ID
-    ? parseInt(process.env.CHAIN_ID, 10)
+    ? BigInt(process.env.CHAIN_ID)
     : throwError(`Must specify valid CHAIN_ID. Got: ${process.env.CHAIN_ID}`);
 if (!Object.keys(supportedChains).map(Number).includes(CHAIN_ID)) {
     throwError(`Chain ID ${CHAIN_ID} is not supported. Please choose a valid Chain ID: ${supportedChains}`);
