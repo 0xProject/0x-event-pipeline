@@ -265,7 +265,9 @@ async function getParseSaveBlocksTransactionsEvents(
 
     const newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
 
-    const filteredNewBlocksReceipts = newBlocksReceipts.filter((blockReciepts) => blockReciepts !== null);
+    const filteredNewBlocksReceipts = newBlocksReceipts.filter(
+        (blockReciepts) => blockReciepts !== null && blockReciepts !== undefined,
+    );
 
     if (newBlocksReceipts.length !== filteredNewBlocksReceipts.length) {
         if (!allowPartialSuccess) {
