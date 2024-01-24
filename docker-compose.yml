@@ -269,7 +269,7 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            EVM_RPC_URL: '${RPC_URL_ARBITRUM}'
+            EVM_RPC_URL: '${EVM_RPC_URL_ARBITRUM}'
             CHAIN_ID: '42161'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_arbitrum'

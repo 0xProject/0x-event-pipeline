@@ -1,4 +1,5 @@
 import { UniswapV3PoolCreatedEvent } from './entities';
+import { logger } from './utils';
 import { Connection } from 'typeorm';
 
 export class UniV3PoolSingleton {
@@ -24,6 +25,7 @@ export class UniV3PoolSingleton {
     static async initInstance(connection: Connection): Promise<void> {
         if (!UniV3PoolSingleton.instance) {
             UniV3PoolSingleton.instance = new UniV3PoolSingleton();
+            logger.info('Loading Uni V3 Pools to memory');
             const newPools = await connection.getRepository(UniswapV3PoolCreatedEvent).find();
             UniV3PoolSingleton.instance.addNewPools(newPools);
         }
