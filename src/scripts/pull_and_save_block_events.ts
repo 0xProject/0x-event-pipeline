@@ -139,25 +139,25 @@ function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction
     };
 }
 
-type range = {
+type BlockRange = {
     start: number;
     end: number;
 };
 
-function findRanges(nums: number[]): range[] {
-    const sorted = [...new Set(nums)].sort();
-    const ranges: { start: number; end: number }[] = [];
+function findRanges(nums: number[]): BlockRange[] {
+    const sorted = [...new Set(nums)].sort((a, b) => a - b);
+    const ranges: BlockRange[] = [];
     const currentRange = { start: sorted[0], end: sorted[0] };
     for (let i = 1; i < sorted.length; i++) {
         if (currentRange.end + 1 === sorted[i]) {
             currentRange.end = sorted[i];
         } else {
-            ranges.push(currentRange);
+            ranges.push(structuredClone(currentRange));
             currentRange.start = sorted[i];
             currentRange.end = sorted[i];
         }
     }
-    ranges.push(currentRange);
+    ranges.push(structuredClone(currentRange));
     return ranges;
 }
 

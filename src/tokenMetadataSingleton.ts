@@ -19,7 +19,7 @@ export class TokenMetadataSingleton {
     static async getInstance(connection: Connection, producer: Producer | null): Promise<TokenMetadataSingleton> {
         if (!TokenMetadataSingleton.instance) {
             TokenMetadataSingleton.instance = new TokenMetadataSingleton();
-            logger.info(`Loading the top ${MAX_INITIAL_TOKENS} to memory`);
+            logger.info(`Loading the top ${MAX_INITIAL_TOKENS} tokens to memory`);
             const tmp = await connection
                 .getRepository(TokenMetadata)
                 .createQueryBuilder('token_metadata')
