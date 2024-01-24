@@ -1,21 +1,21 @@
 import { MAX_TX_TO_PULL, BLOCK_RECEIPTS_MODE } from '../../config';
-import { BLOCK_RECEIPTS_MODE_ENDPOINT } from '../../constants';
 import { chunk, logger } from '../../utils';
-import { Web3ProviderEngine } from '@0x/subproviders';
-import { Web3Wrapper } from '@0x/web3-wrapper';
 import {
     BlockWithTransactionData,
     BlockWithoutTransactionData,
-    RawLog,
+    alchemyBlockTransactionReceiptsFormatter,
+    updatedBlockFormatter,
+    outputTransactionReceiptFormatter,
     Transaction,
     TransactionReceipt,
-} from 'ethereum-types';
+} from './web3_updated';
+import { Web3ProviderEngine } from '@0x/subproviders';
+import { Web3Wrapper } from '@0x/web3-wrapper';
+import { RawLog } from 'ethereum-types';
 
 const Web3 = require('web3');
 
-const utils = require('web3-utils');
-const helpers = require('web3-core-helpers');
-const formatter = helpers.formatters;
+export { BlockWithTransactionData, BlockWithoutTransactionData, Transaction, TransactionReceipt } from './web3_updated';
 
 export interface LogPullInfo {
     address: string | null;
@@ -27,47 +27,6 @@ export interface ContractCallInfo {
     to: string;
     data: string;
 }
-
-export interface Transaction1559 extends Transaction {
-    type: number;
-}
-
-export interface BlockWithoutTransactionData1559 extends BlockWithoutTransactionData {
-    baseFeePerGas: number;
-}
-export interface BlockWithTransactionData1559 extends BlockWithTransactionData {
-    baseFeePerGas: number;
-    transactions: Transaction1559[];
-}
-
-export interface TransactionReceipt1559 extends TransactionReceipt {
-    effectiveGasPrice: number;
-}
-
-const alchemyBlockTransactionReceiptsFormatter = function (response: any): TransactionReceipt1559[] {
-    if (typeof response !== 'object') {
-        throw new Error('Received receipt is invalid: ' + response);
-    }
-
-    return response.receipts.map((receipt: any) => {
-        if (receipt.blockNumber !== null) receipt.blockNumber = utils.hexToNumber(receipt.blockNumber);
-        if (receipt.transactionIndex !== null) receipt.transactionIndex = utils.hexToNumber(receipt.transactionIndex);
-        receipt.cumulativeGasUsed = utils.hexToNumber(receipt.cumulativeGasUsed);
-        receipt.gasUsed = utils.hexToNumber(receipt.gasUsed);
-        if (receipt.effectiveGasPrice) {
-            receipt.effectiveGasPrice = utils.hexToNumber(receipt.effectiveGasPrice);
-        }
-        if (Array.isArray(receipt.logs)) {
-            receipt.logs = receipt.logs.map(formatter.outputLogFormatter);
-        }
-
-        if (typeof receipt.status !== 'undefined' && receipt.status !== null) {
-            receipt.status = Boolean(parseInt(receipt.status));
-        }
-
-        return receipt;
-    });
-};
 
 export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
@@ -84,7 +43,7 @@ export class Web3Source {
                         call: 'eth_getBlockReceipts',
                         params: 1,
                         inputFormatter: [this._web3.utils.numberToHex],
-                        outputFormatter: (block: any) => formatter.outputTransactionReceiptFormatter(block),
+                        outputFormatter: outputTransactionReceiptFormatter,
                     },
                 ],
             });
@@ -103,19 +62,30 @@ export class Web3Source {
                 ],
             });
         }
+        this._web3.eth.extend({
+            methods: [
+                {
+                    name: 'getBlockByNumberN',
+                    call: 'eth_getBlockByNumber',
+                    params: 2,
+                    inputFormatter: [this._web3.utils.numberToHex, null],
+                    outputFormatter: updatedBlockFormatter,
+                },
+            ],
+        });
     }
 
     public async getBatchBlockInfoForRangeAsync<B extends boolean>(
         startBlock: number,
         endBlock: number,
         includeTransactions: B,
-    ): Promise<B extends true ? BlockWithTransactionData1559[] : BlockWithoutTransactionData1559[]>;
+    ): Promise<B extends true ? BlockWithTransactionData[] : BlockWithoutTransactionData[]>;
 
     public async getBatchBlockInfoForRangeAsync(
         startBlock: number,
         endBlock: number,
         includeTransactions: boolean,
-    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData1559)[]> {
+    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData)[]> {
         const blockNumbers = Array.from(Array(endBlock - startBlock + 1).keys()).map((i) => i + startBlock);
         return this.getBatchBlockInfoAsync(blockNumbers, includeTransactions);
     }
@@ -123,20 +93,20 @@ export class Web3Source {
     public async getBatchBlockInfoAsync<B extends boolean>(
         blockNumbers: number[],
         includeTransactions: B,
-    ): Promise<B extends true ? BlockWithTransactionData1559[] : BlockWithoutTransactionData1559[]>;
+    ): Promise<B extends true ? BlockWithTransactionData[] : BlockWithoutTransactionData[]>;
 
     public async getBatchBlockInfoAsync(
         blockNumbers: number[],
         includeTransactions: boolean,
-    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData1559)[]> {
+    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData)[]> {
         const batch = new this._web3.BatchRequest();
 
         const promises = blockNumbers.map((blockNumber) => {
-            return new Promise<BlockWithoutTransactionData | BlockWithTransactionData1559>((resolve, reject) => {
-                const req = this._web3.eth.getBlock.request(
+            return new Promise<BlockWithoutTransactionData | BlockWithTransactionData>((resolve, reject) => {
+                const req = this._web3.eth.getBlockByNumberN.request(
                     blockNumber,
                     includeTransactions,
-                    (err: any, data: BlockWithTransactionData1559) => {
+                    (err: any, data: BlockWithTransactionData) => {
                         if (err) {
                             logger.error(`Blocks error: ${err}`);
                             reject(err);
@@ -157,12 +127,12 @@ export class Web3Source {
     public async getBatchBlockReceiptsForRangeAsync(
         startBlock: number,
         endBlock: number,
-    ): Promise<TransactionReceipt1559[][]> {
+    ): Promise<TransactionReceipt[][]> {
         const blockNumbers = Array.from(Array(endBlock - startBlock + 1).keys()).map((i) => i + startBlock);
         return this.getBatchBlockReceiptsAsync(blockNumbers);
     }
 
-    public async getBatchBlockReceiptsAsync(blockNumbers: number[]): Promise<TransactionReceipt1559[][]> {
+    public async getBatchBlockReceiptsAsync(blockNumbers: number[]): Promise<TransactionReceipt[][]> {
         const promises = blockNumbers.map((blockNumber) => {
             return this._web3.eth.getBlockReceipts(blockNumber).catch((err: any) => {
                 logger.error(`Blocks error: ${err}`);
@@ -286,7 +256,7 @@ export class Web3Source {
         try {
             logger.debug(`Fetching block ${blockNumber}`);
 
-            const block = await this._web3Wrapper.getBlockIfExistsAsync(blockNumber);
+            const block = (await this._web3Wrapper.getBlockIfExistsAsync(blockNumber)) as BlockWithoutTransactionData;
 
             if (block == null) {
                 throw new Error(`Block ${blockNumber} returned null`);
@@ -303,7 +273,7 @@ export class Web3Source {
     }
 
     public async getTransactionInfoAsync(txHash: string): Promise<Transaction> {
-        return this._web3Wrapper.getTransactionByHashAsync(txHash);
+        return (await this._web3Wrapper.getTransactionByHashAsync(txHash)) as Transaction;
     }
 
     public async getBlockNumberAsync(): Promise<number> {

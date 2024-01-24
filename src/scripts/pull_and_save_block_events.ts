@@ -8,10 +8,10 @@ import {
     SCHEMA,
 } from '../config';
 import { TRANSFER_EVENT_TOPIC_0 } from '../constants';
-import { Web3Source, BlockWithTransactionData1559 as EVMBlock } from '../data_sources/events/web3';
+import { Web3Source, BlockWithTransactionData as EVMBlock } from '../data_sources/events/web3';
 import {
-    Transaction1559 as EVMTransaction,
-    TransactionReceipt1559 as EVMTransactionReceipt,
+    Transaction as EVMTransaction,
+    TransactionReceipt as EVMTransactionReceipt,
 } from '../data_sources/events/web3';
 import { Block, Transaction, TransactionReceipt } from '../entities';
 import { eventScrperProps, EventScraperProps } from '../events';
