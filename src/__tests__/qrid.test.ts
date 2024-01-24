@@ -1,4 +1,4 @@
-import { Transaction1559 as EVMTransaction } from '../data_sources/events/web3';
+import { Transaction as EVMTransaction } from '../data_sources/events/web3';
 import { Transaction } from '../entities';
 import { parseTransaction } from '../parsers/web3/parse_web3_objects';
 import { BigNumber } from '@0x/utils';
