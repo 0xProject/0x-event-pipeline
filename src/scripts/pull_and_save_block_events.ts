@@ -104,6 +104,7 @@ function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction
             const baseFilteredLogs = transaction.logs.filter((log) =>
                 contractTopicFilter(props.contractAddress, props.topics, log),
             );
+
             if (baseFilteredLogs.length > 0) {
                 const parsedLogs = baseFilteredLogs.map((log: LogEntry) => props.parser(log));
 

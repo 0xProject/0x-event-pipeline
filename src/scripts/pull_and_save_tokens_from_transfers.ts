@@ -57,7 +57,7 @@ export class TokensFromTransfersScraper {
         SCAN_END_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(endBlockNumber);
 
         const logPullInfo: LogPullInfo = {
-            address: 'nofilter',
+            address: null,
             fromBlock: startBlockNumber,
             toBlock: endBlockNumber,
             topics: [TRANSFER_EVENT_TOPIC_0],
