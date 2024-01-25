@@ -67,13 +67,12 @@ if (ENABLE_PROMETHEUS_METRICS) {
     startMetricsServer();
 }
 
-chainIdChecker.checkChainId(CHAIN_ID);
-
 logger.info(`Running in ${SCRAPER_MODE} mode`);
 
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
+        await chainIdChecker.checkChainId(CHAIN_ID);
         if (producer) {
             await producer.connect();
         }
