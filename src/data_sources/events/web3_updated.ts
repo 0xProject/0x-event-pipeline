@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import {
     Transaction as TransactionOld,
     BlockWithoutTransactionData as BlockWithoutTransactionDataOld,
@@ -22,38 +23,42 @@ export interface BlockWithTransactionData extends BlockWithTransactionDataOld {
 }
 
 export interface TransactionReceipt extends TransactionReceiptOld {
-    effectiveGasPrice: number;
+    effectiveGasPrice: BigNumber;
 }
 
-export const outputTransactionReceiptFormatter = (raw: any) => formatter.outputTransactionReceiptFormatter(raw);
+export const outputTransactionReceiptFormatter = function (receipt: any): TransactionReceipt {
+    if (typeof receipt !== 'object') {
+        throw new Error('Received receipt is invalid: ' + receipt);
+    }
+
+    if (receipt.blockNumber !== null) receipt.blockNumber = utils.hexToNumber(receipt.blockNumber);
+    if (receipt.transactionIndex !== null) receipt.transactionIndex = utils.hexToNumber(receipt.transactionIndex);
+    receipt.cumulativeGasUsed = utils.hexToNumber(receipt.cumulativeGasUsed);
+    receipt.gasUsed = utils.hexToNumber(receipt.gasUsed);
+    if (receipt.effectiveGasPrice) {
+        receipt.effectiveGasPrice = new BigNumber(receipt.effectiveGasPrice);
+    }
+    if (Array.isArray(receipt.logs)) {
+        receipt.logs = receipt.logs.map(formatter.outputLogFormatter);
+    }
+
+    if (typeof receipt.status !== 'undefined' && receipt.status !== null) {
+        receipt.status = Boolean(parseInt(receipt.status));
+    }
+
+    return receipt;
+};
 
 export const alchemyBlockTransactionReceiptsFormatter = function (response: any): TransactionReceipt[] {
     if (typeof response !== 'object') {
         throw new Error('Received receipt is invalid: ' + response);
     }
 
-    return response.receipts.map((receipt: any) => {
-        if (receipt.blockNumber !== null) receipt.blockNumber = utils.hexToNumber(receipt.blockNumber);
-        if (receipt.transactionIndex !== null) receipt.transactionIndex = utils.hexToNumber(receipt.transactionIndex);
-        receipt.cumulativeGasUsed = utils.hexToNumber(receipt.cumulativeGasUsed);
-        receipt.gasUsed = utils.hexToNumber(receipt.gasUsed);
-        if (receipt.effectiveGasPrice) {
-            receipt.effectiveGasPrice = utils.hexToNumber(receipt.effectiveGasPrice);
-        }
-        if (Array.isArray(receipt.logs)) {
-            receipt.logs = receipt.logs.map(formatter.outputLogFormatter);
-        }
-
-        if (typeof receipt.status !== 'undefined' && receipt.status !== null) {
-            receipt.status = Boolean(parseInt(receipt.status));
-        }
-
-        return receipt;
-    });
+    return response.receipts.map(outputTransactionReceiptFormatter);
 };
 
-export const outputBigNumberFormatter = function (number: number) {
-    return utils.toBN(number).toString(10);
+export const outputBigNumberFormatter = function (hexNum: string) {
+    return utils.toBN(hexNum).toString(10);
 };
 
 export const updatedTransactionFormater = function (tx: any): Transaction {
