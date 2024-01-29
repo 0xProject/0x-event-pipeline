@@ -347,6 +347,7 @@ export class BlockEventsScraper {
         const oldestBlocksToBackfill = await connection.query(
             `SELECT DISTINCT block_number
              FROM ${SCHEMA}.tx_backfill
+             WHERE done = false
              ORDER BY block_number
              LIMIT ${MAX_BLOCKS_TO_PULL}`,
         );
@@ -361,11 +362,13 @@ export class BlockEventsScraper {
             const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);
             const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, false);
             if (success) {
+                const newBlockNumbers = newBlocks.map((block) => block.number);
                 const queryRunner = connection.createQueryRunner();
                 await queryRunner.connect();
                 await queryRunner.manager.query(
-                    `DELETE FROM ${SCHEMA}.tx_backfill
-                         WHERE block_number IN (${blockNumbers.join(',')})`,
+                    `UPDATE ${SCHEMA}.tx_backfill
+                     SET done = true
+                     WHERE block_number IN (${newBlockNumbers.join(',')})`,
                 );
                 queryRunner.release();
 

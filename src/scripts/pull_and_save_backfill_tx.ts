@@ -21,7 +21,11 @@ export class BackfillTxScraper {
         logger.info(`pulling tx backlog`);
 
         const queryResult = await connection.query(
-            `SELECT transaction_hash FROM ${SCHEMA}.tx_backfill LIMIT ${MAX_TX_TO_PULL}`,
+            `SELECT transaction_hash
+             FROM ${SCHEMA}.tx_backfill
+             WHERE done = FALSE
+             ORDER BY block_number
+             LIMIT ${MAX_TX_TO_PULL}`,
         );
 
         const txList = queryResult.map((e: { transaction_hash: string }) => e.transaction_hash);
@@ -34,7 +38,10 @@ export class BackfillTxScraper {
             const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
             const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
             // const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
-            const txBacklogQuery = `DELETE FROM ${SCHEMA}.tx_backfill WHERE transaction_hash IN (${txHashList});`;
+            const txBacklogQuery = `
+              UPDATE ${SCHEMA}.tx_backfill
+              SET done = true
+              WHERE block_number IN (${txHashList})`;
 
             const queryRunner = connection.createQueryRunner();
             await queryRunner.connect();
