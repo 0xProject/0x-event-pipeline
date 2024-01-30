@@ -41,7 +41,7 @@ export class BackfillTxScraper {
             const txBacklogQuery = `
               UPDATE ${SCHEMA}.tx_backfill
               SET done = true
-              WHERE block_number IN (${txHashList})`;
+              WHERE transaction_hash IN (${txHashList})`;
 
             const queryRunner = connection.createQueryRunner();
             await queryRunner.connect();
