@@ -15,6 +15,12 @@ export const LATEST_SCRAPED_BLOCK = new Gauge({
     labelNames: ['chain'],
 });
 
+export const LATEST_SCRAPED_BLOCK_TIMESTAMP = new Gauge({
+    name: 'event_scraper_latest_scraped_block_timestamp',
+    help: 'The timestamp of the latest scraped block',
+    labelNames: ['chain'],
+});
+
 export const SCRIPT_RUN_DURATION = new Gauge({
     name: 'event_scraper_script_run_duration',
     help: 'The time a script took to run',

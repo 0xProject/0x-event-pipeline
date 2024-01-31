@@ -17,7 +17,13 @@ import { Block, Transaction, TransactionReceipt } from '../entities';
 import { eventScrperProps, EventScraperProps } from '../events';
 import { parseBlock, parseTransaction, parseTransactionReceipt } from '../parsers/web3/parse_web3_objects';
 import { chunk, logger } from '../utils';
-import { LATEST_SCRAPED_BLOCK, CURRENT_BLOCK, SCRIPT_RUN_DURATION, SAVED_RESULTS } from '../utils/metrics';
+import {
+    CURRENT_BLOCK,
+    LATEST_SCRAPED_BLOCK,
+    LATEST_SCRAPED_BLOCK_TIMESTAMP,
+    SAVED_RESULTS,
+    SCRIPT_RUN_DURATION,
+} from '../utils/metrics';
 import { contractTopicFilter } from './utils/block_utils';
 import { getParseSaveTokensAsync } from './utils/web3_utils';
 import { web3Factory } from '@0x/dev-utils';
@@ -450,6 +456,9 @@ export class BlockEventsScraper {
                 const scriptDurationSeconds = (endTime - startTime) / 1000;
                 SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
                 LATEST_SCRAPED_BLOCK.labels({ chain: CHAIN_NAME }).set(blockRangeEnd);
+                LATEST_SCRAPED_BLOCK_TIMESTAMP.labels({ chain: CHAIN_NAME }).set(
+                    newBlocks[newBlocks.length - 1].timestamp,
+                );
 
                 logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
             }
