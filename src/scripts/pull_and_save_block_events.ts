@@ -20,7 +20,7 @@ import { chunk, logger } from '../utils';
 import {
     CURRENT_BLOCK,
     LATEST_SCRAPED_BLOCK,
-    LATEST_SCRAPED_BLOCK_TIMESTAMP,
+    LATEST_SCRAPED_BLOCK_DELAY,
     SAVED_RESULTS,
     SCRIPT_RUN_DURATION,
 } from '../utils/metrics';
@@ -454,11 +454,10 @@ export class BlockEventsScraper {
             if (success) {
                 const endTime = new Date().getTime();
                 const scriptDurationSeconds = (endTime - startTime) / 1000;
+                const latestScrapedBlockDelay = Date.now() / 1000 - newBlocks[newBlocks.length - 1].timestamp;
                 SCRIPT_RUN_DURATION.set({ script: 'events-by-block' }, scriptDurationSeconds);
                 LATEST_SCRAPED_BLOCK.labels({ chain: CHAIN_NAME }).set(blockRangeEnd);
-                LATEST_SCRAPED_BLOCK_TIMESTAMP.labels({ chain: CHAIN_NAME }).set(
-                    newBlocks[newBlocks.length - 1].timestamp,
-                );
+                LATEST_SCRAPED_BLOCK_DELAY.labels({ chain: CHAIN_NAME }).set(latestScrapedBlockDelay);
 
                 logger.info(`Finished pulling events block by in ${scriptDurationSeconds}`);
             }

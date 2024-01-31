@@ -15,9 +15,9 @@ export const LATEST_SCRAPED_BLOCK = new Gauge({
     labelNames: ['chain'],
 });
 
-export const LATEST_SCRAPED_BLOCK_TIMESTAMP = new Gauge({
-    name: 'event_scraper_latest_scraped_block_timestamp',
-    help: 'The timestamp of the latest scraped block',
+export const LATEST_SCRAPED_BLOCK_DELAY = new Gauge({
+    name: 'event_scraper_latest_scraped_block_delay',
+    help: "The difference of the latest scraped block's timestamp and the current timestamp",
     labelNames: ['chain'],
 });
 
