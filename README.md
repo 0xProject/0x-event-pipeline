@@ -8,7 +8,7 @@ EVM Blockchain Scraper, mainly for 0x Protocol Events and some extra useful Even
 
 Run locally:
 
-1. Copy the `.env.exmaple` file to `.env`. 
+1. Copy the `.env.exmaple` file to `.env`.
 Add the `RPC_URL` for the chain(s) you are going to run
 Configure the scape **Mode**
 
@@ -45,10 +45,11 @@ Set `MODE="EVENTS"` in `.env` to use events mode.
 Switching modes is currently not automated but it is possible following the next steps
 
 #### Events to Blocks
-1. Stop the Scraper
-2. Delete the last `MAX_BLOCKS_REORG` blocks from the `blocks` table (just to be sure we are not skipping anything)
-3. Change the mode to `BLOCKS`
-4. Start the scraper
+1. Make sure there are no backfills in process
+2. Stop the Scraper
+3. Delete the last `MAX_BLOCKS_REORG` blocks from the `blocks` table (just to be sure we are not skipping anything)
+4. Change the mode to `BLOCKS`
+5. Start the scraper
 
 
 #### Blocks to Events
