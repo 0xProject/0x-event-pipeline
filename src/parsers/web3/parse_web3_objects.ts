@@ -69,6 +69,7 @@ export function parseTransactionReceipt(rawReceipt: RawReceipt): TransactionRece
     transactionReceipt.senderAddress = rawReceipt.from;
     transactionReceipt.toAddress = rawReceipt.to;
     transactionReceipt.gasUsed = new BigNumber(rawReceipt.gasUsed);
+    transactionReceipt.gasFeesL1 = rawReceipt.gasFeesL1 === undefined ? null : new BigNumber(rawReceipt.gasFeesL1);
 
     return transactionReceipt;
 }
