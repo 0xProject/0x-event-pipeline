@@ -1,12 +1,12 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
-import { ERC20BridgeTransferEvent } from '../../entities';
-
-import { parseEvent } from './parse_event';
 import { LIQUIDITY_PROVIDER_SWAP_ABI } from '../../constants';
+import { ERC20BridgeTransferEvent } from '../../entities';
+import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
-export function parseLiquidityProviderSwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent {
+const abiCoder = require('web3-eth-abi');
+
+export function parseLiquidityProviderSwapEvent(eventLog: LogEntry): ERC20BridgeTransferEvent {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent

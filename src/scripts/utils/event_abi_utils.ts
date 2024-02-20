@@ -1,18 +1,14 @@
+import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
+import { LogPullInfo, Web3Source } from '../../data_sources/events/web3';
+import { Event } from '../../entities';
+import { LastBlockProcessed } from '../../entities';
+import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
+import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
+import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync } from './web3_utils';
+import { BlockWithoutTransactionData } from 'ethereum-types';
+import { LogEntry } from 'ethereum-types';
 import { Producer } from 'kafkajs';
 import { Connection, QueryFailedError } from 'typeorm';
-import { hexToUtf8 } from 'web3-utils';
-import { BlockWithoutTransactionData } from 'ethereum-types';
-
-import { ContractCallInfo, LogPullInfo, Web3Source } from '../../data_sources/events/web3';
-import { Event, Transaction } from '../../entities';
-import { chunk, DeleteOptions, kafkaSendAsync, kafkaSendCommandAsync, logger } from '../../utils';
-import { TokenMetadataMap, extractTokensFromLogs, getParseSaveTokensAsync, getParseTxsAsync } from './web3_utils';
-
-import { RawLogEntry } from 'ethereum-types';
-
-import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
-import { LastBlockProcessed } from '../../entities';
-import { SCAN_END_BLOCK, RPC_LOGS_ERROR, SCAN_RESULTS, SCAN_START_BLOCK, SKIPPED_EVENTS } from '../../utils/metrics';
 
 export interface BackfillEventsResponse {
     transactionHashes: string[];
@@ -30,9 +26,9 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         topics: (string | null)[],
-        contractAddress: string,
+        contractAddress: string | null,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => Event,
+        parser: (decodedLog: LogEntry) => Event,
         deleteOptions?: DeleteOptions,
         tokenMetadataMap?: TokenMetadataMap,
         callback?: (event: Event) => void,
@@ -109,9 +105,9 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         topics: (string | null)[],
-        contractAddress: string,
+        contractAddress: string | null,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => Event,
+        parser: (decodedLog: LogEntry) => Event,
         startBlockNumber: number,
         deleteOptions?: DeleteOptions,
         tokenMetadataMap?: TokenMetadataMap,
@@ -165,9 +161,9 @@ export class PullAndSaveEventsByTopic {
         eventType: any,
         tableName: string,
         topics: (string | null)[],
-        contractAddress: string,
+        contractAddress: string | null,
         startSearchBlock: number,
-        parser: (decodedLog: RawLogEntry) => Event,
+        parser: (decodedLog: LogEntry) => Event,
         startBlockNumber: number,
         endBlockNumber: number,
         endBlockHash: string,
@@ -199,7 +195,7 @@ export class PullAndSaveEventsByTopic {
             let txHashes: string[] = [];
             await Promise.all(
                 rawLogsArray.map(async (rawLogs) => {
-                    const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: RawLogEntry) => parser(encodedLog));
+                    const parsedLogsWithSkipped = rawLogs.logs.map((encodedLog: LogEntry) => parser(encodedLog));
 
                     const parsedLogs = parsedLogsWithSkipped.filter((log: Event) => log !== null);
                     SKIPPED_EVENTS.inc(
@@ -213,36 +209,6 @@ export class PullAndSaveEventsByTopic {
                     if (reorgedEvents.length > 0) {
                         logger.error(`Detected a reorg while scraping ${eventName}, near block ${endBlockNumber}`);
                         throw Error();
-                    }
-
-                    if (eventName === 'UniswapV3VIPEvent' && parsedLogs.length > 0) {
-                        const contractCallToken0Array = [];
-                        const contractCallToken1Array = [];
-
-                        for (const index in parsedLogs) {
-                            const contract_address: string = (parsedLogs[index] as any).contractAddress;
-
-                            const contractCallToken0: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0x0dfe1681',
-                            };
-                            contractCallToken0Array.push(contractCallToken0);
-
-                            const contractCallToken1: ContractCallInfo = {
-                                to: contract_address,
-                                data: '0xd21220a7',
-                            };
-                            contractCallToken1Array.push(contractCallToken1);
-                        }
-                        const token0 = await web3Source.callContractMethodsAsync(contractCallToken0Array);
-                        const token1 = await web3Source.callContractMethodsAsync(contractCallToken1Array);
-
-                        for (let i = 0; i < parsedLogs.length; i++) {
-                            const token0_i = '0x' + token0[i].slice(2).slice(token0[i].length == 66 ? 64 - 40 : 0);
-                            const token1_i = '0x' + token1[i].slice(2).slice(token1[i].length == 66 ? 64 - 40 : 0);
-                            parsedLogs[i].fromToken = parsedLogs[i].fromToken === '0' ? token0_i : token1_i;
-                            parsedLogs[i].toToken = parsedLogs[i].toToken === '0' ? token0_i : token1_i;
-                        }
                     }
 
                     SCAN_RESULTS.labels({ type: scrapingType, event: eventName }).set(parsedLogs.length);
@@ -400,20 +366,20 @@ export const getStartBlockAsync = async (
 
         if (lastKnownBlock.block_hash !== lastKnownBlockFresh.hash) {
             return {
-                startBlockNumber: lastKnownBlockNumber - MAX_BLOCKS_REORG,
+                startBlockNumber: min0(lastKnownBlockNumber - MAX_BLOCKS_REORG),
                 hasLatestBlockChanged: true,
                 reorgLikely: true,
             };
         }
         return {
-            startBlockNumber: lastKnownBlockNumber - (RESCRAPE_BLOCKS - 1),
+            startBlockNumber: min0(lastKnownBlockNumber - (RESCRAPE_BLOCKS - 1)),
             hasLatestBlockChanged: true,
             reorgLikely: false,
         };
     }
     if (lastKnownBlock.block_hash !== currentBlock.hash) {
         return {
-            startBlockNumber: lastKnownBlockNumber - MAX_BLOCKS_REORG,
+            startBlockNumber: min0(lastKnownBlockNumber - MAX_BLOCKS_REORG),
             hasLatestBlockChanged: true,
             reorgLikely: true,
         };
@@ -424,6 +390,13 @@ export const getStartBlockAsync = async (
         reorgLikely: false,
     };
 };
+
+export function min0(num: number): number {
+    if (num > 0) {
+        return num;
+    }
+    return 0;
+}
 
 export const getLastBlockProcessedEntity = (
     eventName: string,

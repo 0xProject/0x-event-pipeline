@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+
 const createTable = ` create table events_bsc.paraswap_swapped_v5_events
 (
     observed_timestamp bigint not null,

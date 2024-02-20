@@ -1,8 +1,7 @@
+import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
-import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers';
 
 @Entity({ name: 'onchain_governance_call_scheduled' })
 export class OnchainGovernanceCallScheduledEvent extends Event {

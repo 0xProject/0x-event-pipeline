@@ -1,7 +1,6 @@
-import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
 import { numberToBigIntTransformer } from '../transformers/big_number';
+import { Event } from './event';
+import { Column, Entity } from 'typeorm';
 
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.
 @Entity({ name: 'staking_pool_earned_rewards_in_epoch_events' })

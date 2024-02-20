@@ -1,5 +1,5 @@
-import { Web3Source } from '../../data_sources/events/web3';
 import { BLOCK_FINALITY_THRESHOLD } from '../../config';
+import { Web3Source } from '../../data_sources/events/web3';
 import { LastBlockProcessed } from '../../entities';
 
 export async function calculateEndBlockAsync(web3Source: Web3Source): Promise<number> {

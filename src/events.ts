@@ -1,40 +1,6 @@
-import { Producer } from 'kafkajs';
-import { Connection } from 'typeorm';
-import { Web3Source } from './data_sources/events/web3';
-import { RawLogEntry } from 'ethereum-types';
-
-import {
-    ERC20BridgeTransferEvent,
-    Erc1155OrderCancelledEvent,
-    Erc1155OrderFilledEvent,
-    Erc1155OrderPresignedEvent,
-    Erc721OrderCancelledEvent,
-    Erc721OrderFilledEvent,
-    Erc721OrderPresignedEvent,
-    Event,
-    ExpiredRfqOrderEvent,
-    FillEvent,
-    LogTransferEvent,
-    MetaTransactionExecutedEvent,
-    NativeFill,
-    OnchainGovernanceCallScheduledEvent,
-    OnchainGovernanceProposalCreatedEvent,
-    OtcOrderFilledEvent,
-    SocketBridgeEvent,
-    TransformedERC20Event,
-    UniswapV2PairCreatedEvent,
-    UniswapV2SyncEvent,
-    UniswapV3PoolCreatedEvent,
-    UniswapV3SwapEvent,
-    UnwrapNativeEvent,
-    V4CancelEvent,
-    V4LimitOrderFilledEvent,
-    V4RfqOrderFilledEvent,
-    WrapNativeEvent,
-} from './entities';
-
 import {
     EP_ADDRESS,
+    FEAT_STAKING,
     EP_DEPLOYMENT_BLOCK,
     FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
     FEAT_LIMIT_ORDERS,
@@ -53,6 +19,7 @@ import {
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     FEAT_UNISWAP_V3_SWAP_EVENT,
     FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    FEAT_V3_CANCEL_EVENTS,
     FEAT_V3_FILL_EVENT,
     FEAT_V3_NATIVE_FILL,
     FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -81,7 +48,6 @@ import {
     WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
     WRAP_UNWRAP_NATIVE_START_BLOCK,
 } from './config';
-
 import {
     BRIDGEFILL_EVENT_TOPIC,
     ERC1155_ORDER_CANCELLED_EVENT_TOPIC,
@@ -112,78 +78,150 @@ import {
     UNISWAP_V3_SWAP_EVENT_TOPIC_0,
     UNWRAP_NATIVE_EVENT_TOPIC,
     V3_EXCHANGE_ADDRESS,
+    V3_DEPLOYMENT_BLOCK,
     V3_FILL_EVENT_TOPIC,
+    V3_CANCEL_EVENT_TOPIC,
+    V3_CANCEL_UP_TO_EVENT_TOPIC,
     V4_CANCEL_EVENT_TOPIC,
     WRAP_NATIVE_EVENT_TOPIC,
     ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
     ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
+    STAKING_CONTRACT,
+    STAKING_TRANSACTION_EXECUTION_TOPIC,
+    STAKING_STAKE_EVENT_TOPIC,
+    STAKING_UNSTAKE_EVENT_TOPIC,
+    STAKING_MOVE_STAKE_TOPIC,
+    STAKING_STAKING_POOL_CREATED_TOPIC,
+    STAKING_STAKING_POOL_EARNED_REWARDS_IN_EPOCH_TOPIC,
+    STAKING_MAKER_STAKING_POOL_SET_TOPIC,
+    STAKING_PARAMS_SET_TOPIC,
+    STAKING_OPERATOR_SHARE_DECREASED_TOPIC,
+    STAKING_EPOCH_ENDED_TOPIC,
+    STAKING_EPOCH_FINALIZED_TOPIC,
+    STAKING_REWARDS_PAID_TOPIC,
 } from './constants';
-
-import { DeleteOptions } from './utils';
-import { parseTransformedERC20Event } from './parsers/events/transformed_erc20_events';
+import { Web3Source } from './data_sources/events/web3';
 import {
-    parseNativeFillFromV4RfqOrderFilledEvent,
-    parseV4RfqOrderFilledEvent,
-} from './parsers/events/v4_rfq_order_filled_events';
+    ERC20BridgeTransferEvent,
+    Erc1155OrderCancelledEvent,
+    Erc1155OrderFilledEvent,
+    Erc1155OrderPresignedEvent,
+    Erc721OrderCancelledEvent,
+    Erc721OrderFilledEvent,
+    Erc721OrderPresignedEvent,
+    Event,
+    ExpiredRfqOrderEvent,
+    FillEvent,
+    LogTransferEvent,
+    CancelEvent,
+    CancelUpToEvent,
+    MetaTransactionExecutedEvent,
+    NativeFill,
+    OnchainGovernanceCallScheduledEvent,
+    OnchainGovernanceProposalCreatedEvent,
+    OtcOrderFilledEvent,
+    SocketBridgeEvent,
+    Transaction,
+    TransformedERC20Event,
+    UniswapV2PairCreatedEvent,
+    UniswapV2SyncEvent,
+    UniswapV3PoolCreatedEvent,
+    UniswapV3SwapEvent,
+    UnwrapNativeEvent,
+    V4CancelEvent,
+    V4LimitOrderFilledEvent,
+    V4RfqOrderFilledEvent,
+    WrapNativeEvent,
+    EpochEndedEvent,
+    EpochFinalizedEvent,
+    MakerStakingPoolSetEvent,
+    MoveStakeEvent,
+    OperatorShareDecreasedEvent,
+    ParamsSetEvent,
+    RewardsPaidEvent,
+    StakeEvent,
+    StakingPoolCreatedEvent,
+    StakingPoolEarnedRewardsInEpochEvent,
+    TransactionExecutionEvent,
+    UnstakeEvent,
+} from './entities';
 import {
-    parseUniswapV3VIPSwapEvent,
-    parseUniswapV3SwapEvent,
-    parseUniswapV3PoolCreatedEvent,
-} from './parsers/events/uniswap_v3_events';
+    filterSocketBridgeEventsGetContext,
+    filterNulls,
+    filterSocketBridgeEvents,
+    filterWrapUnwrapEvents,
+    filterWrapUnwrapEventsGetContext,
+} from './filters';
 import {
-    parseNativeFillFromV4LimitOrderFilledEvent,
-    parseV4LimitOrderFilledEvent,
-} from './parsers/events/v4_limit_order_filled_events';
-import { parseFillEvent } from './parsers/events/fill_events';
-import { parseNativeFillFromFillEvent } from './parsers/events/fill_events';
-import { parseV4CancelEvent } from './parsers/events/v4_cancel_events';
-import { parseExpiredRfqOrderEvent } from './parsers/events/expired_rfq_order_events';
-import {
-    parseNativeFillFromV4OtcOrderFilledEvent,
-    parseOtcOrderFilledEvent,
-} from './parsers/events/otc_order_filled_events';
-import {
-    parseUniswapV2SwapEvent,
-    parseUniswapV2SyncEvent,
-    parseUniswapV2PairCreatedEvent,
-} from './parsers/events/uniswap_v2_events';
-import {
+    parseBridgeFill,
     parseErc1155OrderCancelledEvent,
     parseErc1155OrderFilledEvent,
     parseErc1155OrderPresignedEvent,
     parseErc721OrderCancelledEvent,
     parseErc721OrderFilledEvent,
     parseErc721OrderPresignedEvent,
-} from './parsers/events/nft_events';
-
-import { parseBridgeFill } from './parsers/events/bridge_transfer_events';
-import { parseLiquidityProviderSwapEvent } from './parsers/events/liquidity_provider_swap_events';
-import { parseLogTransferEvent } from './parsers/events/log_transfer_events';
-import { parseMetaTransactionExecutedEvent } from './parsers/events/meta_transaction_executed_events';
-
-import {
-    parseOnchainGovernanceProposalCreatedEvent,
+    parseExpiredRfqOrderEvent,
+    parseFillEvent,
+    parseCancelEvent,
+    parseCancelUpToEvent,
+    parseLiquidityProviderSwapEvent,
+    parseLogTransferEvent,
+    parseMetaTransactionExecutedEvent,
+    parseNativeFillFromFillEvent,
+    parseNativeFillFromV4LimitOrderFilledEvent,
+    parseNativeFillFromV4OtcOrderFilledEvent,
+    parseNativeFillFromV4RfqOrderFilledEvent,
     parseOnchainGovernanceCallScheduledEvent,
-} from './parsers/events/onchain_governance_events';
-
-import {
-    parseWrapNativeEvent,
+    parseOnchainGovernanceProposalCreatedEvent,
+    parseOtcOrderFilledEvent,
+    parseSocketBridgeEvent,
+    parseTransformedERC20Event,
+    parseUniswapV2PairCreatedEvent,
+    parseUniswapV2SwapEvent,
+    parseUniswapV2SyncEvent,
+    parseUniswapV3PoolCreatedEvent,
+    parseUniswapV3SwapEvent,
+    parseUniswapV3VIPSwapEvent,
     parseUnwrapNativeEvent,
-    parseWrapNativeTransferEvent,
     parseUnwrapNativeTransferEvent,
-} from './parsers/events/wrap_unwrap_native_events';
-
-import { parseSocketBridgeEvent } from './parsers/events/socket_bridge_events';
-
-import { filterWrapUnwrapEvents } from './filters/wrap_unwrap_native_events';
-import { filterSocketBridgeEvents } from './filters/socket_bridge_events';
-
+    parseV4CancelEvent,
+    parseV4LimitOrderFilledEvent,
+    parseV4RfqOrderFilledEvent,
+    parseWrapNativeEvent,
+    parseWrapNativeTransferEvent,
+} from './parsers';
+import {
+    parseEpochEndedEvent,
+    parseEpochFinalizedEvent,
+    parseMakerStakingPoolSetEvent,
+    parseMoveStakeEvent,
+    parseOperatorShareDecreasedEvent,
+    parseParamsSetEvent,
+    parseRewardsPaidEvent,
+    parseStakeEvent,
+    parseStakingPoolCreatedEvent,
+    parseStakingPoolEarnedRewardsInEpochEvent,
+    parseUnstakeEvent,
+} from './parsers/events/staking_events';
+import { parseTransactionExecutionEvent } from './parsers/events/transaction_execution_events';
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
+import { UniV3PoolSingleton } from './uniV3PoolSingleton';
+import { DeleteOptions } from './utils';
+import { LogEntry } from 'ethereum-types';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 function uniV2PoolSingletonCallback(pools: UniswapV2PairCreatedEvent[]) {
     const uniV2PoolSingleton = UniV2PoolSingleton.getInstance();
     uniV2PoolSingleton.addNewPools(pools);
+    return pools;
+}
+
+function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
+    const uniV3PoolSingleton = UniV3PoolSingleton.getInstance();
+    uniV3PoolSingleton.addNewPools(pools);
+    return pools;
 }
 
 export type CommonEventParams = {
@@ -198,13 +236,14 @@ export type EventScraperProps = {
     tType: any;
     table: string;
     topics: (string | null)[];
-    contractAddress: string;
+    contractAddress: string | null;
     startBlock: number;
-    parser: (decodedLog: RawLogEntry) => any;
+    parser: (log: LogEntry) => any;
     deleteOptions?: DeleteOptions;
     tokenMetadataMap?: TokenMetadataMap;
-    callback?: any;
-    filterFunction?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>;
+    postProcess?: any;
+    filterFunction?: (events: Event[], transaction: Transaction) => Event[];
+    filterFunctionGetContext?: (events: Event[], web3Source: Web3Source) => Promise<Event[]>;
 };
 
 export const eventScrperProps: EventScraperProps[] = [
@@ -224,9 +263,10 @@ export const eventScrperProps: EventScraperProps[] = [
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
         topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
-        contractAddress: 'nofilter',
+        contractAddress: null,
         startBlock: UNISWAP_V3_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV3VIPSwapEvent,
+        filterFunction: filterNulls,
         deleteOptions: { directFlag: true, directProtocol: ['UniswapV3'] },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
@@ -248,9 +288,10 @@ export const eventScrperProps: EventScraperProps[] = [
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
         topics: [UNISWAP_V2_SWAP_EVENT_TOPIC_0, addressToTopic(EP_ADDRESS)],
-        contractAddress: 'nofilter',
+        contractAddress: null,
         startBlock: UNISWAP_V2_VIP_SWAP_START_BLOCK,
         parser: parseUniswapV2SwapEvent,
+        filterFunction: filterNulls,
         deleteOptions: { directFlag: true, directProtocol: UNISWAP_V2_VIP_SWAP_SOURCES },
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
@@ -444,7 +485,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tType: UniswapV2SyncEvent,
         table: 'uniswap_v2_sync_events',
         topics: UNISWAP_V2_SYNC_TOPIC,
-        contractAddress: 'nofilter',
+        contractAddress: null,
         startBlock: UNISWAP_V2_SYNC_START_BLOCK,
         parser: parseUniswapV2SyncEvent,
     },
@@ -464,7 +505,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tType: UniswapV3SwapEvent,
         table: 'uniswap_v3_swap_events',
         topics: [UNISWAP_V3_SWAP_EVENT_TOPIC_0],
-        contractAddress: 'nofilter',
+        contractAddress: null,
         startBlock: UNISWAP_V3_SWAP_START_BLOCK,
         parser: parseUniswapV3SwapEvent,
     },
@@ -477,6 +518,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: UNISWAP_V3_FACTORY_ADDRESS,
         startBlock: UNISWAP_V3_POOL_CREATED_START_BLOCK,
         parser: parseUniswapV3PoolCreatedEvent,
+        postProcess: uniV3PoolSingletonCallback,
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -486,8 +528,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
         contractAddress: ZEROEX_TREASURY_GOVERNOR_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexTreasuryGovernor'),
+        parser: (log: LogEntry) => parseOnchainGovernanceProposalCreatedEvent(log, 'ZeroexTreasuryGovernor'),
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -497,8 +538,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_PROPOSAL_CREATED_EVENT_TOPIC,
         contractAddress: ZEROEX_PROTOCOL_GOVERNOR_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceProposalCreatedEvent(decodedLog, 'ZeroexProtocolGovernor'),
+        parser: (log: LogEntry) => parseOnchainGovernanceProposalCreatedEvent(log, 'ZeroexProtocolGovernor'),
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -508,8 +548,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
         contractAddress: TREASURY_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceCallScheduledEvent(decodedLog, 'TreasuryZeroexTimelock'),
+        parser: (log: LogEntry) => parseOnchainGovernanceCallScheduledEvent(log, 'TreasuryZeroexTimelock'),
     },
     {
         enabled: FEAT_ONCHAIN_GOVERNANCE,
@@ -519,8 +558,7 @@ export const eventScrperProps: EventScraperProps[] = [
         topics: ONCHAIN_GOVERNANCE_CALL_SCHEDULED_EVENT_TOPIC,
         contractAddress: PROTOCOL_ZEROEX_TIMELOCK_CONTRACT_ADDRESS,
         startBlock: ONCHAIN_GOVERNANCE_START_BLOCK,
-        parser: (decodedLog: RawLogEntry) =>
-            parseOnchainGovernanceCallScheduledEvent(decodedLog, 'ProtocolZeroexTimelock'),
+        parser: (log: LogEntry) => parseOnchainGovernanceCallScheduledEvent(log, 'ProtocolZeroexTimelock'),
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -532,6 +570,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseWrapNativeEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -543,6 +582,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
@@ -554,6 +594,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseWrapNativeTransferEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
@@ -565,6 +606,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeTransferEvent,
         filterFunction: filterWrapUnwrapEvents,
+        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
     },
     {
         enabled: FEAT_SOCKET_BRIDGE_EVENT,
@@ -575,7 +617,150 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: SOCKET_BRIDGE_CONTRACT_ADDRESS,
         startBlock: SOCKET_BRIDGE_EVENT_START_BLOCK,
         parser: parseSocketBridgeEvent,
+        filterFunctionGetContext: filterSocketBridgeEventsGetContext,
         filterFunction: filterSocketBridgeEvents,
+    },
+
+    {
+        enabled: FEAT_V3_CANCEL_EVENTS,
+        name: 'CancelEvent',
+        tType: CancelEvent,
+        table: 'cancel_events',
+        topics: V3_CANCEL_EVENT_TOPIC,
+        contractAddress: V3_EXCHANGE_ADDRESS,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseCancelEvent,
+    },
+    {
+        enabled: FEAT_V3_CANCEL_EVENTS,
+        name: 'CancelUpToEvent',
+        tType: CancelUpToEvent,
+        table: 'cancel_up_to_events',
+        topics: V3_CANCEL_UP_TO_EVENT_TOPIC,
+        contractAddress: V3_EXCHANGE_ADDRESS,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseCancelUpToEvent,
+    },
+
+    {
+        enabled: FEAT_STAKING,
+        name: 'TransactionExecutionEvent',
+        tType: TransactionExecutionEvent,
+        table: 'transaction_execution_events',
+        topics: STAKING_TRANSACTION_EXECUTION_TOPIC,
+        contractAddress: V3_EXCHANGE_ADDRESS,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseTransactionExecutionEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'StakeEvent',
+        tType: StakeEvent,
+        table: 'stake_events',
+        topics: STAKING_STAKE_EVENT_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseStakeEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'UnstakeEvent',
+        tType: UnstakeEvent,
+        table: 'unstake_events',
+        topics: STAKING_UNSTAKE_EVENT_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseUnstakeEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'MoveStakeEvent',
+        tType: MoveStakeEvent,
+        table: 'move_stake_events',
+        topics: STAKING_MOVE_STAKE_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseMoveStakeEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'StakingPoolCreatedEvent',
+        tType: StakingPoolCreatedEvent,
+        table: 'staking_pool_created_events',
+        topics: STAKING_STAKING_POOL_CREATED_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseStakingPoolCreatedEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'StakingPoolEarnedRewardsInEpochEvent',
+        tType: StakingPoolEarnedRewardsInEpochEvent,
+        table: 'staking_pool_earned_rewards_in_epoch_events',
+        topics: STAKING_STAKING_POOL_EARNED_REWARDS_IN_EPOCH_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseStakingPoolEarnedRewardsInEpochEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'MakerStakingPoolSetEvent',
+        tType: MakerStakingPoolSetEvent,
+        table: 'maker_staking_pool_set_events',
+        topics: STAKING_MAKER_STAKING_POOL_SET_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseMakerStakingPoolSetEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'ParamsSetEvent',
+        tType: ParamsSetEvent,
+        table: 'params_set_events',
+        topics: STAKING_PARAMS_SET_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseParamsSetEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'OperatorShareDecreasedEvent',
+        tType: OperatorShareDecreasedEvent,
+        table: 'operator_share_decreased_events',
+        topics: STAKING_OPERATOR_SHARE_DECREASED_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseOperatorShareDecreasedEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'EpochEndedEvent',
+        tType: EpochEndedEvent,
+        table: 'epoch_ended_events',
+        topics: STAKING_EPOCH_ENDED_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseEpochEndedEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'EpochFinalizedEvent',
+        tType: EpochFinalizedEvent,
+        table: 'epoch_finalized_events',
+        topics: STAKING_EPOCH_FINALIZED_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseEpochFinalizedEvent,
+    },
+    {
+        enabled: FEAT_STAKING,
+        name: 'RewardsPaidEvent',
+        tType: RewardsPaidEvent,
+        table: 'rewards_paid_events',
+        topics: STAKING_REWARDS_PAID_TOPIC,
+        contractAddress: STAKING_CONTRACT,
+        startBlock: V3_DEPLOYMENT_BLOCK,
+        parser: parseRewardsPaidEvent,
     },
 ];
 
@@ -607,10 +792,10 @@ for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_S
         topics: UNISWAP_V2_PAIR_CREATED_TOPIC,
         contractAddress: protocol.factoryAddress,
         startBlock: protocol.startBlock,
-        parser: (decodedLog: RawLogEntry) => parseUniswapV2PairCreatedEvent(decodedLog, protocol.name),
+        parser: (log: LogEntry) => parseUniswapV2PairCreatedEvent(log, protocol.name),
         deleteOptions: { protocol: protocol.name },
         tokenMetadataMap: { tokenA: 'token0', tokenB: 'token1' },
-        callback: uniV2PoolSingletonCallback,
+        postProcess: uniV2PoolSingletonCallback,
     });
 }
 

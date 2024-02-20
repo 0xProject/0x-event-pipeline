@@ -1,6 +1,6 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers/big_number';
 import { BigNumber } from '@0x/utils';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 // Event emitted when a staking pool's operator share is decreased.
 @Entity({ name: 'current_epoch_info' })

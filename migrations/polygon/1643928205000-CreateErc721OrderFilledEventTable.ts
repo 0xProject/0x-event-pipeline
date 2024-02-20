@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+
 const createTable = ` create table events_polygon.erc721_order_filled_events
 (
     observed_timestamp bigint not null,

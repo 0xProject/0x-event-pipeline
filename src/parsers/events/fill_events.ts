@@ -1,14 +1,12 @@
-import { assetDataUtils } from '@0x/order-utils';
-import { AssetProxyId } from '@0x/types';
-import { RawLogEntry } from 'ethereum-types';
-
+import { V3_FILL_ABI } from '../../constants';
 import { FillEvent } from '../../entities';
 import { NativeFill } from '../../entities';
 import { convertAssetProxyIdToType } from '../../utils/proxyType';
-import { parseEvent } from './parse_event';
-import { V3_FILL_ABI } from '../../constants';
-
 import { parse0xAssetTokenAddress, parseV30xBridgeAddress } from '../utils/asset_data_utils';
+import { parseEvent } from './parse_event';
+import { assetDataUtils } from '@0x/order-utils';
+import { AssetProxyId } from '@0x/types';
+import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 
@@ -28,7 +26,7 @@ export type ExchangeEvent = FillEvent;
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
 
-export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
+export function parseFillEvent(eventLog: LogEntry): FillEvent {
     const fillEvent = new FillEvent();
     parseEvent(eventLog, fillEvent);
 
@@ -84,7 +82,7 @@ export function parseFillEvent(eventLog: RawLogEntry): FillEvent {
     return fillEvent;
 }
 
-export function parseNativeFillFromFillEvent(eventLog: RawLogEntry): NativeFill {
+export function parseNativeFillFromFillEvent(eventLog: LogEntry): NativeFill {
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
 

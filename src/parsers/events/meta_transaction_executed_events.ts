@@ -1,10 +1,11 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { META_TRANSACTION_EXECUTED_ABI } from '../../constants';
 import { MetaTransactionExecutedEvent } from '../../entities';
 import { parseEvent } from './parse_event';
-import { META_TRANSACTION_EXECUTED_ABI } from '../../constants';
+import { LogEntry } from 'ethereum-types';
 
-export function parseMetaTransactionExecutedEvent(eventLog: RawLogEntry): MetaTransactionExecutedEvent {
+const abiCoder = require('web3-eth-abi');
+
+export function parseMetaTransactionExecutedEvent(eventLog: LogEntry): MetaTransactionExecutedEvent {
     const metaTransactionExecutedEvent = new MetaTransactionExecutedEvent();
 
     parseEvent(eventLog, metaTransactionExecutedEvent);

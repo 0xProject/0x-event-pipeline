@@ -1,5 +1,6 @@
-import { Connection } from 'typeorm';
 import { UniswapV2PairCreatedEvent } from './entities';
+import { logger } from './utils';
+import { Connection } from 'typeorm';
 
 export class UniV2PoolSingleton {
     private static instance: UniV2PoolSingleton;
@@ -26,6 +27,7 @@ export class UniV2PoolSingleton {
     static async initInstance(connection: Connection): Promise<void> {
         if (!UniV2PoolSingleton.instance) {
             UniV2PoolSingleton.instance = new UniV2PoolSingleton();
+            logger.info('Loading Uni V2 and clones Pools to memory');
             const newPools = await connection.getRepository(UniswapV2PairCreatedEvent).find();
             UniV2PoolSingleton.instance.addNewPools(newPools);
         }

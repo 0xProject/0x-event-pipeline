@@ -1,17 +1,11 @@
-import { assetDataUtils } from '@0x/order-utils';
-import { AssetProxyId } from '@0x/types';
-import { RawLogEntry } from 'ethereum-types';
-
-import { SocketBridgeEvent } from '../../entities';
-import { convertAssetProxyIdToType } from '../../utils/proxyType';
-import { parseEvent } from './parse_event';
 import { SOCKET_BRIDGE_ABI } from '../../constants';
-
-import { parse0xAssetTokenAddress, parseV30xBridgeAddress } from '../utils/asset_data_utils';
+import { SocketBridgeEvent } from '../../entities';
+import { parseEvent } from './parse_event';
+import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 
-export function parseSocketBridgeEvent(eventLog: RawLogEntry): SocketBridgeEvent {
+export function parseSocketBridgeEvent(eventLog: LogEntry): SocketBridgeEvent {
     const socketBridgeEvent = new SocketBridgeEvent();
     parseEvent(eventLog, socketBridgeEvent);
 

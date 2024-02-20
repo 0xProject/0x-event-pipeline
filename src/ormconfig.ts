@@ -1,15 +1,10 @@
-import { ConnectionOptions } from 'typeorm';
-
 import { CHAIN_NAME, POSTGRES_URI, SCHEMA, SHOULD_SYNCHRONIZE } from './config';
-
 import {
     Block,
     CancelEvent,
     CancelUpToEvent,
     CurrentEpochInfo,
     ERC20BridgeTransferEvent,
-    UniswapV3SwapEvent,
-    UniswapV3PoolCreatedEvent,
     EpochEndedEvent,
     EpochFinalizedEvent,
     Erc1155OrderCancelledEvent,
@@ -27,6 +22,8 @@ import {
     MetaTransactionExecutedEvent,
     MoveStakeEvent,
     NativeFill,
+    OnchainGovernanceCallScheduledEvent,
+    OnchainGovernanceProposalCreatedEvent,
     OperatorShareDecreasedEvent,
     OtcOrderFilledEvent,
     ParamsSetEvent,
@@ -46,15 +43,16 @@ import {
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
     UniswapV2SyncEvent,
+    UniswapV3PoolCreatedEvent,
+    UniswapV3SwapEvent,
     UnstakeEvent,
+    UnwrapNativeEvent,
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
-    OnchainGovernanceProposalCreatedEvent,
-    OnchainGovernanceCallScheduledEvent,
     WrapNativeEvent,
-    UnwrapNativeEvent,
 } from './entities';
+import { ConnectionOptions } from 'typeorm';
 
 const entities = [
     Block,
@@ -62,8 +60,6 @@ const entities = [
     CancelUpToEvent,
     CurrentEpochInfo,
     ERC20BridgeTransferEvent,
-    UniswapV3SwapEvent,
-    UniswapV3PoolCreatedEvent,
     EpochEndedEvent,
     EpochFinalizedEvent,
     Erc1155OrderCancelledEvent,
@@ -81,6 +77,8 @@ const entities = [
     MetaTransactionExecutedEvent,
     MoveStakeEvent,
     NativeFill,
+    OnchainGovernanceCallScheduledEvent,
+    OnchainGovernanceProposalCreatedEvent,
     OperatorShareDecreasedEvent,
     OtcOrderFilledEvent,
     ParamsSetEvent,
@@ -100,14 +98,14 @@ const entities = [
     TransformedERC20Event,
     UniswapV2PairCreatedEvent,
     UniswapV2SyncEvent,
+    UniswapV3PoolCreatedEvent,
+    UniswapV3SwapEvent,
     UnstakeEvent,
+    UnwrapNativeEvent,
     V4CancelEvent,
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
-    OnchainGovernanceProposalCreatedEvent,
-    OnchainGovernanceCallScheduledEvent,
     WrapNativeEvent,
-    UnwrapNativeEvent,
 ];
 
 const config: ConnectionOptions = {

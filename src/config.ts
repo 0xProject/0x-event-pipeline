@@ -1,5 +1,9 @@
 import {
+    ScraperMode,
+    DEFAULT_RESCRAPE_BLOCKS,
+    DEFAULT_SCRAPER_MODE,
     DEFAULT_BASE_GITHUB_LOGO_URL,
+    DEFAULT_BLOCKS_REORG_CHECK_INCREMENT,
     DEFAULT_BLOCK_FINALITY_THRESHOLD,
     DEFAULT_ENABLE_PROMETHEUS_METRICS,
     DEFAULT_EP_ADDRESS,
@@ -23,6 +27,7 @@ import {
     DEFAULT_FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
     DEFAULT_FEAT_UNISWAP_V3_SWAP_EVENT,
     DEFAULT_FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+    DEFAULT_FEAT_V3_CANCEL_EVENTS,
     DEFAULT_FEAT_V3_FILL_EVENT,
     DEFAULT_FEAT_V3_NATIVE_FILL,
     DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -36,11 +41,11 @@ import {
     DEFAULT_METRICS_PATH,
     DEFAULT_MINUTES_BETWEEN_RUNS,
     DEFAULT_PROMETHEUS_PORT,
-    DEFAULT_RESCRAPE_BLOCKS,
     DEFAULT_STAKING_POOLS_JSON_URL,
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
+    DEFAULT_BLOCK_RECEIPTS_MODE,
+    BLOCK_RECEIPTS_MODE_ENDPOINT,
 } from './constants';
-
 import { logger } from './utils';
 
 const throwError = (err: string) => {
@@ -92,9 +97,9 @@ function bridgeEnvVarToObject(envVar: string): BridgeContract[] {
     return bridgeContracts;
 }
 
-export const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL
-    ? process.env.ETHEREUM_RPC_URL
-    : throwError(`Must specify valid ETHEREUM_RPC_URL. Got: ${process.env.ETHEREUM_RPC_URL}`);
+export const EVM_RPC_URL = process.env.EVM_RPC_URL
+    ? process.env.EVM_RPC_URL
+    : throwError(`Must specify valid EVM_RPC_URL. Got: ${process.env.EVM_RPC_URL}`);
 
 export const EP_DEPLOYMENT_BLOCK = process.env.EP_DEPLOYMENT_BLOCK
     ? parseInt(process.env.EP_DEPLOYMENT_BLOCK, 10)
@@ -109,11 +114,19 @@ export const POSTGRES_URI = process.env.POSTGRES_URI || DEFAULT_LOCAL_POSTGRES_U
 export const SHOULD_SYNCHRONIZE = process.env.SHOULD_SYNCHRONIZE === 'true';
 
 export const ENABLE_PROMETHEUS_METRICS = getBoolConfig('ENABLE_PROMETHEUS_METRICS', DEFAULT_ENABLE_PROMETHEUS_METRICS);
+export const SCRAPER_MODE: ScraperMode =
+    process.env.SCRAPER_MODE === undefined
+        ? DEFAULT_SCRAPER_MODE
+        : process.env.SCRAPER_MODE === 'BLOCKS'
+        ? 'BLOCKS'
+        : process.env.SCRAPER_MODE === 'EVENTS'
+        ? 'EVENTS'
+        : throwError('Wrong SCRAPER_MODE');
 export const METRICS_PATH = process.env.METRICS_PATH || DEFAULT_METRICS_PATH;
 
 export const PROMETHEUS_PORT = getIntConfig('PROMETHEUS_PORT', DEFAULT_PROMETHEUS_PORT);
 
-export const MAX_BLOCKS_REORG = getIntConfig('BLOCKS_REORG', DEFAULT_MAX_BLOCKS_REORG);
+export const MAX_BLOCKS_REORG = getIntConfig('MAX_BLOCKS_REORG', DEFAULT_MAX_BLOCKS_REORG);
 
 export const MAX_BLOCKS_TO_PULL = getIntConfig('MAX_BLOCKS_TO_PULL', DEFAULT_MAX_BLOCKS_TO_PULL);
 
@@ -270,6 +283,7 @@ validateAddress(
 );
 
 export const FEAT_V3_FILL_EVENT = getBoolConfig('FEAT_V3_FILL_EVENT', DEFAULT_FEAT_V3_FILL_EVENT);
+export const FEAT_V3_CANCEL_EVENTS = getBoolConfig('FEAT_V3_CANCEL_EVENTS', DEFAULT_FEAT_V3_CANCEL_EVENTS);
 
 export const FEAT_OTC_ORDERS = getBoolConfig('FEAT_OTC_ORDERS', DEFAULT_FEAT_OTC_ORDERS);
 
@@ -376,8 +390,8 @@ export const TOKENS_FROM_TRANSFERS_START_BLOCK = getIntConfig('TOKENS_FROM_TRANS
 validateStartBlock(
     'TOKENS_FROM_TRANSFERS_START_BLOCK',
     TOKENS_FROM_TRANSFERS_START_BLOCK,
-    'FEAT_TOKENS_FROM_TRANSFERS',
-    FEAT_TOKENS_FROM_TRANSFERS,
+    "FEAT_TOKENS_FROM_TRANSFERS && SCRAPER_MODE !== 'BLOCKS'",
+    FEAT_TOKENS_FROM_TRANSFERS && SCRAPER_MODE !== 'BLOCKS',
 );
 
 export const FEAT_META_TRANSACTION_EXECUTED_EVENT = getBoolConfig(
@@ -448,6 +462,11 @@ validateAddress(
     FEAT_SOCKET_BRIDGE_EVENT,
 );
 
+export const BLOCK_RECEIPTS_MODE = process.env.BLOCK_RECEIPTS_MODE || DEFAULT_BLOCK_RECEIPTS_MODE;
+if (!BLOCK_RECEIPTS_MODE_ENDPOINT.has(BLOCK_RECEIPTS_MODE)) {
+    throwError(`Got invalid BLOCK_RECEIPTS_MODE, options are: ${BLOCK_RECEIPTS_MODE_ENDPOINT.keys()}`);
+}
+
 export const SOCKET_BRIDGE_EVENT_START_BLOCK = getIntConfig('SOCKET_BRIDGE_EVENT_START_BLOCK', -1);
 validateStartBlock(
     'SOCKET_BRIDGE_EVENT_START_BLOCK',
@@ -457,6 +476,11 @@ validateStartBlock(
 );
 
 export const RESCRAPE_BLOCKS = getIntConfig('RESCRAPE_BLOCKS', DEFAULT_RESCRAPE_BLOCKS);
+
+export const BLOCKS_REORG_CHECK_INCREMENT = getIntConfig(
+    'BLOCKS_REORG_CHECK_INCREMENT',
+    DEFAULT_BLOCKS_REORG_CHECK_INCREMENT,
+);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {

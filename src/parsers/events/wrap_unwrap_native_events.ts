@@ -1,13 +1,12 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
-
-import { BigNumber } from '@0x/utils';
-
-import { WrapNativeEvent, UnwrapNativeEvent, Event } from '../../entities';
-import { parseEvent } from './parse_event';
 import { WRAP_NATIVE_ABI, UNWRAP_NATIVE_ABI, TRANSFER_ABI } from '../../constants';
+import { WrapNativeEvent, UnwrapNativeEvent } from '../../entities';
+import { parseEvent } from './parse_event';
+import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
-export function parseWrapNativeEvent(eventLog: RawLogEntry): WrapNativeEvent {
+const abiCoder = require('web3-eth-abi');
+
+export function parseWrapNativeEvent(eventLog: LogEntry): WrapNativeEvent {
     const wrapNativeEvent = new WrapNativeEvent();
 
     parseEvent(eventLog, wrapNativeEvent);
@@ -20,7 +19,7 @@ export function parseWrapNativeEvent(eventLog: RawLogEntry): WrapNativeEvent {
     return wrapNativeEvent;
 }
 
-export function parseUnwrapNativeEvent(eventLog: RawLogEntry): UnwrapNativeEvent {
+export function parseUnwrapNativeEvent(eventLog: LogEntry): UnwrapNativeEvent {
     const unwrapNativeEvent = new UnwrapNativeEvent();
     parseEvent(eventLog, unwrapNativeEvent);
     // decode the basic info
@@ -32,7 +31,7 @@ export function parseUnwrapNativeEvent(eventLog: RawLogEntry): UnwrapNativeEvent
     return unwrapNativeEvent;
 }
 
-export function parseWrapNativeTransferEvent(eventLog: RawLogEntry): WrapNativeEvent {
+export function parseWrapNativeTransferEvent(eventLog: LogEntry): WrapNativeEvent {
     const wrapNativeEvent = new WrapNativeEvent();
 
     parseEvent(eventLog, wrapNativeEvent);
@@ -45,7 +44,7 @@ export function parseWrapNativeTransferEvent(eventLog: RawLogEntry): WrapNativeE
     return wrapNativeEvent;
 }
 
-export function parseUnwrapNativeTransferEvent(eventLog: RawLogEntry): UnwrapNativeEvent {
+export function parseUnwrapNativeTransferEvent(eventLog: LogEntry): UnwrapNativeEvent {
     const unwrapNativeEvent = new UnwrapNativeEvent();
     parseEvent(eventLog, unwrapNativeEvent);
     // decode the basic info

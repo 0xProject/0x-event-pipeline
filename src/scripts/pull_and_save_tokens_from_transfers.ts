@@ -1,22 +1,20 @@
-import { Producer } from 'kafkajs';
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
+import { EVM_RPC_URL, MAX_BLOCKS_TO_SEARCH, TOKENS_FROM_TRANSFERS_START_BLOCK } from '../config';
+import { TRANSFER_EVENT_TOPIC_0 } from '../constants';
 import { LogPullInfo, Web3Source } from '../data_sources/events/web3';
-import { getParseSaveTokensAsync } from './utils/web3_utils';
-import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
-import { RawLog } from 'ethereum-types';
-
-import { ETHEREUM_RPC_URL, MAX_BLOCKS_TO_SEARCH, TOKENS_FROM_TRANSFERS_START_BLOCK } from '../config';
-import { TOKEN_TRANSFER_EVENT_TOPIC } from '../constants';
-
-import { getStartBlockAsync } from './utils/event_abi_utils';
+import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION, SCAN_START_BLOCK, SCAN_END_BLOCK } from '../utils/metrics';
+import { getLastBlockProcessedEntity } from './utils/event_abi_utils';
+import { getStartBlockAsync } from './utils/event_abi_utils';
+import { getParseSaveTokensAsync } from './utils/web3_utils';
+import { web3Factory } from '@0x/dev-utils';
+import { RawLog } from 'ethereum-types';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 export class TokensFromTransfersScraper {
     public async getParseSaveTokensFromTransfersAsync(connection: Connection, producer: Producer): Promise<void> {
@@ -59,10 +57,10 @@ export class TokensFromTransfersScraper {
         SCAN_END_BLOCK.labels({ type: 'token-scraping', event: eventName }).set(endBlockNumber);
 
         const logPullInfo: LogPullInfo = {
-            address: 'nofilter',
+            address: null,
             fromBlock: startBlockNumber,
             toBlock: endBlockNumber,
-            topics: TOKEN_TRANSFER_EVENT_TOPIC,
+            topics: [TRANSFER_EVENT_TOPIC_0],
         };
 
         const rawLogsArray = await web3Source.getBatchLogInfoForContractsAsync([logPullInfo]);

@@ -1,6 +1,6 @@
+import { BASE_GITHUB_LOGO_URL } from '../../config';
 import { MetadataResponse, PoolMetadataResponse, Pools } from '../../data_sources/staking-pool-registry';
 import { StakingPoolMetadata } from '../../entities';
-import { BASE_GITHUB_LOGO_URL } from '../../config';
 
 // params
 const baseGithubLogoUrl = BASE_GITHUB_LOGO_URL;

@@ -1,8 +1,7 @@
-import { Column, Entity } from 'typeorm';
-import { BigNumber } from '@0x/utils';
-
-import { Event } from './event';
 import { bigNumberTransformer } from '../transformers';
+import { Event } from './event';
+import { BigNumber } from '@0x/utils';
+import { Column, Entity } from 'typeorm';
 
 // These events come directly from the Exchange contract and are fired for meta transactions
 @Entity({ name: 'expired_rfq_order_events' })

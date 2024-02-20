@@ -1,8 +1,12 @@
+import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
+import { TokenMetadata, TokenRegistry } from './entities';
+import { kafkaSendAsync } from './utils';
+import { logger } from './utils';
+import { SAVED_RESULTS } from './utils/metrics';
 import { Producer } from 'kafkajs';
 import { Connection } from 'typeorm';
-import { TokenMetadata, TokenRegistry } from './entities';
-import { CHAIN_ID, CHAIN_NAME_LOWER } from './config';
-import { kafkaSendAsync } from './utils';
+
+const MAX_INITIAL_TOKENS = 10000;
 
 export class TokenMetadataSingleton {
     private static instance: TokenMetadataSingleton;
@@ -15,6 +19,7 @@ export class TokenMetadataSingleton {
     static async getInstance(connection: Connection, producer: Producer | null): Promise<TokenMetadataSingleton> {
         if (!TokenMetadataSingleton.instance) {
             TokenMetadataSingleton.instance = new TokenMetadataSingleton();
+            logger.info(`Loading the top ${MAX_INITIAL_TOKENS} tokens to memory`);
             const tmp = await connection
                 .getRepository(TokenMetadata)
                 .createQueryBuilder('token_metadata')
@@ -28,7 +33,7 @@ export class TokenMetadataSingleton {
                 ])
                 .where('token_registry.chainId = :chainId', { chainId: CHAIN_ID.toString() })
                 .orderBy('token_registry.tokenListsRank', 'DESC')
-                .limit(10000) // Do not get all tokens, they don't fit in memory
+                .limit(MAX_INITIAL_TOKENS) // Do not get all tokens, they don't fit in memory
                 .getMany();
             TokenMetadataSingleton.instance.tokens = tmp.map((token) => token.address);
             kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v1`, ['address'], tmp);
@@ -41,16 +46,22 @@ export class TokenMetadataSingleton {
 
     async saveNewTokenMetadata(
         connection: Connection,
-        producer: Producer,
+        producer: Producer | null,
         newTokenMetadata: TokenMetadata[],
     ): Promise<void> {
-        const queryRunner = connection.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.manager.upsert(TokenMetadata, newTokenMetadata, ['address']);
-        await queryRunner.release();
+        await connection
+            .getRepository(TokenMetadata)
+            .createQueryBuilder('token_metadata')
+            .insert()
+            .into(TokenMetadata)
+            .values(newTokenMetadata)
+            .orIgnore() // "ON CONFLICT DO NOTHING"
+            .execute();
 
         this.tokens = this.tokens.concat(newTokenMetadata.map((token) => token.address));
 
+        // Does not exclude "ignored" tokens
+        SAVED_RESULTS.labels({ type: 'tokens' }).inc(newTokenMetadata.length);
         kafkaSendAsync(producer, `event-scraper.${CHAIN_NAME_LOWER}.tokens-metadata.v0`, ['address'], newTokenMetadata);
     }
 }

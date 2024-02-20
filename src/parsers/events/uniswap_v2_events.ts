@@ -1,14 +1,14 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
-import { logger } from '../../utils/logger';
-import { ERC20BridgeTransferEvent, UniswapV2PairCreatedEvent, UniswapV2SyncEvent } from '../../entities';
-
-import { parseEvent } from './parse_event';
 import { UNISWAP_V2_SWAP_ABI, UNISWAP_V2_SYNC_ABI, UNISWAP_V2_PAIR_CREATED_ABI } from '../../constants';
-import { BigNumber } from '@0x/utils';
+import { ERC20BridgeTransferEvent, UniswapV2PairCreatedEvent, UniswapV2SyncEvent } from '../../entities';
 import { UniV2PoolSingleton } from '../../uniV2PoolSingleton';
+import { logger } from '../../utils/logger';
+import { parseEvent } from './parse_event';
+import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
-export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTransferEvent | null {
+const abiCoder = require('web3-eth-abi');
+
+export function parseUniswapV2SwapEvent(eventLog: LogEntry): ERC20BridgeTransferEvent | null {
     const eRC20BridgeTransferEvent = new ERC20BridgeTransferEvent();
     parseEvent(eventLog, eRC20BridgeTransferEvent);
     // decode the basic info directly into eRC20BridgeTransferEvent
@@ -53,7 +53,7 @@ export function parseUniswapV2SwapEvent(eventLog: RawLogEntry): ERC20BridgeTrans
     return eRC20BridgeTransferEvent;
 }
 
-export function parseUniswapV2PairCreatedEvent(eventLog: RawLogEntry, protocol: string): UniswapV2PairCreatedEvent {
+export function parseUniswapV2PairCreatedEvent(eventLog: LogEntry, protocol: string): UniswapV2PairCreatedEvent {
     const pairCreated = new UniswapV2PairCreatedEvent();
     parseEvent(eventLog, pairCreated);
     const decodedLog = abiCoder.decodeLog(UNISWAP_V2_PAIR_CREATED_ABI.inputs, eventLog.data, [
@@ -70,7 +70,7 @@ export function parseUniswapV2PairCreatedEvent(eventLog: RawLogEntry, protocol: 
     return pairCreated;
 }
 
-export function parseUniswapV2SyncEvent(eventLog: RawLogEntry): UniswapV2SyncEvent {
+export function parseUniswapV2SyncEvent(eventLog: LogEntry): UniswapV2SyncEvent {
     const sync = new UniswapV2SyncEvent();
     parseEvent(eventLog, sync);
     const decodedLog = abiCoder.decodeLog(UNISWAP_V2_SYNC_ABI.inputs, eventLog.data, []);

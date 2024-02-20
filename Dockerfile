@@ -1,12 +1,12 @@
 # Stage 1 - Build
 #
-FROM node:16-alpine as build
+FROM node:18-alpine as build
 WORKDIR /usr/src/app
 
 RUN apk add --update --no-cache \
     git \
     python3 \
-    make 
+    make
 
 COPY package.json tsconfig.json yarn.lock ./
 RUN yarn install --frozen-lockfile --no-cache
@@ -20,7 +20,7 @@ RUN yarn build
 
 # Stage 2 - Runner
 #
-FROM node:16-alpine
+FROM node:18-alpine
 WORKDIR /usr/src/app
 
 COPY package.json tsconfig.json yarn.lock ./

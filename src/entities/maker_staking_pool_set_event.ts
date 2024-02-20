@@ -1,6 +1,5 @@
-import { Column, Entity } from 'typeorm';
-
 import { Event } from './event';
+import { Column, Entity } from 'typeorm';
 
 // Event emitted by MixinStake when a pool starts earning rewards in an epoch.
 @Entity({ name: 'maker_staking_pool_set_events' })

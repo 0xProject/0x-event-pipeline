@@ -1,8 +1,7 @@
+import { bigNumberTransformer } from '../transformers/big_number';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
-import { bigNumberTransformer } from '../transformers/big_number';
 
 // Event emitted by MixinStake when ZRX is unstaked.
 @Entity({ name: 'unstake_events' })

@@ -1,8 +1,25 @@
 import { CHAIN_NAME, METRICS_PATH, PROMETHEUS_PORT } from '../config';
-
-import express from 'express';
 import { logger } from './logger';
-import { Gauge, register } from 'prom-client';
+import express from 'express';
+import { Counter, Gauge, register } from 'prom-client';
+
+export const CURRENT_BLOCK = new Gauge({
+    name: 'event_scraper_current_block',
+    help: 'The current head of the chain',
+    labelNames: ['chain'],
+});
+
+export const LATEST_SCRAPED_BLOCK = new Gauge({
+    name: 'event_scraper_latest_scraped_block',
+    help: 'The latest scraped block',
+    labelNames: ['chain'],
+});
+
+export const LATEST_SCRAPED_BLOCK_DELAY = new Gauge({
+    name: 'event_scraper_latest_scraped_block_delay',
+    help: "The difference of the latest scraped block's timestamp and the current timestamp",
+    labelNames: ['chain'],
+});
 
 export const SCRIPT_RUN_DURATION = new Gauge({
     name: 'event_scraper_script_run_duration',
@@ -26,6 +43,12 @@ export const SCAN_RESULTS = new Gauge({
     name: 'event_scraper_scan_results',
     help: 'The count of how many entities are going to be saved to DB',
     labelNames: ['type', 'event', 'includeBridgeTrades'],
+});
+
+export const SAVED_RESULTS = new Counter({
+    name: 'event_scraper_saved_results',
+    help: 'The count of how many results are going to be saved to DB',
+    labelNames: ['type', 'event'],
 });
 
 export const RPC_LOGS_ERROR = new Gauge({

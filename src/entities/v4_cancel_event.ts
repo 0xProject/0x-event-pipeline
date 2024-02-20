@@ -1,6 +1,5 @@
-import { Column, Entity } from 'typeorm';
-
 import { Event } from './event';
+import { Column, Entity } from 'typeorm';
 
 // These events come directly from the Exchange contract and are fired for meta transactions
 @Entity({ name: 'v4_cancel_events' })

@@ -1,19 +1,16 @@
-import { Producer } from 'kafkajs';
-import { web3Factory } from '@0x/dev-utils';
-import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
-import { getParseSaveTokensAsync } from './utils/web3_utils';
-
-import { ETHEREUM_RPC_URL, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../config';
-
-import { SCRIPT_RUN_DURATION } from '../utils/metrics';
-
+import { EVM_RPC_URL, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../config';
 import { Web3Source } from '../data_sources/events/web3';
+import { logger } from '../utils/logger';
+import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { getParseSaveTokensAsync } from './utils/web3_utils';
+import { web3Factory } from '@0x/dev-utils';
+import { Producer } from 'kafkajs';
+import { Connection } from 'typeorm';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 export class TokensFromBackfill {
     public async getParseSaveTokensFromBackfillAsync(connection: Connection, producer: Producer): Promise<void> {

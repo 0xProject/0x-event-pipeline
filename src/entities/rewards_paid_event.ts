@@ -1,8 +1,7 @@
-import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
 import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers/big_number';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
+import { Column, Entity } from 'typeorm';
 
 // Event emitted by MixinFinalizer when rewards are paid out to a pool.
 @Entity({ name: 'rewards_paid_events' })

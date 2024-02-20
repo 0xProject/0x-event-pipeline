@@ -1,5 +1,11 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import {
+    ERC1155_ORDER_CANCELLED_ABI,
+    ERC1155_ORDER_FILLED_ABI,
+    ERC1155_ORDER_PRESIGNED_ABI,
+    ERC721_ORDER_CANCELLED_ABI,
+    ERC721_ORDER_FILLED_ABI,
+    ERC721_ORDER_PRESIGNED_ABI,
+} from '../../constants';
 import {
     Erc1155OrderCancelledEvent,
     Erc1155OrderFilledEvent,
@@ -9,17 +15,12 @@ import {
     Erc721OrderPresignedEvent,
 } from '../../entities';
 import { parseEvent } from './parse_event';
-import {
-    ERC1155_ORDER_CANCELLED_ABI,
-    ERC1155_ORDER_FILLED_ABI,
-    ERC1155_ORDER_PRESIGNED_ABI,
-    ERC721_ORDER_CANCELLED_ABI,
-    ERC721_ORDER_FILLED_ABI,
-    ERC721_ORDER_PRESIGNED_ABI,
-} from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
-export function parseErc721OrderFilledEvent(eventLog: RawLogEntry): Erc721OrderFilledEvent {
+const abiCoder = require('web3-eth-abi');
+
+export function parseErc721OrderFilledEvent(eventLog: LogEntry): Erc721OrderFilledEvent {
     const parsedEvent = new Erc721OrderFilledEvent();
 
     parseEvent(eventLog, parsedEvent);
@@ -51,7 +52,7 @@ export function parseErc721OrderFilledEvent(eventLog: RawLogEntry): Erc721OrderF
     return parsedEvent;
 }
 
-export function parseErc721OrderCancelledEvent(eventLog: RawLogEntry): Erc721OrderCancelledEvent {
+export function parseErc721OrderCancelledEvent(eventLog: LogEntry): Erc721OrderCancelledEvent {
     const parsedEvent = new Erc721OrderCancelledEvent();
 
     parseEvent(eventLog, parsedEvent);
@@ -66,7 +67,7 @@ export function parseErc721OrderCancelledEvent(eventLog: RawLogEntry): Erc721Ord
     return parsedEvent;
 }
 
-export function parseErc721OrderPresignedEvent(eventLog: RawLogEntry): Erc721OrderPresignedEvent {
+export function parseErc721OrderPresignedEvent(eventLog: LogEntry): Erc721OrderPresignedEvent {
     const parsedEvent = new Erc721OrderPresignedEvent();
 
     parseEvent(eventLog, parsedEvent);
@@ -99,7 +100,7 @@ export function parseErc721OrderPresignedEvent(eventLog: RawLogEntry): Erc721Ord
     return parsedEvent;
 }
 
-export function parseErc1155OrderFilledEvent(eventLog: RawLogEntry): Erc1155OrderFilledEvent {
+export function parseErc1155OrderFilledEvent(eventLog: LogEntry): Erc1155OrderFilledEvent {
     const parsedEvent = new Erc1155OrderFilledEvent();
 
     parseEvent(eventLog, parsedEvent);
@@ -132,7 +133,7 @@ export function parseErc1155OrderFilledEvent(eventLog: RawLogEntry): Erc1155Orde
     return parsedEvent;
 }
 
-export function parseErc1155OrderCancelledEvent(eventLog: RawLogEntry): Erc1155OrderCancelledEvent {
+export function parseErc1155OrderCancelledEvent(eventLog: LogEntry): Erc1155OrderCancelledEvent {
     const parsedEvent = new Erc1155OrderCancelledEvent();
 
     parseEvent(eventLog, parsedEvent);
@@ -147,7 +148,7 @@ export function parseErc1155OrderCancelledEvent(eventLog: RawLogEntry): Erc1155O
     return parsedEvent;
 }
 
-export function parseErc1155OrderPresignedEvent(eventLog: RawLogEntry): Erc1155OrderPresignedEvent {
+export function parseErc1155OrderPresignedEvent(eventLog: LogEntry): Erc1155OrderPresignedEvent {
     const parsedEvent = new Erc1155OrderPresignedEvent();
 
     parseEvent(eventLog, parsedEvent);

@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+
 const createTable = ` create table events_polygon.log_transfer_events
 (
     observed_timestamp bigint not null,

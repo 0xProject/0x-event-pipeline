@@ -1,10 +1,9 @@
-import { RawLogEntry } from 'ethereum-types';
-import { BigNumber } from '@0x/utils';
-
-import { OtcOrderFilledEvent } from '../../entities';
-import { parseEvent } from './parse_event';
 import { OTC_ORDER_FILLED_ABI } from '../../constants';
+import { OtcOrderFilledEvent } from '../../entities';
 import { NativeFill } from '../../entities';
+import { parseEvent } from './parse_event';
+import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 
@@ -14,7 +13,7 @@ const abiCoder = require('web3-eth-abi');
  * @param eventLog Raw event log (e.g. returned from contract-wrappers).
  */
 
-export function parseOtcOrderFilledEvent(eventLog: RawLogEntry): OtcOrderFilledEvent {
+export function parseOtcOrderFilledEvent(eventLog: LogEntry): OtcOrderFilledEvent {
     const otcOrderFillEvent = new OtcOrderFilledEvent();
     parseEvent(eventLog, otcOrderFillEvent);
 
@@ -35,7 +34,7 @@ export function parseOtcOrderFilledEvent(eventLog: RawLogEntry): OtcOrderFilledE
     return otcOrderFillEvent;
 }
 
-export function parseNativeFillFromV4OtcOrderFilledEvent(eventLog: RawLogEntry): NativeFill {
+export function parseNativeFillFromV4OtcOrderFilledEvent(eventLog: LogEntry): NativeFill {
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
     // decode the basic info directly into nativeFill

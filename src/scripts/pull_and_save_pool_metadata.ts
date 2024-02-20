@@ -1,12 +1,10 @@
-import { logger } from '../utils/logger';
-import { Connection } from 'typeorm';
-
-import { StakingPoolRegistrySource } from '../data_sources/staking-pool-registry';
-import { parsePools } from '../parsers/staking-pool-registry';
-import { StakingPoolMetadata } from '../entities';
-
 import { CHAIN_ID, STAKING_POOLS_JSON_URL, STAKING_POOLS_METADATA_JSON_URL } from '../config';
+import { StakingPoolRegistrySource } from '../data_sources/staking-pool-registry';
+import { StakingPoolMetadata } from '../entities';
+import { parsePools } from '../parsers/staking-pool-registry';
+import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { Connection } from 'typeorm';
 
 const stakingPoolsUrl = STAKING_POOLS_JSON_URL;
 const poolMetadataUrl = STAKING_POOLS_METADATA_JSON_URL;

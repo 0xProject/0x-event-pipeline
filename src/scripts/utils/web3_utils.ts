@@ -1,17 +1,3 @@
-import { Producer } from 'kafkajs';
-import { BigNumber } from '@0x/utils';
-import { hexToUtf8 } from 'web3-utils';
-import { chunk, kafkaSendRawAsync, logger } from '../../utils';
-import { Connection, InsertResult } from 'typeorm';
-import { Block, TokenMetadata, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
-import {
-    parseBlock,
-    parseTransaction,
-    parseTransactionLogs,
-    parseTransactionReceipt,
-} from '../../parsers/web3/parse_web3_objects';
-import { Web3Source } from '../../data_sources/events/web3';
-
 import {
     CHAIN_NAME_LOWER,
     FEAT_NFT,
@@ -21,13 +7,23 @@ import {
     MAX_TX_TO_PULL,
     SCHEMA,
 } from '../../config';
-
 import { ERC165_ERC1155_INTERFACE, ERC165_ERC721_INTERFACE, ERC165_SUPPORTS_INTERFACE_SELECTOR } from '../../constants';
-
-import { Gauge } from 'prom-client';
-import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
-
+import { Web3Source } from '../../data_sources/events/web3';
+import { Block, TokenMetadata, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
+import {
+    parseBlock,
+    parseTransaction,
+    parseTransactionLogs,
+    parseTransactionReceipt,
+} from '../../parsers/web3/parse_web3_objects';
 import { TokenMetadataSingleton } from '../../tokenMetadataSingleton';
+import { chunk, kafkaSendRawAsync, logger } from '../../utils';
+import { SCAN_END_BLOCK, SCAN_RESULTS, SCAN_START_BLOCK } from '../../utils/metrics';
+import { BigNumber } from '@0x/utils';
+import { Producer } from 'kafkajs';
+import { Gauge } from 'prom-client';
+import { Connection, InsertResult } from 'typeorm';
+import { hexToUtf8 } from 'web3-utils';
 
 export type TokenMetadataMap = {
     tokenA: string;
@@ -75,7 +71,7 @@ export class PullAndSaveWeb3 {
         SCAN_END_BLOCK.labels({ type: 'blocks' }).set(endBlock);
 
         logger.info(`Grabbing blocks between ${startBlock} and ${endBlock}`);
-        const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock);
+        const rawBlocks = await this._web3source.getBatchBlockInfoForRangeAsync(startBlock, endBlock, false);
         logger.debug('rawBlocks:');
         rawBlocks.map((rawBlock) => logger.debug(rawBlock));
 
@@ -443,7 +439,7 @@ export function extractTokensFromLogs(logs: any, tokenMetadataMap: TokenMetadata
 
 export async function getParseSaveTokensAsync(
     connection: Connection,
-    producer: Producer,
+    producer: Producer | null,
     web3Source: Web3Source,
     tokens: string[],
 ): Promise<number> {
@@ -639,7 +635,7 @@ export async function getParseTxsAsync(web3Source: Web3Source, hashes: string[])
 
 export async function getParseSaveTxAsync(
     connection: Connection,
-    producer: Producer,
+    producer: Producer | null,
     web3Source: Web3Source,
     hashes: string[],
 ): Promise<void> {

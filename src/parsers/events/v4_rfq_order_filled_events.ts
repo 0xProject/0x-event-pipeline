@@ -1,13 +1,13 @@
-const abiCoder = require('web3-eth-abi');
-import { RawLogEntry } from 'ethereum-types';
+import { RFQ_ORDER_FILLED_ABI } from '../../constants';
 import { V4RfqOrderFilledEvent } from '../../entities';
 import { NativeFill } from '../../entities';
-
 import { parseEvent } from './parse_event';
-import { RFQ_ORDER_FILLED_ABI } from '../../constants';
 import { BigNumber } from '@0x/utils';
+import { LogEntry } from 'ethereum-types';
 
-export function parseV4RfqOrderFilledEvent(eventLog: RawLogEntry): V4RfqOrderFilledEvent {
+const abiCoder = require('web3-eth-abi');
+
+export function parseV4RfqOrderFilledEvent(eventLog: LogEntry): V4RfqOrderFilledEvent {
     const rfqOrderFilledEvent = new V4RfqOrderFilledEvent();
     parseEvent(eventLog, rfqOrderFilledEvent);
     // decode the basic info directly into rfqOrderFilledEvent
@@ -32,7 +32,7 @@ export function parseV4RfqOrderFilledEvent(eventLog: RawLogEntry): V4RfqOrderFil
     return rfqOrderFilledEvent;
 }
 
-export function parseNativeFillFromV4RfqOrderFilledEvent(eventLog: RawLogEntry): NativeFill {
+export function parseNativeFillFromV4RfqOrderFilledEvent(eventLog: LogEntry): NativeFill {
     const nativeFill = new NativeFill();
     parseEvent(eventLog, nativeFill);
     // decode the basic info directly into nativeFill

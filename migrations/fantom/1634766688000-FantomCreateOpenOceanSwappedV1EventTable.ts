@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+
 const createTable = `CREATE TABLE events_fantom.open_ocean_swapped_v1_events
 (
     observed_timestamp bigint not null,

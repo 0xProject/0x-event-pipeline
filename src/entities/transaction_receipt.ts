@@ -1,7 +1,6 @@
+import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-
-import { bigNumberTransformer, numberToBigIntTransformer } from '../transformers';
 
 // Transaction Receipt info for TX containing events
 @Entity({ name: 'transaction_receipts' })

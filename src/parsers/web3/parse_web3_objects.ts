@@ -1,20 +1,17 @@
-import { BigNumber } from '@0x/utils';
-import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
-import { BlockWithoutTransactionData, TransactionReceipt as RawReceipt, Transaction as RawTx } from 'ethereum-types';
 import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
+import {
+    BlockWithoutTransactionData,
+    TransactionReceipt as RawReceipt,
+    Transaction as EVMTransaction,
+} from '../../data_sources/events/web3';
+import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
+import { BigNumber } from '@0x/utils';
 
-export interface RawTx1559 extends RawTx {
-    type: number;
-}
-
-export interface BlockWithoutTransactionData1559 extends BlockWithoutTransactionData {
-    baseFeePerGas: number;
-}
 /**
  * Converts a raw tx into a Transaction entity
  * @param rawTx Raw transaction returned from JSON RPC
  */
-export function parseTransaction(rawTx: RawTx1559): Transaction {
+export function parseTransaction(rawTx: EVMTransaction): Transaction {
     const transaction = new Transaction();
 
     transaction.observedTimestamp = new Date().getTime();
@@ -96,7 +93,7 @@ export function parseTransactionLogs(rawReceipt: RawReceipt): TransactionLogs {
  * Converts a raw block into a Block entity
  * @param rawBlock Raw block without transaction info returned from JSON RPC
  */
-export function parseBlock(rawBlock: BlockWithoutTransactionData1559): Block {
+export function parseBlock(rawBlock: BlockWithoutTransactionData): Block {
     const parsedBlock = new Block();
 
     parsedBlock.observedTimestamp = new Date().getTime();

@@ -1,19 +1,17 @@
-import { web3Factory } from '@0x/dev-utils';
-import { Transaction, TransactionLogs, TransactionReceipt } from '../entities';
+import { EVM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
+import { Web3Source } from '../data_sources/events/web3';
+import { Transaction, TransactionReceipt } from '../entities';
 import { chunk, logger } from '../utils';
+import { SCAN_RESULTS, SCRIPT_RUN_DURATION } from '../utils/metrics';
+import { getParseTxsAsync } from './utils/web3_utils';
+import { web3Factory } from '@0x/dev-utils';
 import { Connection } from 'typeorm';
 
-import { getParseTxsAsync } from './utils/web3_utils';
-import { Web3Source } from '../data_sources/events/web3';
-import { ETHEREUM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
-
-import { SCAN_RESULTS, SCRIPT_RUN_DURATION } from '../utils/metrics';
-
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
+    rpcUrl: EVM_RPC_URL,
 });
 
-const web3Source = new Web3Source(provider, ETHEREUM_RPC_URL);
+const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
 // We changed the way tx data is scraped, previously it was paralell to events, now it is secuential.
 // This Scraper should be used to get the missing Tx data during the transition. It expects the table backfil_tx to be filled with:
@@ -23,7 +21,11 @@ export class BackfillTxScraper {
         logger.info(`pulling tx backlog`);
 
         const queryResult = await connection.query(
-            `SELECT transaction_hash FROM ${SCHEMA}.tx_backfill LIMIT ${MAX_TX_TO_PULL}`,
+            `SELECT transaction_hash
+             FROM ${SCHEMA}.tx_backfill
+             WHERE done = FALSE
+             ORDER BY block_number
+             LIMIT ${MAX_TX_TO_PULL}`,
         );
 
         const txList = queryResult.map((e: { transaction_hash: string }) => e.transaction_hash);
@@ -36,7 +38,10 @@ export class BackfillTxScraper {
             const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
             const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
             // const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
-            const txBacklogQuery = `DELETE FROM ${SCHEMA}.tx_backfill WHERE transaction_hash IN (${txHashList});`;
+            const txBacklogQuery = `
+              UPDATE ${SCHEMA}.tx_backfill
+              SET done = true
+              WHERE transaction_hash IN (${txHashList})`;
 
             const queryRunner = connection.createQueryRunner();
             await queryRunner.connect();

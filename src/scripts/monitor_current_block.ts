@@ -1,18 +1,11 @@
-import { Web3Wrapper } from '@0x/web3-wrapper';
-import { web3Factory } from '@0x/dev-utils';
+import { CHAIN_NAME, EVM_RPC_URL } from '../config';
 import { logger } from '../utils/logger';
-import { Gauge } from 'prom-client';
-
-import { CHAIN_NAME, ETHEREUM_RPC_URL } from '../config';
+import { CURRENT_BLOCK } from '../utils/metrics';
+import { web3Factory } from '@0x/dev-utils';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 
 const provider = web3Factory.getRpcProvider({
-    rpcUrl: ETHEREUM_RPC_URL,
-});
-
-export const CURRENT_BLOCK = new Gauge({
-    name: 'event_scraper_current_block',
-    help: 'The current head of the chain',
-    labelNames: ['chain'],
+    rpcUrl: EVM_RPC_URL,
 });
 
 export class CurrentBlockMonitor {

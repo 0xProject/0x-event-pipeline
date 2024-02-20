@@ -1,8 +1,7 @@
+import { bigNumberTransformer } from '../transformers';
+import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
-
-import { Event } from './event';
-import { bigNumberTransformer } from '../transformers';
 
 @Entity({ name: 'erc1155_order_presigned_events' })
 export class Erc1155OrderPresignedEvent extends Event {

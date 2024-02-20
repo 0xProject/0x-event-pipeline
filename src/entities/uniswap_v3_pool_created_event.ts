@@ -1,6 +1,5 @@
-import { Column, Entity } from 'typeorm';
-
 import { Event } from './event';
+import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'uniswap_v3_pool_created_events' })
 export class UniswapV3PoolCreatedEvent extends Event {
