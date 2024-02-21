@@ -24,6 +24,7 @@ export interface BlockWithTransactionData extends BlockWithTransactionDataOld {
 
 export interface TransactionReceipt extends TransactionReceiptOld {
     effectiveGasPrice: BigNumber;
+    gasFeesL1: BigNumber | undefined; //OP Stack
 }
 
 export const outputTransactionReceiptFormatter = function (receipt: any): TransactionReceipt {
@@ -37,6 +38,9 @@ export const outputTransactionReceiptFormatter = function (receipt: any): Transa
     receipt.gasUsed = utils.hexToNumber(receipt.gasUsed);
     if (receipt.effectiveGasPrice) {
         receipt.effectiveGasPrice = new BigNumber(receipt.effectiveGasPrice);
+    }
+    if (receipt.l1Fee) {
+        receipt.gasFeesL1 = new BigNumber(receipt.l1Fee);
     }
     if (Array.isArray(receipt.logs)) {
         receipt.logs = receipt.logs.map(formatter.outputLogFormatter);
