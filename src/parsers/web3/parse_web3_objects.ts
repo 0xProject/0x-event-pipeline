@@ -8,7 +8,12 @@ import {
 import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { BigNumber } from '@0x/utils';
 
-function isCoinbaseShortZidTransaction(blockNumber: Number): Boolean {
+function isCoinbaseShortZidTransaction(blockNumber: Number, affiliateAddress: String): Boolean {
+    // Coinbase's affiliateAddress used during this period
+    if (affiliateAddress !== '0x382ffce2287252f930e1c8dc9328dac5bf282ba1') {
+        return false;
+    }
+
     switch (CHAIN_ID) {
         case 1: // Ethereum
             return blockNumber >= 19764710 && blockNumber <= 19790423;
@@ -56,7 +61,10 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
         const bytesPos = rawTx.input.indexOf(ZEROEX_API_AFFILIATE_SELECTOR);
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         const quoteId = rawTx.input.slice(bytesPos + 104, bytesPos + 136);
-        if (quoteId.slice(0, 14) === '00000000000000' && !isCoinbaseShortZidTransaction(transaction.blockNumber)) {
+        if (
+            quoteId.slice(0, 14) === '00000000000000' &&
+            !isCoinbaseShortZidTransaction(transaction.blockNumber, transaction.affiliateAddress)
+        ) {
             // Pre ZID QR ID
             // Excludes short-zid incident (2024-04-30 - 2024-05-04)
             const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
