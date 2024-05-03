@@ -1,6 +1,4 @@
-import {
-    CHAIN_ID
-} from '../../config';
+import { CHAIN_ID } from '../../config';
 import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
 import {
     BlockWithoutTransactionData,
@@ -10,23 +8,22 @@ import {
 import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { BigNumber } from '@0x/utils';
 
-
 function isCoinbaseShortZidTransaction(blockNumber: Number): Boolean {
     switch (CHAIN_ID) {
-    case 1: // Ethereum
-        return blockNumber >= 19764710 && blockNumber <= 19790423;
-    case 10: // Optimism
-        return blockNumber >= 119425202 && blockNumber <= 119573152;
-    case 56: // BSC
-        return blockNumber >= 38300237 && blockNumber <= 38401538;
-    case 137: // Polygon
-        return blockNumber >= 56403824 && blockNumber <= 56533849;
-    case 8453: // Base
-        return blockNumber >= 13824760 && blockNumber <= 13980098;
-    case 42161: // Arbitrum
-        return blockNumber >= 206219946 && blockNumber <= 207442546;
-    case 43114: // Avalanche
-        return blockNumber >= 44854448 && blockNumber <= 44963247;
+        case 1: // Ethereum
+            return blockNumber >= 19764710 && blockNumber <= 19790423;
+        case 10: // Optimism
+            return blockNumber >= 119425202 && blockNumber <= 119573152;
+        case 56: // BSC
+            return blockNumber >= 38300237 && blockNumber <= 38401538;
+        case 137: // Polygon
+            return blockNumber >= 56403824 && blockNumber <= 56533849;
+        case 8453: // Base
+            return blockNumber >= 13824760 && blockNumber <= 13980098;
+        case 42161: // Arbitrum
+            return blockNumber >= 206219946 && blockNumber <= 207442546;
+        case 43114: // Avalanche
+            return blockNumber >= 44854448 && blockNumber <= 44963247;
     }
     return false;
 }
