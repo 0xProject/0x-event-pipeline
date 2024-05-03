@@ -1,3 +1,6 @@
+import {
+    CHAIN_ID
+} from '../../config';
 import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
 import {
     BlockWithoutTransactionData,
@@ -6,6 +9,27 @@ import {
 } from '../../data_sources/events/web3';
 import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { BigNumber } from '@0x/utils';
+
+
+function isCoinbaseShortZidTransaction(blockNumber: Number): Boolean {
+    switch (CHAIN_ID) {
+    case 1: // Ethereum
+        return blockNumber >= 19764710 && blockNumber <= 19790423;
+    case 10: // Optimism
+        return blockNumber >= 119425202 && blockNumber <= 119573152;
+    case 56: // BSC
+        return blockNumber >= 38300237 && blockNumber <= 38401538;
+    case 137: // Polygon
+        return blockNumber >= 56403824 && blockNumber <= 56533849;
+    case 8453: // Base
+        return blockNumber >= 13824760 && blockNumber <= 13980098;
+    case 42161: // Arbitrum
+        return blockNumber >= 206219946 && blockNumber <= 207442546;
+    case 43114: // Avalanche
+        return blockNumber >= 44854448 && blockNumber <= 44963247;
+    }
+    return false;
+}
 
 /**
  * Converts a raw tx into a Transaction entity
@@ -35,7 +59,7 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
         const bytesPos = rawTx.input.indexOf(ZEROEX_API_AFFILIATE_SELECTOR);
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         const quoteId = rawTx.input.slice(bytesPos + 104, bytesPos + 136);
-        if (quoteId.slice(0, 14) === '00000000000000' && quoteId.slice(0, 16) !== '0000000000000000') {
+        if (quoteId.slice(0, 14) === '00000000000000' && !isCoinbaseShortZidTransaction(transaction.blockNumber)) {
             // Pre ZID QR ID
             // Excludes short-zid incident (2024-04-30 - 2024-05-04)
             const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
