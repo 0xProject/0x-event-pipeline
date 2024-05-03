@@ -35,8 +35,9 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
         const bytesPos = rawTx.input.indexOf(ZEROEX_API_AFFILIATE_SELECTOR);
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         const quoteId = rawTx.input.slice(bytesPos + 104, bytesPos + 136);
-        if (quoteId.slice(0, 14) === '00000000000000') {
+        if (quoteId.slice(0, 14) === '00000000000000' && quoteId.slice(0, 16) !== '0000000000000000') {
             // Pre ZID QR ID
+            // Excludes short-zid incident (2024-04-30 - 2024-05-04)
             const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
             transaction.quoteTimestamp = isNaN(parsedQuoteTimestamp) ? null : parsedQuoteTimestamp;
             transaction.quoteId = rawTx.input.slice(bytesPos + 118, bytesPos + 128);
