@@ -11,7 +11,6 @@ RUN apk add --update --no-cache \
 COPY package.json tsconfig.json yarn.lock ./
 RUN yarn install --frozen-lockfile --no-cache
 
-COPY migrations migrations
 COPY src src
 
 #Start
@@ -36,4 +35,4 @@ COPY --from=build /usr/src/app/lib ./lib/
 
 # Start
 #
-CMD [ "yarn", "migrate_and_start" ]
+CMD [ "yarn", "start" ]
