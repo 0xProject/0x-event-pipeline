@@ -33,9 +33,10 @@ services:
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            SCRAPER_MODE: 'BLOCKS'
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
+            MAX_BLOCKS_TO_PULL: 100
             MAX_TX_TO_PULL: 1000
             BLOCK_FINALITY_THRESHOLD: 0
             SECONDS_BETWEEN_RUNS: 1
