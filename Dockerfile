@@ -36,4 +36,4 @@ COPY --from=build /usr/src/app/lib ./lib/
 
 # Start
 #
-CMD [ "yarn", "migrate_and_start" ]
+CMD [ "yarn", "start" ]
