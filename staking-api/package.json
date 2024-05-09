@@ -36,7 +36,7 @@
         "tslint": "^6.1.3"
     },
     "dependencies": {
-        "@0x/api-utils": "0xProject/gitpkg-registry#0x-api-utils-v0.0.1-505c913",
+        "@0x/api-utils": "^0.0.1",
         "@0x/json-schemas": "^6.0.0",
         "@0x/utils": "^5.1.1",
         "@types/tiny-async-pool": "^1.0.0",
