@@ -51,6 +51,7 @@ import {
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     WrapNativeEvent,
+    ERC20TransferEvent,
 } from './entities';
 import { ConnectionOptions } from 'typeorm';
 
@@ -106,6 +107,7 @@ const entities = [
     V4LimitOrderFilledEvent,
     V4RfqOrderFilledEvent,
     WrapNativeEvent,
+    ERC20TransferEvent,
 ];
 
 const config: ConnectionOptions = {
