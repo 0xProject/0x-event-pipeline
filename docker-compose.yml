@@ -35,6 +35,7 @@ services:
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             SCRAPER_MODE: 'BLOCKS'
             EP_DEPLOYMENT_BLOCK: 10247094
+            SETTLER_DEPLOYMENT_BLOCK: 19582253
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 100
             MAX_TX_TO_PULL: 1000
@@ -78,6 +79,7 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 18473454
+            FEAT_ERC20_TRANSFER_ALL: "true"
 
     event-pipeline-bsc:
         depends_on:

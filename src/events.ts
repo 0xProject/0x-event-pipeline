@@ -2,6 +2,7 @@ import {
     EP_ADDRESS,
     FEAT_STAKING,
     EP_DEPLOYMENT_BLOCK,
+    SETTLER_DEPLOYMENT_BLOCK,
     FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
     FEAT_LIMIT_ORDERS,
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
@@ -47,6 +48,7 @@ import {
     V4_NATIVE_FILL_START_BLOCK,
     WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
     WRAP_UNWRAP_NATIVE_START_BLOCK,
+    FEAT_ERC20_TRANSFER_ALL,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -99,6 +101,7 @@ import {
     STAKING_EPOCH_ENDED_TOPIC,
     STAKING_EPOCH_FINALIZED_TOPIC,
     STAKING_REWARDS_PAID_TOPIC,
+    ERC20_TRANSFER_EVENT_TOPIC,
 } from './constants';
 import { Web3Source } from './data_sources/events/web3';
 import {
@@ -144,6 +147,7 @@ import {
     StakingPoolEarnedRewardsInEpochEvent,
     TransactionExecutionEvent,
     UnstakeEvent,
+    ERC20TransferEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -189,6 +193,7 @@ import {
     parseV4RfqOrderFilledEvent,
     parseWrapNativeEvent,
     parseWrapNativeTransferEvent,
+    parseERC20TransferEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -761,6 +766,17 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: STAKING_CONTRACT,
         startBlock: V3_DEPLOYMENT_BLOCK,
         parser: parseRewardsPaidEvent,
+    },
+    {
+        enabled: FEAT_ERC20_TRANSFER_ALL,
+        name: 'ERC20TransferEvent',
+        tType: ERC20TransferEvent,
+        table: 'erc20_transfer_events',
+        topics: ERC20_TRANSFER_EVENT_TOPIC,
+        contractAddress: null,
+        startBlock: FLASHWALLET_DEPLOYMENT_BLOCK,
+        parser: parseERC20TransferEvent,
+        filterFunction: filterNulls,
     },
 ];
 

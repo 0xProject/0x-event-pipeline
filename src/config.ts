@@ -45,6 +45,7 @@ import {
     DEFAULT_STAKING_POOLS_METADATA_JSON_URL,
     DEFAULT_BLOCK_RECEIPTS_MODE,
     BLOCK_RECEIPTS_MODE_ENDPOINT,
+    DEFAULT_FEAT_ERC20_TRANSFER_ALL,
 } from './constants';
 import { logger } from './utils';
 
@@ -104,6 +105,10 @@ export const EVM_RPC_URL = process.env.EVM_RPC_URL
 export const EP_DEPLOYMENT_BLOCK = process.env.EP_DEPLOYMENT_BLOCK
     ? parseInt(process.env.EP_DEPLOYMENT_BLOCK, 10)
     : throwError(`Must specify valid EP_DEPLOYMENT_BLOCK. Got: ${process.env.EP_DEPLOYMENT_BLOCK}`);
+
+export const SETTLER_DEPLOYMENT_BLOCK = process.env.SETTLER_DEPLOYMENT_BLOCK
+    ? parseInt(process.env.SETTLER_DEPLOYMENT_BLOCK, 10)
+    : throwError(`Must specify valid SETTLER_DEPLOYMENT_BLOCK. Got: ${process.env.SETTLER_DEPLOYMENT_BLOCK}`);
 
 export const SCHEMA = process.env.SCHEMA
     ? process.env.SCHEMA
@@ -197,6 +202,7 @@ if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
 export const FIRST_SEARCH_BLOCK = Math.min(
     EP_DEPLOYMENT_BLOCK,
     STAKING_DEPLOYMENT_BLOCK === -1 ? Infinity : STAKING_DEPLOYMENT_BLOCK,
+    SETTLER_DEPLOYMENT_BLOCK === -1 ? Infinity : SETTLER_DEPLOYMENT_BLOCK,
 );
 
 export const FEAT_TRANSFORMED_ERC20_EVENT = getBoolConfig(
@@ -481,6 +487,8 @@ export const BLOCKS_REORG_CHECK_INCREMENT = getIntConfig(
     'BLOCKS_REORG_CHECK_INCREMENT',
     DEFAULT_BLOCKS_REORG_CHECK_INCREMENT,
 );
+
+export const FEAT_ERC20_TRANSFER_ALL = getBoolConfig('FEAT_ERC20_TRANSFER_ALL', DEFAULT_FEAT_ERC20_TRANSFER_ALL);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
