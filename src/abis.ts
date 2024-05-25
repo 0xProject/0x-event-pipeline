@@ -1430,25 +1430,25 @@ export const STAKING_REWARDS_PAID_ABI = {
 export const ERC20_TRANSFER_ABI = {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address"
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address"
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256"
-      }
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'from',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'to',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'value',
+            type: 'uint256',
+        },
     ],
-    name: "Transfer",
-    type: "event"
-  }
+    name: 'Transfer',
+    type: 'event',
+};

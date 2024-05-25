@@ -16,7 +16,7 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
     // ERC20 Transfers have 3 topics and 32 bytes of data
     // ERC721 Transfers have 4 topics and no data
     if (eventLog.topics.length !== 3) {
-        return null
+        return null;
     }
 
     const decodedLog = abiCoder.decodeLog(ERC20_TRANSFER_ABI.inputs, eventLog.data, eventLog.topics.slice(1));
