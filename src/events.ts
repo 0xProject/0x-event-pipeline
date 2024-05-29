@@ -773,7 +773,7 @@ export const eventScrperProps: EventScraperProps[] = [
         table: 'erc20_transfer_events',
         topics: [TRANSFER_EVENT_TOPIC_0],
         contractAddress: null,
-        startBlock: FLASHWALLET_DEPLOYMENT_BLOCK,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
         parser: parseERC20TransferEvent,
         filterFunction: filterNulls,
     },
