@@ -1427,7 +1427,7 @@ export const STAKING_REWARDS_PAID_ABI = {
     type: 'event',
 };
 
-export const ERC20_TRANSFER_ABI = {
+export const STANDARD_ERC20_TRANSFER_ABI = {
     anonymous: false,
     inputs: [
         {
