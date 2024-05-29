@@ -46,6 +46,7 @@ import {
     DEFAULT_BLOCK_RECEIPTS_MODE,
     BLOCK_RECEIPTS_MODE_ENDPOINT,
     DEFAULT_FEAT_ERC20_TRANSFER_ALL,
+    DEFAULT_FEAT_ZEROEX_EXCHANGE_PROXY,
 } from './constants';
 import { logger } from './utils';
 
@@ -102,9 +103,14 @@ export const EVM_RPC_URL = process.env.EVM_RPC_URL
     ? process.env.EVM_RPC_URL
     : throwError(`Must specify valid EVM_RPC_URL. Got: ${process.env.EVM_RPC_URL}`);
 
-export const EP_DEPLOYMENT_BLOCK = process.env.EP_DEPLOYMENT_BLOCK
-    ? parseInt(process.env.EP_DEPLOYMENT_BLOCK, 10)
-    : throwError(`Must specify valid EP_DEPLOYMENT_BLOCK. Got: ${process.env.EP_DEPLOYMENT_BLOCK}`);
+export const FEAT_ZEROEX_EXCHANGE_PROXY = getBoolConfig('FEAT_ZEROEX_EXCHANGE_PROXY', DEFAULT_FEAT_ZEROEX_EXCHANGE_PROXY);
+export const EP_DEPLOYMENT_BLOCK = getIntConfig('EP_DEPLOYMENT_BLOCK', -1);
+validateStartBlock(
+    'EP_DEPLOYMENT_BLOCK',
+    EP_DEPLOYMENT_BLOCK,
+    'FEAT_ZEROEX_EXCHANGE_PROXY',
+    FEAT_ZEROEX_EXCHANGE_PROXY
+);
 
 export const SETTLER_DEPLOYMENT_BLOCK = process.env.SETTLER_DEPLOYMENT_BLOCK
     ? parseInt(process.env.SETTLER_DEPLOYMENT_BLOCK, 10)
@@ -180,11 +186,12 @@ export const FEAT_CANCEL_EVENTS = getBoolConfig('FEAT_CANCEL_EVENTS', DEFAULT_FE
 
 export const FEAT_STAKING = getBoolConfig('FEAT_STAKING', DEFAULT_FEAT_STAKING);
 export const STAKING_DEPLOYMENT_BLOCK = getIntConfig('STAKING_DEPLOYMENT_BLOCK', -1);
-if (STAKING_DEPLOYMENT_BLOCK === -1 && FEAT_STAKING) {
-    throwError(
-        `The Staking scraper is enabled, but no STAKING_DEPLOYMENT_BLOCK was provided. Please include STAKING_DEPLOYMENT_BLOCK or disable the feature`,
-    );
-}
+validateStartBlock(
+    'STAKING_DEPLOYMENT_BLOCK',
+    STAKING_DEPLOYMENT_BLOCK,
+    'FEAT_STAKING',
+    FEAT_STAKING
+);
 
 /*
  * Staking is paused for now, and this scraper only scans a specific tx, so it it requires manually changing STAKING_PROXY_DEPLOYMENT_TRANSACTION when there is a new deployment
@@ -200,9 +207,9 @@ if (STAKING_PROXY_DEPLOYMENT_TRANSACTION === null && FEAT_STAKING) {
 */
 
 export const FIRST_SEARCH_BLOCK = Math.min(
-    EP_DEPLOYMENT_BLOCK,
+    SETTLER_DEPLOYMENT_BLOCK,
+    EP_DEPLOYMENT_BLOCK === -1 ? Infinity : EP_DEPLOYMENT_BLOCK,
     STAKING_DEPLOYMENT_BLOCK === -1 ? Infinity : STAKING_DEPLOYMENT_BLOCK,
-    SETTLER_DEPLOYMENT_BLOCK === -1 ? Infinity : SETTLER_DEPLOYMENT_BLOCK,
 );
 
 export const FEAT_TRANSFORMED_ERC20_EVENT = getBoolConfig(
@@ -435,13 +442,8 @@ export const FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT = getBoolConfig(
     DEFAULT_FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
 );
 
-export const WRAP_UNWRAP_NATIVE_START_BLOCK = getIntConfig('EP_DEPLOYMENT_BLOCK', -1);
-validateStartBlock(
-    'EP_DEPLOYMENT_BLOCK',
-    EP_DEPLOYMENT_BLOCK,
-    'FEAT_WRAP_UNWRAP_NATIVE_EVENT',
-    FEAT_WRAP_UNWRAP_NATIVE_EVENT,
-);
+export const WRAP_UNWRAP_NATIVE_START_BLOCK = FIRST_SEARCH_BLOCK;
+
 export const WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS = process.env.WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS || '';
 validateAddress(
     'WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS',
