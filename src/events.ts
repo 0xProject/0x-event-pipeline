@@ -101,7 +101,6 @@ import {
     STAKING_EPOCH_ENDED_TOPIC,
     STAKING_EPOCH_FINALIZED_TOPIC,
     STAKING_REWARDS_PAID_TOPIC,
-    ERC20_TRANSFER_EVENT_TOPIC,
 } from './constants';
 import { Web3Source } from './data_sources/events/web3';
 import {
@@ -772,7 +771,7 @@ export const eventScrperProps: EventScraperProps[] = [
         name: 'ERC20TransferEvent',
         tType: ERC20TransferEvent,
         table: 'erc20_transfer_events',
-        topics: ERC20_TRANSFER_EVENT_TOPIC,
+        topics: [TRANSFER_EVENT_TOPIC_0],
         contractAddress: null,
         startBlock: FLASHWALLET_DEPLOYMENT_BLOCK,
         parser: parseERC20TransferEvent,
