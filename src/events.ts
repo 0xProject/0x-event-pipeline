@@ -252,7 +252,7 @@ export type EventScraperProps = {
 
 export const eventScrperProps: EventScraperProps[] = [
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_TRANSFORMED_ERC20_EVENT,
+        enabled: FEAT_TRANSFORMED_ERC20_EVENT,
         name: 'TransformedERC20Event',
         tType: TransformedERC20Event,
         table: 'transformed_erc20_events',
@@ -262,7 +262,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseTransformedERC20Event,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
+        enabled: FEAT_UNISWAP_V3_VIP_SWAP_EVENT,
         name: 'UniswapV3VIPEvent',
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
@@ -275,7 +275,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
+        enabled: FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
         name: 'ERC20BridgeTransferFlashwallet',
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
@@ -287,7 +287,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
+        enabled: FEAT_UNISWAP_V2_VIP_SWAP_EVENT,
         name: 'VIPSwapEvent',
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
@@ -300,7 +300,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_PLP_SWAP_EVENT,
+        enabled: FEAT_PLP_SWAP_EVENT,
         name: 'LiquidityProviderSwapEvent',
         tType: ERC20BridgeTransferEvent,
         table: 'erc20_bridge_transfer_events',
@@ -312,7 +312,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'fromToken', tokenB: 'toToken' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_RFQ_EVENT,
+        enabled: FEAT_RFQ_EVENT,
         name: 'V4RfqOrderFilledEvent',
         tType: V4RfqOrderFilledEvent,
         table: 'v4_rfq_order_filled_events',
@@ -323,7 +323,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_RFQ_EVENT,
+        enabled: FEAT_RFQ_EVENT,
         name: 'NativeFillFromRFQV4',
         tType: NativeFill,
         table: 'native_fills',
@@ -334,7 +334,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'RFQ Order' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_RFQ_EVENT,
+        enabled: FEAT_RFQ_EVENT,
         name: 'ExpiredRfqOrderEvent',
         tType: ExpiredRfqOrderEvent,
         table: 'expired_rfq_order_events',
@@ -344,7 +344,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseExpiredRfqOrderEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_LIMIT_ORDERS,
+        enabled: FEAT_LIMIT_ORDERS,
         name: 'V4LimitOrderFilledEvent',
         tType: V4LimitOrderFilledEvent,
         table: 'v4_limit_order_filled_events',
@@ -355,7 +355,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'makerToken', tokenB: 'takerToken' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_LIMIT_ORDERS,
+        enabled: FEAT_LIMIT_ORDERS,
         name: 'NativeFillFromLimitV4',
         tType: NativeFill,
         table: 'native_fills',
@@ -366,7 +366,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'Limit Order' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && (FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS),
+        enabled: FEAT_RFQ_EVENT || FEAT_LIMIT_ORDERS,
         name: 'V4CancelEvent',
         tType: V4CancelEvent,
         table: 'v4_cancel_events',
@@ -376,7 +376,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseV4CancelEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_OTC_ORDERS,
+        enabled: FEAT_OTC_ORDERS,
         name: 'OtcOrderFilledEvent',
         tType: OtcOrderFilledEvent,
         table: 'otc_order_filled_events',
@@ -387,7 +387,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_OTC_ORDERS,
+        enabled: FEAT_OTC_ORDERS,
         name: 'NativeFillFromOTC',
         tType: NativeFill,
         table: 'native_fills',
@@ -398,7 +398,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v4', nativeOrderType: 'OTC Order' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_V3_FILL_EVENT,
+        enabled: FEAT_V3_FILL_EVENT,
         name: 'FillEvent',
         tType: FillEvent,
         table: 'fill_events',
@@ -409,7 +409,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'makerTokenAddress', tokenB: 'takerTokenAddress' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_V3_NATIVE_FILL,
+        enabled: FEAT_V3_NATIVE_FILL,
         name: 'NativeFillFromV3',
         tType: NativeFill,
         table: 'native_fills',
@@ -420,7 +420,7 @@ export const eventScrperProps: EventScraperProps[] = [
         deleteOptions: { protocolVersion: 'v3' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_NFT,
+        enabled: FEAT_NFT,
         name: 'Erc721OrderFilledEvent',
         tType: Erc721OrderFilledEvent,
         table: 'erc721_order_filled_events',
@@ -431,7 +431,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_NFT,
+        enabled: FEAT_NFT,
         name: 'Erc721OrderCancelledEvent',
         tType: Erc721OrderCancelledEvent,
         table: 'erc721_order_cancelled_events',
@@ -441,7 +441,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc721OrderCancelledEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_NFT,
+        enabled: FEAT_NFT,
         name: 'Erc721OrderPresignedEvent',
         tType: Erc721OrderPresignedEvent,
         table: 'erc721_order_presigned_events',
@@ -452,7 +452,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc721Token' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_NFT,
+        enabled: FEAT_NFT,
         name: 'Erc1155OrderFilledEvent',
         tType: Erc1155OrderFilledEvent,
         table: 'erc1155_order_filled_events',
@@ -463,7 +463,7 @@ export const eventScrperProps: EventScraperProps[] = [
         tokenMetadataMap: { tokenA: 'erc20Token', tokenB: 'erc1155Token' },
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_NFT,
+        enabled: FEAT_NFT,
         name: 'Erc1155OrderCancelledEvent',
         tType: Erc1155OrderCancelledEvent,
         table: 'erc1155_order_cancelled_events',
@@ -473,7 +473,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseErc1155OrderCancelledEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_NFT,
+        enabled: FEAT_NFT,
         name: 'Erc1155OrderPresignedEvent',
         tType: Erc1155OrderPresignedEvent,
         table: 'erc1155_order_presigned_events',
@@ -494,7 +494,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUniswapV2SyncEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_META_TRANSACTION_EXECUTED_EVENT,
+        enabled: FEAT_META_TRANSACTION_EXECUTED_EVENT,
         name: 'MetaTransactionExecutedEvent',
         tType: MetaTransactionExecutedEvent,
         table: 'meta_transaction_executed_events',
@@ -626,7 +626,7 @@ export const eventScrperProps: EventScraperProps[] = [
     },
 
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_V3_CANCEL_EVENTS,
+        enabled: FEAT_V3_CANCEL_EVENTS,
         name: 'CancelEvent',
         tType: CancelEvent,
         table: 'cancel_events',
@@ -636,7 +636,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseCancelEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_V3_CANCEL_EVENTS,
+        enabled: FEAT_V3_CANCEL_EVENTS,
         name: 'CancelUpToEvent',
         tType: CancelUpToEvent,
         table: 'cancel_up_to_events',
@@ -647,7 +647,7 @@ export const eventScrperProps: EventScraperProps[] = [
     },
 
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'TransactionExecutionEvent',
         tType: TransactionExecutionEvent,
         table: 'transaction_execution_events',
@@ -657,7 +657,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseTransactionExecutionEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'StakeEvent',
         tType: StakeEvent,
         table: 'stake_events',
@@ -667,7 +667,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseStakeEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'UnstakeEvent',
         tType: UnstakeEvent,
         table: 'unstake_events',
@@ -677,7 +677,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseUnstakeEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'MoveStakeEvent',
         tType: MoveStakeEvent,
         table: 'move_stake_events',
@@ -687,7 +687,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseMoveStakeEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'StakingPoolCreatedEvent',
         tType: StakingPoolCreatedEvent,
         table: 'staking_pool_created_events',
@@ -697,7 +697,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseStakingPoolCreatedEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'StakingPoolEarnedRewardsInEpochEvent',
         tType: StakingPoolEarnedRewardsInEpochEvent,
         table: 'staking_pool_earned_rewards_in_epoch_events',
@@ -707,7 +707,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseStakingPoolEarnedRewardsInEpochEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'MakerStakingPoolSetEvent',
         tType: MakerStakingPoolSetEvent,
         table: 'maker_staking_pool_set_events',
@@ -717,7 +717,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseMakerStakingPoolSetEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'ParamsSetEvent',
         tType: ParamsSetEvent,
         table: 'params_set_events',
@@ -727,7 +727,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseParamsSetEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'OperatorShareDecreasedEvent',
         tType: OperatorShareDecreasedEvent,
         table: 'operator_share_decreased_events',
@@ -737,7 +737,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseOperatorShareDecreasedEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'EpochEndedEvent',
         tType: EpochEndedEvent,
         table: 'epoch_ended_events',
@@ -747,7 +747,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseEpochEndedEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'EpochFinalizedEvent',
         tType: EpochFinalizedEvent,
         table: 'epoch_finalized_events',
@@ -757,7 +757,7 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseEpochFinalizedEvent,
     },
     {
-        enabled: FEAT_ZEROEX_EXCHANGE_PROXY && FEAT_STAKING,
+        enabled: FEAT_STAKING,
         name: 'RewardsPaidEvent',
         tType: RewardsPaidEvent,
         table: 'rewards_paid_events',
