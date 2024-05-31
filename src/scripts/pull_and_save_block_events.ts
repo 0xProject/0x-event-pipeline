@@ -103,13 +103,14 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock): ParsedFullBlock {
 }
 
 function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction {
-    const parsedTransaction = parseTransaction(transaction);
     if (parsedTransaction.input === '0x') {
         return {
             parsedTransaction: null,
             parsedEvents: null,
         };
     }
+
+    const parsedTransaction = parseTransaction(transaction);
 
     const nestedParsedEvents: TypedEvents[] = eventScrperProps.map((props: EventScraperProps): TypedEvents => {
         if (props.enabled) {
