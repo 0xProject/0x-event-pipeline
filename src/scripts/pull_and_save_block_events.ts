@@ -103,7 +103,7 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock): ParsedFullBlock {
 }
 
 function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction {
-    if (parsedTransaction.input === '0x') {
+    if (transaction.input === '0x') {
         return {
             parsedTransaction: null,
             parsedEvents: null,
