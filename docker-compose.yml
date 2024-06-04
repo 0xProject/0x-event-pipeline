@@ -100,6 +100,7 @@ services:
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 5375047
             SETTLER_DEPLOYMENT_BLOCK: 37570574
             MAX_BLOCKS_TO_SEARCH: 500
@@ -132,6 +133,7 @@ services:
             SCHEMA: 'events_polygon'
             SCRAPER_MODE: 'BLOCKS'
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
             SETTLER_DEPLOYMENT_BLOCK: 55435171
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -168,6 +170,7 @@ services:
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 3601700
             SETTLER_DEPLOYMENT_BLOCK: 43807883
             MAX_BLOCKS_TO_SEARCH: 5000
@@ -203,6 +206,7 @@ services:
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 18855765
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 1000
@@ -233,6 +237,7 @@ services:
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 9350111
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
@@ -257,6 +262,7 @@ services:
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 1691335
             SETTLER_DEPLOYMENT_BLOCK: 118320052
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -289,6 +295,7 @@ services:
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 4050733
             SETTLER_DEPLOYMENT_BLOCK: 197531334
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -313,6 +320,7 @@ services:
             CHAIN_ID: '8453'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_base'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 1410394
             SETTLER_DEPLOYMENT_BLOCK: 12723120
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -347,6 +355,7 @@ services:
             LOG_LEVEL: "info"
             FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
             TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
