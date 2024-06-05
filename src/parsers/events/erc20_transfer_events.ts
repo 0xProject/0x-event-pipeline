@@ -13,18 +13,39 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
 
     parseEvent(eventLog, eRC20TransferEvent);
 
+    if (eventLog.topics.length > 3) {
+        // ERC721 and others
+        return null;
+    }
+
     if (eventLog.topics.length === 3 && eventLog.data !== '0x') {
         // Standard ERC20 Transfer - 3 topics (2 indexed), 32 bytes of data (3 inputs)
-        const decodedLog = abiCoder.decodeLog(
-            STANDARD_ERC20_TRANSFER_ABI.inputs,
-            eventLog.data,
-            eventLog.topics.slice(1),
-        );
+        try {
+            const decodedLog = abiCoder.decodeLog(
+                STANDARD_ERC20_TRANSFER_ABI.inputs,
+                eventLog.data,
+                eventLog.topics.slice(1),
+            );
 
-        eRC20TransferEvent.from = decodedLog.from.toLowerCase();
-        eRC20TransferEvent.to = decodedLog.to.toLowerCase();
-        eRC20TransferEvent.value = new BigNumber(decodedLog.value);
-    } else if (eventLog.topics.length <= 3) {
+            if (
+                decodedLog.from.substring(26, 7) === '0000000' ||
+                decodedLog.to.substring(26, 7) === '0000000' ||
+                decodedLog.value === undefined
+            ) {
+                console.log('decodedLog', decodedLog);
+                throw 'Detected non-standard ERC20 Transfer event.';
+            }
+
+            eRC20TransferEvent.from = decodedLog.from.toLowerCase();
+            eRC20TransferEvent.to = decodedLog.to.toLowerCase();
+            eRC20TransferEvent.value = new BigNumber(decodedLog.value);
+            return eRC20TransferEvent;
+        } catch (e: unknown) {
+            console.log('error here', e, eventLog);
+        }
+    }
+
+    if (eventLog.topics.length <= 3) {
         // Non-Standard ERC20 Transfer - Any number of topics or data (3 inputs)
         var baseInputs = STANDARD_ERC20_TRANSFER_ABI.inputs.map((object) => ({ ...object }));
         baseInputs.forEach((inp, index) => {
@@ -32,7 +53,6 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
             return baseInputs;
         });
 
-        var wasDecoded = false;
         var rowInputs = baseInputs.map((object) => ({ ...object }));
         // First "succesful" decoding is considered correct
         // The `from` and `to` might be wrong.
@@ -45,24 +65,22 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
                 if (j >= 0) currInputs[j].indexed = true;
                 try {
                     const decodedLog = abiCoder.decodeLog(currInputs, eventLog.data, eventLog.topics.slice(1));
-                    // Assume addresses won't have first 7 characters be 0's.
+                    // Assume addresses won't have first 7 characters be 0's (skip first 26).
                     if (
-                        decodedLog.from.substring(0, 9) !== '0x0000000' &&
-                        decodedLog.to.substring(0, 9) !== '0x0000000'
+                        decodedLog.from.substring(26, 7) === '0000000' ||
+                        decodedLog.to.substring(26, 7) === '0000000' ||
+                        decodedLog.value === undefined
                     ) {
-                        wasDecoded = true;
-                        eRC20TransferEvent.from = decodedLog.from.toLowerCase();
-                        eRC20TransferEvent.to = decodedLog.to.toLowerCase();
-                        eRC20TransferEvent.value = new BigNumber(decodedLog.value);
+                        continue;
                     }
-                    break;
+                    eRC20TransferEvent.from = decodedLog.from.toLowerCase();
+                    eRC20TransferEvent.to = decodedLog.to.toLowerCase();
+                    eRC20TransferEvent.value = new BigNumber(decodedLog.value);
+                    return eRC20TransferEvent;
                 } catch (e: unknown) {}
             }
-            if (wasDecoded) break;
         }
-    } else {
-        return null;
     }
 
-    return eRC20TransferEvent;
+    return null;
 }
