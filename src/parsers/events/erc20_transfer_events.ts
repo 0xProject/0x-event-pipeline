@@ -41,7 +41,7 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
             eRC20TransferEvent.value = new BigNumber(decodedLog.value);
             return eRC20TransferEvent;
         } catch (e: unknown) {
-            console.log('error here', e, eventLog);
+            console.log(e, eventLog);
         }
     }
 
