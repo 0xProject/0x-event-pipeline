@@ -26,7 +26,7 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
         eRC20TransferEvent.value = new BigNumber(decodedLog.value);
     } else if (eventLog.topics.length <= 3) {
         // Non-Standard ERC20 Transfer - Any number of topics or data (3 inputs)
-        var baseInputs = [...STANDARD_ERC20_TRANSFER_ABI.inputs];
+        var baseInputs = STANDARD_ERC20_TRANSFER_ABI.inputs.map((object) => ({ ...object }));
         baseInputs.forEach((inp, index) => {
             baseInputs[index].indexed = false;
             return baseInputs;
