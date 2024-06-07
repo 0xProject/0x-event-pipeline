@@ -33,6 +33,30 @@ function isCoinbaseShortZidTransaction(blockNumber: Number, affiliateAddress: St
     return false;
 }
 
+function isAfterZidBytesReduction(blockNumber: Number): Boolean {
+    switch (CHAIN_ID) {
+        case 1: // Ethereum
+            return blockNumber >= 20040654;
+        case 10: // Optimism
+            return blockNumber >= 121086482;
+        case 56: // BSC
+            return blockNumber >= 39406978;
+        case 137: // Polygon
+            return blockNumber >= 57877548;
+        case 250: // Fantom
+            return blockNumber >= 82443443;
+        case 8453: // Base
+            return blockNumber >= 15491223;
+        case 42161: // Arbitrum
+            return blockNumber >= 219382805;
+        case 42220: // Celo
+            return blockNumber >= 26019714;
+        case 43114: // Avalanche
+            return blockNumber >= 46421607;
+    }
+    return false;
+}
+
 /**
  * Converts a raw tx into a Transaction entity
  * @param rawTx Raw transaction returned from JSON RPC
@@ -74,7 +98,7 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
             const parsedQuoteTimestamp = parseInt(rawTx.input.slice(bytesPos + 128, bytesPos + 136), 16);
             transaction.quoteTimestamp = isNaN(parsedQuoteTimestamp) ? null : parsedQuoteTimestamp;
             transaction.quoteId = rawTx.input.slice(bytesPos + 118, bytesPos + 128);
-        } else if (quoteId.slice(0, 8) === '00000000') {
+        } else if (quoteId.slice(0, 8) === '00000000' && isAfterZidBytesReduction(transaction.blockNumber)) {
             // 12-byte ZID (~2024-06-07)
             // (12 bytes data, ignore first 4 bytes of padding)
             transaction.quoteTimestamp = null;
