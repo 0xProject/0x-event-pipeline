@@ -34,6 +34,7 @@ function isCoinbaseShortZidTransaction(blockNumber: Number, affiliateAddress: St
 }
 
 function isAfterZidBytesReduction(blockNumber: Number): Boolean {
+    // Approximate block numbers after ZID reduction from 16 to 12 bytes.
     switch (CHAIN_ID) {
         case 1: // Ethereum
             return blockNumber >= 20040654;
