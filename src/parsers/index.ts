@@ -47,3 +47,4 @@ export {
     parseUnwrapNativeTransferEvent,
 } from './events/wrap_unwrap_native_events';
 export { parseERC20TransferEvent } from './events/erc20_transfer_events';
+export { parseSettlerERC721TransferEvent } from './events/settler_erc721_transfer_events';

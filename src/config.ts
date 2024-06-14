@@ -46,6 +46,7 @@ import {
     DEFAULT_BLOCK_RECEIPTS_MODE,
     BLOCK_RECEIPTS_MODE_ENDPOINT,
     DEFAULT_FEAT_ERC20_TRANSFER_ALL,
+    DEFAULT_FEAT_SETTLER_ERC721_TRANSFER_EVENT,
     DEFAULT_FEAT_ZEROEX_EXCHANGE_PROXY,
 } from './constants';
 import { logger } from './utils';
@@ -508,6 +509,11 @@ export const BLOCKS_REORG_CHECK_INCREMENT = getIntConfig(
 );
 
 export const FEAT_ERC20_TRANSFER_ALL = getBoolConfig('FEAT_ERC20_TRANSFER_ALL', DEFAULT_FEAT_ERC20_TRANSFER_ALL);
+
+export const FEAT_SETTLER_ERC721_TRANSFER_EVENT = getBoolConfig(
+    'FEAT_SETTLER_ERC721_TRANSFER_EVENT',
+    DEFAULT_FEAT_SETTLER_ERC721_TRANSFER_EVENT,
+);
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {

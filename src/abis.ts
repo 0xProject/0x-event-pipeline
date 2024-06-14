@@ -1452,3 +1452,29 @@ export const STANDARD_ERC20_TRANSFER_ABI = {
     name: 'Transfer',
     type: 'event',
 };
+
+export const SETTLER_ERC721_TRANSFER_ABI = {
+    anonymous: true,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'from',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'to',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'tokenId',
+            type: 'uint256',
+        },
+    ],
+    name: 'SettlerERC721Transfer',
+    type: 'event',
+};

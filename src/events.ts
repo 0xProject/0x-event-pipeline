@@ -49,6 +49,7 @@ import {
     WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
     WRAP_UNWRAP_NATIVE_START_BLOCK,
     FEAT_ERC20_TRANSFER_ALL,
+    FEAT_SETTLER_ERC721_TRANSFER_EVENT,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -101,6 +102,7 @@ import {
     STAKING_EPOCH_ENDED_TOPIC,
     STAKING_EPOCH_FINALIZED_TOPIC,
     STAKING_REWARDS_PAID_TOPIC,
+    SETTLER_DEPLOYER_PROXY_CONTRACT,
 } from './constants';
 import { Web3Source } from './data_sources/events/web3';
 import {
@@ -147,6 +149,7 @@ import {
     TransactionExecutionEvent,
     UnstakeEvent,
     ERC20TransferEvent,
+    SettlerERC721TransferEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -193,6 +196,7 @@ import {
     parseWrapNativeEvent,
     parseWrapNativeTransferEvent,
     parseERC20TransferEvent,
+    parseSettlerERC721TransferEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -777,6 +781,29 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseERC20TransferEvent,
         filterFunction: filterNulls,
     },
+    {
+        enabled: FEAT_SETTLER_ERC721_TRANSFER_EVENT,
+        name: 'SettlerERC721TransferEvent',
+        tType: SettlerERC721TransferEvent,
+        table: 'settler_erc721_transfer_events',
+        topics: [TRANSFER_EVENT_TOPIC_0],
+        contractAddress: SETTLER_DEPLOYER_PROXY_CONTRACT,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
+        parser: parseSettlerERC721TransferEvent,
+        filterFunction: filterNulls,
+    },
+    // {
+    //     enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
+    //     name: 'RFQOrderEvent',
+    //     tType: RFQOrderEvent,
+    //     table: 'rfq_order_event',
+    //     topics: [],
+    //     contractAddress: null,
+    //     startBlock: SETTLER_DEPLOYMENT_BLOCK,
+    //     parser: parseERC20TransferEvent,
+    //     filterFunction: filterNulls,
+    // },
+    // SETTLER_RFQ_ORDER_ABI
 ];
 
 for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
