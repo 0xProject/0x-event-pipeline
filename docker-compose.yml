@@ -81,6 +81,7 @@ services:
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 18473454
             FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-bsc:
         depends_on:
@@ -118,6 +119,7 @@ services:
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
             FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-polygon:
         depends_on:
@@ -152,6 +154,8 @@ services:
             FEAT_TOKENS_FROM_TRANSFERS: "true"
             MAX_BLOCKS_REORG: 400
             FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-avalanche:
         depends_on:
@@ -186,6 +190,8 @@ services:
             NFT_FEATURE_START_BLOCK: 11816835
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
 
     event-pipeline-fantom:
@@ -278,6 +284,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 110791294
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-arbitrum:
         depends_on:
@@ -307,6 +315,8 @@ services:
             NFT_FEATURE_START_BLOCK: 4050733
             FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-base:
         depends_on:
@@ -320,6 +330,7 @@ services:
             CHAIN_ID: '8453'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_base'
+            SCRAPER_MODE: 'BLOCKS'
             FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 1410394
             SETTLER_DEPLOYMENT_BLOCK: 12723120
@@ -335,6 +346,8 @@ services:
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     token-scraper-ethereum:
         depends_on:
