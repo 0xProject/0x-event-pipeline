@@ -1,4 +1,5 @@
 import {
+    SCHEMA,
     EP_ADDRESS,
     FEAT_STAKING,
     EP_DEPLOYMENT_BLOCK,
@@ -50,6 +51,7 @@ import {
     WRAP_UNWRAP_NATIVE_START_BLOCK,
     FEAT_ERC20_TRANSFER_ALL,
     FEAT_SETTLER_ERC721_TRANSFER_EVENT,
+    FEAT_SETTLER_RFQ_ORDER_EVENT,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -150,6 +152,7 @@ import {
     UnstakeEvent,
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
+    RFQOrderEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -197,6 +200,7 @@ import {
     parseWrapNativeTransferEvent,
     parseERC20TransferEvent,
     parseSettlerERC721TransferEvent,
+    parseRFQOrderEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -792,18 +796,6 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
     },
-    // {
-    //     enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
-    //     name: 'RFQOrderEvent',
-    //     tType: RFQOrderEvent,
-    //     table: 'rfq_order_event',
-    //     topics: [],
-    //     contractAddress: null,
-    //     startBlock: SETTLER_DEPLOYMENT_BLOCK,
-    //     parser: parseERC20TransferEvent,
-    //     filterFunction: filterNulls,
-    // },
-    // SETTLER_RFQ_ORDER_ABI
 ];
 
 for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
@@ -838,6 +830,57 @@ for (const protocol of UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_S
         deleteOptions: { protocol: protocol.name },
         tokenMetadataMap: { tokenA: 'token0', tokenB: 'token1' },
         postProcess: uniV2PoolSingletonCallback,
+    });
+}
+
+export type SettlerContract = {
+    address: string;
+    startBlock: number;
+    endBlock: number | null;
+};
+export const SETTLER_CONTRACTS: SettlerContract[] = [];
+
+export async function configureDynamicEvents(connection: Connection) {
+    // Enable flag
+    const settlerContracts = await connection.query(
+        `
+        WITH creations AS (
+          SELECT "to" AS address, block_number
+          FROM ${SCHEMA}.settler_erc721_transfer_events
+          WHERE "to" <> '0x0000000000000000000000000000000000000000'
+        ), destructions AS (
+          SELECT "from" AS address, block_number
+          FROM ${SCHEMA}.settler_erc721_transfer_events
+        )
+        SELECT
+          c.address,
+          c.block_number AS start_block_number,
+          d.block_number AS end_block_number
+        FROM creations c
+        LEFT JOIN destructions d ON c.address = d.address
+        ORDER BY c.block_number
+        `,
+    );
+
+    for (const entry of settlerContracts) {
+        SETTLER_CONTRACTS.push({
+            address: entry['address'],
+            startBlock: entry['start_block_number'],
+            endBlock: entry['end_block_number'],
+        });
+    }
+    console.log('SETTLER_CONTRACTS', SETTLER_CONTRACTS);
+
+    eventScrperProps.push({
+        enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
+        name: 'RFQOrderEvent',
+        tType: RFQOrderEvent,
+        table: 'rfq_order_events',
+        topics: [],
+        contractAddress: null,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
+        parser: parseRFQOrderEvent,
+        filterFunction: filterNulls,
     });
 }
 

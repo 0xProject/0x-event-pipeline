@@ -12,6 +12,7 @@ import {
     SCRAPER_MODE,
     SECONDS_BETWEEN_RUNS,
 } from './config';
+import { configureDynamicEvents } from './events';
 import * as ormConfig from './ormconfig';
 import { EventsBackfillScraper } from './scripts/backfill_events';
 import { ChainIdChecker } from './scripts/check_chain_id';
@@ -72,6 +73,9 @@ logger.info(`Running in ${SCRAPER_MODE} mode`);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
+        // Set up dynamic events
+        await configureDynamicEvents(connection);
+
         await chainIdChecker.checkChainId(CHAIN_ID);
         if (producer) {
             await producer.connect();
