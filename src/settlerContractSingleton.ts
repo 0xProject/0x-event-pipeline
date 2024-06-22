@@ -47,6 +47,10 @@ export class SettlerContractSingleton {
         return SettlerContractSingleton.instance;
     }
 
+    static isInitialized(): Boolean {
+        return SettlerContractSingleton.instance?;
+    }
+
     addNewContracts(newContracts: SettlerContract[]) {
         newContracts.forEach((entry) => this.contracts.push(entry));
     }

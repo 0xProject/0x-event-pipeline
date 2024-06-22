@@ -20,13 +20,13 @@ export function parseSettlerERC721TransferEvent(eventLog: LogEntry): SettlerERC7
     settlerERC721TransferEvent.to = decodedLog.to.toLowerCase();
     settlerERC721TransferEvent.token_id = decodedLog.tokenId;
 
-    const settlerContractSingleton = SettlerContractSingleton.getInstance();
-    const newContract: SettlerContract[] = [
-        {
-            address: settlerERC721TransferEvent.to,
-        },
-    ];
-    settlerContractSingleton.addNewContracts(newContract);
+    if (SettlerContractSingleton.isInitialized) {
+        const settlerContractSingleton = SettlerContractSingleton.getInstance();
+        const newContract: SettlerContract[] = [
+            { address: settlerERC721TransferEvent.to },
+        ];
+        settlerContractSingleton.addNewContracts(newContract);
+    }
 
     return settlerERC721TransferEvent;
 }
