@@ -3,8 +3,8 @@ import { Event } from './event';
 import { BigNumber } from '@0x/utils';
 import { Column, Entity } from 'typeorm';
 
-// These events come directly from the token's ERC20 contract and are fired whenever
-// an ERC20 is transferred between two wallets.
+// These events are emitted by the Settler contract whenever an RFQ order is filled.
+// They are not ABI compliant.
 @Entity({ name: 'rfq_order_events' })
 export class RFQOrderEvent extends Event {
     @Column({ name: 'order_hash', type: 'varchar' })
