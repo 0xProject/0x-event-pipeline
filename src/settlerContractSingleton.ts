@@ -2,7 +2,7 @@ import { SCHEMA } from './config';
 import { logger } from './utils';
 import { Connection } from 'typeorm';
 
-export type SettlerContract = {
+type SettlerContract = {
     address: string;
 };
 
@@ -18,9 +18,8 @@ export class SettlerContractSingleton {
         if (SettlerContractSingleton.instance) {
             return;
         }
-        SettlerContractSingleton.instance = new SettlerContractSingleton();
         logger.info('Loading Settler contract deployments to memory');
-
+        SettlerContractSingleton.instance = new SettlerContractSingleton();
         const settlerContracts = await connection.query(
             `
             SELECT "to" AS address
@@ -29,15 +28,7 @@ export class SettlerContractSingleton {
             ORDER BY block_number
             `,
         );
-
-        const tmpSettlerContracts: SettlerContract[] = [];
-        for (const entry of settlerContracts) {
-            tmpSettlerContracts.push({
-                address: entry['address'],
-            });
-        }
-
-        SettlerContractSingleton.instance.addNewContracts(tmpSettlerContracts);
+        settlerContracts.forEach((entry: any) => SettlerContractSingleton.instance.addNewContract(entry['address']));
     }
 
     static getInstance(): SettlerContractSingleton {
@@ -51,8 +42,12 @@ export class SettlerContractSingleton {
         return !!SettlerContractSingleton.instance;
     }
 
-    addNewContracts(newContracts: SettlerContract[]) {
-        newContracts.forEach((entry) => this.contracts.push(entry));
+    addNewContract(newContractAddress: string) {
+        if (newContractAddress === '0x0000000000000000000000000000000000000000' || newContractAddress === '') {
+            return;
+        }
+        const newContract: SettlerContract = { address: newContractAddress };
+        this.contracts.push(newContract);
     }
 
     getContracts() {

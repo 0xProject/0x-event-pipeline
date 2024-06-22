@@ -1,6 +1,6 @@
 import { SETTLER_ERC721_TRANSFER_ABI } from '../../constants';
 import { SettlerERC721TransferEvent } from '../../entities';
-import { SettlerContractSingleton, SettlerContract } from '../../settlerContractSingleton';
+import { SettlerContractSingleton } from '../../settlerContractSingleton';
 import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
 import { LogEntry } from 'ethereum-types';
@@ -22,8 +22,7 @@ export function parseSettlerERC721TransferEvent(eventLog: LogEntry): SettlerERC7
 
     if (SettlerContractSingleton.isInitialized()) {
         const settlerContractSingleton = SettlerContractSingleton.getInstance();
-        const newContract: SettlerContract[] = [{ address: settlerERC721TransferEvent.to }];
-        settlerContractSingleton.addNewContracts(newContract);
+        settlerContractSingleton.addNewContract(settlerERC721TransferEvent.to);
     }
 
     return settlerERC721TransferEvent;
