@@ -5,6 +5,7 @@ import {
     FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
+    FEAT_SETTLER_RFQ_ORDER_EVENT,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
     KAFKA_BROKERS,
@@ -12,7 +13,6 @@ import {
     SCRAPER_MODE,
     SECONDS_BETWEEN_RUNS,
 } from './config';
-import { configureDynamicEvents } from './events';
 import * as ormConfig from './ormconfig';
 import { EventsBackfillScraper } from './scripts/backfill_events';
 import { ChainIdChecker } from './scripts/check_chain_id';
@@ -23,6 +23,7 @@ import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
 import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
+import { SettlerContractSingleton } from './settlerContractSingleton';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
@@ -73,9 +74,6 @@ logger.info(`Running in ${SCRAPER_MODE} mode`);
 // run pull and save events
 createConnection(ormConfig as ConnectionOptions)
     .then(async (connection) => {
-        // Set up dynamic events
-        await configureDynamicEvents(connection);
-
         await chainIdChecker.checkChainId(CHAIN_ID);
         if (producer) {
             await producer.connect();
@@ -87,6 +85,9 @@ createConnection(ormConfig as ConnectionOptions)
         }
         if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
             await UniV3PoolSingleton.initInstance(connection);
+        }
+        if (FEAT_SETTLER_RFQ_ORDER_EVENT) {
+            await SettlerContractSingleton.initInstance(connection);
         }
         if (SCRAPER_MODE === 'BLOCKS') {
             schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');

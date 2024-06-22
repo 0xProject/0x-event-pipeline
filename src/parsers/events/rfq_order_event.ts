@@ -1,5 +1,5 @@
 import { RFQOrderEvent } from '../../entities';
-import { SETTLER_CONTRACTS } from '../../events';
+import { SettlerContractSingleton } from '../../settlerContractSingleton';
 import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
 import { LogEntry } from 'ethereum-types';
@@ -24,7 +24,9 @@ export function parseRFQOrderEvent(eventLog: LogEntry): RFQOrderEvent | null {
 
     parseEvent(eventLog, rfqOrderEvent);
 
-    if (!SETTLER_CONTRACTS.find((contract) => contract.address === rfqOrderEvent.contractAddress)) {
+    const settlerContractSingleton = SettlerContractSingleton.getInstance();
+    const settlerContracts = settlerContractSingleton.getContracts();
+    if (!settlerContracts.find((contract) => contract.address === rfqOrderEvent.contractAddress)) {
         return null;
     }
 
