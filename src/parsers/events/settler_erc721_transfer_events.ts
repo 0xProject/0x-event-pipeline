@@ -24,8 +24,6 @@ export function parseSettlerERC721TransferEvent(eventLog: LogEntry): SettlerERC7
     const newContract: SettlerContract[] = [
         {
             address: settlerERC721TransferEvent.to,
-            startBlock: settlerERC721TransferEvent.blockNumber,
-            endBlock: null,
         },
     ];
     settlerContractSingleton.addNewContracts(newContract);
