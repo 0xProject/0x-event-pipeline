@@ -20,10 +20,5 @@ export function parseSettlerERC721TransferEvent(eventLog: LogEntry): SettlerERC7
     settlerERC721TransferEvent.to = decodedLog.to.toLowerCase();
     settlerERC721TransferEvent.token_id = decodedLog.tokenId;
 
-    if (SettlerContractSingleton.isInitialized()) {
-        const settlerContractSingleton = SettlerContractSingleton.getInstance();
-        settlerContractSingleton.addNewContract(settlerERC721TransferEvent.to);
-    }
-
     return settlerERC721TransferEvent;
 }

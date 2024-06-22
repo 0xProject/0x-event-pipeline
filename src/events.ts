@@ -219,6 +219,7 @@ import { parseTransactionExecutionEvent } from './parsers/events/transaction_exe
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
+import { SettlerContractSingleton } from './settlerContractSingleton';
 import { DeleteOptions } from './utils';
 import { LogEntry } from 'ethereum-types';
 import { Producer } from 'kafkajs';
@@ -234,6 +235,18 @@ function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
     const uniV3PoolSingleton = UniV3PoolSingleton.getInstance();
     uniV3PoolSingleton.addNewPools(pools);
     return pools;
+}
+
+function settlerContractSingletonCallback(settlerERC721TransferEvents: SettlerERC721TransferEvent[]) {
+    console.log('.');
+    if (SettlerContractSingleton.isInitialized()) {
+        console.log('Enabled');
+        const settlerContractSingleton = SettlerContractSingleton.getInstance();
+        console.log('Adding new contracts', settlerERC721TransferEvents);
+        settlerERC721TransferEvents.map((entry) => settlerContractSingleton.addNewContract(entry.to));
+        console.log('contracts list', settlerContractSingleton.getContracts());
+    }
+    return settlerERC721TransferEvents;
 }
 
 export type CommonEventParams = {
@@ -795,6 +808,7 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: SETTLER_DEPLOYMENT_BLOCK,
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
+        postProcess: settlerContractSingletonCallback,
     },
     {
         enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
