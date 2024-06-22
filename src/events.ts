@@ -217,9 +217,9 @@ import {
 } from './parsers/events/staking_events';
 import { parseTransactionExecutionEvent } from './parsers/events/transaction_execution_events';
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
+import { SettlerContractSingleton } from './settlerContractSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
-import { SettlerContractSingleton } from './settlerContractSingleton';
 import { DeleteOptions } from './utils';
 import { LogEntry } from 'ethereum-types';
 import { Producer } from 'kafkajs';
