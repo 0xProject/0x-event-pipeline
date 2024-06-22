@@ -48,7 +48,7 @@ export class SettlerContractSingleton {
     }
 
     static isInitialized(): Boolean {
-        return SettlerContractSingleton.instance?;
+        return !!SettlerContractSingleton.instance;
     }
 
     addNewContracts(newContracts: SettlerContract[]) {
