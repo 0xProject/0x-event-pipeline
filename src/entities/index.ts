@@ -50,3 +50,6 @@ export { V4CancelEvent } from './v4_cancel_event';
 export { V4LimitOrderFilledEvent } from './v4_limit_order_filled_event';
 export { V4RfqOrderFilledEvent } from './v4_rfq_order_filled_event';
 export { WrapNativeEvent } from './wrap_native_event';
+export { ERC20TransferEvent } from './erc20_transfer_event';
+export { SettlerERC721TransferEvent } from './settler_erc721_transfer_event';
+export { RFQOrderEvent } from './rfq_order_event';

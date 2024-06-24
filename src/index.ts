@@ -5,6 +5,7 @@ import {
     FEAT_TOKENS_FROM_TRANSFERS,
     FEAT_UNISWAP_V2_PAIR_CREATED_EVENT,
     FEAT_UNISWAP_V3_POOL_CREATED_EVENT,
+    FEAT_SETTLER_RFQ_ORDER_EVENT,
     KAFKA_AUTH_PASSWORD,
     KAFKA_AUTH_USER,
     KAFKA_BROKERS,
@@ -22,6 +23,7 @@ import { BlockScraper } from './scripts/pull_and_save_blocks';
 import { EventsByTopicScraper } from './scripts/pull_and_save_events_by_topic';
 import { TokensFromBackfill } from './scripts/pull_and_save_tokens_backfill';
 import { TokensFromTransfersScraper } from './scripts/pull_and_save_tokens_from_transfers';
+import { SettlerContractSingleton } from './settlerContractSingleton';
 import { TokenMetadataSingleton } from './tokenMetadataSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
@@ -83,6 +85,9 @@ createConnection(ormConfig as ConnectionOptions)
         }
         if (FEAT_UNISWAP_V3_POOL_CREATED_EVENT) {
             await UniV3PoolSingleton.initInstance(connection);
+        }
+        if (FEAT_SETTLER_RFQ_ORDER_EVENT) {
+            await SettlerContractSingleton.initInstance(connection);
         }
         if (SCRAPER_MODE === 'BLOCKS') {
             schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');

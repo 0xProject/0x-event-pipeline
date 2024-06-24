@@ -34,7 +34,9 @@ services:
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             SCRAPER_MODE: 'BLOCKS'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 10247094
+            SETTLER_DEPLOYMENT_BLOCK: 19582253
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 100
             MAX_TX_TO_PULL: 1000
@@ -78,6 +80,9 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 18473454
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
 
     event-pipeline-bsc:
         depends_on:
@@ -91,14 +96,19 @@ services:
             CHAIN_ID: '56'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
-            MAX_BLOCKS_REORG: 50
+            SCRAPER_MODE: 'BLOCKS'
+            MAX_BLOCKS_REORG: 300
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 5375047
-            MAX_BLOCKS_TO_SEARCH: 2000
-            MAX_BLOCKS_TO_PULL: 5000
+            SETTLER_DEPLOYMENT_BLOCK: 37570574
+            MAX_BLOCKS_TO_SEARCH: 500
+            MAX_BLOCKS_TO_PULL: 90
+            MAX_TX_TO_PULL: 500
+            BLOCK_FINALITY_THRESHOLD: 0
             SECONDS_BETWEEN_RUNS: 1
             RESCRAPE_BLOCKS: 10
             FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
@@ -109,6 +119,8 @@ services:
             NFT_FEATURE_START_BLOCK: 15860129
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-polygon:
         depends_on:
@@ -118,13 +130,15 @@ services:
             dockerfile: Dockerfile
         restart: always
         environment:
-            EVM_RPC_URL: '${EVM_RPC_URL_POLYGON}'
+            EVM_RPC_URL: '${RPC_URL_POLYGON}'
             CHAIN_ID: '137'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'
             SCRAPER_MODE: 'BLOCKS'
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
+            SETTLER_DEPLOYMENT_BLOCK: 55435171
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 251
             SECONDS_BETWEEN_RUNS: 2
@@ -140,6 +154,9 @@ services:
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
             FEAT_TOKENS_FROM_TRANSFERS: "true"
             MAX_BLOCKS_REORG: 400
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-avalanche:
         depends_on:
@@ -158,7 +175,9 @@ services:
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 3601700
+            SETTLER_DEPLOYMENT_BLOCK: 43807883
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
             SECONDS_BETWEEN_RUNS: 1
@@ -172,6 +191,8 @@ services:
             NFT_FEATURE_START_BLOCK: 11816835
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
 
     event-pipeline-fantom:
@@ -192,6 +213,7 @@ services:
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 18855765
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 1000
@@ -222,6 +244,7 @@ services:
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 9350111
             MAX_BLOCKS_TO_SEARCH: 5000
             MAX_BLOCKS_TO_PULL: 2000
@@ -246,7 +269,9 @@ services:
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 1691335
+            SETTLER_DEPLOYMENT_BLOCK: 118320052
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 1
@@ -260,6 +285,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 110791294
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-arbitrum:
         depends_on:
@@ -277,7 +304,9 @@ services:
             #KAFKA_SSL: '${KAFKA_SSL}'
             #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 4050733
+            SETTLER_DEPLOYMENT_BLOCK: 197531334
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 30
@@ -287,6 +316,8 @@ services:
             NFT_FEATURE_START_BLOCK: 4050733
             FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-base:
         depends_on:
@@ -300,7 +331,10 @@ services:
             CHAIN_ID: '8453'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_base'
+            SCRAPER_MODE: 'BLOCKS'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 1410394
+            SETTLER_DEPLOYMENT_BLOCK: 12723120
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 100
             SECONDS_BETWEEN_RUNS: 1
@@ -313,6 +347,9 @@ services:
             #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
 
     token-scraper-ethereum:
         depends_on:
@@ -333,6 +370,7 @@ services:
             LOG_LEVEL: "info"
             FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
             TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
