@@ -26,7 +26,7 @@ export function parseRFQOrderEvent(eventLog: LogEntry): RFQOrderEvent | null {
 
     const settlerContractSingleton = SettlerContractSingleton.getInstance();
     const settlerContracts = settlerContractSingleton.getContracts();
-    if (!settlerContracts.find((contract) => contract.address === rfqOrderEvent.contractAddress)) {
+    if (!settlerContracts.includes(rfqOrderEvent.contractAddress)) {
         return null;
     }
 

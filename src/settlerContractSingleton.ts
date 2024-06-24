@@ -2,13 +2,9 @@ import { SCHEMA } from './config';
 import { logger } from './utils';
 import { Connection } from 'typeorm';
 
-type SettlerContract = {
-    address: string;
-};
-
 export class SettlerContractSingleton {
     private static instance: SettlerContractSingleton;
-    private contracts: SettlerContract[];
+    private contracts: string[];
 
     private constructor() {
         this.contracts = [];
@@ -46,8 +42,7 @@ export class SettlerContractSingleton {
         if (newContractAddress === '0x0000000000000000000000000000000000000000' || newContractAddress === '') {
             return;
         }
-        const newContract: SettlerContract = { address: newContractAddress };
-        this.contracts.push(newContract);
+        this.contracts.push(newContractAddress);
     }
 
     getContracts() {
