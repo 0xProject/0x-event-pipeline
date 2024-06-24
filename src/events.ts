@@ -238,13 +238,9 @@ function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
 }
 
 function settlerContractSingletonCallback(settlerERC721TransferEvents: SettlerERC721TransferEvent[]) {
-    console.log('.');
     if (SettlerContractSingleton.isInitialized()) {
-        console.log('Enabled');
         const settlerContractSingleton = SettlerContractSingleton.getInstance();
-        console.log('Adding new contracts', settlerERC721TransferEvents);
         settlerERC721TransferEvents.map((entry) => settlerContractSingleton.addNewContract(entry.to));
-        console.log('contracts list', settlerContractSingleton.getContracts());
     }
     return settlerERC721TransferEvents;
 }
