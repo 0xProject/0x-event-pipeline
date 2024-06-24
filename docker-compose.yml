@@ -82,6 +82,7 @@ services:
             SOCKET_BRIDGE_EVENT_START_BLOCK: 18473454
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
 
     event-pipeline-bsc:
         depends_on:
@@ -348,6 +349,7 @@ services:
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
 
     token-scraper-ethereum:
         depends_on:

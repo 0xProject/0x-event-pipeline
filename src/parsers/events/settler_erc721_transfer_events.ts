@@ -1,5 +1,6 @@
 import { SETTLER_ERC721_TRANSFER_ABI } from '../../constants';
 import { SettlerERC721TransferEvent } from '../../entities';
+import { SettlerContractSingleton } from '../../settlerContractSingleton';
 import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
 import { LogEntry } from 'ethereum-types';
@@ -18,5 +19,6 @@ export function parseSettlerERC721TransferEvent(eventLog: LogEntry): SettlerERC7
     settlerERC721TransferEvent.from = decodedLog.from.toLowerCase();
     settlerERC721TransferEvent.to = decodedLog.to.toLowerCase();
     settlerERC721TransferEvent.token_id = decodedLog.tokenId;
+
     return settlerERC721TransferEvent;
 }

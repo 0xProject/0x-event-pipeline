@@ -1,4 +1,5 @@
 import {
+    SCHEMA,
     EP_ADDRESS,
     FEAT_STAKING,
     EP_DEPLOYMENT_BLOCK,
@@ -50,6 +51,7 @@ import {
     WRAP_UNWRAP_NATIVE_START_BLOCK,
     FEAT_ERC20_TRANSFER_ALL,
     FEAT_SETTLER_ERC721_TRANSFER_EVENT,
+    FEAT_SETTLER_RFQ_ORDER_EVENT,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -150,6 +152,7 @@ import {
     UnstakeEvent,
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
+    RFQOrderEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -197,6 +200,7 @@ import {
     parseWrapNativeTransferEvent,
     parseERC20TransferEvent,
     parseSettlerERC721TransferEvent,
+    parseRFQOrderEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -213,6 +217,7 @@ import {
 } from './parsers/events/staking_events';
 import { parseTransactionExecutionEvent } from './parsers/events/transaction_execution_events';
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
+import { SettlerContractSingleton } from './settlerContractSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
 import { DeleteOptions } from './utils';
@@ -230,6 +235,14 @@ function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
     const uniV3PoolSingleton = UniV3PoolSingleton.getInstance();
     uniV3PoolSingleton.addNewPools(pools);
     return pools;
+}
+
+function settlerContractSingletonCallback(settlerERC721TransferEvents: SettlerERC721TransferEvent[]) {
+    if (SettlerContractSingleton.isInitialized()) {
+        const settlerContractSingleton = SettlerContractSingleton.getInstance();
+        settlerERC721TransferEvents.map((entry) => settlerContractSingleton.addNewContract(entry.to));
+    }
+    return settlerERC721TransferEvents;
 }
 
 export type CommonEventParams = {
@@ -791,19 +804,19 @@ export const eventScrperProps: EventScraperProps[] = [
         startBlock: SETTLER_DEPLOYMENT_BLOCK,
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
+        postProcess: settlerContractSingletonCallback,
     },
-    // {
-    //     enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
-    //     name: 'RFQOrderEvent',
-    //     tType: RFQOrderEvent,
-    //     table: 'rfq_order_event',
-    //     topics: [],
-    //     contractAddress: null,
-    //     startBlock: SETTLER_DEPLOYMENT_BLOCK,
-    //     parser: parseERC20TransferEvent,
-    //     filterFunction: filterNulls,
-    // },
-    // SETTLER_RFQ_ORDER_ABI
+    {
+        enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
+        name: 'RFQOrderEvent',
+        tType: RFQOrderEvent,
+        table: 'rfq_order_events',
+        topics: [],
+        contractAddress: null,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
+        parser: parseRFQOrderEvent,
+        filterFunction: filterNulls,
+    },
 ];
 
 for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
