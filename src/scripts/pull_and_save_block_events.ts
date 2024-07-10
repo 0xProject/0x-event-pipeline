@@ -428,6 +428,11 @@ export class BlockEventsScraper {
 
         const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
 
+        if (!newBlocks) {
+            logger.warn('RPC responded with no new blocks.');
+            return;
+        }
+
         // Reorg handling
         if (newBlocks[0].parentHash !== lastKnownBlock.blockHash) {
             let lookback = BLOCKS_REORG_CHECK_INCREMENT;
