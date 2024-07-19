@@ -7,7 +7,7 @@ export async function filterWrapUnwrapEventsGetContext(events: Event[], web3Sour
         const txHashes = events.map((log: Event) => log.transactionHash);
         const txData = await getParseTxsAsync(web3Source, txHashes);
         const filteredTxsHashes = txData.parsedTxs
-            .filter((tx: Transaction) => tx.affiliateAddress)
+            .filter((tx: Transaction) => tx.affiliateAddress || tx.quoteId)
             .map((tx: Transaction) => tx.transactionHash);
 
         const validTxHashSet = new Set(filteredTxsHashes);
@@ -18,7 +18,7 @@ export async function filterWrapUnwrapEventsGetContext(events: Event[], web3Sour
 }
 
 export function filterWrapUnwrapEvents(events: Event[], transaction: Transaction): Event[] {
-    if (transaction.affiliateAddress) {
+    if (transaction.affiliateAddress || transaction.quoteId) {
         return events;
     }
     return [];
