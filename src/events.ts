@@ -160,6 +160,8 @@ import {
     filterSocketBridgeEvents,
     filterWrapUnwrapEvents,
     filterWrapUnwrapEventsGetContext,
+    filterERC20TransferEvents,
+    filterERC20TransferEventsGetContext,
 } from './filters';
 import {
     parseBridgeFill,
@@ -792,7 +794,8 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: null,
         startBlock: SETTLER_DEPLOYMENT_BLOCK,
         parser: parseERC20TransferEvent,
-        filterFunction: filterNulls,
+        filterFunction: filterERC20TransferEvents,
+        filterFunctionGetContext: filterERC20TransferEventsGetContext,
     },
     {
         enabled: FEAT_SETTLER_ERC721_TRANSFER_EVENT,
