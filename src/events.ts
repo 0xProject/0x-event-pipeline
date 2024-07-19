@@ -592,8 +592,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseWrapNativeEvent,
-        filterFunction: filterWrapUnwrapEvents,
-        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
+
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_EVENT,
@@ -604,8 +603,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeEvent,
-        filterFunction: filterWrapUnwrapEvents,
-        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
+
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
@@ -616,8 +614,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseWrapNativeTransferEvent,
-        filterFunction: filterWrapUnwrapEvents,
-        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
+
     },
     {
         enabled: FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT,
@@ -628,8 +625,7 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
         startBlock: WRAP_UNWRAP_NATIVE_START_BLOCK,
         parser: parseUnwrapNativeTransferEvent,
-        filterFunction: filterWrapUnwrapEvents,
-        filterFunctionGetContext: filterWrapUnwrapEventsGetContext,
+
     },
     {
         enabled: FEAT_SOCKET_BRIDGE_EVENT,
@@ -794,8 +790,6 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: null,
         startBlock: SETTLER_DEPLOYMENT_BLOCK,
         parser: parseERC20TransferEvent,
-        filterFunction: filterERC20TransferEvents,
-        filterFunctionGetContext: filterERC20TransferEventsGetContext,
     },
     {
         enabled: FEAT_SETTLER_ERC721_TRANSFER_EVENT,
