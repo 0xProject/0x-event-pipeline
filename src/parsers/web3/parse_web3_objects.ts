@@ -105,7 +105,7 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
 
         transaction.quoteTimestamp = null;
         transaction.quoteId = '0x' + trackingArgument.slice(0, 24);
-        transaction.affiliateAddress = null;
+        transaction.affiliateAddress = trackingArgument.slice(24, 30);
     } else if (transaction.input.includes(ZEROEX_API_AFFILIATE_SELECTOR)) {
         // 0x Exchange Proxy
         const bytesPos = rawTx.input.indexOf(ZEROEX_API_AFFILIATE_SELECTOR);
