@@ -138,6 +138,12 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
         const bytesPos = rawTx.input.indexOf('fbc019a7');
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         transaction.quoteTimestamp = null;
+    } else if (transaction.input.includes('56a993cd')) {
+        // APIv2 explicit wrap/unwrap event (Doesn't go through Settler)
+        const bytesPos = rawTx.input.indexOf('56a993cd') + '0x56a993cd'.length;
+        transaction.quoteId = '0x'.concat(rawTx.input.slice(bytesPos, bytesPos + 24));
+        transaction.affiliateAddress = null;
+        transaction.quoteTimestamp = null;
     }
 
     return transaction;
