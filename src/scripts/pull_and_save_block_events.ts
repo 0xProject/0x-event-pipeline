@@ -103,6 +103,13 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock): ParsedFullBlock {
 }
 
 function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction {
+    if (transaction.input === '0x') {
+        return {
+            parsedTransaction: null,
+            parsedEvents: null,
+        };
+    }
+
     const parsedTransaction = parseTransaction(transaction);
 
     const nestedParsedEvents: TypedEvents[] = eventScrperProps.map((props: EventScraperProps): TypedEvents => {
@@ -420,6 +427,11 @@ export class BlockEventsScraper {
                 : lastKnownBlock.blockNumber + MAX_BLOCKS_TO_PULL;
 
         const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
+
+        if (!newBlocks) {
+            logger.warn('RPC responded with no new blocks.');
+            return;
+        }
 
         // Reorg handling
         if (newBlocks[0].parentHash !== lastKnownBlock.blockHash) {

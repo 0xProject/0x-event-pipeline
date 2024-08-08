@@ -1,5 +1,9 @@
 import { CHAIN_ID } from '../../config';
-import { ZEROEX_API_AFFILIATE_SELECTOR } from '../../constants';
+import {
+    ZEROEX_API_AFFILIATE_SELECTOR,
+    SETTLER_EXECUTE_SELECTOR,
+    SETTLER_EXECUTE_META_TXN_SELECTOR,
+} from '../../constants';
 import {
     BlockWithoutTransactionData,
     TransactionReceipt as RawReceipt,
@@ -82,7 +86,28 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
     transaction.maxPriorityFeePerGas =
         rawTx.maxPriorityFeePerGas === undefined ? null : new BigNumber(rawTx.maxPriorityFeePerGas);
 
-    if (transaction.input.includes(ZEROEX_API_AFFILIATE_SELECTOR)) {
+    if (
+        transaction.input.includes(SETTLER_EXECUTE_SELECTOR) ||
+        transaction.input.includes(SETTLER_EXECUTE_META_TXN_SELECTOR)
+    ) {
+        // 0x Settler
+        // tracking argument: 32 bytes
+        // 12 bytes -> zid
+        // 20 bytes -> unassigned
+        const selector = transaction.input.includes(SETTLER_EXECUTE_SELECTOR)
+            ? SETTLER_EXECUTE_SELECTOR
+            : SETTLER_EXECUTE_META_TXN_SELECTOR;
+
+        const trackingArgumentSize = 64;
+        const selectorOffset = rawTx.input.indexOf(selector);
+        const trackingOffset = selectorOffset + 264;
+        const trackingArgument = rawTx.input.slice(trackingOffset, trackingOffset + trackingArgumentSize);
+
+        transaction.quoteTimestamp = null;
+        transaction.quoteId = '0x' + trackingArgument.slice(0, 24);
+        transaction.affiliateAddress = null;
+    } else if (transaction.input.includes(ZEROEX_API_AFFILIATE_SELECTOR)) {
+        // 0x Exchange Proxy
         const bytesPos = rawTx.input.indexOf(ZEROEX_API_AFFILIATE_SELECTOR);
         transaction.affiliateAddress = '0x'.concat(rawTx.input.slice(bytesPos + 32, bytesPos + 72));
         const quoteId = rawTx.input.slice(bytesPos + 104, bytesPos + 136);

@@ -1,7 +1,9 @@
 import {
+    SCHEMA,
     EP_ADDRESS,
     FEAT_STAKING,
     EP_DEPLOYMENT_BLOCK,
+    SETTLER_DEPLOYMENT_BLOCK,
     FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET,
     FEAT_LIMIT_ORDERS,
     FEAT_META_TRANSACTION_EXECUTED_EVENT,
@@ -47,6 +49,9 @@ import {
     V4_NATIVE_FILL_START_BLOCK,
     WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS,
     WRAP_UNWRAP_NATIVE_START_BLOCK,
+    FEAT_ERC20_TRANSFER_ALL,
+    FEAT_SETTLER_ERC721_TRANSFER_EVENT,
+    FEAT_SETTLER_RFQ_ORDER_EVENT,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -99,6 +104,7 @@ import {
     STAKING_EPOCH_ENDED_TOPIC,
     STAKING_EPOCH_FINALIZED_TOPIC,
     STAKING_REWARDS_PAID_TOPIC,
+    SETTLER_DEPLOYER_PROXY_CONTRACT,
 } from './constants';
 import { Web3Source } from './data_sources/events/web3';
 import {
@@ -144,6 +150,9 @@ import {
     StakingPoolEarnedRewardsInEpochEvent,
     TransactionExecutionEvent,
     UnstakeEvent,
+    ERC20TransferEvent,
+    SettlerERC721TransferEvent,
+    RFQOrderEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -151,6 +160,8 @@ import {
     filterSocketBridgeEvents,
     filterWrapUnwrapEvents,
     filterWrapUnwrapEventsGetContext,
+    filterERC20TransferEvents,
+    filterERC20TransferEventsGetContext,
 } from './filters';
 import {
     parseBridgeFill,
@@ -189,6 +200,9 @@ import {
     parseV4RfqOrderFilledEvent,
     parseWrapNativeEvent,
     parseWrapNativeTransferEvent,
+    parseERC20TransferEvent,
+    parseSettlerERC721TransferEvent,
+    parseRFQOrderEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -205,6 +219,7 @@ import {
 } from './parsers/events/staking_events';
 import { parseTransactionExecutionEvent } from './parsers/events/transaction_execution_events';
 import { TokenMetadataMap } from './scripts/utils/web3_utils';
+import { SettlerContractSingleton } from './settlerContractSingleton';
 import { UniV2PoolSingleton } from './uniV2PoolSingleton';
 import { UniV3PoolSingleton } from './uniV3PoolSingleton';
 import { DeleteOptions } from './utils';
@@ -222,6 +237,14 @@ function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
     const uniV3PoolSingleton = UniV3PoolSingleton.getInstance();
     uniV3PoolSingleton.addNewPools(pools);
     return pools;
+}
+
+function settlerContractSingletonCallback(settlerERC721TransferEvents: SettlerERC721TransferEvent[]) {
+    if (SettlerContractSingleton.isInitialized()) {
+        const settlerContractSingleton = SettlerContractSingleton.getInstance();
+        settlerERC721TransferEvents.map((entry) => settlerContractSingleton.addNewContract(entry.to));
+    }
+    return settlerERC721TransferEvents;
 }
 
 export type CommonEventParams = {
@@ -761,6 +784,41 @@ export const eventScrperProps: EventScraperProps[] = [
         contractAddress: STAKING_CONTRACT,
         startBlock: V3_DEPLOYMENT_BLOCK,
         parser: parseRewardsPaidEvent,
+    },
+    {
+        enabled: FEAT_ERC20_TRANSFER_ALL,
+        name: 'ERC20TransferEvent',
+        tType: ERC20TransferEvent,
+        table: 'erc20_transfer_events',
+        topics: [TRANSFER_EVENT_TOPIC_0],
+        contractAddress: null,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
+        parser: parseERC20TransferEvent,
+        filterFunction: filterERC20TransferEvents,
+        filterFunctionGetContext: filterERC20TransferEventsGetContext,
+    },
+    {
+        enabled: FEAT_SETTLER_ERC721_TRANSFER_EVENT,
+        name: 'SettlerERC721TransferEvent',
+        tType: SettlerERC721TransferEvent,
+        table: 'settler_erc721_transfer_events',
+        topics: [TRANSFER_EVENT_TOPIC_0],
+        contractAddress: SETTLER_DEPLOYER_PROXY_CONTRACT,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
+        parser: parseSettlerERC721TransferEvent,
+        filterFunction: filterNulls,
+        postProcess: settlerContractSingletonCallback,
+    },
+    {
+        enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
+        name: 'RFQOrderEvent',
+        tType: RFQOrderEvent,
+        table: 'rfq_order_events',
+        topics: [],
+        contractAddress: null,
+        startBlock: SETTLER_DEPLOYMENT_BLOCK,
+        parser: parseRFQOrderEvent,
+        filterFunction: filterNulls,
     },
 ];
 

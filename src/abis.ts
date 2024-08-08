@@ -1426,3 +1426,55 @@ export const STAKING_REWARDS_PAID_ABI = {
     name: 'RewardsPaid',
     type: 'event',
 };
+
+export const STANDARD_ERC20_TRANSFER_ABI = {
+    anonymous: false,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'from',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'to',
+            type: 'address',
+        },
+        {
+            indexed: false,
+            internalType: 'uint256',
+            name: 'value',
+            type: 'uint256',
+        },
+    ],
+    name: 'Transfer',
+    type: 'event',
+};
+
+export const SETTLER_ERC721_TRANSFER_ABI = {
+    anonymous: true,
+    inputs: [
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'from',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'address',
+            name: 'to',
+            type: 'address',
+        },
+        {
+            indexed: true,
+            internalType: 'uint256',
+            name: 'tokenId',
+            type: 'uint256',
+        },
+    ],
+    name: 'SettlerERC721Transfer',
+    type: 'event',
+};
