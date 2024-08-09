@@ -14,9 +14,9 @@ Configure the scape **Mode**
 
 2. Start Postgres
 
-```sh
-docker-compose up -d # get postgres up
-```
+For local development, you will need to get the local databases running depending on which pipelines you are going to develop/test.
+You can setup them by following the instructions on the [0x-data-migrations](https://github.com/0xProject/0x-data-migrations) repository. We manage all db setup/changes there.
+It will guide you on how to get the dbs up and running the initial setup that is necessary to be used here.
 
 3. Build the Scraper images
 

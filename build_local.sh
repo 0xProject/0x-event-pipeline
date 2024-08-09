@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
 
-docker-compose -f docker-compose-dev.yml up -d postgres
 docker-compose -f docker-compose-dev.yml build event-pipeline-ethereum
 docker-compose -f docker-compose-dev.yml build event-pipeline-base
 
