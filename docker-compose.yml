@@ -8,7 +8,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events'
             # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
             # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
@@ -75,7 +75,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_BSC}'
             CHAIN_ID: '56'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
             SCRAPER_MODE: 'BLOCKS'
             MAX_BLOCKS_REORG: 300
@@ -111,7 +111,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_POLYGON}'
             CHAIN_ID: '137'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'
             SCRAPER_MODE: 'BLOCKS'
             ENABLE_PROMETHEUS_METRICS: "true"
@@ -145,7 +145,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_AVALANCHE}'
             CHAIN_ID: '43114'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_avalanche'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
@@ -180,7 +180,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_FANTOM}'
             CHAIN_ID: '250'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_fantom'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
@@ -210,7 +210,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_CELO}'
             CHAIN_ID: '42220'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_celo'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
@@ -234,7 +234,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_OPTIMISM}'
             CHAIN_ID: '10'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_optimism'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
@@ -267,7 +267,7 @@ services:
         environment:
             EVM_RPC_URL: '${EVM_RPC_URL_ARBITRUM}'
             CHAIN_ID: '42161'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_arbitrum'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
@@ -296,7 +296,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_BASE}'
             CHAIN_ID: '8453'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events_base'
             SCRAPER_MODE: 'BLOCKS'
             FEAT_ZEROEX_EXCHANGE_PROXY: "true"
@@ -326,7 +326,7 @@ services:
         environment:
             EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
             SCHEMA: 'events'
             #KAFKA_BROKERS: '${KAFKA_BROKERS}'
             #KAFKA_SSL: '${KAFKA_SSL}'
