@@ -1,20 +1,5 @@
 version: '3'
 services:
-    postgres:
-        image: postgres:13.4
-        environment:
-          POSTGRES_USER: '${POSTGRES_USER}'
-          POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-          POSTGRES_DB: '${POSTGRES_DB}'
-          POSTGRES_PORT: ${POSTGRES_PORT}
-        # persist the postgres data to disk so we don't lose it
-        # on rebuilds.
-        volumes:
-            - ./mounts/postgres:/var/lib/postgresql/data
-            - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
-        ports:
-            - '5432:5432'
-        command: ["postgres", "-c", "log_statement=none", "-c", "log_destination=stderr"]
 
     event-pipeline-ethereum:
         depends_on:
@@ -165,7 +150,6 @@ services:
             NFT_FEATURE_START_BLOCK: 11816835
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
-
 
     event-pipeline-fantom:
         depends_on:
