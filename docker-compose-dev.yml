@@ -282,6 +282,33 @@ services:
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
 
+    event-pipeline-scroll:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        platform: linux/amd64
+        restart: always
+        environment:
+            SCRAPER_MODE: 'BLOCKS'
+            EVM_RPC_URL: '${RPC_URL_SCROLL}'
+            CHAIN_ID: '534352'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+            SCHEMA: 'events_scroll'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 7474150
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 100
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x5300000000000000000000000000000000000004'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+        networks:
+            - 0x-data-migrations_default
+
     token-scraper-ethereum:
         depends_on:
             - postgres
@@ -306,3 +333,7 @@ services:
             MAX_BLOCKS_TO_PULL: 1000
             MAX_TX_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 5
+
+networks:
+    0x-data-migrations_default:
+        external: true

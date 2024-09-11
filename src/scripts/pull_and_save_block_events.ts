@@ -408,7 +408,7 @@ export class BlockEventsScraper {
 
         if (lastKnownBlock === undefined) {
             logger.warn('First Run');
-            const firstStartBlock = Math.max(...eventScrperProps.map((props) => props.startBlock));
+            const firstStartBlock = Math.min(...eventScrperProps.filter((props) => props.enabled).map((props) => props.startBlock));
             logger.warn(`Going to start from block: ${firstStartBlock}`);
             const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(firstStartBlock, firstStartBlock, true);
             await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
