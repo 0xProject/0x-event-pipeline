@@ -71,6 +71,7 @@ const supportedChains: Map = {
     42161: { name: 'Arbitrum' },
     43114: { name: 'Avalanche' },
     42220: { name: 'Celo' },
+    534352: { name: 'Scroll' },
 };
 
 interface BridgeContract {
