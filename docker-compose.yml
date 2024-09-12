@@ -1,23 +1,6 @@
 version: '3'
 services:
-    postgres:
-        image: postgres:13.4
-        environment:
-          POSTGRES_USER: '${POSTGRES_USER}'
-          POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-          POSTGRES_DB: '${POSTGRES_DB}'
-          POSTGRES_PORT: ${POSTGRES_PORT}
-        # persist the postgres data to disk so we don't lose it
-        # on rebuilds.
-        volumes:
-            - ./mounts/postgres:/var/lib/postgresql/data
-        ports:
-            - '5432:5432'
-        command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
-
     event-pipeline-ethereum:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -85,8 +68,6 @@ services:
             FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
 
     event-pipeline-bsc:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -123,8 +104,6 @@ services:
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-polygon:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -159,8 +138,6 @@ services:
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-avalanche:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -196,8 +173,6 @@ services:
 
 
     event-pipeline-fantom:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -228,8 +203,6 @@ services:
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
 
     event-pipeline-celo:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -254,8 +227,6 @@ services:
             NFT_FEATURE_START_BLOCK: 11820000
 
     event-pipeline-optimism:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -289,8 +260,6 @@ services:
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-arbitrum:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -320,8 +289,6 @@ services:
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
 
     event-pipeline-base:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -352,8 +319,6 @@ services:
             FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
 
     event-pipeline-scroll:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
@@ -379,8 +344,6 @@ services:
 
 
     token-scraper-ethereum:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile
