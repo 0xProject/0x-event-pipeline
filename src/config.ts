@@ -71,6 +71,8 @@ const supportedChains: Map = {
     42161: { name: 'Arbitrum' },
     43114: { name: 'Avalanche' },
     42220: { name: 'Celo' },
+    59144: { name: 'Linea' },
+    81457: { name: 'Blast' },
     534352: { name: 'Scroll' },
 };
 
