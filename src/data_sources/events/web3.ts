@@ -253,17 +253,26 @@ export class Web3Source {
     }
 
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
-        try {
-            logger.debug(`Fetching block ${blockNumber}`);
+        while (true) {
+            try {
+                logger.debug(`Fetching block ${blockNumber}`);
 
-            const block = (await this._web3Wrapper.getBlockIfExistsAsync(blockNumber)) as BlockWithoutTransactionData;
+                const block = (await this._web3Wrapper.getBlockIfExistsAsync(blockNumber)) as BlockWithoutTransactionData;
 
-            if (block == null) {
-                throw new Error(`Block ${blockNumber} returned null`);
+                if (block == null) {
+                    logger.warn(`Block ${blockNumber} returned null, likely because the RPC node is not fully synced. Retrying...`);
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    continue;
+                }
+                return block;
+            } catch (err) {
+                if (err instanceof Error) {
+                    logger.error(`Error while fetching block ${blockNumber}: ${err.message}. Retrying...`);
+                } else {
+                    logger.error(`Unknown error while fetching block ${blockNumber}. Retrying...`);
+                }
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
-            return block;
-        } catch (err) {
-            throw new Error(`Encountered error while fetching block ${blockNumber}: ${err}`);
         }
     }
 
