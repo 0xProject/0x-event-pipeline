@@ -259,10 +259,16 @@ export class Web3Source {
             try {
                 logger.debug(`Fetching block ${blockNumber}`);
 
-                const block = (await this._web3Wrapper.getBlockIfExistsAsync(blockNumber)) as BlockWithoutTransactionData;
+                const block = (await this._web3Wrapper.getBlockIfExistsAsync(
+                    blockNumber,
+                )) as BlockWithoutTransactionData;
 
                 if (block == null) {
-                    logger.warn(`Block ${blockNumber} returned null, likely because the RPC node is not fully synced. Retrying... (${retryCount + 1}/${MAX_RPC_RETRY_CALLS})`);
+                    logger.warn(
+                        `Block ${blockNumber} returned null, likely because the RPC node is not fully synced. Retrying... (${
+                            retryCount + 1
+                        }/${MAX_RPC_RETRY_CALLS})`,
+                    );
                     retryCount++;
                     await new Promise((resolve) => setTimeout(resolve, 1000));
                     continue;
@@ -270,9 +276,17 @@ export class Web3Source {
                 return block;
             } catch (err) {
                 if (err instanceof Error) {
-                    logger.error(`Error while fetching block ${blockNumber}: ${err.message}. Retrying... (${retryCount + 1}/${MAX_RPC_RETRY_CALLS})`);
+                    logger.error(
+                        `Error while fetching block ${blockNumber}: ${err.message}. Retrying... (${
+                            retryCount + 1
+                        }/${MAX_RPC_RETRY_CALLS})`,
+                    );
                 } else {
-                    logger.error(`Unknown error while fetching block ${blockNumber}. Retrying... (${retryCount + 1}/${MAX_RPC_RETRY_CALLS})`);
+                    logger.error(
+                        `Unknown error while fetching block ${blockNumber}. Retrying... (${
+                            retryCount + 1
+                        }/${MAX_RPC_RETRY_CALLS})`,
+                    );
                 }
                 retryCount++;
                 await new Promise((resolve) => setTimeout(resolve, 1000));
