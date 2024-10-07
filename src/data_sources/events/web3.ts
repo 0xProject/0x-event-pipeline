@@ -1,4 +1,4 @@
-import { MAX_TX_TO_PULL, BLOCK_RECEIPTS_MODE } from '../../config';
+import { MAX_TX_TO_PULL, BLOCK_RECEIPTS_MODE, MAX_RPC_RETRY_CALLS } from '../../config';
 import { chunk, logger } from '../../utils';
 import {
     BlockWithTransactionData,
@@ -253,18 +253,47 @@ export class Web3Source {
     }
 
     public async getBlockInfoAsync(blockNumber: number): Promise<BlockWithoutTransactionData> {
-        try {
-            logger.debug(`Fetching block ${blockNumber}`);
+        let retryCount = 0;
 
-            const block = (await this._web3Wrapper.getBlockIfExistsAsync(blockNumber)) as BlockWithoutTransactionData;
+        while (retryCount < MAX_RPC_RETRY_CALLS) {
+            try {
+                logger.debug(`Fetching block ${blockNumber}`);
 
-            if (block == null) {
-                throw new Error(`Block ${blockNumber} returned null`);
+                const block = (await this._web3Wrapper.getBlockIfExistsAsync(
+                    blockNumber,
+                )) as BlockWithoutTransactionData;
+
+                if (block == null) {
+                    logger.warn(
+                        `Block ${blockNumber} returned null, likely because the RPC node is not fully synced. Retrying... (${
+                            retryCount + 1
+                        }/${MAX_RPC_RETRY_CALLS})`,
+                    );
+                    retryCount++;
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    continue;
+                }
+                return block;
+            } catch (err) {
+                if (err instanceof Error) {
+                    logger.error(
+                        `Error while fetching block ${blockNumber}: ${err.message}. Retrying... (${
+                            retryCount + 1
+                        }/${MAX_RPC_RETRY_CALLS})`,
+                    );
+                } else {
+                    logger.error(
+                        `Unknown error while fetching block ${blockNumber}. Retrying... (${
+                            retryCount + 1
+                        }/${MAX_RPC_RETRY_CALLS})`,
+                    );
+                }
+                retryCount++;
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
-            return block;
-        } catch (err) {
-            throw new Error(`Encountered error while fetching block ${blockNumber}: ${err}`);
         }
+
+        throw new Error(`Failed to fetch block ${blockNumber} after ${MAX_RPC_RETRY_CALLS} retries.`);
     }
 
     public async getCurrentBlockAsync(): Promise<BlockWithoutTransactionData> {

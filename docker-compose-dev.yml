@@ -352,9 +352,9 @@ services:
             SCHEMA: 'events_linea'
             FEAT_ZEROEX_EXCHANGE_PROXY: "false"
             SETTLER_DEPLOYMENT_BLOCK: 6917652
-            MAX_BLOCKS_TO_SEARCH: 800
-            MAX_BLOCKS_TO_PULL: 100
-            MAX_BLOCKS_REORG: 500
+            MAX_BLOCKS_TO_SEARCH: 125
+            MAX_BLOCKS_TO_PULL: 25
+            MAX_BLOCKS_REORG: 125
             SECONDS_BETWEEN_RUNS: 1
             RESCRAPE_BLOCKS: 10
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
@@ -363,6 +363,7 @@ services:
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
             TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
+            FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: "6917652"
         networks:
