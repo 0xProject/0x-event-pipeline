@@ -92,6 +92,12 @@ createConnection(ormConfig as ConnectionOptions)
         if (SCRAPER_MODE === 'BLOCKS') {
             schedule(connection, producer, blockEventsScraper.getParseSaveAsync, 'Pull and Save Blocks and Events');
             schedule(connection, producer, blockEventsScraper.backfillAsync, 'Backfill Blocks and Events');
+            schedule(
+                connection,
+                producer,
+                backfillTxScraper.getParseSaveTxBackfillAsync,
+                'Pull and Save Backfill Transactions',
+            );
             schedule(connection, producer, eventsBackfillScraper.getParseSaveEventsAsync, 'Backfill Events by Topic');
         } else if (SCRAPER_MODE === 'EVENTS') {
             schedule(null, null, currentBlockMonitor.monitor, 'Current Block');
