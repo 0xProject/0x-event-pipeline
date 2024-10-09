@@ -78,9 +78,8 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set
 
     const usefullTxs: ParsedTransaction[] = fullBlock.transactions
         .map((transaction: FullTransaction): ParsedTransaction | null => {
-            // Only parse transactions if they are in the allowed list or if no list is provided.
             if (!allowedTxnList || allowedTxnList.has(transaction.hash)) {
-                const parsedTransactionEvents = parseTransactionEvents(transaction);
+                const parsedTransactionEvents = parseTransactionEvents(transaction, allowedTxnList);
                 if (parsedTransactionEvents.parsedTransaction !== null) {
                     return parsedTransactionEvents;
                 }
@@ -88,7 +87,7 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set
             return null;
         })
         .filter((tx) => tx !== null) as ParsedTransaction[];
-
+    
     const parsedTransactions: Transaction[] = usefullTxs.map((tx) => tx!.parsedTransaction!);
     const parsedTransactionHashes: string[] = parsedTransactions.map((tx) => tx.transactionHash);
 
@@ -104,7 +103,7 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set
     };
 }
 
-function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction {
+function parseTransactionEvents(transaction: FullTransaction, allowedTxnList?: Set<string>): ParsedTransaction {
     if (transaction.input === '0x') {
         return {
             parsedTransaction: null,
@@ -124,7 +123,7 @@ function parseTransactionEvents(transaction: FullTransaction): ParsedTransaction
                 const parsedLogs = baseFilteredLogs.map((log: LogEntry) => props.parser(log));
 
                 const filteredLogs = props.filterFunction
-                    ? props.filterFunction(parsedLogs, parsedTransaction)
+                    ? props.filterFunction(parsedLogs, parsedTransaction, allowedTxnList)
                     : parsedLogs;
 
                 const postProcessedLogs = props.postProcess ? props.postProcess(filteredLogs) : filteredLogs;
@@ -377,13 +376,13 @@ export class BlockEventsScraper {
                 (backfillBlock: { block_number: number }) => backfillBlock.block_number,
             );
             const allowedTxnListQuery = await connection.query(
-                `SELECT DISTINCT txn_hash
+                `SELECT DISTINCT transaction_hash
                  FROM ${SCHEMA}.tx_backfill
                  WHERE block_number IN (${blockNumbers.join(',')}) AND done = false`
             );
 
-            const allowedTxnList = new Set(
-                allowedTxnListQuery.map((row: { txn_hash: string }) => row.txn_hash)
+            const allowedTxnList = new Set<string>(
+                allowedTxnListQuery.map((row: { transaction_hash: string }) => row.transaction_hash)
             );
 
             const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);

@@ -10,7 +10,7 @@ export async function filterERC20TransferEventsGetContext(
     if (events.length > 0) {
         const txHashes = events.map((log: Event) => log.transactionHash);
         let validTxHashSet: Set<string>;
-        if (allowedTxnList) {
+        if (allowedTxnList && allowedTxnList.size > 0) {
             validTxHashSet = allowedTxnList;
         } else {
             const txData = await getParseTxsAsync(web3Source, txHashes);
@@ -32,7 +32,7 @@ export function filterERC20TransferEvents(
     transaction: Transaction,
     allowedTxnList?: Set<string>,
 ): Event[] {
-    if (allowedTxnList) {
+    if (allowedTxnList && allowedTxnList.size > 0) {
         if (allowedTxnList.has(transaction.transactionHash)) {
             return events.filter((e) => e !== null);
         }
