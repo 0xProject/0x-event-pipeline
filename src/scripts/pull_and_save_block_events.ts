@@ -87,7 +87,7 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set
             return null;
         })
         .filter((tx) => tx !== null) as ParsedTransaction[];
-    
+
     const parsedTransactions: Transaction[] = usefullTxs.map((tx) => tx!.parsedTransaction!);
     const parsedTransactionHashes: string[] = parsedTransactions.map((tx) => tx.transactionHash);
 
@@ -329,9 +329,7 @@ async function getParseSaveBlocksTransactionsEvents(
             return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
         });
 
-        const parsedFullBlocks = fullBlocks.map((fullBlock) =>
-            parseBlockTransactionsEvents(fullBlock, allowedTxnList)
-        );
+        const parsedFullBlocks = fullBlocks.map((fullBlock) => parseBlockTransactionsEvents(fullBlock, allowedTxnList));
 
         const eventTables = eventScrperProps
             .filter((props) => props.enabled)
@@ -378,11 +376,11 @@ export class BlockEventsScraper {
             const allowedTxnListQuery = await connection.query(
                 `SELECT DISTINCT transaction_hash
                  FROM ${SCHEMA}.tx_backfill
-                 WHERE block_number IN (${blockNumbers.join(',')}) AND done = false`
+                 WHERE block_number IN (${blockNumbers.join(',')}) AND done = false`,
             );
 
             const allowedTxnList = new Set<string>(
-                allowedTxnListQuery.map((row: { transaction_hash: string }) => row.transaction_hash)
+                allowedTxnListQuery.map((row: { transaction_hash: string }) => row.transaction_hash),
             );
 
             const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);
@@ -392,7 +390,7 @@ export class BlockEventsScraper {
                 producer,
                 newBlocks,
                 false,
-                allowedTxnList
+                allowedTxnList,
             );
 
             if (success) {

@@ -266,7 +266,11 @@ export type EventScraperProps = {
     tokenMetadataMap?: TokenMetadataMap;
     postProcess?: any;
     filterFunction?: (events: Event[], transaction: Transaction, allowedTxnList?: Set<string>) => Event[];
-    filterFunctionGetContext?: (events: Event[], web3Source: Web3Source, allowedTxnList?: Set<string>) => Promise<Event[]>;
+    filterFunctionGetContext?: (
+        events: Event[],
+        web3Source: Web3Source,
+        allowedTxnList?: Set<string>,
+    ) => Promise<Event[]>;
 };
 
 export const eventScrperProps: EventScraperProps[] = [
