@@ -2,8 +2,6 @@ version: '3'
 services:
 
     event-pipeline-ethereum:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -15,10 +13,6 @@ services:
             SCHEMA: 'events'
             # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
             # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_DEPLOYMENT_BLOCK: 10247094
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
@@ -57,10 +51,10 @@ services:
             # ONCHAIN_GOVERNANCE_START_BLOCK: 16990159
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+        networks:
+            - 0x-data-migrations_default
 
-    event-pipeline-bsc:
-        depends_on:
-            - postgres
+    event-pipeline-bsc:       
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -71,10 +65,6 @@ services:
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_bsc'
             MAX_BLOCKS_REORG: 50
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_DEPLOYMENT_BLOCK: 5375047
             MAX_BLOCKS_TO_SEARCH: 2000
             MAX_BLOCKS_TO_PULL: 5000
@@ -87,10 +77,10 @@ services:
             # NFT_FEATURE_START_BLOCK: 15860129
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-polygon:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -100,10 +90,6 @@ services:
             CHAIN_ID: '137'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_polygon'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 14391480
             MAX_BLOCKS_TO_SEARCH: 1000
@@ -121,10 +107,10 @@ services:
             # META_TRANSACTION_EXECUTED_START_BLOCK: 39406300
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-avalanche:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -134,10 +120,6 @@ services:
             CHAIN_ID: '43114'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_avalanche'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 3601700
             MAX_BLOCKS_TO_SEARCH: 5000
@@ -150,10 +132,10 @@ services:
             NFT_FEATURE_START_BLOCK: 11816835
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-fantom:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -163,10 +145,6 @@ services:
             CHAIN_ID: '250'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_fantom'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 18855765
@@ -180,10 +158,10 @@ services:
             NFT_FEATURE_START_BLOCK: 32817445
             FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-celo:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -193,10 +171,6 @@ services:
             CHAIN_ID: '42220'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_celo'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             ENABLE_PROMETHEUS_METRICS: "true"
             EP_DEPLOYMENT_BLOCK: 9350111
             MAX_BLOCKS_TO_SEARCH: 5000
@@ -204,10 +178,10 @@ services:
             MINUTES_BETWEEN_RUNS: 1
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11820000
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-optimism:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -217,10 +191,6 @@ services:
             CHAIN_ID: '10'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_optimism'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_DEPLOYMENT_BLOCK: 1691335
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
@@ -230,10 +200,10 @@ services:
             NFT_FEATURE_START_BLOCK: 4214981
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: "0x4200000000000000000000000000000000000006"
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-arbitrum:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -243,10 +213,6 @@ services:
             CHAIN_ID: '42161'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events_arbitrum'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             EP_DEPLOYMENT_BLOCK: 4050733
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 1000
@@ -256,10 +222,10 @@ services:
             NFT_FEATURE_START_BLOCK: 4050733
             FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-base:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -275,12 +241,10 @@ services:
             SECONDS_BETWEEN_RUNS: 1
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 1410394
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+        networks:
+            - 0x-data-migrations_default
 
     event-pipeline-scroll:
         build:
@@ -370,8 +334,6 @@ services:
             - 0x-data-migrations_default
 
     token-scraper-ethereum:
-        depends_on:
-            - postgres
         build:
             context: .
             dockerfile: Dockerfile.dev
@@ -381,10 +343,6 @@ services:
             CHAIN_ID: '1'
             POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}'
             SCHEMA: 'events'
-            KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            KAFKA_SSL: '${KAFKA_SSL}'
-            KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             LOG_LEVEL: "info"
             FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
             TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
@@ -393,6 +351,8 @@ services:
             MAX_BLOCKS_TO_PULL: 1000
             MAX_TX_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 5
+        networks:
+            - 0x-data-migrations_default
 
 networks:
     0x-data-migrations_default:
