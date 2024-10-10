@@ -32,12 +32,15 @@ export function filterERC20TransferEvents(
     transaction: Transaction,
     allowedTxnList?: Set<string>,
 ): Event[] {
-    if (allowedTxnList && allowedTxnList.size > 0) {
-        if (allowedTxnList.has(transaction.transactionHash)) {
-            return events.filter((e) => e !== null);
-        }
-    } else if (transaction.quoteId) {
-        return events.filter((e) => e !== null);
+    const filteredEvents = new Set<Event>();
+
+    if (allowedTxnList && allowedTxnList.size > 0 && allowedTxnList.has(transaction.transactionHash)) {
+        events.filter((e) => e !== null).forEach((e) => filteredEvents.add(e));
     }
-    return [];
+
+    if (transaction.quoteId) {
+        events.filter((e) => e !== null).forEach((e) => filteredEvents.add(e));
+    }
+
+    return Array.from(filteredEvents);
 }

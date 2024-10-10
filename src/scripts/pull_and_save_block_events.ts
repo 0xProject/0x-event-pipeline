@@ -78,11 +78,9 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set
 
     const usefullTxs: ParsedTransaction[] = fullBlock.transactions
         .map((transaction: FullTransaction): ParsedTransaction | null => {
-            if (!allowedTxnList || allowedTxnList.has(transaction.hash)) {
-                const parsedTransactionEvents = parseTransactionEvents(transaction, allowedTxnList);
-                if (parsedTransactionEvents.parsedTransaction !== null) {
-                    return parsedTransactionEvents;
-                }
+            const parsedTransactionEvents = parseTransactionEvents(transaction, allowedTxnList);
+            if (parsedTransactionEvents.parsedTransaction !== null) {
+                return parsedTransactionEvents;
             }
             return null;
         })
