@@ -34,6 +34,11 @@ import { Kafka, Producer } from 'kafkajs';
 import { resolve } from 'path';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 
+process.on('unhandledRejection', (reason, promise) => {
+    logger.fatal('Unhandled Rejection:', reason);
+    process.exit(1);
+});
+
 config({ path: resolve(__dirname, '../../.env') });
 
 let producer: Producer | null = null;
@@ -128,7 +133,7 @@ createConnection(ormConfig as ConnectionOptions)
     })
     .catch((error) => {
         logger.fatal(error);
-        process.exit();
+        process.exit(1);
     });
 
 async function schedule(connection: Connection | null, producer: Producer | null, func: any, funcName: string) {
