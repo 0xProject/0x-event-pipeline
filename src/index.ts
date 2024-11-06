@@ -126,7 +126,10 @@ createConnection(ormConfig as ConnectionOptions)
             }
         }
     })
-    .catch((error) => logger.error(error));
+    .catch((error) => {
+        logger.fatal(error);
+        process.exit();
+    });
 
 async function schedule(connection: Connection | null, producer: Producer | null, func: any, funcName: string) {
     const start = new Date().getTime();
