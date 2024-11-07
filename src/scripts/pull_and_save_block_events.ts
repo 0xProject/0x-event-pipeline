@@ -430,7 +430,7 @@ export class BlockEventsScraper {
 
         const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
 
-        if (!newBlocks) {
+        if (newBlocks === undefined || newBlocks.length == 0 || newBlocks[0] === null) {
             logger.warn('RPC responded with no new blocks.');
             return;
         }
