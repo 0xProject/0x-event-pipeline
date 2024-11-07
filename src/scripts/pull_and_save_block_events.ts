@@ -420,6 +420,9 @@ export class BlockEventsScraper {
         if (lastKnownBlock.blockNumber === currentBlockNumber) {
             logger.debug('No new block, waiting until next interval');
             return;
+        } else if (lastKnownBlock.blockNumber >= currentBlockNumber) {
+            logger.debug('RPC node is lagging, waiting until next interval');
+            return;
         }
 
         const blockRangeStart = lastKnownBlock.blockNumber + 1;
