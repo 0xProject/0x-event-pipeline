@@ -433,7 +433,7 @@ export class BlockEventsScraper {
 
         const newBlocksRaw = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
 
-        const newBlocks:(typeof newBlocksRaw) = newBlocksRaw.filter((block) => block !== null);
+        const newBlocks: typeof newBlocksRaw = newBlocksRaw.filter((block) => block !== null);
 
         if (!newBlocks || newBlocks === undefined || newBlocks.length == 0) {
             logger.warn('RPC responded with no new blocks.');
@@ -468,8 +468,8 @@ export class BlockEventsScraper {
         }
 
         try {
-            const tmpBlockNumbers = newBlocks.map((block) => block?.number)
-            logger.debug(`response blockNumbers: ${JSON.stringify(tmpBlockNumbers)}`)
+            const tmpBlockNumbers = newBlocks.map((block) => block?.number);
+            logger.debug(`response blockNumbers: ${JSON.stringify(tmpBlockNumbers)}`);
             const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
 
             if (success) {
