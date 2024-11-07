@@ -428,9 +428,11 @@ export class BlockEventsScraper {
                 ? currentBlockNumber
                 : lastKnownBlock.blockNumber + MAX_BLOCKS_TO_PULL;
 
-        const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
+        const newBlocksRaw = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
 
-        if (newBlocks === undefined || newBlocks.length == 0 || newBlocks[0] === null) {
+        const newBlocks:(typeof newBlocksRaw) = newBlocksRaw.filter((block) => block !== null);
+
+        if (!newBlocks || newBlocks === undefined || newBlocks.length == 0) {
             logger.warn('RPC responded with no new blocks.');
             return;
         }
@@ -463,6 +465,8 @@ export class BlockEventsScraper {
         }
 
         try {
+            const tmpBlockNumbers = newBlocks.map((block) => block?.number)
+            logger.debug(`response blockNumbers: ${JSON.stringify(tmpBlockNumbers)}`)
             const success = await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
 
             if (success) {
