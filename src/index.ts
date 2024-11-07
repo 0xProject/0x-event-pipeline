@@ -34,11 +34,6 @@ import { Kafka, Producer } from 'kafkajs';
 import { resolve } from 'path';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 
-process.on('unhandledRejection', (reason, promise) => {
-    logger.fatal('Unhandled Rejection:', reason);
-    process.exit(1);
-});
-
 config({ path: resolve(__dirname, '../../.env') });
 
 let producer: Producer | null = null;
