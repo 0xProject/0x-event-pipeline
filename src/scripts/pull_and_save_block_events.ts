@@ -327,7 +327,9 @@ async function getParseSaveBlocksTransactionsEvents(
             return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
         });
 
-        const parsedFullBlocks = fullBlocks.map((fullBlock) => parseBlockTransactionsEvents(fullBlock, requiredTxnList));
+        const parsedFullBlocks = fullBlocks.map((fullBlock) =>
+            parseBlockTransactionsEvents(fullBlock, requiredTxnList),
+        );
 
         const eventTables = eventScrperProps
             .filter((props) => props.enabled)
