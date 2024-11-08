@@ -73,12 +73,12 @@ const provider = web3Factory.getRpcProvider({
 });
 const web3Source = new Web3Source(provider, EVM_RPC_URL);
 
-function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set<string>): ParsedFullBlock {
+function parseBlockTransactionsEvents(fullBlock: FullBlock, requiredTxnList?: Set<string>): ParsedFullBlock {
     const parsedBlock = parseBlock({ ...fullBlock, transactions: [''] });
 
     const usefullTxs: ParsedTransaction[] = fullBlock.transactions
         .map((transaction: FullTransaction): ParsedTransaction | null => {
-            const parsedTransactionEvents = parseTransactionEvents(transaction, allowedTxnList);
+            const parsedTransactionEvents = parseTransactionEvents(transaction, requiredTxnList);
             if (parsedTransactionEvents.parsedTransaction !== null) {
                 return parsedTransactionEvents;
             }
@@ -101,7 +101,7 @@ function parseBlockTransactionsEvents(fullBlock: FullBlock, allowedTxnList?: Set
     };
 }
 
-function parseTransactionEvents(transaction: FullTransaction, allowedTxnList?: Set<string>): ParsedTransaction {
+function parseTransactionEvents(transaction: FullTransaction, requiredTxnList?: Set<string>): ParsedTransaction {
     if (transaction.input === '0x') {
         return {
             parsedTransaction: null,
@@ -121,7 +121,7 @@ function parseTransactionEvents(transaction: FullTransaction, allowedTxnList?: S
                 const parsedLogs = baseFilteredLogs.map((log: LogEntry) => props.parser(log));
 
                 const filteredLogs = props.filterFunction
-                    ? props.filterFunction(parsedLogs, parsedTransaction, allowedTxnList)
+                    ? props.filterFunction(parsedLogs, parsedTransaction, requiredTxnList)
                     : parsedLogs;
 
                 const postProcessedLogs = props.postProcess ? props.postProcess(filteredLogs) : filteredLogs;
@@ -269,7 +269,7 @@ async function getParseSaveBlocksTransactionsEvents(
     producer: Producer | null,
     newBlocks: EVMBlock[],
     allowPartialSuccess: boolean,
-    allowedTxnList?: Set<string>,
+    requiredTxnList?: Set<string>,
 ): Promise<boolean> {
     const blockNumbers = newBlocks.map((newBlock) => newBlock.number!);
 
@@ -327,7 +327,7 @@ async function getParseSaveBlocksTransactionsEvents(
             return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
         });
 
-        const parsedFullBlocks = fullBlocks.map((fullBlock) => parseBlockTransactionsEvents(fullBlock, allowedTxnList));
+        const parsedFullBlocks = fullBlocks.map((fullBlock) => parseBlockTransactionsEvents(fullBlock, requiredTxnList));
 
         const eventTables = eventScrperProps
             .filter((props) => props.enabled)
@@ -371,14 +371,14 @@ export class BlockEventsScraper {
             const blockNumbers = oldestBlocksToBackfill.map(
                 (backfillBlock: { block_number: number }) => backfillBlock.block_number,
             );
-            const allowedTxnListQuery = await connection.query(
+            const requiredTxnListQuery = await connection.query(
                 `SELECT DISTINCT transaction_hash
                  FROM ${SCHEMA}.tx_backfill
                  WHERE block_number IN (${blockNumbers.join(',')}) AND done = false`,
             );
 
-            const allowedTxnList = new Set<string>(
-                allowedTxnListQuery.map((row: { transaction_hash: string }) => row.transaction_hash),
+            const requiredTxnList = new Set<string>(
+                requiredTxnListQuery.map((row: { transaction_hash: string }) => row.transaction_hash),
             );
 
             const newBlocks = await web3Source.getBatchBlockInfoAsync(blockNumbers, true);
@@ -388,7 +388,7 @@ export class BlockEventsScraper {
                 producer,
                 newBlocks,
                 false,
-                allowedTxnList,
+                requiredTxnList,
             );
 
             if (success) {
