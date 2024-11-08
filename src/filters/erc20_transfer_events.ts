@@ -5,13 +5,13 @@ import { getParseTxsAsync } from '../scripts/utils/web3_utils';
 export async function filterERC20TransferEventsGetContext(
     events: Event[],
     web3Source: Web3Source,
-    allowedTxnList?: Set<string>,
+    requiredTxnList?: Set<string>,
 ): Promise<Event[]> {
     if (events.length > 0) {
         const txHashes = events.map((log: Event) => log.transactionHash);
         let validTxHashSet: Set<string>;
-        if (allowedTxnList && allowedTxnList.size > 0) {
-            validTxHashSet = allowedTxnList;
+        if (requiredTxnList && requiredTxnList.size > 0) {
+            validTxHashSet = requiredTxnList;
         } else {
             const txData = await getParseTxsAsync(web3Source, txHashes);
             const filteredTxsHashes = txData.parsedTxs
@@ -30,11 +30,11 @@ export async function filterERC20TransferEventsGetContext(
 export function filterERC20TransferEvents(
     events: Event[],
     transaction: Transaction,
-    allowedTxnList?: Set<string>,
+    requiredTxnList?: Set<string>,
 ): Event[] {
     const filteredEvents = new Set<Event>();
 
-    if (allowedTxnList && allowedTxnList.size > 0 && allowedTxnList.has(transaction.transactionHash)) {
+    if (requiredTxnList && requiredTxnList.size > 0 && requiredTxnList.has(transaction.transactionHash)) {
         events.filter((e) => e !== null).forEach((e) => filteredEvents.add(e));
     }
 

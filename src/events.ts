@@ -265,11 +265,11 @@ export type EventScraperProps = {
     deleteOptions?: DeleteOptions;
     tokenMetadataMap?: TokenMetadataMap;
     postProcess?: any;
-    filterFunction?: (events: Event[], transaction: Transaction, allowedTxnList?: Set<string>) => Event[];
+    filterFunction?: (events: Event[], transaction: Transaction, requiredTxnList?: Set<string>) => Event[];
     filterFunctionGetContext?: (
         events: Event[],
         web3Source: Web3Source,
-        allowedTxnList?: Set<string>,
+        requiredTxnList?: Set<string>,
     ) => Promise<Event[]>;
 };
 
