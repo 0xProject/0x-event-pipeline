@@ -75,6 +75,8 @@ const supportedChains: Map = {
     59144: { name: 'Linea' },
     81457: { name: 'Blast' },
     534352: { name: 'Scroll' },
+    34443: { name: 'Mode' },
+    5000: { name: 'Mantle' },
 };
 
 interface BridgeContract {
