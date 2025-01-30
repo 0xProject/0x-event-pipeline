@@ -77,7 +77,7 @@ const supportedChains: Map = {
     534352: { name: 'Scroll' },
     34443: { name: 'Mode' },
     5000: { name: 'Mantle' },
-    480: { name: 'World' },
+    480: { name: 'Worldchain' },
 };
 
 interface BridgeContract {
@@ -145,10 +145,10 @@ export const SCRAPER_MODE: ScraperMode =
     process.env.SCRAPER_MODE === undefined
         ? DEFAULT_SCRAPER_MODE
         : process.env.SCRAPER_MODE === 'BLOCKS'
-        ? 'BLOCKS'
-        : process.env.SCRAPER_MODE === 'EVENTS'
-        ? 'EVENTS'
-        : throwError('Wrong SCRAPER_MODE');
+            ? 'BLOCKS'
+            : process.env.SCRAPER_MODE === 'EVENTS'
+                ? 'EVENTS'
+                : throwError('Wrong SCRAPER_MODE');
 export const METRICS_PATH = process.env.METRICS_PATH || DEFAULT_METRICS_PATH;
 
 export const PROMETHEUS_PORT = getIntConfig('PROMETHEUS_PORT', DEFAULT_PROMETHEUS_PORT);
@@ -389,13 +389,13 @@ export const FEAT_UNISWAP_V2_PAIR_CREATED_EVENT = getBoolConfig(
 export const UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS = process.env
     .UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS
     ? process.env.UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS.split(',').map((contract) => {
-          const [name, factoryAddress, startBlock] = contract.split(':');
-          return {
-              name,
-              factoryAddress,
-              startBlock: parseInt(startBlock),
-          };
-      })
+        const [name, factoryAddress, startBlock] = contract.split(':');
+        return {
+            name,
+            factoryAddress,
+            startBlock: parseInt(startBlock),
+        };
+    })
     : [];
 
 if (
