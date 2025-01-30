@@ -464,6 +464,7 @@ services:
             TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: "7306803"
+            BLOCK_RECEIPTS_MODE: "standard"
         networks:
             - 0x-data-migrations_default
     token-scraper-ethereum:
