@@ -361,7 +361,7 @@ export class BlockEventsScraper {
 
         const oldestBlocksToBackfill = await connection.query(
             `SELECT DISTINCT block_number
-             FROM ${SCHEMA}.tx_backfill
+             FROM ${SCHEMA}.block_backfill
              WHERE done = false
              ORDER BY block_number
              LIMIT ${MAX_BLOCKS_TO_PULL}`,
@@ -398,7 +398,7 @@ export class BlockEventsScraper {
                 const queryRunner = connection.createQueryRunner();
                 await queryRunner.connect();
                 await queryRunner.manager.query(
-                    `UPDATE ${SCHEMA}.tx_backfill
+                    `UPDATE ${SCHEMA}.block_backfill
                      SET done = true
                      WHERE block_number IN (${newBlockNumbers.join(',')})`,
                 );
