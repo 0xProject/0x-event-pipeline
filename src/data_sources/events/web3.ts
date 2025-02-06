@@ -31,8 +31,8 @@ export interface ContractCallInfo {
 const web3HttpOptions = {
     providerOptions: {
         headers: {
-            'Accept-Encoding': 'gzip'
-        }
+            'Accept-Encoding': 'gzip',
+        },
     } as RequestInit,
 };
 
