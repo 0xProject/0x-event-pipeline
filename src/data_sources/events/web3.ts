@@ -28,12 +28,21 @@ export interface ContractCallInfo {
     data: string;
 }
 
+const web3HttpOptions = {
+    providerOptions: {
+        headers: {
+            // 'Content-Type': 'application/json',
+            'Accept-Encoding': 'gzip'
+        }
+    } as RequestInit,
+};
+
 export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
     private readonly _web3: any;
     constructor(provider: Web3ProviderEngine, wsProvider: string) {
         this._web3Wrapper = new Web3Wrapper(provider);
-        this._web3 = new Web3(wsProvider);
+        this._web3 = new Web3(new Web3.providers.HttpProvider(wsProvider, web3HttpOptions));
 
         if (BLOCK_RECEIPTS_MODE === 'standard') {
             this._web3.eth.extend({
