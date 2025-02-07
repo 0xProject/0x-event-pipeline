@@ -242,7 +242,10 @@ function uniV3PoolSingletonCallback(pools: UniswapV3PoolCreatedEvent[]) {
 function settlerContractSingletonCallback(settlerERC721TransferEvents: SettlerERC721TransferEvent[]) {
     if (SettlerContractSingleton.isInitialized()) {
         const settlerContractSingleton = SettlerContractSingleton.getInstance();
-        settlerERC721TransferEvents.map((entry) => settlerContractSingleton.addNewContract(entry.to));
+        settlerERC721TransferEvents.map((entry) => {
+            settlerContractSingleton.addNewContract(entry.to);
+            registerSettlerContractEventProp(entry.to);
+        });
     }
     return settlerERC721TransferEvents;
 }
@@ -812,19 +815,23 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
         postProcess: settlerContractSingletonCallback,
-    },
-    {
+    }
+];
+
+export function registerSettlerContractEventProp(settlerContractAddress: string) {
+    console.log('Creating event prop for Settler contract:', settlerContractAddress)
+    eventScrperProps.push({
         enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
         name: 'RFQOrderEvent',
         tType: RFQOrderEvent,
         table: 'rfq_order_events',
         topics: [],
-        contractAddress: null,
+        contractAddress: settlerContractAddress,
         startBlock: SETTLER_DEPLOYMENT_BLOCK,
         parser: parseRFQOrderEvent,
         filterFunction: filterNulls,
-    },
-];
+    });
+}
 
 for (const payment_recipient of POLYGON_RFQM_PAYMENTS_ADDRESSES) {
     eventScrperProps.push({
