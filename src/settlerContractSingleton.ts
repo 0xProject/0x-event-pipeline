@@ -1,7 +1,7 @@
 import { SCHEMA } from './config';
+import { registerSettlerContractEventProp } from './events';
 import { logger } from './utils';
 import { Connection } from 'typeorm';
-import { registerSettlerContractEventProp } from './events';
 
 export class SettlerContractSingleton {
     private static instance: SettlerContractSingleton;

@@ -815,11 +815,11 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
         postProcess: settlerContractSingletonCallback,
-    }
+    },
 ];
 
 export function registerSettlerContractEventProp(settlerContractAddress: string) {
-    console.log('Creating event prop for Settler contract:', settlerContractAddress)
+    console.log('Creating event prop for Settler contract:', settlerContractAddress);
     eventScrperProps.push({
         enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
         name: 'RFQOrderEvent',
