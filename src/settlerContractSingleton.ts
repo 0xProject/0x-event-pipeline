@@ -1,4 +1,5 @@
 import { SCHEMA } from './config';
+import { registerSettlerContractEventProp } from './events';
 import { logger } from './utils';
 import { Connection } from 'typeorm';
 
@@ -24,7 +25,10 @@ export class SettlerContractSingleton {
             ORDER BY block_number
             `,
         );
-        settlerContracts.forEach((entry: any) => SettlerContractSingleton.instance.addNewContract(entry['address']));
+        settlerContracts.forEach((entry: any) => {
+            SettlerContractSingleton.instance.addNewContract(entry['address']);
+            registerSettlerContractEventProp(entry['address']);
+        });
     }
 
     static getInstance(): SettlerContractSingleton {
@@ -45,7 +49,7 @@ export class SettlerContractSingleton {
         this.contracts.push(newContractAddress);
     }
 
-    getContracts() {
+    getContracts(): string[] {
         return this.contracts;
     }
 }
