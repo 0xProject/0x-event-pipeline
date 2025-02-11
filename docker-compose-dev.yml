@@ -467,6 +467,37 @@ services:
             BLOCK_RECEIPTS_MODE: "standard"
         networks:
             - 0x-data-migrations_default
+
+    event-pipeline-unichain:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        platform: linux/amd64
+        restart: always
+        environment:
+            SCRAPER_MODE: 'BLOCKS'
+            EVM_RPC_URL: '${RPC_URL_UNICHAIN}'
+            CHAIN_ID: '130'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+            SCHEMA: 'events_unichain'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 8151122
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 100
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
+            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+            SOCKET_BRIDGE_EVENT_START_BLOCK: "8151122"
+            BLOCK_RECEIPTS_MODE: "standard"
+        networks:
+            - 0x-data-migrations_default
+
     token-scraper-ethereum:
         depends_on:
             - postgres
