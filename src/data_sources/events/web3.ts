@@ -35,9 +35,7 @@ export class Web3Source {
     constructor(provider: Web3ProviderEngine, wsProvider: string) {
         const web3HttpOptions = {
             keepAlive: true,
-            headers: [
-                { name: 'Accept-Encoding', value: 'gzip'}
-            ]
+            headers: [{ name: 'Accept-Encoding', value: 'gzip' }],
         };
 
         this._web3Wrapper = new Web3Wrapper(provider);
