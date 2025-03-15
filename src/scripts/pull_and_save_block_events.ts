@@ -8,7 +8,7 @@ import {
     SCHEMA,
 } from '../config';
 import { TRANSFER_EVENT_TOPIC_0 } from '../constants';
-import { Web3Source, BlockWithTransactionData as EVMBlock } from '../data_sources/events/web3';
+import { Web3Source, BlockWithTransactionData as EVMBlock, BlockWithoutTransactionData } from '../data_sources/events/web3';
 import {
     Transaction as EVMTransaction,
     TransactionReceipt as EVMTransactionReceipt,
@@ -277,7 +277,13 @@ async function getParseSaveBlocksTransactionsEvents(
 
     logger.info(`Pulling Block Events for blocks: ${JSON.stringify(blockRanges)}`);
 
-    const newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
+    let newBlocksReceipts:EVMTransactionReceipt[][];
+    try {
+        newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
+    } catch (error) {
+        logger.error("Error fetching block receipts:", error);
+        return false;
+    }
 
     const filteredNewBlocksReceipts = newBlocksReceipts.filter(
         (blockReceipts) => blockReceipts !== null && blockReceipts !== undefined,
@@ -431,7 +437,13 @@ export class BlockEventsScraper {
                 ...eventScrperProps.filter((props) => props.enabled).map((props) => props.startBlock),
             );
             logger.warn(`Going to start from block: ${firstStartBlock}`);
-            const newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(firstStartBlock, firstStartBlock, true);
+            let newBlocks:(BlockWithoutTransactionData[] | EVMBlock[]);
+            try {
+                newBlocks = await web3Source.getBatchBlockInfoForRangeAsync(firstStartBlock, firstStartBlock, true);
+            } catch (error) {
+                logger.error("Error fetching blocks by number:", error);
+                return;
+            }
             await getParseSaveBlocksTransactionsEvents(connection, producer, newBlocks, true);
             return;
         }
@@ -450,7 +462,14 @@ export class BlockEventsScraper {
                 ? currentBlockNumber
                 : lastKnownBlock.blockNumber + MAX_BLOCKS_TO_PULL;
 
-        const newBlocksRaw = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
+        let newBlocksRaw:(BlockWithoutTransactionData[] | EVMBlock[]);
+        try {
+            newBlocksRaw = await web3Source.getBatchBlockInfoForRangeAsync(blockRangeStart, blockRangeEnd, true);
+        } catch (error) {
+            logger.error("Error fetching blocks by number:", error);
+            return;
+        }
+
 
         const newBlocks: typeof newBlocksRaw = newBlocksRaw.filter((block) => block !== null);
 

@@ -85,7 +85,7 @@ export class Web3Source {
         startBlock: number,
         endBlock: number,
         includeTransactions: boolean,
-    ): Promise<(BlockWithoutTransactionData | BlockWithTransactionData)[]> {
+    ): Promise<(BlockWithoutTransactionData[] | BlockWithTransactionData[])> {
         const blockNumbers = Array.from(Array(endBlock - startBlock + 1).keys()).map((i) => i + startBlock);
         return this.getBatchBlockInfoAsync(blockNumbers, includeTransactions);
     }
