@@ -363,6 +363,7 @@ export class BlockEventsScraper {
             `SELECT DISTINCT block_number
              FROM ${SCHEMA}.tx_backfill
              WHERE done = false
+             AND block_number < (SELECT MAX(block_number) FROM ${SCHEMA}.blocks)
              ORDER BY block_number
              LIMIT ${MAX_BLOCKS_TO_PULL}`,
         );
