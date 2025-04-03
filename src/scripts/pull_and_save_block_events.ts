@@ -487,6 +487,15 @@ export class BlockEventsScraper {
             throw Error(`Big reorg detected, of more than ${lookback}, manual intervention needed`);
         }
 
+        // Finding reorgs within RPC's response
+        var prevBlock = newBlocks[0];
+        for (const currBlock of newBlocks.slice(1)) {
+            if (currBlock.parentHash !== prevBlock.hash) {
+                logger.warn(`Reorg detected within RPC's response. Ignoring invalid response and retrying.`);
+                return;
+            }
+        }
+
         try {
             const tmpBlockNumbers = newBlocks.map((block) => block?.number);
             logger.debug(`response blockNumbers: ${JSON.stringify(tmpBlockNumbers)}`);
