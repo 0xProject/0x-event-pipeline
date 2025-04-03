@@ -488,11 +488,14 @@ export class BlockEventsScraper {
         }
 
         // Finding reorgs within RPC's response
-        var prevBlock = newBlocks[0];
-        for (const currBlock of newBlocks.slice(1)) {
-            if (currBlock.parentHash !== prevBlock.hash) {
-                logger.warn(`Reorg detected within RPC's response. Ignoring invalid response and retrying.`);
-                return;
+        if (newBlocks.length > 1) {
+            var prevBlock = newBlocks[0];
+            for (const currBlock of newBlocks.slice(1)) {
+                if (currBlock.parentHash !== prevBlock.hash) {
+                    logger.warn(`Reorg detected within RPC's response. Ignoring invalid response and retrying.`);
+                    return;
+                }
+                prevBlock = currBlock;
             }
         }
 
