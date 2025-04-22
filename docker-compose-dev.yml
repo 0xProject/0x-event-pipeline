@@ -498,6 +498,66 @@ services:
         networks:
             - 0x-data-migrations_default
 
+    event-pipeline-berachain:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        platform: linux/amd64
+        restart: always
+        environment:
+            SCRAPER_MODE: 'BLOCKS'
+            EVM_RPC_URL: '${RPC_URL_BERACHAIN}'
+            CHAIN_ID: '80094'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+            SCHEMA: 'events_berachain'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 1049844
+            MAX_BLOCKS_TO_SEARCH: 100
+            MAX_BLOCKS_TO_PULL: 50
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x6969696969696969696969696969696969696969'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
+            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+            SOCKET_BRIDGE_EVENT_START_BLOCK: "1049844"
+            BLOCK_RECEIPTS_MODE: "standard"
+        networks:
+            - vnet-shared
+
+    event-pipeline-ink:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        platform: linux/amd64
+        restart: always
+        environment:
+            SCRAPER_MODE: 'BLOCKS'
+            EVM_RPC_URL: '${RPC_URL_INK}'
+            CHAIN_ID: '57073'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+            SCHEMA: 'events_ink'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 1062727
+            MAX_BLOCKS_TO_SEARCH: 100
+            MAX_BLOCKS_TO_PULL: 50
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
+            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+            SOCKET_BRIDGE_EVENT_START_BLOCK: "1062727"
+            BLOCK_RECEIPTS_MODE: "standard"
+        networks:
+            - vnet-shared
+
     token-scraper-ethereum:
         depends_on:
             - postgres
@@ -524,5 +584,5 @@ services:
             SECONDS_BETWEEN_RUNS: 5
 
 networks:
-    0x-data-migrations_default:
+    vnet-shared:
         external: true

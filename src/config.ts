@@ -79,6 +79,8 @@ const supportedChains: Map = {
     5000: { name: 'Mantle' },
     480: { name: 'Worldchain' },
     130: { name: 'Unichain' },
+    80094: { name: 'Berachain' },
+    57073: { name: 'Ink' },
 };
 
 interface BridgeContract {
