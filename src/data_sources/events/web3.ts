@@ -14,6 +14,7 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import { RawLog } from 'ethereum-types';
 
 const Web3 = require('web3');
+const Web3HttpProvider = require('web3-providers-http');
 
 export { BlockWithTransactionData, BlockWithoutTransactionData, Transaction, TransactionReceipt } from './web3_updated';
 
@@ -32,8 +33,13 @@ export class Web3Source {
     private readonly _web3Wrapper: Web3Wrapper;
     private readonly _web3: any;
     constructor(provider: Web3ProviderEngine, wsProvider: string) {
+        const web3HttpOptions = {
+            keepAlive: true,
+            headers: [{ name: 'Accept-Encoding', value: 'gzip' }],
+        };
+
         this._web3Wrapper = new Web3Wrapper(provider);
-        this._web3 = new Web3(wsProvider);
+        this._web3 = new Web3(new Web3HttpProvider(wsProvider, web3HttpOptions));
 
         if (BLOCK_RECEIPTS_MODE === 'standard') {
             this._web3.eth.extend({
