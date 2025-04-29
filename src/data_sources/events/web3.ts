@@ -33,7 +33,10 @@ export class Web3Source {
     private readonly _web3: any;
     constructor(provider: Web3ProviderEngine, wsProvider: string) {
         this._web3Wrapper = new Web3Wrapper(provider);
-        this._web3 = new Web3(wsProvider);
+        const httpProvider = new Web3.providers.HttpProvider(wsProvider, {
+          timeout: 2 * 60 * 1000, // 2 minutes
+        });
+        this._web3 = new Web3(httpProvider, wsProvider);
 
         if (BLOCK_RECEIPTS_MODE === 'standard') {
             this._web3.eth.extend({
