@@ -139,7 +139,7 @@ async function schedule(connection: Connection | null, producer: Producer | null
     let wait: number;
     if (duration > SECONDS_BETWEEN_RUNS * 1000) {
         wait = 0;
-        logger.warn(`${funcName} is taking longer than desiered interval`);
+        logger.warn(`${funcName} is taking longer than desired interval`);
     } else {
         wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
     }
