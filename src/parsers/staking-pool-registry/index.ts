@@ -1,3 +1,4 @@
+import { CHAIN_ID } from '../../config';
 import { BASE_GITHUB_LOGO_URL } from '../../config';
 import { MetadataResponse, PoolMetadataResponse, Pools } from '../../data_sources/staking-pool-registry';
 import { StakingPoolMetadata } from '../../entities';
@@ -30,6 +31,7 @@ function parseStakingPoolMetadata(poolMetadataResponse: PoolMetadataResponse, po
     stakingPoolMetadata.logoUrl =
         poolMetadataResponse.logo_img === undefined ? null : baseGithubLogoUrl.concat(poolMetadataResponse.logo_img);
     stakingPoolMetadata.verified = poolMetadataResponse.verified;
+    stakingPoolMetadata.chainId = CHAIN_ID.toString();
 
     return stakingPoolMetadata;
 }

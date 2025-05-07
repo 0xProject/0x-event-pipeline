@@ -21,4 +21,6 @@ export class Block {
     public gasUsed!: number;
     @Column({ name: 'parent_hash', type: 'varchar' })
     public parentHash!: string;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

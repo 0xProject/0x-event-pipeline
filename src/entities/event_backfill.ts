@@ -9,4 +9,6 @@ export class EventBackfill {
     // depth of the block
     @PrimaryColumn({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockNumber!: number;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

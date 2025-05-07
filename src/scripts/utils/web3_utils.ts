@@ -1,4 +1,5 @@
 import {
+    CHAIN_ID,
     CHAIN_NAME_LOWER,
     FEAT_NFT,
     FIRST_SEARCH_BLOCK,
@@ -311,7 +312,7 @@ FROM (
         try {
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(
-                `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`,
+                `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`,
             );
             for (const chunkItems of chunk(toSave, 300)) {
                 await queryRunner.manager.insert(Block, chunkItems);
@@ -340,7 +341,7 @@ FROM (
         await queryRunner.startTransaction();
         try {
             await queryRunner.manager.query(
-                `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`,
+                `DELETE FROM ${SCHEMA}.transactions_${CHAIN_ID} WHERE transaction_hash IN (${txHashList})`,
             );
 
             for (const chunkItems of chunk(transactions, 300)) {
@@ -385,10 +386,10 @@ FROM (
             if (txReceiptsHashList.length > 0) {
                 query =
                     query +
-                    `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txReceiptsHashList});`;
+                    `DELETE FROM ${SCHEMA}.transaction_receipts_${CHAIN_ID} WHERE transaction_hash IN (${txReceiptsHashList});`;
             }
             if (txLogsHashList.length > 0) {
-                query = query + `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txLogsHashList});`;
+                query = query + `DELETE FROM ${SCHEMA}.transaction_logs_${CHAIN_ID} WHERE transaction_hash IN (${txLogsHashList});`;
             }
             await queryRunner.manager.query(query);
             logger.debug('DELETES probably went well');
@@ -531,6 +532,7 @@ export async function getParseSaveTokensAsync(
                 name: erc721Names[index],
                 symbol: erc721Symbols[index],
                 observedTimestamp: new Date().getTime(),
+                chainId: CHAIN_ID.toString(),
             } as TokenMetadata;
         });
         const erc1155TokenMetadata = erc1155Tokens.map((address, index) => {
@@ -540,6 +542,7 @@ export async function getParseSaveTokensAsync(
                 name: erc1155Names[index],
                 symbol: erc1155Symbols[index],
                 observedTimestamp: new Date().getTime(),
+                chainId: CHAIN_ID.toString(),
             } as TokenMetadata;
         });
         const erc20TokenMetadata = erc20Tokens.map((address, index) => {
@@ -550,6 +553,7 @@ export async function getParseSaveTokensAsync(
                 symbol: erc20Symbols[index],
                 decimals: erc20Decimals[index],
                 observedTimestamp: new Date().getTime(),
+                chainId: CHAIN_ID.toString(),
             } as TokenMetadata;
         });
 
@@ -644,9 +648,9 @@ export async function getParseSaveTxAsync(
     const txData = await getParseTxsAsync(web3Source, hashes);
 
     const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
-    const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
-    const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
-    const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
+    const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions_${CHAIN_ID} WHERE transaction_hash IN (${txHashList})`;
+    const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts_${CHAIN_ID} WHERE transaction_hash IN (${txHashList});`;
+    const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs_${CHAIN_ID} WHERE transaction_hash IN (${txHashList});`;
     if (txData.parsedTxs.length) {
         // delete the transactions for the fetched events
         const queryRunner = connection.createQueryRunner();
