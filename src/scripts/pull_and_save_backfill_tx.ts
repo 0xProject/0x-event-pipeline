@@ -1,4 +1,4 @@
-import { EVM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
+import { CHAIN_ID, EVM_RPC_URL, MAX_TX_TO_PULL, SCHEMA } from '../config';
 import { Web3Source } from '../data_sources/events/web3';
 import { Transaction, TransactionReceipt } from '../entities';
 import { chunk, logger } from '../utils';
@@ -35,11 +35,11 @@ export class BackfillTxScraper {
             const txData = await getParseTxsAsync(web3Source, txList);
 
             const txHashList = txData.parsedTxs.map((tx) => `'${tx.transactionHash}'`).toString();
-            const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions WHERE transaction_hash IN (${txHashList})`;
-            const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts WHERE transaction_hash IN (${txHashList});`;
-            // const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs WHERE transaction_hash IN (${txHashList});`;
+            const txDeleteQuery = `DELETE FROM ${SCHEMA}.transactions_${CHAIN_ID} WHERE transaction_hash IN (${txHashList})`;
+            const txReceiptDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_receipts_${CHAIN_ID} WHERE transaction_hash IN (${txHashList});`;
+            // const txLogsDeleteQuery = `DELETE FROM ${SCHEMA}.transaction_logs_${CHAIN_ID} WHERE transaction_hash IN (${txHashList});`;
             const txBacklogQuery = `
-              UPDATE ${SCHEMA}.tx_backfill
+              UPDATE ${SCHEMA}.tx_backfill_${CHAIN_ID}
               SET done = true
               WHERE transaction_hash IN (${txHashList})`;
 

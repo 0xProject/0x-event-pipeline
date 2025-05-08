@@ -11,4 +11,6 @@ export class StakingPoolEarnedRewardsInEpochEvent extends Event {
     // The ID of the pool.
     @Column({ name: 'pool_id', type: 'varchar' })
     public poolId!: string;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

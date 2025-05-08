@@ -1,3 +1,4 @@
+import { CHAIN_ID } from './config';
 import { UniswapV2PairCreatedEvent } from './entities';
 import { logger } from './utils';
 import { Connection } from 'typeorm';
@@ -28,7 +29,11 @@ export class UniV2PoolSingleton {
         if (!UniV2PoolSingleton.instance) {
             UniV2PoolSingleton.instance = new UniV2PoolSingleton();
             logger.info('Loading Uni V2 and clones Pools to memory');
-            const newPools = await connection.getRepository(UniswapV2PairCreatedEvent).find();
+            const newPools = await connection
+                .getRepository(UniswapV2PairCreatedEvent)
+                .createQueryBuilder('uniswap_v2_pair_created_events')
+                .where('uniswap_v2_pair_created_events.chainId = :chainId', { chainId: CHAIN_ID.toString() })
+                .getMany();
             UniV2PoolSingleton.instance.addNewPools(newPools);
         }
     }
