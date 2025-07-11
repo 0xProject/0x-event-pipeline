@@ -16,7 +16,6 @@ export class TokensFromBackfill {
     public async getParseSaveTokensFromBackfillAsync(connection: Connection, producer: Producer): Promise<void> {
         // const eventName = 'TSStandard';
         const startTime = new Date().getTime();
-        logger.info(`Pulling Tokens from Backfill`);
 
         const queryResult = await connection.query(
             `SELECT address FROM ${SCHEMA}.tokens_backfill LIMIT ${MAX_BLOCKS_TO_SEARCH}`,
@@ -25,6 +24,7 @@ export class TokensFromBackfill {
         const tokens = queryResult.map((e: { address: string }) => e.address);
 
         if (tokens.length > 0) {
+            logger.info(`Pulling Tokens from Backfill`);
             logger.debug(`Got ${tokens.length} backfill tokens`);
 
             const savedTokenCount = await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
