@@ -2,8 +2,8 @@ import { bigNumberTransformer } from '../transformers';
 import { Event } from './event';
 import { Column, Entity } from 'typeorm';
 
-// These events come directly from the token's ERC20 contract and are fired whenever
-// an ERC20 is transferred between two wallets.
+// This entity contains multiple types of events.
+// All coming from the Zora Factory contract when creating new coins/tokens.
 @Entity({ name: 'zora_token_creation_events' })
 export class ZoraTokenCreationEvent extends Event {
     @Column({ name: 'event_name', type: 'varchar' })
