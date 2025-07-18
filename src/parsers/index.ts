@@ -49,3 +49,6 @@ export {
 export { parseERC20TransferEvent } from './events/erc20_transfer_events';
 export { parseSettlerERC721TransferEvent } from './events/settler_erc721_transfer_events';
 export { parseRFQOrderEvent } from './events/rfq_order_event';
+export { parseZoraCoinCreatedEvent } from './events/zora_coin_created_events';
+export { parseZoraCoinCreatedV4Event } from './events/zora_coin_created_v4_events';
+export { parseZoraCreatorCoinCreatedEvent } from './events/zora_creator_coin_created_events';

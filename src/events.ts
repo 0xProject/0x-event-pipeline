@@ -52,6 +52,8 @@ import {
     FEAT_ERC20_TRANSFER_ALL,
     FEAT_SETTLER_ERC721_TRANSFER_EVENT,
     FEAT_SETTLER_RFQ_ORDER_EVENT,
+    FEAT_ZORA_TOKEN_CREATION_EVENT,
+    ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -105,6 +107,10 @@ import {
     STAKING_EPOCH_FINALIZED_TOPIC,
     STAKING_REWARDS_PAID_TOPIC,
     SETTLER_DEPLOYER_PROXY_CONTRACT,
+    ZORA_FACTORY_PROXY_CONTRACT,
+    ZORA_CONTENT_COIN_CREATED_V1_TOPIC,
+    ZORA_CONTENT_COIN_CREATED_V4_TOPIC,
+    ZORA_CREATOR_COIN_CREATED_TOPIC,
 } from './constants';
 import { Web3Source } from './data_sources/events/web3';
 import {
@@ -153,6 +159,7 @@ import {
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
     RFQOrderEvent,
+    ZoraTokenCreationEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -203,6 +210,9 @@ import {
     parseERC20TransferEvent,
     parseSettlerERC721TransferEvent,
     parseRFQOrderEvent,
+    parseZoraCoinCreatedEvent,
+    parseZoraCoinCreatedV4Event,
+    parseZoraCreatorCoinCreatedEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -815,6 +825,45 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
         postProcess: settlerContractSingletonCallback,
+    },
+    {
+        enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
+        name: 'zoraCoinCreatedEvent',
+        tType: ZoraTokenCreationEvent,
+        table: 'zora_token_creation_events',
+        topics: ZORA_CONTENT_COIN_CREATED_V1_TOPIC,
+        contractAddress: ZORA_FACTORY_PROXY_CONTRACT,
+        startBlock: ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK, // 26602741 -- Feb 19, 2025
+        // startBlock: ZORA_COIN_V1_DEPLOYMENT_BLOCK, // 25358000 -- January 22, 2025
+        parser: parseZoraCoinCreatedEvent,
+        // filterFunction: filterNulls,
+        // postProcess: settlerContractSingletonCallback,
+    },
+    {
+        enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
+        name: 'zoraCoinCreatedV4Event',
+        tType: ZoraTokenCreationEvent,
+        table: 'zora_token_creation_events',
+        topics: ZORA_CONTENT_COIN_CREATED_V4_TOPIC,
+        contractAddress: ZORA_FACTORY_PROXY_CONTRACT,
+        startBlock: ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
+        // startBlock: ZORA_COIN_V4_DEPLOYMENT_BLOCK, // 30973000 -- June 1, 2025
+        parser: parseZoraCoinCreatedV4Event,
+        // filterFunction: filterNulls,
+        // postProcess: settlerContractSingletonCallback,
+    },
+    {
+        enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
+        name: 'zoraCreatorCoinCreatedEvent',
+        tType: ZoraTokenCreationEvent,
+        table: 'zora_token_creation_events',
+        topics: ZORA_CREATOR_COIN_CREATED_TOPIC,
+        contractAddress: ZORA_FACTORY_PROXY_CONTRACT,
+        startBlock: ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
+        // startBlock: ZORA_CREATOR_COIN_DEPLOYMENT_BLOCK, // 31665000 -- June 17, 2025
+        parser: parseZoraCreatorCoinCreatedEvent,
+        // filterFunction: filterNulls,
+        // postProcess: settlerContractSingletonCallback,
     },
 ];
 

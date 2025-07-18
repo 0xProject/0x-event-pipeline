@@ -1478,3 +1478,84 @@ export const SETTLER_ERC721_TRANSFER_ABI = {
     name: 'SettlerERC721Transfer',
     type: 'event',
 };
+
+export const ZORA_CREATOR_COIN_CREATED_ABI = {
+  anonymous: false,
+  inputs: [
+    { indexed: true, internalType: 'address', name: 'caller', type: 'address' },
+    { indexed: true, internalType: 'address', name: 'payoutRecipient', type: 'address' },
+    { indexed: true, internalType: 'address', name: 'platformReferrer', type: 'address' },
+    { indexed: false, internalType: 'address', name: 'currency', type: 'address' },
+    { indexed: false, internalType: 'string', name: 'uri', type: 'string' },
+    { indexed: false, internalType: 'string', name: 'name', type: 'string' },
+    { indexed: false, internalType: 'string', name: 'symbol', type: 'string' },
+    { indexed: false, internalType: 'address', name: 'coin', type: 'address' },
+    {
+      components: [
+        { internalType: 'Currency', name: 'currency0', type: 'address' },
+        { internalType: 'Currency', name: 'currency1', type: 'address' },
+        { internalType: 'uint24', name: 'fee', type: 'uint24' },
+        { internalType: 'int24', name: 'tickSpacing', type: 'int24' },
+        { internalType: 'contract IHooks', name: 'hooks', type: 'address' }
+      ],
+      indexed: false,
+      internalType: 'struct PoolKey',
+      name: 'poolKey',
+      type: 'tuple'
+    },
+    { indexed: false, internalType: 'bytes32', name: 'poolKeyHash', type: 'bytes32' },
+    { indexed: false, internalType: 'string', name: 'version', type: 'string' }
+  ],
+  name: 'CreatorCoinCreated',
+  type: 'event'
+};
+
+export const ZORA_COIN_CREATED_ABI = {
+  anonymous: false,
+  inputs: [
+    { indexed: true, internalType: 'address', name: 'caller', type: 'address' },
+    { indexed: true, internalType: 'address', name: 'payoutRecipient', type: 'address' },
+    { indexed: true, internalType: 'address', name: 'platformReferrer', type: 'address' },
+    { indexed: false, internalType: 'address', name: 'currency', type: 'address' },
+    { indexed: false, internalType: 'string', name: 'uri', type: 'string' },
+    { indexed: false, internalType: 'string', name: 'name', type: 'string' },
+    { indexed: false, internalType: 'string', name: 'symbol', type: 'string' },
+    { indexed: false, internalType: 'address', name: 'coin', type: 'address' },
+    { indexed: false, internalType: 'address', name: 'pool', type: 'address' },
+    { indexed: false, internalType: 'string', name: 'version', type: 'string' }
+  ],
+  name: 'CoinCreated',
+  type: 'event'
+};
+
+export const ZORA_COIN_CREATED_V4_ABI ={
+  anonymous: false,
+  inputs: [
+    { indexed: true, internalType: 'address', name: 'caller', type: 'address' },
+    { indexed: true, internalType: 'address', name: 'payoutRecipient', type: 'address' },
+    { indexed: true, internalType: 'address', name: 'platformReferrer', type: 'address' },
+    { indexed: false, internalType: 'address', name: 'currency', type: 'address' },
+    { indexed: false, internalType: 'string', name: 'uri', type: 'string' },
+    { indexed: false, internalType: 'string', name: 'name', type: 'string' },
+    { indexed: false, internalType: 'string', name: 'symbol', type: 'string' },
+    { indexed: false, internalType: 'address', name: 'coin', type: 'address' },
+    {
+      components: [
+        { internalType: 'Currency', name: 'currency0', type: 'address' },
+        { internalType: 'Currency', name: 'currency1', type: 'address' },
+        { internalType: 'uint24', name: 'fee', type: 'uint24' },
+        { internalType: 'int24', name: 'tickSpacing', type: 'int24' },
+        { internalType: 'contract IHooks', name: 'hooks', type: 'address' }
+      ],
+      indexed: false,
+      internalType: 'struct PoolKey',
+      name: 'poolKey',
+      type: 'tuple'
+    },
+    { indexed: false, internalType: 'bytes32', name: 'poolKeyHash', type: 'bytes32' },
+    { indexed: false, internalType: 'string', name: 'version', type: 'string' }
+  ],
+  name: 'CoinCreatedV4',
+  type: 'event'
+}
+
