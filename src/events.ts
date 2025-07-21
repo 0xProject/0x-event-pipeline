@@ -52,6 +52,8 @@ import {
     FEAT_ERC20_TRANSFER_ALL,
     FEAT_SETTLER_ERC721_TRANSFER_EVENT,
     FEAT_SETTLER_RFQ_ORDER_EVENT,
+    FEAT_ZORA_TOKEN_CREATION_EVENT,
+    ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
 } from './config';
 import {
     BRIDGEFILL_EVENT_TOPIC,
@@ -105,6 +107,10 @@ import {
     STAKING_EPOCH_FINALIZED_TOPIC,
     STAKING_REWARDS_PAID_TOPIC,
     SETTLER_DEPLOYER_PROXY_CONTRACT,
+    ZORA_FACTORY_PROXY_CONTRACT,
+    ZORA_CONTENT_COIN_CREATED_V1_TOPIC,
+    ZORA_CONTENT_COIN_CREATED_V4_TOPIC,
+    ZORA_CREATOR_COIN_CREATED_TOPIC,
 } from './constants';
 import { Web3Source } from './data_sources/events/web3';
 import {
@@ -153,6 +159,7 @@ import {
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
     RFQOrderEvent,
+    ZoraTokenCreationEvent,
 } from './entities';
 import {
     filterSocketBridgeEventsGetContext,
@@ -203,6 +210,9 @@ import {
     parseERC20TransferEvent,
     parseSettlerERC721TransferEvent,
     parseRFQOrderEvent,
+    parseZoraCoinCreatedEvent,
+    parseZoraCoinCreatedV4Event,
+    parseZoraCreatorCoinCreatedEvent,
 } from './parsers';
 import {
     parseEpochEndedEvent,
@@ -815,6 +825,36 @@ export const eventScrperProps: EventScraperProps[] = [
         parser: parseSettlerERC721TransferEvent,
         filterFunction: filterNulls,
         postProcess: settlerContractSingletonCallback,
+    },
+    {
+        enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
+        name: 'ZoraCoinCreatedEvent',
+        tType: ZoraTokenCreationEvent,
+        table: 'zora_token_creation_events',
+        topics: ZORA_CONTENT_COIN_CREATED_V1_TOPIC,
+        contractAddress: ZORA_FACTORY_PROXY_CONTRACT,
+        startBlock: ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
+        parser: parseZoraCoinCreatedEvent,
+    },
+    {
+        enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
+        name: 'ZoraCoinCreatedV4Event',
+        tType: ZoraTokenCreationEvent,
+        table: 'zora_token_creation_events',
+        topics: ZORA_CONTENT_COIN_CREATED_V4_TOPIC,
+        contractAddress: ZORA_FACTORY_PROXY_CONTRACT,
+        startBlock: ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
+        parser: parseZoraCoinCreatedV4Event,
+    },
+    {
+        enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
+        name: 'ZoraCreatorCoinCreatedEvent',
+        tType: ZoraTokenCreationEvent,
+        table: 'zora_token_creation_events',
+        topics: ZORA_CREATOR_COIN_CREATED_TOPIC,
+        contractAddress: ZORA_FACTORY_PROXY_CONTRACT,
+        startBlock: ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK,
+        parser: parseZoraCreatorCoinCreatedEvent,
     },
 ];
 

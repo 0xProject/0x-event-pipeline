@@ -343,6 +343,8 @@ services:
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
             FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+            FEAT_ZORA_TOKEN_CREATION_EVENT: "true"
+            ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK: 26602741
 
     event-pipeline-scroll:
         build:

@@ -34,7 +34,7 @@ export class Web3Source {
     constructor(provider: Web3ProviderEngine, wsProvider: string) {
         this._web3Wrapper = new Web3Wrapper(provider);
         const httpProvider = new Web3.providers.HttpProvider(wsProvider, {
-          timeout: 2 * 60 * 1000, // 2 minutes
+            timeout: 2 * 60 * 1000, // 2 minutes
         });
         this._web3 = new Web3(httpProvider, wsProvider);
 

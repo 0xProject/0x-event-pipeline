@@ -50,6 +50,7 @@ import {
     DEFAULT_FEAT_SETTLER_ERC721_TRANSFER_EVENT,
     DEFAULT_FEAT_SETTLER_RFQ_ORDER_EVENT,
     DEFAULT_FEAT_ZEROEX_EXCHANGE_PROXY,
+    DEFAULT_FEAT_ZORA_TOKEN_CREATION_EVENT,
 } from './constants';
 import { logger } from './utils';
 
@@ -531,6 +532,17 @@ export const FEAT_SETTLER_ERC721_TRANSFER_EVENT = getBoolConfig(
 export const FEAT_SETTLER_RFQ_ORDER_EVENT = getBoolConfig(
     'FEAT_SETTLER_RFQ_ORDER_EVENT',
     DEFAULT_FEAT_SETTLER_RFQ_ORDER_EVENT,
+);
+
+export const ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK = process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK
+    ? parseInt(process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK, 10)
+    : throwError(
+          `Must specify valid ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK. Got: ${process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK}`,
+      );
+
+export const FEAT_ZORA_TOKEN_CREATION_EVENT = getBoolConfig(
+    'FEAT_ZORA_TOKEN_CREATION_EVENT',
+    DEFAULT_FEAT_ZORA_TOKEN_CREATION_EVENT,
 );
 
 function getBoolConfig(env: string, defaultValue: boolean): boolean {

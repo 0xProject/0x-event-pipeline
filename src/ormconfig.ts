@@ -54,6 +54,7 @@ import {
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
     RFQOrderEvent,
+    ZoraTokenCreationEvent,
 } from './entities';
 import { ConnectionOptions } from 'typeorm';
 
@@ -112,6 +113,7 @@ const entities = [
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
     RFQOrderEvent,
+    ZoraTokenCreationEvent,
 ];
 
 const config: ConnectionOptions = {
