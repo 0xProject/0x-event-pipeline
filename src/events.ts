@@ -828,7 +828,7 @@ export const eventScrperProps: EventScraperProps[] = [
     },
     {
         enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
-        name: 'zoraCoinCreatedEvent',
+        name: 'ZoraCoinCreatedEvent',
         tType: ZoraTokenCreationEvent,
         table: 'zora_token_creation_events',
         topics: ZORA_CONTENT_COIN_CREATED_V1_TOPIC,
@@ -838,7 +838,7 @@ export const eventScrperProps: EventScraperProps[] = [
     },
     {
         enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
-        name: 'zoraCoinCreatedV4Event',
+        name: 'ZoraCoinCreatedV4Event',
         tType: ZoraTokenCreationEvent,
         table: 'zora_token_creation_events',
         topics: ZORA_CONTENT_COIN_CREATED_V4_TOPIC,
@@ -848,7 +848,7 @@ export const eventScrperProps: EventScraperProps[] = [
     },
     {
         enabled: FEAT_ZORA_TOKEN_CREATION_EVENT,
-        name: 'zoraCreatorCoinCreatedEvent',
+        name: 'ZoraCreatorCoinCreatedEvent',
         tType: ZoraTokenCreationEvent,
         table: 'zora_token_creation_events',
         topics: ZORA_CREATOR_COIN_CREATED_TOPIC,
