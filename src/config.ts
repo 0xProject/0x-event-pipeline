@@ -536,7 +536,9 @@ export const FEAT_SETTLER_RFQ_ORDER_EVENT = getBoolConfig(
 
 export const ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK = process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK
     ? parseInt(process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK, 10)
-    : throwError(`Must specify valid ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK. Got: ${process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK}`);
+    : throwError(
+          `Must specify valid ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK. Got: ${process.env.ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK}`,
+      );
 
 export const FEAT_ZORA_TOKEN_CREATION_EVENT = getBoolConfig(
     'FEAT_ZORA_TOKEN_CREATION_EVENT',

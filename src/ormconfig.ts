@@ -113,7 +113,7 @@ const entities = [
     ERC20TransferEvent,
     SettlerERC721TransferEvent,
     RFQOrderEvent,
-    ZoraTokenCreationEvent
+    ZoraTokenCreationEvent,
 ];
 
 const config: ConnectionOptions = {

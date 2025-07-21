@@ -12,9 +12,13 @@ export function parseZoraCreatorCoinCreatedEvent(eventLog: LogEntry): ZoraTokenC
 
     parseEvent(eventLog, zoraTokenCreationEvent);
 
-    const decodedLog = abiCoder.decodeLog(ZORA_CREATOR_COIN_CREATED_ABI.inputs, eventLog.data, eventLog.topics.slice(1));
+    const decodedLog = abiCoder.decodeLog(
+        ZORA_CREATOR_COIN_CREATED_ABI.inputs,
+        eventLog.data,
+        eventLog.topics.slice(1),
+    );
 
-    zoraTokenCreationEvent.event_name = ZORA_CREATOR_COIN_CREATED_ABI.name
+    zoraTokenCreationEvent.event_name = ZORA_CREATOR_COIN_CREATED_ABI.name;
     zoraTokenCreationEvent.address = decodedLog.coin.toLowerCase();
     zoraTokenCreationEvent.currency = decodedLog.currency.toLowerCase();
     zoraTokenCreationEvent.payout_recipient = decodedLog.payoutRecipient.toLowerCase();

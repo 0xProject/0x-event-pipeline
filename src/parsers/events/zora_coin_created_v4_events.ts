@@ -14,7 +14,7 @@ export function parseZoraCoinCreatedV4Event(eventLog: LogEntry): ZoraTokenCreati
 
     const decodedLog = abiCoder.decodeLog(ZORA_COIN_CREATED_V4_ABI.inputs, eventLog.data, eventLog.topics.slice(1));
 
-    zoraTokenCreationEvent.event_name = ZORA_COIN_CREATED_V4_ABI.name
+    zoraTokenCreationEvent.event_name = ZORA_COIN_CREATED_V4_ABI.name;
     zoraTokenCreationEvent.address = decodedLog.coin.toLowerCase();
     zoraTokenCreationEvent.currency = decodedLog.currency.toLowerCase();
     zoraTokenCreationEvent.payout_recipient = decodedLog.payoutRecipient.toLowerCase();
