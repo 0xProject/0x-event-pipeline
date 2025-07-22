@@ -7,7 +7,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
@@ -64,7 +64,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_BSC}'
             CHAIN_ID: '56'
@@ -94,7 +94,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_POLYGON}'
             CHAIN_ID: '137'
@@ -128,7 +128,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_AVALANCHE}'
             CHAIN_ID: '43114'
@@ -157,7 +157,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_FANTOM}'
             CHAIN_ID: '250'
@@ -185,7 +185,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             EVM_RPC_URL: '${RPC_URL_CELO}'
             CHAIN_ID: '42220'
@@ -222,7 +222,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_OPTIMISM}'
             CHAIN_ID: '10'
@@ -248,7 +248,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ARBITRUM}'
             CHAIN_ID: '42161'
@@ -274,7 +274,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_BASE}'
             CHAIN_ID: '8453'
@@ -298,7 +298,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'BLOCKS'
             EVM_RPC_URL: '${RPC_URL_SCROLL}'
@@ -325,7 +325,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'EVENTS'
             EVM_RPC_URL: '${RPC_URL_BLAST}'
@@ -354,7 +354,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'EVENTS'
             EVM_RPC_URL: '${RPC_URL_LINEA}'
@@ -385,7 +385,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'BLOCKS'
             EVM_RPC_URL: '${RPC_URL_MODE}'
@@ -414,7 +414,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'EVENTS'
             EVM_RPC_URL: '${RPC_URL_MANTLE}'
@@ -443,7 +443,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'BLOCKS'
             EVM_RPC_URL: '${RPC_URL_WORLDCHAIN}'
@@ -473,7 +473,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'BLOCKS'
             EVM_RPC_URL: '${RPC_URL_UNICHAIN}'
@@ -503,7 +503,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'BLOCKS'
             EVM_RPC_URL: '${RPC_URL_BERACHAIN}'
@@ -533,7 +533,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         platform: linux/amd64
-        restart: always
+        restart: no
         environment:
             SCRAPER_MODE: 'BLOCKS'
             EVM_RPC_URL: '${RPC_URL_INK}'
@@ -564,7 +564,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        restart: always
+        restart: no
         environment:
             ETHEREUM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
