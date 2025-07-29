@@ -1,5 +1,4 @@
 import {
-    SCHEMA,
     EP_ADDRESS,
     FEAT_STAKING,
     EP_DEPLOYMENT_BLOCK,
@@ -859,7 +858,6 @@ export const eventScrperProps: EventScraperProps[] = [
 ];
 
 export function registerSettlerContractEventProp(settlerContractAddress: string) {
-    console.log('Creating event prop for Settler contract:', settlerContractAddress);
     eventScrperProps.push({
         enabled: FEAT_SETTLER_RFQ_ORDER_EVENT,
         name: 'RFQOrderEvent',

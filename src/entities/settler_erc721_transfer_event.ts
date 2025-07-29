@@ -1,4 +1,3 @@
-import { bigNumberTransformer } from '../transformers';
 import { Event } from './event';
 import { Column, Entity } from 'typeorm';
 

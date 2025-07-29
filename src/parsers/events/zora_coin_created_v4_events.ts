@@ -5,8 +5,6 @@ import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 
-const Web3Utils = require('web3-utils');
-
 export function parseZoraCoinCreatedV4Event(eventLog: LogEntry): ZoraTokenCreationEvent | null {
     const zoraTokenCreationEvent = new ZoraTokenCreationEvent();
 

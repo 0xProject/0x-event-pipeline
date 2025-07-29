@@ -6,8 +6,6 @@ import { LogEntry } from 'ethereum-types';
 
 const abiCoder = require('web3-eth-abi');
 
-const Web3Utils = require('web3-utils');
-
 export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent | null {
     const eRC20TransferEvent = new ERC20TransferEvent();
 
@@ -47,19 +45,19 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
 
     if (eventLog.topics.length <= 3) {
         // Non-Standard ERC20 Transfer - Any number of topics or data (3 inputs)
-        var baseInputs = STANDARD_ERC20_TRANSFER_ABI.inputs.map((object) => ({ ...object }));
+        const baseInputs = STANDARD_ERC20_TRANSFER_ABI.inputs.map((object) => ({ ...object }));
         baseInputs.forEach((inp, index) => {
             baseInputs[index].indexed = false;
             return baseInputs;
         });
 
-        var rowInputs = baseInputs.map((object) => ({ ...object }));
+        const rowInputs = baseInputs.map((object) => ({ ...object }));
         // First "succesful" decoding is considered correct
         // The `from` and `to` might be wrong.
         // Left-most inputs are assumed more likely to be indexed.
-        for (var i = -1; i < baseInputs.length - 1; i++) {
+        for (let i = -1; i < baseInputs.length - 1; i++) {
             if (i >= 0) rowInputs[i].indexed = true;
-            for (var j = i; j < baseInputs.length; j++) {
+            for (let j = i; j < baseInputs.length; j++) {
                 const currInputs = rowInputs.map((object) => ({ ...object }));
 
                 if (j >= 0) currInputs[j].indexed = true;
@@ -77,7 +75,9 @@ export function parseERC20TransferEvent(eventLog: LogEntry): ERC20TransferEvent 
                     eRC20TransferEvent.to = decodedLog.to.toLowerCase();
                     eRC20TransferEvent.value = new BigNumber(decodedLog.value);
                     return eRC20TransferEvent;
-                } catch (e: unknown) {}
+                } catch (e: unknown) {
+                    console.warn('Error while decoding ERC20 transfer event', e);
+                }
             }
         }
     }

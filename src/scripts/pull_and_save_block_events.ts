@@ -181,16 +181,19 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
     const parsedEvents = parsedFullBlocks.map((block) => block.parsedEvents).flat();
 
     const parsedEventsByType = Object.values(
-        parsedEvents.reduce((accumulator, typedEvents): { [id: string]: TypedEvents } => {
-            if (accumulator[typedEvents.eventName] === undefined) {
-                accumulator[typedEvents.eventName] = typedEvents;
-            } else {
-                accumulator[typedEvents.eventName].events = accumulator[typedEvents.eventName].events.concat(
-                    typedEvents.events,
-                );
-            }
-            return accumulator;
-        }, {} as { [id: string]: TypedEvents }),
+        parsedEvents.reduce(
+            (accumulator, typedEvents): { [id: string]: TypedEvents } => {
+                if (accumulator[typedEvents.eventName] === undefined) {
+                    accumulator[typedEvents.eventName] = typedEvents;
+                } else {
+                    accumulator[typedEvents.eventName].events = accumulator[typedEvents.eventName].events.concat(
+                        typedEvents.events,
+                    );
+                }
+                return accumulator;
+            },
+            {} as { [id: string]: TypedEvents },
+        ),
     ).filter((typedEvents) => typedEvents.events.length > 0);
 
     const blockRanges = findRanges(parsedBlocks.map((block) => block.blockNumber));
@@ -489,7 +492,7 @@ export class BlockEventsScraper {
 
         // Finding reorgs within RPC's response
         if (newBlocks.length > 1) {
-            var prevBlock = newBlocks[0];
+            let prevBlock = newBlocks[0];
             for (const currBlock of newBlocks.slice(1)) {
                 if (currBlock.parentHash !== prevBlock.hash) {
                     logger.warn(`Reorg detected within RPC's response. Ignoring invalid response and retrying.`);

@@ -12,7 +12,7 @@ import {
 import { Block, Transaction, TransactionLogs, TransactionReceipt } from '../../entities';
 import { BigNumber } from '@0x/utils';
 
-function isCoinbaseShortZidTransaction(blockNumber: Number, affiliateAddress: String): Boolean {
+function isCoinbaseShortZidTransaction(blockNumber: number, affiliateAddress: string): boolean {
     // Coinbase's affiliateAddress used during this period
     if (affiliateAddress !== '0x382ffce2287252f930e1c8dc9328dac5bf282ba1') {
         return false;
@@ -37,7 +37,7 @@ function isCoinbaseShortZidTransaction(blockNumber: Number, affiliateAddress: St
     return false;
 }
 
-function isAfterZidBytesReduction(blockNumber: Number): Boolean {
+function isAfterZidBytesReduction(blockNumber: number): boolean {
     // Approximate block numbers after ZID reduction from 16 to 12 bytes.
     switch (CHAIN_ID) {
         case 1: // Ethereum

@@ -3,6 +3,5 @@
     "tabWidth": 4,
     "singleQuote": true,
     "trailingComma": "all",
-    "bracketSpacing": true,
-    "importOrderParserPlugins": ["typescript", "decorators-legacy"]
+    "bracketSpacing": true
 }

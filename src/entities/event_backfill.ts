@@ -1,5 +1,5 @@
 import { numberToBigIntTransformer } from '../transformers';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'events_backfill' })
 export class EventBackfill {

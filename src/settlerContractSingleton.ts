@@ -38,7 +38,7 @@ export class SettlerContractSingleton {
         return SettlerContractSingleton.instance;
     }
 
-    static isInitialized(): Boolean {
+    static isInitialized(): boolean {
         return !!SettlerContractSingleton.instance;
     }
 

@@ -4,10 +4,6 @@ import { parseEvent } from './parse_event';
 import { BigNumber } from '@0x/utils';
 import { LogEntry } from 'ethereum-types';
 
-const abiCoder = require('web3-eth-abi');
-
-const Web3Utils = require('web3-utils');
-
 export function parseRFQOrderEvent(eventLog: LogEntry): RFQOrderEvent | null {
     const rfqOrderEvent = new RFQOrderEvent();
 

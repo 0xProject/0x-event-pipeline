@@ -149,10 +149,10 @@ export const SCRAPER_MODE: ScraperMode =
     process.env.SCRAPER_MODE === undefined
         ? DEFAULT_SCRAPER_MODE
         : process.env.SCRAPER_MODE === 'BLOCKS'
-        ? 'BLOCKS'
-        : process.env.SCRAPER_MODE === 'EVENTS'
-        ? 'EVENTS'
-        : throwError('Wrong SCRAPER_MODE');
+          ? 'BLOCKS'
+          : process.env.SCRAPER_MODE === 'EVENTS'
+            ? 'EVENTS'
+            : throwError('Wrong SCRAPER_MODE');
 export const METRICS_PATH = process.env.METRICS_PATH || DEFAULT_METRICS_PATH;
 
 export const PROMETHEUS_PORT = getIntConfig('PROMETHEUS_PORT', DEFAULT_PROMETHEUS_PORT);
@@ -556,7 +556,6 @@ function getBoolConfig(env: string, defaultValue: boolean): boolean {
 
 function getIntConfig(env: string, defaultValue: number): number {
     if (Object.prototype.hasOwnProperty.call(process.env, env)) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return parseInt(process.env[env]!);
     }
     return defaultValue;
