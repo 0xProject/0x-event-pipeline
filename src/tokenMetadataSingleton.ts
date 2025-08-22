@@ -23,6 +23,7 @@ export class TokenMetadataSingleton {
             const tmp = await connection
                 .getRepository(TokenMetadata)
                 .createQueryBuilder('token_metadata')
+                .where('token_metadata.chainId = :chainId', { chainId: CHAIN_ID.toString() })
                 .leftJoinAndSelect(TokenRegistry, 'token_registry', 'token_metadata.address = token_registry.address')
                 .select([
                     'token_metadata.address',

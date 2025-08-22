@@ -29,4 +29,6 @@ export class LastBlockProcessed {
 
     @Column({ name: 'block_hash', type: 'varchar' })
     public blockHash!: string | null;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

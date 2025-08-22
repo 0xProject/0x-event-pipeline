@@ -1,5 +1,6 @@
 import {
     BLOCKS_REORG_CHECK_INCREMENT,
+    CHAIN_ID,
     CHAIN_NAME,
     EVM_RPC_URL,
     MAX_BLOCKS_REORG,
@@ -208,7 +209,7 @@ async function saveFullBlocks(connection: Connection, eventTables: string[], par
             blockRanges.forEach(async (blockRange) => {
                 deletePromises.push(
                     queryRunner.manager.query(
-                        `DELETE FROM ${SCHEMA}.${tableName}
+                        `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID}
                      WHERE
                        block_number >= ${blockRange.start} AND
                        block_number <= ${blockRange.end}`,
@@ -475,7 +476,7 @@ export class BlockEventsScraper {
                     const queryRunner = connection.createQueryRunner();
                     await queryRunner.connect();
                     await queryRunner.manager.query(
-                        `DELETE FROM ${SCHEMA}.blocks
+                        `DELETE FROM ${SCHEMA}.blocks_${CHAIN_ID}
                          WHERE block_number > ${testBlockNumber}`,
                     );
                     queryRunner.release();

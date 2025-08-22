@@ -85,6 +85,7 @@ export function parseTransaction(rawTx: EVMTransaction): Transaction {
     transaction.maxFeePerGas = rawTx.maxFeePerGas === undefined ? null : new BigNumber(rawTx.maxFeePerGas);
     transaction.maxPriorityFeePerGas =
         rawTx.maxPriorityFeePerGas === undefined ? null : new BigNumber(rawTx.maxPriorityFeePerGas);
+    transaction.chainId = CHAIN_ID.toString();
 
     if (
         transaction.input.includes(SETTLER_EXECUTE_SELECTOR) ||
@@ -165,6 +166,7 @@ export function parseTransactionReceipt(rawReceipt: RawReceipt): TransactionRece
     transactionReceipt.toAddress = rawReceipt.to;
     transactionReceipt.gasUsed = new BigNumber(rawReceipt.gasUsed);
     transactionReceipt.gasFeesL1 = rawReceipt.gasFeesL1 === undefined ? null : new BigNumber(rawReceipt.gasFeesL1);
+    transactionReceipt.chainId = CHAIN_ID.toString();
 
     return transactionReceipt;
 }
@@ -181,6 +183,7 @@ export function parseTransactionLogs(rawReceipt: RawReceipt): TransactionLogs {
     transactionLogs.logs = JSON.stringify(rawReceipt.logs);
     transactionLogs.blockHash = rawReceipt.blockHash === null ? '' : rawReceipt.blockHash;
     transactionLogs.blockNumber = rawReceipt.blockNumber === null ? 0 : rawReceipt.blockNumber;
+    transactionLogs.chainId = CHAIN_ID.toString();
 
     return transactionLogs;
 }
@@ -199,6 +202,7 @@ export function parseBlock(rawBlock: BlockWithoutTransactionData): Block {
     parsedBlock.baseFeePerGas = rawBlock.baseFeePerGas;
     parsedBlock.gasUsed = rawBlock.gasUsed;
     parsedBlock.parentHash = rawBlock.parentHash;
+    parsedBlock.chainId = CHAIN_ID.toString();
 
     return parsedBlock;
 }

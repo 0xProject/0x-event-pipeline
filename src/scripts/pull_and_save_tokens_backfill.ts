@@ -1,4 +1,4 @@
-import { EVM_RPC_URL, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../config';
+import { CHAIN_ID, EVM_RPC_URL, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../config';
 import { Web3Source } from '../data_sources/events/web3';
 import { logger } from '../utils/logger';
 import { SCRIPT_RUN_DURATION } from '../utils/metrics';
@@ -30,7 +30,7 @@ export class TokensFromBackfill {
             const savedTokenCount = await getParseSaveTokensAsync(connection, producer, web3Source, tokens);
 
             const tokenList = tokens.map((token: string) => `'${token}'`).toString();
-            const tokenBackfillQuery = `DELETE FROM ${SCHEMA}.tokens_backfill WHERE address IN (${tokenList});`;
+            const tokenBackfillQuery = `DELETE FROM ${SCHEMA}.tokens_backfill_${CHAIN_ID} WHERE address IN (${tokenList});`;
             const queryRunner = connection.createQueryRunner();
             await queryRunner.connect();
 
