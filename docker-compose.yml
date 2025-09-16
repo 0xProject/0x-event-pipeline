@@ -599,33 +599,6 @@ services:
         networks:
             - zeroex_local_dev
 
-    event-pipeline-plasma:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        platform: linux/amd64
-        restart: no
-        environment:
-            SCRAPER_MODE: 'BLOCKS'
-            EVM_RPC_URL: '${RPC_URL_PLASMA}'
-            CHAIN_ID: '9745'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
-            SCHEMA: 'events_plasma'
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            SETTLER_DEPLOYMENT_BLOCK: 1005222
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 100
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x6100e367285b01f48d07953803a2d8dca5d19873'
-            FEAT_TOKENS_FROM_TRANSFERS: "true"
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
-            BLOCK_RECEIPTS_MODE: "standard"
-        networks:
-            - zeroex_local_dev
 
 networks:
     zeroex_local_dev:
