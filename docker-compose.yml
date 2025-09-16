@@ -1,4 +1,3 @@
-version: '3'
 services:
     event-pipeline-ethereum:
         build:
@@ -67,6 +66,8 @@ services:
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
             FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-bsc:
         build:
@@ -103,6 +104,8 @@ services:
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-polygon:
         build:
@@ -138,6 +141,8 @@ services:
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
             FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-avalanche:
         build:
@@ -170,6 +175,8 @@ services:
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+        networks:
+            - zeroex_local_dev
 
 
     event-pipeline-fantom:
@@ -204,6 +211,8 @@ services:
             NFT_FEATURE_START_BLOCK: 32817445
             FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
             WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-celo:
         build:
@@ -231,6 +240,8 @@ services:
             RESCRAPE_BLOCKS: 10
             FEAT_NFT: "true"
             NFT_FEATURE_START_BLOCK: 11820000
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-optimism:
         build:
@@ -266,6 +277,8 @@ services:
             SOCKET_BRIDGE_EVENT_START_BLOCK: 110791294
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-arbitrum:
         build:
@@ -312,6 +325,8 @@ services:
             FEAT_META_TRANSACTION_EXECUTED_EVENT: "true"
             META_TRANSACTION_EXECUTED_START_BLOCK: 168492783
             FEAT_TOKENS_FROM_TRANSFERS: "true"
+        networks:
+            - zeroex_local_dev
 
 
     event-pipeline-base:
@@ -345,6 +360,8 @@ services:
             FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
             FEAT_ZORA_TOKEN_CREATION_EVENT: "true"
             ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK: 26602741
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-scroll:
         build:
@@ -382,6 +399,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 9527830
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-blast:
         build:
@@ -419,6 +438,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-linea:
         build:
@@ -456,6 +477,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 6917652
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-mode:
         build:
@@ -493,6 +516,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
+        networks:
+            - zeroex_local_dev
 
     event-pipeline-mantle:
         build:
@@ -530,6 +555,8 @@ services:
             FEAT_SOCKET_BRIDGE_EVENT: "true"
             SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
             SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
+        networks:
+            - zeroex_local_dev
 
     token-scraper-ethereum:
         build:
@@ -554,3 +581,37 @@ services:
             MAX_BLOCKS_TO_PULL: 1000
             MAX_TX_TO_PULL: 1000
             SECONDS_BETWEEN_RUNS: 5
+        networks:
+            - zeroex_local_dev
+
+    event-pipeline-plasma:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        platform: linux/amd64
+        restart: never
+        environment:
+            SCRAPER_MODE: 'BLOCKS'
+            EVM_RPC_URL: '${RPC_URL_PLASMA}'
+            CHAIN_ID: '9745'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+            SCHEMA: 'events_plasma'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 1005222
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 100
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x6100e367285b01f48d07953803a2d8dca5d19873'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
+            BLOCK_RECEIPTS_MODE: "standard"
+        networks:
+            - zeroex_local_dev
+
+networks:
+    zeroex_local_dev:
+        external: true
