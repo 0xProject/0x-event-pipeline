@@ -4,6 +4,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
@@ -74,6 +75,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${BSC_RPC_URL_ALCHEMY}'
             CHAIN_ID: '56'
@@ -112,6 +114,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_POLYGON}'
             CHAIN_ID: '137'
@@ -149,6 +152,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_AVALANCHE}'
             CHAIN_ID: '43114'
@@ -184,6 +188,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${FANTOM_RPC_URL_ALCHEMY}'
             CHAIN_ID: '250'
@@ -219,6 +224,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${CELO_RPC_URL_ALCHEMY}'
             CHAIN_ID: '42220'
@@ -248,6 +254,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             useLevel: "debug"
             EVM_RPC_URL: '${RPC_URL_OPTIMISM}'
@@ -285,6 +292,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             LOG_LEVEL: "debug"
             EVM_RPC_URL: '${EVM_RPC_URL_ARBITRUM}'
@@ -334,6 +342,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_BASE}'
             CHAIN_ID: '8453'
@@ -368,6 +377,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${SCROLL_RPC_URL_ALCHEMY}'
             CHAIN_ID: '534352'
@@ -407,6 +417,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${BLAST_RPC_URL_ALCHEMY}'
             CHAIN_ID: '81457'
@@ -446,6 +457,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${LINEA_RPC_URL_ALCHEMY}'
             CHAIN_ID: '59144'
@@ -485,6 +497,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${MODE_RPC_URL_ALCHEMY}'
             CHAIN_ID: '34443'
@@ -524,6 +537,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${MANTLE_RPC_URL_QUICKNODE}'
             CHAIN_ID: '5000'
@@ -563,6 +577,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
             CHAIN_ID: '1'
@@ -587,7 +602,7 @@ services:
     event-pipeline-plasma:
         build:
             context: .
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         platform: linux/amd64
         restart: never
         environment:
