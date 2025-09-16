@@ -3,7 +3,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
@@ -74,7 +74,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${BSC_RPC_URL_ALCHEMY}'
@@ -113,7 +113,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_POLYGON}'
@@ -151,7 +151,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_AVALANCHE}'
@@ -187,7 +187,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${FANTOM_RPC_URL_ALCHEMY}'
@@ -223,7 +223,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${CELO_RPC_URL_ALCHEMY}'
@@ -253,7 +253,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             useLevel: "debug"
@@ -291,7 +291,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             LOG_LEVEL: "debug"
@@ -341,7 +341,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_BASE}'
@@ -376,7 +376,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${SCROLL_RPC_URL_ALCHEMY}'
@@ -416,7 +416,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${BLAST_RPC_URL_ALCHEMY}'
@@ -456,7 +456,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${LINEA_RPC_URL_ALCHEMY}'
@@ -496,7 +496,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${MODE_RPC_URL_ALCHEMY}'
@@ -536,7 +536,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${MANTLE_RPC_URL_QUICKNODE}'
@@ -576,7 +576,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: always
+        restart: never
         platform: linux/amd64
         environment:
             EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
