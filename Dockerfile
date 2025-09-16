@@ -1,6 +1,6 @@
 # Stage 1 - Build
 #
-FROM node:18-alpine as build
+FROM node:22-alpine as build
 WORKDIR /usr/src/app
 
 RUN apk add --update --no-cache \
@@ -19,7 +19,7 @@ RUN yarn build
 
 # Stage 2 - Runner
 #
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /usr/src/app
 
 COPY package.json tsconfig.json yarn.lock ./
