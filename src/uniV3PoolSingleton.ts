@@ -1,3 +1,4 @@
+import { CHAIN_ID } from './config';
 import { UniswapV3PoolCreatedEvent } from './entities';
 import { logger } from './utils';
 import { Connection } from 'typeorm';
@@ -26,7 +27,11 @@ export class UniV3PoolSingleton {
         if (!UniV3PoolSingleton.instance) {
             UniV3PoolSingleton.instance = new UniV3PoolSingleton();
             logger.info('Loading Uni V3 Pools to memory');
-            const newPools = await connection.getRepository(UniswapV3PoolCreatedEvent).find();
+            const newPools = await connection.
+                getRepository(UniswapV3PoolCreatedEvent)
+                .createQueryBuilder('uniswap_v3_pool_created_events')
+                .where('uniswap_v3_pool_created_events.chainId = :chainId', { chainId: CHAIN_ID.toString() })
+                .getMany();
             UniV3PoolSingleton.instance.addNewPools(newPools);
         }
     }

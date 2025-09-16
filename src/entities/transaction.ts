@@ -59,4 +59,6 @@ export class Transaction {
     // priority fee in wei
     @Column({ name: 'max_priority_fee_per_gas', type: 'numeric', transformer: bigNumberTransformer })
     public maxPriorityFeePerGas!: BigNumber | null;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

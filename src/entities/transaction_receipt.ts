@@ -32,4 +32,6 @@ export class TransactionReceipt {
     // Amount of gas consumed by the tx in L1 (only filled when this amount is not included in the L2 gas, (like in OP stack chains)
     @Column({ name: 'gas_fees_l1', type: 'numeric', transformer: bigNumberTransformer })
     public gasFeesL1!: BigNumber | null;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

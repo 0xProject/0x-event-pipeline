@@ -1,3 +1,4 @@
+import { CHAIN_ID } from './config';
 import { SCHEMA } from './config';
 import { registerSettlerContractEventProp } from './events';
 import { logger } from './utils';
@@ -20,7 +21,7 @@ export class SettlerContractSingleton {
         const settlerContracts = await connection.query(
             `
             SELECT "to" AS address
-            FROM ${SCHEMA}.settler_erc721_transfer_events
+            FROM ${SCHEMA}.settler_erc721_transfer_events_${CHAIN_ID}
             WHERE "to" <> '0x0000000000000000000000000000000000000000'
             ORDER BY block_number
             `,

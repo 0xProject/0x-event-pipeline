@@ -1,4 +1,4 @@
-import { FIRST_SEARCH_BLOCK, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
+import { CHAIN_ID, FIRST_SEARCH_BLOCK, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, SCHEMA } from '../../config';
 import { Web3Source } from '../../data_sources/events/web3';
 import { LastBlockProcessed } from '../../entities';
 import { logger } from '../../utils/logger';
@@ -102,7 +102,7 @@ export class PullAndSaveEvents {
         try {
             // delete events scraped prior to the most recent block range
             await queryRunner.manager.query(
-                `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlockNumber} AND block_number <= ${endBlock}`,
+                `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlockNumber} AND block_number <= ${endBlock}`,
             );
             await queryRunner.manager.save(toSave);
             await queryRunner.manager.save(lastBlockProcessed);
