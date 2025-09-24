@@ -25,6 +25,7 @@ test('Old QR ID works', () => {
         transactionIndex: 81,
         type: 2,
         value: new BigNumber('0'),
+        chainId: '1',
     };
 
     const rawTransaction: EVMTransaction = {
@@ -67,6 +68,7 @@ test('New ZID works', () => {
         transactionIndex: 81,
         type: 2,
         value: new BigNumber('0'),
+        chainId: '1',
     };
 
     const rawTransaction: EVMTransaction = {

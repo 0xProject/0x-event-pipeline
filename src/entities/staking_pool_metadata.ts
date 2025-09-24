@@ -24,4 +24,6 @@ export class StakingPoolMetadata {
     // whether or not the info has been verified by the 0x core team
     @Column({ name: 'verified', type: 'boolean' })
     public verified!: boolean;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

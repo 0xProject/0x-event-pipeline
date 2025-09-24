@@ -1,5 +1,6 @@
 import { Event } from '../../entities';
 import { LogEntry, RawLogEntry } from 'ethereum-types';
+import { CHAIN_ID } from '../../config';
 
 export function parseEvent(eventLog: LogEntry | RawLogEntry, eventEntity: Event) {
     eventEntity.observedTimestamp = new Date().getTime();
@@ -9,4 +10,5 @@ export function parseEvent(eventLog: LogEntry | RawLogEntry, eventEntity: Event)
     eventEntity.logIndex = eventLog.logIndex as number;
     eventEntity.blockHash = (eventLog.blockHash as string).toLowerCase();
     eventEntity.blockNumber = eventLog.blockNumber as number;
+    eventEntity.chainId = CHAIN_ID.toString();
 }

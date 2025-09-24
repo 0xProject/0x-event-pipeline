@@ -29,4 +29,6 @@ export class CurrentEpochInfo {
     // Relevant ZRX staked for this epoch
     @Column({ name: 'zrx_staked', type: 'numeric', transformer: bigNumberTransformer })
     public zrxStaked!: BigNumber;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

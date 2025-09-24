@@ -19,4 +19,6 @@ export class TransactionLogs {
     // depth of the block
     @Column({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockNumber!: number;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

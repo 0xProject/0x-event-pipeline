@@ -1,4 +1,4 @@
-import { EVM_RPC_URL } from '../config';
+import { EVM_RPC_URL, CHAIN_ID } from '../config';
 import { Web3Source } from '../data_sources/events/web3';
 import { EventBackfill } from '../entities';
 import { eventScrperProps, EventScraperProps, CommonEventParams } from '../events';
@@ -78,6 +78,7 @@ export class EventsBackfillScraper {
                                         .from(EventBackfill)
                                         .where('blockNumber >= :startBlockNumber', { startBlockNumber })
                                         .andWhere('blockNumber <= :endBlockNumber', { endBlockNumber })
+                                        .andWhere('chainId = :chainId', { "chainId": CHAIN_ID })
                                         .execute();
                                 }
 

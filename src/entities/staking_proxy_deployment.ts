@@ -23,4 +23,6 @@ export class StakingProxyDeployment {
     // The timestamp of the block where the transaction occurred
     @Column({ name: 'block_timestamp', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockTimestamp!: number;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

@@ -24,4 +24,6 @@ export abstract class Event {
     // The block number where the event occurred.
     @Column({ name: 'block_number', type: 'bigint', transformer: numberToBigIntTransformer })
     public blockNumber!: number;
+    @Column({ name: 'chain_id', type: 'varchar' })
+    public chainId!: string;
 }

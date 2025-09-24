@@ -1,4 +1,4 @@
-import { CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
+import { CHAIN_ID, CHAIN_NAME_LOWER, MAX_BLOCKS_REORG, MAX_BLOCKS_TO_SEARCH, RESCRAPE_BLOCKS, SCHEMA } from '../../config';
 import { LogPullInfo, Web3Source } from '../../data_sources/events/web3';
 import { Event } from '../../entities';
 import { LastBlockProcessed } from '../../entities';
@@ -267,24 +267,24 @@ export class PullAndSaveEventsByTopic {
         let deleteQuery = '';
         if (tableName === 'erc20_bridge_transfer_events') {
             if (deleteOptions.directFlag && deleteOptions.directProtocol != undefined) {
-                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_protocol IN ('${deleteOptions.directProtocol.join(
                     "','",
                 )}')`;
             } else if (deleteOptions.directFlag === false) {
-                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_flag = FALSE`;
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND direct_flag = FALSE`;
             }
         } else if (tableName === 'native_fills' && deleteOptions.protocolVersion != undefined) {
             if (deleteOptions.protocolVersion === 'v4' && deleteOptions.nativeOrderType != undefined) {
-                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}' AND native_order_type = '${deleteOptions.nativeOrderType}' `;
             } else {
-                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
+                deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol_version = '${deleteOptions.protocolVersion}'`;
             }
         } else if (tableName === 'uniswap_v2_pair_created_events') {
-            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol = '${deleteOptions.protocol}'`;
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND protocol = '${deleteOptions.protocol}'`;
         } else if (tableName === 'log_transfer_events') {
-            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND "to" = '${deleteOptions.recipient}'`;
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock} AND "to" = '${deleteOptions.recipient}'`;
         } else {
-            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
+            deleteQuery = `DELETE FROM ${SCHEMA}.${tableName}_${CHAIN_ID} WHERE block_number >= ${startBlock} AND block_number <= ${endBlock}`;
         }
 
         await queryRunner.connect();
@@ -408,5 +408,6 @@ export const getLastBlockProcessedEntity = (
     lastBlockProcessed.lastProcessedBlockNumber = endBlockNumber;
     lastBlockProcessed.processedTimestamp = new Date().getTime();
     lastBlockProcessed.blockHash = endBlockHash;
+    lastBlockProcessed.chainId = CHAIN_ID.toString();
     return lastBlockProcessed;
 };
