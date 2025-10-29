@@ -1,630 +1,659 @@
 services:
-    event-pipeline-ethereum:
+    # event-pipeline-ethereum:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
+    #         CHAIN_ID: '1'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events'
+    #         # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+    #         # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 10247094
+    #         SETTLER_DEPLOYMENT_BLOCK: 19582253
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 100
+    #         MAX_TX_TO_PULL: 1000
+    #         BLOCK_FINALITY_THRESHOLD: 0
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
+    #         UNISWAP_V2_VIP_SWAP_SOURCES: "UniswapV2,SushiSwap"
+    #         UNISWAP_V2_VIP_SWAP_START_BLOCK: 10917104
+    #         FEAT_UNISWAP_V3_VIP_SWAP_EVENT: "true"
+    #         UNISWAP_V3_VIP_SWAP_START_BLOCK: 12553659
+    #         FEAT_UNISWAP_V3_SWAP_EVENT: "true"
+    #         UNISWAP_V3_SWAP_START_BLOCK: 16670838
+    #         FEAT_UNISWAP_V3_POOL_CREATED_EVENT: "true"
+    #         UNISWAP_V3_POOL_CREATED_START_BLOCK: 12369621
+    #         UNISWAP_V3_FACTORY_ADDRESS: "0x1f98431c8ad98523631ae4a59f267346ea31f984"
+    #         FEAT_LIMIT_ORDERS: "true"
+    #         V4_NATIVE_FILL_START_BLOCK: "11591021"
+    #         FEAT_PLP_SWAP_EVENT: "true"
+    #         PLP_VIP_START_BLOCK: 11377457
+    #         FEAT_OTC_ORDERS: "true"
+    #         OTC_ORDERS_FEATURE_START_BLOCK: 13143075
+    #         FEAT_CANCEL_EVENTS: "true"
+    #         FEAT_STAKING: "true"
+    #         STAKING_DEPLOYMENT_BLOCK: 8952581
+    #         FEAT_RFQ_EVENT: "true"
+    #         FEAT_V3_NATIVE_FILL: "true"
+    #         FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+    #         FLASHWALLET_ADDRESS: "0x22f9dcf4647084d6c31b2765f6910cd85c178c18"
+    #         FLASHWALLET_DEPLOYMENT_BLOCK: 12231666
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 14258205
+    #         FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
+    #         UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "UniswapV2:0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f:10000835,SushiSwap:0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac:10794229"
+    #         FEAT_UNISWAP_V2_SYNC_EVENT: "true"
+    #         UNISWAP_V2_SYNC_START_BLOCK: 10000835
+    #         FEAT_ONCHAIN_GOVERNANCE: "true"
+    #         ONCHAIN_GOVERNANCE_START_BLOCK: 16990159
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 18473454
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-bsc:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${BSC_RPC_URL_ALCHEMY}'
+    #         CHAIN_ID: '56'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_bsc'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         MAX_BLOCKS_REORG: 300
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 5375047
+    #         SETTLER_DEPLOYMENT_BLOCK: 37570574
+    #         MAX_BLOCKS_TO_SEARCH: 500
+    #         MAX_BLOCKS_TO_PULL: 90
+    #         MAX_TX_TO_PULL: 500
+    #         BLOCK_FINALITY_THRESHOLD: 0
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
+    #         UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap,CafeSwap,SwapLiquidity,ApeSwapFinance,CheeseSwap,Swap"
+    #         FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
+    #         UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "PancakeSwap:0xbcfccbde45ce874adcb698cc183debcf17952812:586851,PancakeSwap!v2:0xca143ce32fe78f1f7019d7d551a6402fc5350c73:6809737,BakerySwap:0x01bf7c66c6bd861915cdaae475042d3c4bae16a7:470617,SushiSwap:0xc35dadb65012ec5796536bd9864ed8773abc74c4:5205069,CafeSwap:0x3e708fdbe3ada63fc94f8f61811196f1302137ad:5865260,SwapLiquidity:0x553990f2cba90272390f62c5bdb1681ffc899675:784352,ApeSwapFinance:0x0841bd0b734e4f5853f0dd8d7ea041c241fb0da6:4855901,CheeseSwap:0xdd538e4fd1b69b7863e1f741213276a6cf1efb3b:1569172"
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 15860129
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-polygon:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${RPC_URL_POLYGON}'
+    #         CHAIN_ID: '137'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_polygon'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         ENABLE_PROMETHEUS_METRICS: "true"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 14391480
+    #         SETTLER_DEPLOYMENT_BLOCK: 55435171
+    #         MAX_BLOCKS_TO_SEARCH: 500
+    #         MAX_BLOCKS_TO_PULL: 500
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         FEAT_LIMIT_ORDERS: "true"
+    #         V4_NATIVE_FILL_START_BLOCK: 17587182
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 25697854
+    #         FEAT_OTC_ORDERS: "true"
+    #         OTC_ORDERS_FEATURE_START_BLOCK: 26479109
+    #         FEAT_META_TRANSACTION_EXECUTED_EVENT: "true"
+    #         META_TRANSACTION_EXECUTED_START_BLOCK: 39406300
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+    #         FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         MAX_BLOCKS_REORG: 400
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-avalanche:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${RPC_URL_AVALANCHE}'
+    #         CHAIN_ID: '43114'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_avalanche'
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         ENABLE_PROMETHEUS_METRICS: "true"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 3601700
+    #         SETTLER_DEPLOYMENT_BLOCK: 43807883
+    #         MAX_BLOCKS_TO_SEARCH: 5000
+    #         MAX_BLOCKS_TO_PULL: 2000
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+    #         FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
+    #         FLASHWALLET_DEPLOYMENT_BLOCK: 11805869
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 11816835
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #     networks:
+    #         - zeroex_local_dev
+
+
+    # event-pipeline-fantom:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${FANTOM_RPC_URL_ALCHEMY}'
+    #         CHAIN_ID: '250'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_fantom'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
+    #         ENABLE_PROMETHEUS_METRICS: "true"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 18855765
+    #         SETTLER_DEPLOYMENT_BLOCK: 18855765
+    #         MAX_BLOCKS_TO_SEARCH: 2000
+    #         MAX_BLOCKS_TO_PULL: 1000
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+    #         FLASHWALLET_ADDRESS: "0xb4d961671cadfed687e040b076eee29840c142e5"
+    #         FLASHWALLET_DEPLOYMENT_BLOCK: 18855797
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 32817445
+    #         FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-celo:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${RPC_URL_CELO}'
+    #         CHAIN_ID: '42220'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_celo'
+    #         SCRAPER_MODE: 'EVENTS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         ENABLE_PROMETHEUS_METRICS: "true"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 9350111
+    #         SETTLER_DEPLOYMENT_BLOCK: 9350111
+    #         MAX_BLOCKS_TO_SEARCH: 100
+    #         MAX_BLOCKS_TO_PULL: 20
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 11820000
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-optimism:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         useLevel: "debug"
+    #         EVM_RPC_URL: '${RPC_URL_OPTIMISM}'
+    #         CHAIN_ID: '10'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_optimism'
+    #         SCRAPER_MODE: "BLOCKS"
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 1691335
+    #         SETTLER_DEPLOYMENT_BLOCK: 118320052
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 1000
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         EP_ADDRESS: "0xdef1abe32c034e558cdd535791643c58a13acc10"
+    #         FEAT_TRANSFORMED_ERC20_EVENT: "true"
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 4214981
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: "0x4200000000000000000000000000000000000006"
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 110791294
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-arbitrum:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         LOG_LEVEL: "debug"
+    #         EVM_RPC_URL: '${EVM_RPC_URL_ARBITRUM}'
+    #         CHAIN_ID: '42161'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_arbitrum'
+    #         SCRAPER_MODE: "BLOCKS"
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 4050733
+    #         SETTLER_DEPLOYMENT_BLOCK: 197531334
+    #         MAX_BLOCKS_TO_SEARCH: 500
+    #         MAX_BLOCKS_TO_PULL: 102
+    #         MAX_BLOCKS_REORG: 300
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 4050733
+    #         FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_TRANSFORMED_ERC20_EVENT: "true"
+    #         FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
+    #         FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
+    #         FLASHWALLET_DEPLOYMENT_BLOCK: 4050733
+    #         FEAT_OTC_ORDERS: "true"
+    #         OTC_ORDERS_FEATURE_START_BLOCK: 87341520
+    #         BLOCK_FINALITY_THRESHOLD: 0
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 145873113
+    #         FEAT_META_TRANSACTION_EXECUTED_EVENT: "true"
+    #         META_TRANSACTION_EXECUTED_START_BLOCK: 168492783
+    #         FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #     networks:
+    #         - zeroex_local_dev
+
+
+    # event-pipeline-base:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${RPC_URL_BASE}'
+    #         CHAIN_ID: '8453'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_base'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 1410394
+    #         SETTLER_DEPLOYMENT_BLOCK: 12723120
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 100
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "true"
+    #         NFT_FEATURE_START_BLOCK: 1410394
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #         FEAT_ZORA_TOKEN_CREATION_EVENT: "true"
+    #         ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK: 26602741
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-scroll:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${SCROLL_RPC_URL_ALCHEMY}'
+    #         CHAIN_ID: '534352'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_scroll'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+    #         # EP_DEPLOYMENT_BLOCK:
+    #         SETTLER_DEPLOYMENT_BLOCK: 7474150
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 100
+    #         MAX_BLOCKS_REORG: 300
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "false"
+    #         NFT_FEATURE_START_BLOCK: 1410394
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x5300000000000000000000000000000000000004'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #         # FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 9527830
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-blast:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${BLAST_RPC_URL_ALCHEMY}'
+    #         CHAIN_ID: '81457'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_blast'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+    #         # EP_DEPLOYMENT_BLOCK: 
+    #         SETTLER_DEPLOYMENT_BLOCK: 6124420
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 100
+    #         MAX_BLOCKS_REORG: 500
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "false"
+    #         # NFT_FEATURE_START_BLOCK: 1410394
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4300000000000000000000000000000000000004'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #         FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-linea:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${LINEA_RPC_URL_ALCHEMY}'
+    #         CHAIN_ID: '59144'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_linea'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+    #         # EP_DEPLOYMENT_BLOCK: 
+    #         SETTLER_DEPLOYMENT_BLOCK: 6917652
+    #         MAX_BLOCKS_TO_SEARCH: 125
+    #         MAX_BLOCKS_TO_PULL: 25
+    #         MAX_BLOCKS_REORG: 125
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "false"
+    #         # NFT_FEATURE_START_BLOCK: 1410394
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #         # FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 6917652
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-mode:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${MODE_RPC_URL_ALCHEMY}'
+    #         CHAIN_ID: '34443'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_mode'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+    #         # EP_DEPLOYMENT_BLOCK: 
+    #         SETTLER_DEPLOYMENT_BLOCK: 14121097
+    #         MAX_BLOCKS_TO_SEARCH: 450
+    #         MAX_BLOCKS_TO_PULL: 200
+    #         MAX_BLOCKS_REORG: 450
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "false"
+    #         # NFT_FEATURE_START_BLOCK: 1410394
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #         FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
+    #     networks:
+    #         - zeroex_local_dev
+
+    # event-pipeline-mantle:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${MANTLE_RPC_URL_QUICKNODE}'
+    #         CHAIN_ID: '5000'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_mantle'
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+    #         # EP_DEPLOYMENT_BLOCK: 
+    #         SETTLER_DEPLOYMENT_BLOCK: 6124420
+    #         MAX_BLOCKS_TO_SEARCH: 125
+    #         MAX_BLOCKS_TO_PULL: 25
+    #         MAX_BLOCKS_REORG: 450
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_NFT: "false"
+    #         # NFT_FEATURE_START_BLOCK: 1410394
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8'
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
+    #         FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
+    #         FEAT_SOCKET_BRIDGE_EVENT: "true"
+    #         SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
+    #         SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
+    #     networks:
+    #         - zeroex_local_dev
+
+    # token-scraper-ethereum:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     restart: no
+    #     platform: linux/amd64
+    #     environment:
+    #         EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
+    #         CHAIN_ID: '1'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+    #         SCHEMA: 'events'
+    #         #KAFKA_BROKERS: '${KAFKA_BROKERS}'
+    #         #KAFKA_SSL: '${KAFKA_SSL}'
+    #         #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
+    #         #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
+    #         LOG_LEVEL: "info"
+    #         FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
+    #         TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "true"
+    #         EP_DEPLOYMENT_BLOCK: 10247094
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 1000
+    #         MAX_TX_TO_PULL: 1000
+    #         SECONDS_BETWEEN_RUNS: 5
+    #     networks:
+    #         - zeroex_local_dev
+
+
+    # event-pipeline-plasma:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     platform: linux/amd64
+    #     restart: no
+    #     environment:
+    #         SCRAPER_MODE: 'BLOCKS'
+    #         EVM_RPC_URL: '${RPC_URL_PLASMA}'
+    #         CHAIN_ID: '9745'
+    #         POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+    #         SCHEMA: 'events_plasma'
+    #         FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+    #         SETTLER_DEPLOYMENT_BLOCK: 1005222
+    #         MAX_BLOCKS_TO_SEARCH: 1000
+    #         MAX_BLOCKS_TO_PULL: 100
+    #         SECONDS_BETWEEN_RUNS: 1
+    #         RESCRAPE_BLOCKS: 10
+    #         FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+    #         WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x6100e367285b01f48d07953803a2d8dca5d19873'
+    #         FEAT_TOKENS_FROM_TRANSFERS: "true"
+    #         FEAT_ERC20_TRANSFER_ALL: "true"
+    #         FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+    #         TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
+    #         BLOCK_RECEIPTS_MODE: "standard"
+    #     networks:
+    #         - zeroex_local_dev
+
+    event-pipeline-monad:
         build:
             context: .
             dockerfile: Dockerfile
-        restart: no
         platform: linux/amd64
+        restart: no
         environment:
-            EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
-            CHAIN_ID: '1'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events'
-            # FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
-            # TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
             SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 10247094
-            SETTLER_DEPLOYMENT_BLOCK: 19582253
+            EVM_RPC_URL: '${RPC_URL_MONAD}'
+            CHAIN_ID: '143'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}' # which is the correct version of the URI?
+            SCHEMA: 'events_monad'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 1 # TBD is not available on settler
             MAX_BLOCKS_TO_SEARCH: 1000
             MAX_BLOCKS_TO_PULL: 100
-            MAX_TX_TO_PULL: 1000
-            BLOCK_FINALITY_THRESHOLD: 0
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
-            UNISWAP_V2_VIP_SWAP_SOURCES: "UniswapV2,SushiSwap"
-            UNISWAP_V2_VIP_SWAP_START_BLOCK: 10917104
-            FEAT_UNISWAP_V3_VIP_SWAP_EVENT: "true"
-            UNISWAP_V3_VIP_SWAP_START_BLOCK: 12553659
-            FEAT_UNISWAP_V3_SWAP_EVENT: "true"
-            UNISWAP_V3_SWAP_START_BLOCK: 16670838
-            FEAT_UNISWAP_V3_POOL_CREATED_EVENT: "true"
-            UNISWAP_V3_POOL_CREATED_START_BLOCK: 12369621
-            UNISWAP_V3_FACTORY_ADDRESS: "0x1f98431c8ad98523631ae4a59f267346ea31f984"
-            FEAT_LIMIT_ORDERS: "true"
-            V4_NATIVE_FILL_START_BLOCK: "11591021"
-            FEAT_PLP_SWAP_EVENT: "true"
-            PLP_VIP_START_BLOCK: 11377457
-            FEAT_OTC_ORDERS: "true"
-            OTC_ORDERS_FEATURE_START_BLOCK: 13143075
-            FEAT_CANCEL_EVENTS: "true"
-            FEAT_STAKING: "true"
-            STAKING_DEPLOYMENT_BLOCK: 8952581
-            FEAT_RFQ_EVENT: "true"
-            FEAT_V3_NATIVE_FILL: "true"
-            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
-            FLASHWALLET_ADDRESS: "0x22f9dcf4647084d6c31b2765f6910cd85c178c18"
-            FLASHWALLET_DEPLOYMENT_BLOCK: 12231666
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 14258205
-            FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
-            UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "UniswapV2:0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f:10000835,SushiSwap:0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac:10794229"
-            FEAT_UNISWAP_V2_SYNC_EVENT: "true"
-            UNISWAP_V2_SYNC_START_BLOCK: 10000835
-            FEAT_ONCHAIN_GOVERNANCE: "true"
-            ONCHAIN_GOVERNANCE_START_BLOCK: 16990159
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 18473454
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-bsc:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${BSC_RPC_URL_ALCHEMY}'
-            CHAIN_ID: '56'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_bsc'
-            SCRAPER_MODE: 'BLOCKS'
-            MAX_BLOCKS_REORG: 300
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 5375047
-            SETTLER_DEPLOYMENT_BLOCK: 37570574
-            MAX_BLOCKS_TO_SEARCH: 500
-            MAX_BLOCKS_TO_PULL: 90
-            MAX_TX_TO_PULL: 500
-            BLOCK_FINALITY_THRESHOLD: 0
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_UNISWAP_V2_VIP_SWAP_EVENT: "true"
-            UNISWAP_V2_VIP_SWAP_SOURCES: "PancakeSwap,BakerySwap,SushiSwap,CafeSwap,SwapLiquidity,ApeSwapFinance,CheeseSwap,Swap"
-            FEAT_UNISWAP_V2_PAIR_CREATED_EVENT: "true"
-            UNISWAP_V2_PAIR_CREATED_PROTOCOL_CONTRACT_ADDRESSES_AND_START_BLOCKS: "PancakeSwap:0xbcfccbde45ce874adcb698cc183debcf17952812:586851,PancakeSwap!v2:0xca143ce32fe78f1f7019d7d551a6402fc5350c73:6809737,BakerySwap:0x01bf7c66c6bd861915cdaae475042d3c4bae16a7:470617,SushiSwap:0xc35dadb65012ec5796536bd9864ed8773abc74c4:5205069,CafeSwap:0x3e708fdbe3ada63fc94f8f61811196f1302137ad:5865260,SwapLiquidity:0x553990f2cba90272390f62c5bdb1681ffc899675:784352,ApeSwapFinance:0x0841bd0b734e4f5853f0dd8d7ea041c241fb0da6:4855901,CheeseSwap:0xdd538e4fd1b69b7863e1f741213276a6cf1efb3b:1569172"
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 15860129
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-polygon:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${RPC_URL_POLYGON}'
-            CHAIN_ID: '137'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_polygon'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            ENABLE_PROMETHEUS_METRICS: "true"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 14391480
-            SETTLER_DEPLOYMENT_BLOCK: 55435171
-            MAX_BLOCKS_TO_SEARCH: 500
-            MAX_BLOCKS_TO_PULL: 500
-            SECONDS_BETWEEN_RUNS: 1
-            FEAT_LIMIT_ORDERS: "true"
-            V4_NATIVE_FILL_START_BLOCK: 17587182
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 25697854
-            FEAT_OTC_ORDERS: "true"
-            OTC_ORDERS_FEATURE_START_BLOCK: 26479109
-            FEAT_META_TRANSACTION_EXECUTED_EVENT: "true"
-            META_TRANSACTION_EXECUTED_START_BLOCK: 39406300
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
-            FEAT_TOKENS_FROM_TRANSFERS: "true"
-            MAX_BLOCKS_REORG: 400
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-avalanche:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${RPC_URL_AVALANCHE}'
-            CHAIN_ID: '43114'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_avalanche'
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            ENABLE_PROMETHEUS_METRICS: "true"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 3601700
-            SETTLER_DEPLOYMENT_BLOCK: 43807883
-            MAX_BLOCKS_TO_SEARCH: 5000
-            MAX_BLOCKS_TO_PULL: 2000
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
-            FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
-            FLASHWALLET_DEPLOYMENT_BLOCK: 11805869
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 11816835
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-        networks:
-            - zeroex_local_dev
-
-
-    event-pipeline-fantom:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${FANTOM_RPC_URL_ALCHEMY}'
-            CHAIN_ID: '250'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_fantom'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            EP_ADDRESS: "0xDEF189DeAEF76E379df891899eb5A00a94cBC250"
-            ENABLE_PROMETHEUS_METRICS: "true"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 18855765
-            SETTLER_DEPLOYMENT_BLOCK: 18855765
-            MAX_BLOCKS_TO_SEARCH: 2000
-            MAX_BLOCKS_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
-            FLASHWALLET_ADDRESS: "0xb4d961671cadfed687e040b076eee29840c142e5"
-            FLASHWALLET_DEPLOYMENT_BLOCK: 18855797
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 32817445
-            FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83'
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-celo:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${RPC_URL_CELO}'
-            CHAIN_ID: '42220'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_celo'
-            SCRAPER_MODE: 'EVENTS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            ENABLE_PROMETHEUS_METRICS: "true"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 9350111
-            SETTLER_DEPLOYMENT_BLOCK: 9350111
-            MAX_BLOCKS_TO_SEARCH: 100
-            MAX_BLOCKS_TO_PULL: 20
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 11820000
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-optimism:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            useLevel: "debug"
-            EVM_RPC_URL: '${RPC_URL_OPTIMISM}'
-            CHAIN_ID: '10'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_optimism'
-            SCRAPER_MODE: "BLOCKS"
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 1691335
-            SETTLER_DEPLOYMENT_BLOCK: 118320052
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            EP_ADDRESS: "0xdef1abe32c034e558cdd535791643c58a13acc10"
-            FEAT_TRANSFORMED_ERC20_EVENT: "true"
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 4214981
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: "0x4200000000000000000000000000000000000006"
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 110791294
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-arbitrum:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            LOG_LEVEL: "debug"
-            EVM_RPC_URL: '${EVM_RPC_URL_ARBITRUM}'
-            CHAIN_ID: '42161'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_arbitrum'
-            SCRAPER_MODE: "BLOCKS"
-            BLOCK_RECEIPTS_MODE: "standard"
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 4050733
-            SETTLER_DEPLOYMENT_BLOCK: 197531334
-            MAX_BLOCKS_TO_SEARCH: 500
-            MAX_BLOCKS_TO_PULL: 102
-            MAX_BLOCKS_REORG: 300
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            EP_ADDRESS: "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 4050733
-            FEAT_WRAP_UNWRAP_NATIVE_TRANSFER_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_TRANSFORMED_ERC20_EVENT: "true"
-            FEAT_ERC20_BRIDGE_TRANSFER_FLASHWALLET: "true"
-            FLASHWALLET_ADDRESS: "0xdb6f1920a889355780af7570773609bd8cb1f498"
-            FLASHWALLET_DEPLOYMENT_BLOCK: 4050733
-            FEAT_OTC_ORDERS: "true"
-            OTC_ORDERS_FEATURE_START_BLOCK: 87341520
-            BLOCK_FINALITY_THRESHOLD: 0
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 145873113
-            FEAT_META_TRANSACTION_EXECUTED_EVENT: "true"
-            META_TRANSACTION_EXECUTED_START_BLOCK: 168492783
-            FEAT_TOKENS_FROM_TRANSFERS: "true"
-        networks:
-            - zeroex_local_dev
-
-
-    event-pipeline-base:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${RPC_URL_BASE}'
-            CHAIN_ID: '8453'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_base'
-            SCRAPER_MODE: 'BLOCKS'
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 1410394
-            SETTLER_DEPLOYMENT_BLOCK: 12723120
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 100
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "true"
-            NFT_FEATURE_START_BLOCK: 1410394
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-            FEAT_ZORA_TOKEN_CREATION_EVENT: "true"
-            ZORA_FACTORY_PROXY_DEPLOYMENT_BLOCK: 26602741
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-scroll:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${SCROLL_RPC_URL_ALCHEMY}'
-            CHAIN_ID: '534352'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_scroll'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            # EP_DEPLOYMENT_BLOCK:
-            SETTLER_DEPLOYMENT_BLOCK: 7474150
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 100
-            MAX_BLOCKS_REORG: 300
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "false"
-            NFT_FEATURE_START_BLOCK: 1410394
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x5300000000000000000000000000000000000004'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-            # FEAT_TOKENS_FROM_TRANSFERS: "true"
-            # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 9527830
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-blast:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${BLAST_RPC_URL_ALCHEMY}'
-            CHAIN_ID: '81457'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_blast'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            # EP_DEPLOYMENT_BLOCK: 
-            SETTLER_DEPLOYMENT_BLOCK: 6124420
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 100
-            MAX_BLOCKS_REORG: 500
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "false"
-            # NFT_FEATURE_START_BLOCK: 1410394
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4300000000000000000000000000000000000004'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-            FEAT_TOKENS_FROM_TRANSFERS: "true"
-            # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-linea:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${LINEA_RPC_URL_ALCHEMY}'
-            CHAIN_ID: '59144'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_linea'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            # EP_DEPLOYMENT_BLOCK: 
-            SETTLER_DEPLOYMENT_BLOCK: 6917652
-            MAX_BLOCKS_TO_SEARCH: 125
-            MAX_BLOCKS_TO_PULL: 25
-            MAX_BLOCKS_REORG: 125
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "false"
-            # NFT_FEATURE_START_BLOCK: 1410394
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-            # FEAT_TOKENS_FROM_TRANSFERS: "true"
-            # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 6917652
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-mode:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${MODE_RPC_URL_ALCHEMY}'
-            CHAIN_ID: '34443'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_mode'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            # EP_DEPLOYMENT_BLOCK: 
-            SETTLER_DEPLOYMENT_BLOCK: 14121097
-            MAX_BLOCKS_TO_SEARCH: 450
-            MAX_BLOCKS_TO_PULL: 200
-            MAX_BLOCKS_REORG: 450
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "false"
-            # NFT_FEATURE_START_BLOCK: 1410394
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x4200000000000000000000000000000000000006'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-            FEAT_TOKENS_FROM_TRANSFERS: "true"
-            # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
-        networks:
-            - zeroex_local_dev
-
-    event-pipeline-mantle:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${MANTLE_RPC_URL_QUICKNODE}'
-            CHAIN_ID: '5000'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events_mantle'
-            SCRAPER_MODE: 'BLOCKS'
-            BLOCK_RECEIPTS_MODE: "standard"
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            # EP_DEPLOYMENT_BLOCK: 
-            SETTLER_DEPLOYMENT_BLOCK: 6124420
-            MAX_BLOCKS_TO_SEARCH: 125
-            MAX_BLOCKS_TO_PULL: 25
-            MAX_BLOCKS_REORG: 450
-            SECONDS_BETWEEN_RUNS: 1
-            RESCRAPE_BLOCKS: 10
-            FEAT_NFT: "false"
-            # NFT_FEATURE_START_BLOCK: 1410394
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8'
-            FEAT_ERC20_TRANSFER_ALL: "true"
-            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
-            FEAT_SETTLER_RFQ_ORDER_EVENT: "true"
-            FEAT_TOKENS_FROM_TRANSFERS: "true"
-            # TOKENS_FROM_TRANSFERS_START_BLOCK: 1
-            FEAT_SOCKET_BRIDGE_EVENT: "true"
-            SOCKET_BRIDGE_CONTRACT_ADDRESS: "0x3a23f943181408eac424116af7b7790c94cb97a5"
-            SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
-        networks:
-            - zeroex_local_dev
-
-    token-scraper-ethereum:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
-            CHAIN_ID: '1'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events'
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            LOG_LEVEL: "info"
-            FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
-            TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 10247094
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
-            MAX_TX_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 5
-        networks:
-            - zeroex_local_dev
-
-
-    event-pipeline-plasma:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        platform: linux/amd64
-        restart: no
-        environment:
-            SCRAPER_MODE: 'BLOCKS'
-            EVM_RPC_URL: '${RPC_URL_PLASMA}'
-            CHAIN_ID: '9745'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
-            SCHEMA: 'events_plasma'
-            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
-            SETTLER_DEPLOYMENT_BLOCK: 1005222
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 100
             SECONDS_BETWEEN_RUNS: 1
             RESCRAPE_BLOCKS: 10
             FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
-            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x6100e367285b01f48d07953803a2d8dca5d19873'
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A'
             FEAT_TOKENS_FROM_TRANSFERS: "true"
             FEAT_ERC20_TRANSFER_ALL: "true"
             FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
             TOKENS_FROM_TRANSFERS_START_BLOCK: "1"
             BLOCK_RECEIPTS_MODE: "standard"
+            SOCKET_BRIDGE_EVENT_START_BLOCK: 1 # TBD Do we need this? is not addeed in the plasma version
         networks:
             - zeroex_local_dev
 

@@ -83,6 +83,7 @@ const supportedChains: Map = {
     80094: { name: 'Berachain' },
     57073: { name: 'Ink' },
     9745: { name: 'Plasma' },
+    143: { name: 'Monad' },
 };
 
 interface BridgeContract {
