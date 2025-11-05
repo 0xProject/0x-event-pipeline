@@ -657,6 +657,35 @@ services:
         networks:
             - zeroex_local_dev
 
+    event-pipeline-sonic:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        platform: linux/amd64
+        restart: no
+        environment:
+            SCRAPER_MODE: 'BLOCKS'
+            EVM_RPC_URL: '${RPC_URL_SONIC}'
+            CHAIN_ID: '146'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}'
+            SCHEMA: 'events_sonic'
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+            SETTLER_DEPLOYMENT_BLOCK: 401809
+            MAX_BLOCKS_TO_SEARCH: 1000
+            MAX_BLOCKS_TO_PULL: 100
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 10
+            FEAT_WRAP_UNWRAP_NATIVE_EVENT: "true"
+            WRAP_UNWRAP_NATIVE_CONTRACT_ADDRESS: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38'
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            FEAT_ERC20_TRANSFER_ALL: "true"
+            FEAT_SETTLER_ERC721_TRANSFER_EVENT: "true"
+            TOKENS_FROM_TRANSFERS_START_BLOCK: "401809"
+            BLOCK_RECEIPTS_MODE: "standard"
+            SOCKET_BRIDGE_EVENT_START_BLOCK: 401809
+        networks:
+            - zeroex_local_dev
+
 networks:
     zeroex_local_dev:
         external: true
