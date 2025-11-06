@@ -150,6 +150,7 @@ async function schedule(
         const end = new Date().getTime();
         const duration = end - start;
         
+        // Success! Reset error counter
         if (consecutiveErrors > 0) {
             logger.info(`${funcName} recovered after ${consecutiveErrors} consecutive errors`);
         }
@@ -167,13 +168,19 @@ async function schedule(
     } catch (error) {
         consecutiveErrors++;
         logger.error(`Error in ${funcName} (consecutive error #${consecutiveErrors}):`, error);
-    
+        
+        const MAX_CONSECUTIVE_ERRORS = 5;
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+            logger.fatal(`${funcName} failed ${MAX_CONSECUTIVE_ERRORS} times consecutively. Stopping.`);
+            process.exit(1);
+        }
+        
         const backoffDelay = Math.min(
-            SECONDS_BETWEEN_RUNS * 1000 * Math.pow(2, Math.min(consecutiveErrors - 1, 5)),
-            60000
+            SECONDS_BETWEEN_RUNS * 1000 * Math.pow(2, consecutiveErrors - 1),
+            12000
         );
         
-        logger.warn(`Retrying ${funcName} in ${backoffDelay / 1000}s`);
+        logger.warn(`Retrying ${funcName} in ${backoffDelay / 1000}s (consecutive errors: ${consecutiveErrors})`);
         setTimeout(() => {
             schedule(connection, producer, func, funcName, consecutiveErrors);
         }, backoffDelay);
