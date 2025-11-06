@@ -137,19 +137,45 @@ createConnection(ormConfig as ConnectionOptions)
         process.exit(1);
     });
 
-async function schedule(connection: Connection | null, producer: Producer | null, func: any, funcName: string) {
-    const start = new Date().getTime();
-    await func(connection, producer);
-    const end = new Date().getTime();
-    const duration = end - start;
-    let wait: number;
-    if (duration > SECONDS_BETWEEN_RUNS * 1000) {
-        wait = 0;
-        logger.warn(`${funcName} is taking longer than desiered interval`);
-    } else {
-        wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
+async function schedule(
+    connection: Connection | null, 
+    producer: Producer | null, 
+    func: any, 
+    funcName: string,
+    consecutiveErrors: number = 0
+) {
+    try {
+        const start = new Date().getTime();
+        await func(connection, producer);
+        const end = new Date().getTime();
+        const duration = end - start;
+        
+        if (consecutiveErrors > 0) {
+            logger.info(`${funcName} recovered after ${consecutiveErrors} consecutive errors`);
+        }
+        
+        let wait: number;
+        if (duration > SECONDS_BETWEEN_RUNS * 1000) {
+            wait = 0;
+            logger.warn(`${funcName} is taking longer than desired interval`);
+        } else {
+            wait = SECONDS_BETWEEN_RUNS * 1000 - duration;
+        }
+        setTimeout(() => {
+            schedule(connection, producer, func, funcName, 0);
+        }, wait);
+    } catch (error) {
+        consecutiveErrors++;
+        logger.error(`Error in ${funcName} (consecutive error #${consecutiveErrors}):`, error);
+    
+        const backoffDelay = Math.min(
+            SECONDS_BETWEEN_RUNS * 1000 * Math.pow(2, Math.min(consecutiveErrors - 1, 5)),
+            60000
+        );
+        
+        logger.warn(`Retrying ${funcName} in ${backoffDelay / 1000}s`);
+        setTimeout(() => {
+            schedule(connection, producer, func, funcName, consecutiveErrors);
+        }, backoffDelay);
     }
-    setTimeout(() => {
-        schedule(connection, producer, func, funcName);
-    }, wait);
 }
