@@ -168,16 +168,13 @@ async function schedule(
         consecutiveErrors++;
         logger.error(`Error in ${funcName} (consecutive error #${consecutiveErrors}):`, error);
         
-        const MAX_CONSECUTIVE_ERRORS = 5;
+        const MAX_CONSECUTIVE_ERRORS = 3;
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
             logger.fatal(`${funcName} failed ${MAX_CONSECUTIVE_ERRORS} times consecutively. Stopping.`);
             process.exit(1);
         }
         
-        const backoffDelay = Math.min(
-            SECONDS_BETWEEN_RUNS * 1000 * Math.pow(2, consecutiveErrors - 1),
-            12000
-        );
+        const backoffDelay = SECONDS_BETWEEN_RUNS * 1000 * Math.pow(2, consecutiveErrors);
         
         logger.warn(`Retrying ${funcName} in ${backoffDelay / 1000}s (consecutive errors: ${consecutiveErrors})`);
         setTimeout(() => {
