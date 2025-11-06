@@ -272,11 +272,13 @@ async function getParseSaveBlocksTransactionsEvents(
     requiredTxnList?: Set<string>,
 ): Promise<boolean> {
     const blockNumbers = newBlocks.map((newBlock) => newBlock.number!);
+
     const blockRanges = findRanges(blockNumbers);
 
     logger.info(`Pulling Block Events for blocks: ${JSON.stringify(blockRanges)}`);
 
     try {
+
         const newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
 
         const filteredNewBlocksReceipts = newBlocksReceipts.filter(
@@ -355,7 +357,7 @@ async function getParseSaveBlocksTransactionsEvents(
         return false;
     } catch (error) {
         logger.error('Blocks error:', error);
-        throw error; // Re-throw to be caught by the schedule function
+        throw error;
     }
 }
 
