@@ -277,88 +277,82 @@ async function getParseSaveBlocksTransactionsEvents(
 
     logger.info(`Pulling Block Events for blocks: ${JSON.stringify(blockRanges)}`);
 
-    try {
+    const newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
 
-        const newBlocksReceipts = await web3Source.getBatchBlockReceiptsAsync(blockNumbers);
+    const filteredNewBlocksReceipts = newBlocksReceipts.filter(
+        (blockReceipts) => blockReceipts !== null && blockReceipts !== undefined,
+    );
 
-        const filteredNewBlocksReceipts = newBlocksReceipts.filter(
-            (blockReceipts) => blockReceipts !== null && blockReceipts !== undefined,
+    if (newBlocksReceipts.length !== filteredNewBlocksReceipts.length) {
+        if (!allowPartialSuccess) {
+            return false;
+        }
+        const { nullOnlyAtEnd } = newBlocksReceipts.reduce(
+            (state, blockReceipts) => {
+                if (state.hasSeenNull && blockReceipts !== null) {
+                    state.nullOnlyAtEnd = false;
+                }
+
+                if (blockReceipts === null) {
+                    state.hasSeenNull = true;
+                }
+                return state;
+            },
+            { hasSeenNull: false, nullOnlyAtEnd: true },
         );
 
-        if (newBlocksReceipts.length !== filteredNewBlocksReceipts.length) {
-            if (!allowPartialSuccess) {
-                return false;
-            }
-            const { nullOnlyAtEnd } = newBlocksReceipts.reduce(
-                (state, blockReceipts) => {
-                    if (state.hasSeenNull && blockReceipts !== null) {
-                        state.nullOnlyAtEnd = false;
-                    }
-
-                    if (blockReceipts === null) {
-                        state.hasSeenNull = true;
-                    }
-                    return state;
-                },
-                { hasSeenNull: false, nullOnlyAtEnd: true },
-            );
-
-            if (nullOnlyAtEnd) {
-                logger.info('Last block(s) receipts not found, retrying those block(s) on the next run');
-            } else {
-                logger.error("Missing intermediate block receipts, can't continue. Retrying next run");
-                logger.error(newBlocksReceipts);
-                return false;
-            }
+        if (nullOnlyAtEnd) {
+            logger.info('Last block(s) receipts not found, retrying those block(s) on the next run');
+        } else {
+            logger.error("Missing intermediate block receipts, can't continue. Retrying next run");
+            logger.error(newBlocksReceipts);
+            return false;
         }
-
-        if (filteredNewBlocksReceipts.length > 0) {
-            const fullBlocks: FullBlock[] = filteredNewBlocksReceipts.map((newBlockReceipts, blockIndex): FullBlock => {
-                const transactionsWithLogs = newBlockReceipts.map(
-                    (txReceipt: EVMTransactionReceipt, txIndex: number): FullTransaction => {
-                        if (txReceipt.blockHash !== newBlocks[blockIndex].hash) {
-                            throw new BlockHashMismatchError('Wrong Block hash');
-                        }
-                        return {
-                            ...newBlocks[blockIndex].transactions[txIndex],
-                            ...txReceipt,
-                            type: newBlocks[blockIndex].transactions[txIndex].type,
-                        };
-                    },
-                );
-                return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
-            });
-
-            const parsedFullBlocks = fullBlocks.map((fullBlock) =>
-                parseBlockTransactionsEvents(fullBlock, requiredTxnList),
-            );
-
-            const eventTables = eventScrperProps
-                .filter((props) => props.enabled)
-                .map((props: EventScraperProps) => props.table);
-
-            await saveFullBlocks(connection, eventTables, parsedFullBlocks);
-
-            if (FEAT_TOKENS_FROM_TRANSFERS) {
-                const tokensFromTransfers = [
-                    ...new Set(
-                        filteredNewBlocksReceipts
-                            .flat()
-                            .map((tx) => tx.logs)
-                            .flat()
-                            .filter((log) => log.topics.length > 0 && log.topics[0] === TRANSFER_EVENT_TOPIC_0)
-                            .map((log) => log.address),
-                    ),
-                ];
-                await getParseSaveTokensAsync(connection, producer, web3Source, tokensFromTransfers);
-            }
-            return true;
-        }
-        return false;
-    } catch (error) {
-        logger.error('Blocks error:', error);
-        throw error;
     }
+
+    if (filteredNewBlocksReceipts.length > 0) {
+        const fullBlocks: FullBlock[] = filteredNewBlocksReceipts.map((newBlockReceipts, blockIndex): FullBlock => {
+            const transactionsWithLogs = newBlockReceipts.map(
+                (txReceipt: EVMTransactionReceipt, txIndex: number): FullTransaction => {
+                    if (txReceipt.blockHash !== newBlocks[blockIndex].hash) {
+                        throw new BlockHashMismatchError('Wrong Block hash');
+                    }
+                    return {
+                        ...newBlocks[blockIndex].transactions[txIndex],
+                        ...txReceipt,
+                        type: newBlocks[blockIndex].transactions[txIndex].type,
+                    };
+                },
+            );
+            return { ...newBlocks[blockIndex], transactions: transactionsWithLogs };
+        });
+
+        const parsedFullBlocks = fullBlocks.map((fullBlock) =>
+            parseBlockTransactionsEvents(fullBlock, requiredTxnList),
+        );
+
+        const eventTables = eventScrperProps
+            .filter((props) => props.enabled)
+            .map((props: EventScraperProps) => props.table);
+
+        await saveFullBlocks(connection, eventTables, parsedFullBlocks);
+
+        if (FEAT_TOKENS_FROM_TRANSFERS) {
+            const tokensFromTransfers = [
+                ...new Set(
+                    filteredNewBlocksReceipts
+                        .flat()
+                        .map((tx) => tx.logs)
+                        .flat()
+                        .filter((log) => log.topics.length > 0 && log.topics[0] === TRANSFER_EVENT_TOPIC_0)
+                        .map((log) => log.address),
+                ),
+            ];
+            await getParseSaveTokensAsync(connection, producer, web3Source, tokensFromTransfers);
+        }
+        return true;
+    }
+    return false;
 }
 
 export class BlockEventsScraper {
