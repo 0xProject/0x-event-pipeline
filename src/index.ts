@@ -150,7 +150,6 @@ async function schedule(
         const end = new Date().getTime();
         const duration = end - start;
         
-        // Success! Reset error counter
         if (consecutiveErrors > 0) {
             logger.info(`${funcName} recovered after ${consecutiveErrors} consecutive errors`);
         }
