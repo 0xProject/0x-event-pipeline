@@ -164,10 +164,14 @@ async function schedule(
         setTimeout(() => {
             schedule(connection, producer, func, funcName, 0);
         }, wait);
-    } catch (error) {
+
+    } catch (err: any) {
         consecutiveErrors++;
-        logger.error(`Error in ${funcName} (consecutive error #${consecutiveErrors}):`, error);
         
+        const errorMessage = err?.message || err?.toString() || 'Unknown error';
+
+        logger.error(`Error in ${funcName} (consecutive error #${consecutiveErrors}): ${errorMessage}`);
+
         const MAX_CONSECUTIVE_ERRORS = 3;
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
             logger.fatal(`${funcName} failed ${MAX_CONSECUTIVE_ERRORS} times consecutively. Stopping.`);
