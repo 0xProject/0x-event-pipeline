@@ -16,4 +16,6 @@ export class TokenMetadata {
     public name!: string | null;
     @Column({ name: 'decimals', type: 'int', transformer: numberToBigIntTransformer })
     public decimals!: BigNumber | null;
+    @Column({ name: 'permit_2612', type: 'boolean'})
+    public permit2612!: boolean;
 }
