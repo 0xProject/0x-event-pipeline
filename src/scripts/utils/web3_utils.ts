@@ -524,12 +524,31 @@ export async function getParseSaveTokensAsync(
             }
             return tokenDecimals;
         });
+
+        function _checkPermitSupport(bytecode: String): boolean {
+            // Check for Permit support (ERC-2612)
+            return bytecode.includes('7ecebe00') // nonces(address owner)
+                && bytecode.includes('3644e515') // DOMAIN_SEPARATOR()
+                && bytecode.includes('d505accf') // permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)
+        }
+
+        const erc721PermitSupport = await Promise.all(erc721Tokens.map(async (token) => {
+            return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
+        }));
+        const erc1155PermitSupport = await Promise.all(erc721Tokens.map(async (token) => {
+            return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
+        }));
+        const erc20PermitSupport = await Promise.all(erc20Tokens.map(async (token) => {
+            return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
+        }));
+
         const erc721TokenMetadata = erc721Tokens.map((address, index) => {
             return {
                 address: address!.toLowerCase(),
                 type: 'ERC721',
                 name: erc721Names[index],
                 symbol: erc721Symbols[index],
+                permit2612: erc721PermitSupport[index],
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
@@ -539,6 +558,7 @@ export async function getParseSaveTokensAsync(
                 type: 'ERC1155',
                 name: erc1155Names[index],
                 symbol: erc1155Symbols[index],
+                permit2612: erc1155PermitSupport[index],
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
@@ -549,6 +569,7 @@ export async function getParseSaveTokensAsync(
                 name: erc20Names[index],
                 symbol: erc20Symbols[index],
                 decimals: erc20Decimals[index],
+                permit2612: erc20PermitSupport[index],
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
@@ -580,7 +601,7 @@ async function _keepERC1155Async(web3Source: Web3Source, tokenAddresses: string[
     return _erc165Filter(web3Source, tokenAddresses, ERC165_ERC1155_INTERFACE);
 }
 
-async function _erc165Filter(web3Source: Web3Source, tokenAddresses: string[], erc165_interface: string) {
+async function _erc165Filter(web3Source: Web3Source, tokenAddresses: string[], erc165_interface: string): Promise<string[]> {
     const checks = tokenAddresses.map((token) => {
         return {
             to: token,
@@ -590,13 +611,7 @@ async function _erc165Filter(web3Source: Web3Source, tokenAddresses: string[], e
     const responses = await web3Source.callContractMethodsNullRevertAsync(checks);
 
     const keptTokens = tokenAddresses
-        .map((token, i) => {
-            if (responses[i] === '0x0000000000000000000000000000000000000000000000000000000000000001') {
-                return token;
-            }
-            return null;
-        })
-        .filter((token) => token);
+        .filter((_, i) => responses[i] === '0x0000000000000000000000000000000000000000000000000000000000000001')
 
     return keptTokens;
 }
