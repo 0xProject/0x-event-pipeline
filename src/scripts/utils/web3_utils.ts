@@ -535,7 +535,7 @@ export async function getParseSaveTokensAsync(
         const erc721PermitSupport = await Promise.all(erc721Tokens.map(async (token) => {
             return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
         }));
-        const erc1155PermitSupport = await Promise.all(erc721Tokens.map(async (token) => {
+        const erc1155PermitSupport = await Promise.all(erc1155Tokens.map(async (token) => {
             return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
         }));
         const erc20PermitSupport = await Promise.all(erc20Tokens.map(async (token) => {
