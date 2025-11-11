@@ -525,21 +525,12 @@ export async function getParseSaveTokensAsync(
             return tokenDecimals;
         });
 
-        function _checkPermitSupport(bytecode: String): boolean {
-            // Check for Permit support (ERC-2612)
+        // Check for Permit support (ERC-2612)
+        const erc20PermitSupport = await Promise.all(erc20Tokens.map(async (token) => {
+            const bytecode = await web3Source.getContractCodeAsync(token);
             return bytecode.includes('7ecebe00') // nonces(address owner)
                 && bytecode.includes('3644e515') // DOMAIN_SEPARATOR()
                 && bytecode.includes('d505accf') // permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s)
-        }
-
-        const erc721PermitSupport = await Promise.all(erc721Tokens.map(async (token) => {
-            return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
-        }));
-        const erc1155PermitSupport = await Promise.all(erc1155Tokens.map(async (token) => {
-            return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
-        }));
-        const erc20PermitSupport = await Promise.all(erc20Tokens.map(async (token) => {
-            return _checkPermitSupport(await web3Source.getContractCodeAsync(token));
         }));
 
         const erc721TokenMetadata = erc721Tokens.map((address, index) => {
@@ -548,7 +539,7 @@ export async function getParseSaveTokensAsync(
                 type: 'ERC721',
                 name: erc721Names[index],
                 symbol: erc721Symbols[index],
-                permit2612: erc721PermitSupport[index],
+                permit2612: null,
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
@@ -558,7 +549,7 @@ export async function getParseSaveTokensAsync(
                 type: 'ERC1155',
                 name: erc1155Names[index],
                 symbol: erc1155Symbols[index],
-                permit2612: erc1155PermitSupport[index],
+                permit2612: null,
                 observedTimestamp: new Date().getTime(),
             } as TokenMetadata;
         });
