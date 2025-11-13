@@ -70,6 +70,34 @@ services:
         networks:
             - zeroex_local_dev
 
+    token-scraper-ethereum:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: no
+        platform: linux/amd64
+        environment:
+            EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
+            CHAIN_ID: '1'
+            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
+            SCHEMA: 'events'
+            LOG_LEVEL: "info"
+            SCRAPER_MODE: 'TOKENS'
+            BLOCK_RECEIPTS_MODE: "standard"
+            # EP_DEPLOYMENT_BLOCK: 10247094
+            SETTLER_DEPLOYMENT_BLOCK: 23770870
+            MAX_BLOCKS_TO_SEARCH: 100
+            MAX_BLOCKS_TO_PULL: 100
+            MAX_TX_TO_PULL: 1000
+            BLOCK_FINALITY_THRESHOLD: 0
+            SECONDS_BETWEEN_RUNS: 1
+            RESCRAPE_BLOCKS: 0
+            FEAT_TOKENS_FROM_TRANSFERS: "true"
+            TOKENS_FROM_TRANSFERS_START_BLOCK: 23770870
+            FEAT_ZEROEX_EXCHANGE_PROXY: "false"
+        networks:
+            - zeroex_local_dev
+
     event-pipeline-bsc:
         build:
             context: .
@@ -571,34 +599,6 @@ services:
             SOCKET_BRIDGE_EVENT_START_BLOCK: 6124420
         networks:
             - zeroex_local_dev
-
-    token-scraper-ethereum:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: no
-        platform: linux/amd64
-        environment:
-            EVM_RPC_URL: '${RPC_URL_ETHEREUM}'
-            CHAIN_ID: '1'
-            POSTGRES_URI: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}'
-            SCHEMA: 'events'
-            #KAFKA_BROKERS: '${KAFKA_BROKERS}'
-            #KAFKA_SSL: '${KAFKA_SSL}'
-            #KAFKA_AUTH_USER: '${KAFKA_AUTH_USER}'
-            #KAFKA_AUTH_PASSWORD: '${KAFKA_AUTH_PASSWORD}'
-            LOG_LEVEL: "info"
-            FEAT_EXCLUSIVE_TOKENS_FROM_TRANSACTIONS: "true"
-            TOKENS_FROM_TRANSACTIONS_START_BLOCK: 9193266
-            FEAT_ZEROEX_EXCHANGE_PROXY: "true"
-            EP_DEPLOYMENT_BLOCK: 10247094
-            MAX_BLOCKS_TO_SEARCH: 1000
-            MAX_BLOCKS_TO_PULL: 1000
-            MAX_TX_TO_PULL: 1000
-            SECONDS_BETWEEN_RUNS: 5
-        networks:
-            - zeroex_local_dev
-
 
     event-pipeline-plasma:
         build:

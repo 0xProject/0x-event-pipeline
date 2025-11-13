@@ -245,6 +245,10 @@ export class Web3Source {
         return contractMethodValues;
     }
 
+    public async getContractCodeAsync(tokenAddress: string): Promise<string> {
+        return await this._web3.eth.getCode(tokenAddress);
+    }
+
     public async getBlockInfoForRangeAsync(
         startBlock: number,
         endBlock: number,
